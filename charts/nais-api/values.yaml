@@ -61,8 +61,6 @@ slack:
   feedbackChannel: "console-user-feedback"
   token: "" # Config in fasit
 
-staticServiceAccounts: "" # mapped in fasit
-
 replaceEnvironmentNames: null # mapped in fasit
 
 usersync:
@@ -89,6 +87,7 @@ zitadel:
   idpID:
   key:
   organizationID:
+  naisOrganizationID: "" # Enables nais.io user sync and Console login when configured
 
 aiven:
   projects: ""

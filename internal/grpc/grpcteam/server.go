@@ -52,6 +52,35 @@ func (t *Server) Get(ctx context.Context, req *protoapi.GetTeamRequest) (*protoa
 	}, nil
 }
 
+func (t *Server) Create(ctx context.Context, req *protoapi.CreateTeamRequest) (*protoapi.CreateTeamResponse, error) {
+	if req.Slug == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "slug is required")
+	}
+	if req.Slug != "nais-verification" {
+		return nil, status.Errorf(codes.InvalidArgument, "only the nais-verification team may be created through this endpoint")
+	}
+
+	teamSlug := slug.Slug(req.Slug)
+	if existing, err := t.querier.Get(ctx, teamSlug); err == nil {
+		return &protoapi.CreateTeamResponse{Team: toProtoTeam(existing)}, nil
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, status.Errorf(codes.Internal, "failed to look up team: %s", err)
+	}
+
+	team, err := t.querier.Create(ctx, grpcteamsql.CreateParams{
+		Slug:         teamSlug,
+		Purpose:      req.Purpose,
+		SlackChannel: req.SlackChannel,
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to create team: %s", err)
+	}
+
+	return &protoapi.CreateTeamResponse{
+		Team: toProtoTeam(team),
+	}, nil
+}
+
 func (t *Server) List(ctx context.Context, req *protoapi.ListTeamsRequest) (*protoapi.ListTeamsResponse, error) {
 	limit, offset := grpcpagination.Pagination(req)
 	teams, err := t.querier.List(ctx, grpcteamsql.ListParams{

@@ -1,3 +1,11 @@
+extend type AvailableValues {
+	"""
+	PostgreSQL major versions accepted when creating a database in this environment.
+	Returns an error if the available versions cannot be determined.
+	"""
+	postgresMajorVersions: AvailableValueOptions!
+}
+
 extend type Team {
 	"Postgres databases owned by the team, including those without branches."
 	postgreses(
@@ -28,18 +36,45 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadPostgresConnection!
 }
 
 extend type Application {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadPostgresConnection!
 }
 
 extend type Job {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadPostgresConnection!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -82,11 +117,17 @@ type PostgresBranch implements Persistence & Node {
 	id: ID!
 	"Local name of this branch within its Postgres."
 	name: String!
+	"Time when this branch was created."
+	createdAt: Time!
+	"Earliest time the branch can currently be restored from its archived backups."
+	earliestRestoreTime: Time
+	"Configured PostgreSQL settings for this branch. Null until configuration is available."
+	configuration: PostgresConfiguration
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
 	postgres: Postgres!
-	"Workloads using this branch while it is active."
+	"Workloads explicitly using this branch, or following it while it is active."
 	workloads(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -106,24 +147,53 @@ type PostgresBranch implements Persistence & Node {
 	labels: [ResourceLabel!]!
 }
 
+"Configured PostgreSQL settings for a branch."
+type PostgresConfiguration {
+	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit default values are not included."
+	parameters: [PostgresParameter!]!
+}
+
+"An explicitly configured PostgreSQL parameter."
+type PostgresParameter {
+	"PostgreSQL parameter name, including any extension prefix."
+	name: String!
+	"Unmodified configured value, including units when specified."
+	value: String!
+}
+
 "A Postgres whose active branch can change."
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team owning this Postgres."
+	team: Team!
 	"Team environment containing this Postgres."
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
+	"Names of PostgreSQL extensions configured for this Postgres."
+	extensions: [String!]!
 	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	"Branch requested for activation; may differ from the active branch while activation is in progress."
 	desiredActiveBranch: String
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
+	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
+	workloads(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): PostgresWorkloadConnection!
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
 	"Branches belonging to this Postgres."
@@ -136,6 +206,72 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A workload referencing a Postgres and the branch it uses."
+type PostgresWorkload {
+	"The application or job referencing this Postgres."
+	workload: Workload!
+	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
+	branch: PostgresBranch!
+}
+
+"A Postgres reference from a workload's uses.postgres configuration."
+type WorkloadPostgres {
+	"Prefix prepended to the environment variables for this Postgres."
+	envPrefix: String
+	"Database privileges granted to the workload. Defaults to admin."
+	role: PostgresUserRole!
+	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
+	branch: PostgresBranch!
+	"The Postgres resource referenced by this use."
+	postgres: Postgres!
+}
+
+"Database privileges requested by a Postgres workload use."
+enum PostgresUserRole {
+	"Admin access, including a separate readwrite credential for ordinary application traffic."
+	ADMIN
+	"Read-only database access."
+	READ
+	"Read and write database access."
+	READWRITE
+}
+
+"A paginated list of Postgres uses configured by a workload."
+type WorkloadPostgresConnection {
+	"Pagination information, including the total number of Postgres uses before pagination."
+	pageInfo: PageInfo!
+	"Postgres uses on this page."
+	nodes: [WorkloadPostgres!]!
+	"Postgres uses with their pagination cursors."
+	edges: [WorkloadPostgresEdge!]!
+}
+
+"A Postgres use and its pagination cursor."
+type WorkloadPostgresEdge {
+	"Cursor for this Postgres use in the connection."
+	cursor: Cursor!
+	"The Postgres use and the branch it resolves to."
+	node: WorkloadPostgres!
+}
+
+"A paginated list of workload and branch relationships. Each workload is included once."
+type PostgresWorkloadConnection {
+	"Pagination information, including the total number of workloads before pagination."
+	pageInfo: PageInfo!
+	"Workload and branch relationships on this page."
+	nodes: [PostgresWorkload!]!
+	"Workload and branch relationships with their pagination cursors."
+	edges: [PostgresWorkloadEdge!]!
+}
+
+"A workload and branch relationship with its pagination cursor."
+type PostgresWorkloadEdge {
+	"Cursor for this workload in the connection."
+	cursor: Cursor!
+	"The workload and the branch it uses."
+	node: PostgresWorkload!
 }
 
 "A paginated list of Postgres databases."
@@ -168,7 +304,7 @@ type PostgresResources {
 	diskSize: String
 }
 
-"Reconciliation and observed health of a PostgresBranch."
+"Provisioning state and observed health of a PostgresBranch."
 enum PostgresBranchState {
 	"The branch is healthy and ready."
 	AVAILABLE
@@ -220,10 +356,11 @@ type PostgresBranchStateFacetItem {
 	count: Int!
 }
 
-extend union SearchNode = PostgresBranch
+extend union SearchNode = Postgres
 
 extend enum SearchType {
-	POSTGRES_BRANCH
+	"Search for Postgres databases by name."
+	POSTGRES
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -270,7 +407,7 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
-"An audit-log entry for personal Postgres access created through the API broker."
+"An audit-log entry for personal Postgres access creation."
 type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -505,7 +642,7 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
-	A personal Postgres access was created through the API broker
+	A personal Postgres access was created
 	"""
 	POSTGRES_PERSONAL_ACCESS_CREATED
 	"""
@@ -529,7 +666,7 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	EXPERIMENTAL: DO NOT USE
-	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
+	Create time-limited personal access to a Postgres branch.
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
@@ -605,7 +742,7 @@ type CreatePostgresBranchPayload {
 	postgresBranch: PostgresBranch!
 }
 
-"Request a branch for normal workloads; pgrator activates it once its cluster is ready."
+"Request a branch for normal workloads. It becomes active once its database is ready."
 input ActivatePostgresBranchInput {
 	"Name of the owning Postgres."
 	postgres: String!
@@ -617,7 +754,7 @@ input ActivatePostgresBranchInput {
 	teamSlug: Slug!
 }
 
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
@@ -684,7 +821,7 @@ type PostgresAccess implements Node {
 	state: PostgresAccessState!
 	"Human-readable message for the current state."
 	message: String
-	"Name of the controller-owned relay mapping, once created. Contains no credential."
+	"Connection routing identifier, once available. Contains no credential."
 	relayAccess: String
 	"""
 	EXPERIMENTAL: DO NOT USE
@@ -693,13 +830,13 @@ type PostgresAccess implements Node {
 	connection: PostgresAccessConnectionDetails
 }
 
-"High-level reconciliation state of a personal Postgres access."
+"Current state of a personal Postgres access."
 enum PostgresAccessState {
-	"The controller has not finished provisioning the access."
+	"The access is being prepared."
 	PENDING
 	"The access and its connection materials are ready."
 	READY
-	"The controller cannot provision the requested access."
+	"The requested access could not be prepared."
 	FAILED
 	"The server-controlled expiry time has passed."
 	EXPIRED
@@ -731,7 +868,7 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
@@ -741,6 +878,8 @@ input CreatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
 	diskSize: String
+	"Initial user-defined labels to apply."
+	labels: [ResourceLabelInput!]
 }
 
 "Result of creating a Postgres."
@@ -765,6 +904,8 @@ input UpdatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'."
 	diskSize: String
+	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
+	labels: [ResourceLabelInput!]
 }
 
 "Result of updating a Postgres."

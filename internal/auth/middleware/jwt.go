@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/lestrrat-go/httprc/v3"
@@ -20,13 +21,13 @@ import (
 const acceptableClockSkew = 3 * time.Second
 
 type jwtAuth struct {
-	issuer       string
-	audience     string
-	zitadelOrgID string
-	jwksURL      string
-	jwksCache    *jwk.Cache
-	log          logrus.FieldLogger
-	now          clock
+	issuer        string
+	audience      string
+	zitadelOrgIDs []string
+	jwksURL       string
+	jwksCache     *jwk.Cache
+	log           logrus.FieldLogger
+	now           clock
 }
 
 type clock func() time.Time
@@ -36,6 +37,11 @@ func (c clock) Now() time.Time {
 }
 
 func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error) {
+	// Skip other issuers so their signature failures don't trigger unnecessary JWKS refreshes.
+	if iss, ok := getJWTIssuer(token); !ok || iss != j.issuer {
+		return nil, jwt.InvalidIssuerError()
+	}
+
 	jwks, err := j.jwksCache.Lookup(ctx, j.jwksURL)
 	if err != nil {
 		return nil, fmt.Errorf("provider: fetching jwks: %w", err)
@@ -64,7 +70,16 @@ func (j *jwtAuth) validate(ctx context.Context, token string) (jwt.Token, error)
 		jwt.WithAcceptableSkew(acceptableClockSkew),
 		jwt.WithIssuer(j.issuer),
 		jwt.WithAudience(j.audience),
-		jwt.WithClaimValue("urn:zitadel:iam:user:resourceowner:id", j.zitadelOrgID),
+		jwt.WithValidator(jwt.ValidatorFunc(func(_ context.Context, token jwt.Token) error {
+			var orgID string
+			if err := token.Get("urn:zitadel:iam:user:resourceowner:id", &orgID); err != nil {
+				return fmt.Errorf("get token organization: %w", err)
+			}
+			if orgID == "" || !slices.Contains(j.zitadelOrgIDs, orgID) {
+				return errors.New("token organization is not allowed")
+			}
+			return nil
+		})),
 		jwt.WithClock(j.now),
 	)
 }
@@ -111,15 +126,20 @@ func (j *jwtAuth) handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func JWTAuthentication(ctx context.Context, issuer, audience, zitadelOrgID string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
+func JWTAuthentication(ctx context.Context, issuer, audience string, zitadelOrgIDs []string, log logrus.FieldLogger) (func(next http.Handler) http.Handler, error) {
 	if issuer == "" {
 		return nil, errors.New("issuer is required")
 	}
 	if audience == "" {
 		return nil, errors.New("audience is required")
 	}
-	if zitadelOrgID == "" {
-		return nil, errors.New("zitadelOrgID is required")
+	if len(zitadelOrgIDs) == 0 {
+		return nil, errors.New("at least one zitadel organization ID is required")
+	}
+	for _, orgID := range zitadelOrgIDs {
+		if orgID == "" {
+			return nil, errors.New("zitadel organization ID cannot be empty")
+		}
 	}
 
 	client, err := client.Discover(ctx, issuer, http.DefaultClient)
@@ -138,13 +158,13 @@ func JWTAuthentication(ctx context.Context, issuer, audience, zitadelOrgID strin
 	}
 
 	auth := jwtAuth{
-		jwksURL:      client.JwksURI,
-		jwksCache:    cache,
-		issuer:       issuer,
-		audience:     audience,
-		zitadelOrgID: zitadelOrgID,
-		log:          log,
-		now:          time.Now,
+		jwksURL:       client.JwksURI,
+		jwksCache:     cache,
+		issuer:        issuer,
+		audience:      audience,
+		zitadelOrgIDs: zitadelOrgIDs,
+		log:           log,
+		now:           time.Now,
 	}
 
 	return auth.handler, nil

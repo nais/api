@@ -4,17 +4,20 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/validate"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 func TestToPostgresBranch(t *testing.T) {
+	createdAt := time.Date(2025, time.December, 31, 12, 0, 0, 0, time.UTC)
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team"},
+		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team", "creationTimestamp": createdAt.Format(time.RFC3339)},
 		"spec":     map[string]any{"postgres": "orders", "branchName": "restored"},
 		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
 	}}
@@ -25,11 +28,11 @@ func TestToPostgresBranch(t *testing.T) {
 	if got.Name != "restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
 		t.Errorf("unexpected PostgresBranch: %+v", got)
 	}
+	if !got.CreatedAt.Equal(createdAt) {
+		t.Errorf("createdAt = %v, want %v", got.CreatedAt, createdAt)
+	}
 	if got.GetName() != obj.GetName() {
 		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
-	}
-	if got.SearchName() != "orders/restored" {
-		t.Errorf("search name = %q, want orders/restored", got.SearchName())
 	}
 	if got.ID().Type != "PBR" {
 		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
@@ -70,7 +73,7 @@ func TestToPostgres(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "Postgres",
 		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
-		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
+		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "extensions": []any{map[string]any{"name": "pg_trgm"}, map[string]any{"name": "uuid-ossp"}}, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
 		"status":   map[string]any{"activeBranch": "restored"},
 	}}
 	got, err := toPostgres(obj, "dev")
@@ -80,8 +83,83 @@ func TestToPostgres(t *testing.T) {
 	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
+	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {
+		t.Errorf("extensions = %v, want [pg_trgm uuid-ossp]", got.Extensions)
+	}
 	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
 		t.Errorf("unexpected Postgres resources: %+v", got.Resources)
+	}
+}
+
+func TestToPostgresWithoutExtensions(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+		"spec":     map[string]any{"majorVersion": "17"},
+	}}
+	got, err := toPostgres(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Extensions == nil || len(got.Extensions) != 0 {
+		t.Errorf("extensions = %v, want an empty list", got.Extensions)
+	}
+}
+
+func TestToPostgresPreservesExtensionNames(t *testing.T) {
+	names := []string{"pgaudit", "uuid-ossp", "postgis", "timescaledb", "future_extension"}
+	extensions := make([]any, 0, len(names))
+	for _, name := range names {
+		extensions = append(extensions, map[string]any{"name": name})
+	}
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+		"spec":     map[string]any{"majorVersion": "18", "extensions": extensions},
+	}}
+	got, err := toPostgres(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got.Extensions, names) {
+		t.Errorf("extensions = %v, want %v", got.Extensions, names)
+	}
+}
+
+func TestValidateQuantities(t *testing.T) {
+	tests := []struct {
+		name    string
+		cpu     string
+		memory  string
+		disk    string
+		wantErr bool
+	}{
+		{name: "inclusive limits", cpu: "8000m", memory: "32768Mi", disk: "1000Gi"},
+		{name: "cpu above maximum", cpu: "8.001", wantErr: true},
+		{name: "memory above maximum", memory: "33Gi", wantErr: true},
+		{name: "disk below minimum", disk: "9Gi", wantErr: true},
+		{name: "disk above maximum", disk: "1001Gi", wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			verr := validate.New()
+			cpu, memory, disk := tt.cpu, tt.memory, tt.disk
+			var cpuValue, memoryValue, diskValue *string
+			if cpu != "" {
+				cpuValue = &cpu
+			}
+			if memory != "" {
+				memoryValue = &memory
+			}
+			if disk != "" {
+				diskValue = &disk
+			}
+			validateQuantities(verr, cpuValue, memoryValue, diskValue)
+			err := verr.NilIfEmpty()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("validation error = %v, want error %t", err, tt.wantErr)
+			}
+		})
 	}
 }
 
@@ -93,6 +171,9 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		want       PostgresBranchState
 	}{
 		{name: "not reconciled", want: PostgresBranchStateProgressing},
+		{name: "unrecoverable recovery failure", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionTrue, Reason: "Unrecoverable"}}, want: PostgresBranchStateDegraded},
+		{name: "recovery failure not terminal", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionFalse, Reason: "Recovering"}}, want: PostgresBranchStateProgressing},
+		{name: "ready false without recovery failure", reconciled: true, conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionFalse, Reason: "RecoveryFailed"}}, want: PostgresBranchStateProgressing},
 		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresBranchStateAvailable},
 		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresBranchStateProgressing},
 		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresBranchStateDegraded},

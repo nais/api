@@ -20,6 +20,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -64,6 +65,7 @@ type ResolverRoot interface {
 	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
+	AvailableValues() AvailableValuesResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
 	Bucket() BucketResolver
@@ -82,7 +84,6 @@ type ResolverRoot interface {
 	DeprecatedIngressIssue() DeprecatedIngressIssueResolver
 	DeprecatedRegistryIssue() DeprecatedRegistryIssueResolver
 	Environment() EnvironmentResolver
-	ExternalIngressCriticalVulnerabilityIssue() ExternalIngressCriticalVulnerabilityIssueResolver
 	ExternalIngressUrgentVulnerabilityIssue() ExternalIngressUrgentVulnerabilityIssueResolver
 	FailedSynchronizationIssue() FailedSynchronizationIssueResolver
 	Ingress() IngressResolver
@@ -110,6 +111,7 @@ type ResolverRoot interface {
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
 	PostgresConnection() PostgresConnectionResolver
+	PostgresWorkload() PostgresWorkloadResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -253,6 +255,7 @@ type ComplexityRoot struct {
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
 		History                   func(childComplexity int) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
@@ -268,7 +271,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		Postgreses                func(childComplexity int) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Resources                 func(childComplexity int) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
 		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -449,6 +452,17 @@ type ComplexityRoot struct {
 
 	AuditLog struct {
 		LogURL func(childComplexity int) int
+	}
+
+	AvailableValueOptions struct {
+		DefaultValues func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Values        func(childComplexity int) int
+	}
+
+	AvailableValues struct {
+		ID                    func(childComplexity int) int
+		PostgresMajorVersions func(childComplexity int) int
 	}
 
 	BigQueryDataset struct {
@@ -952,11 +966,12 @@ type ComplexityRoot struct {
 	}
 
 	Environment struct {
-		ID            func(childComplexity int) int
-		Metrics       func(childComplexity int, input metrics.MetricsQueryInput) int
-		Name          func(childComplexity int) int
-		OIDCIssuerURL func(childComplexity int) int
-		Workloads     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
+		AvailableValues func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Metrics         func(childComplexity int, input metrics.MetricsQueryInput) int
+		Name            func(childComplexity int) int
+		OIDCIssuerURL   func(childComplexity int) int
+		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
 
 	EnvironmentConnection struct {
@@ -968,16 +983,6 @@ type ComplexityRoot struct {
 	EnvironmentEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
-	}
-
-	ExternalIngressCriticalVulnerabilityIssue struct {
-		CvssScore       func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Ingresses       func(childComplexity int) int
-		Message         func(childComplexity int) int
-		Severity        func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-		Workload        func(childComplexity int) int
 	}
 
 	ExternalIngressUrgentVulnerabilityIssue struct {
@@ -1254,6 +1259,7 @@ type ComplexityRoot struct {
 		Cost                      func(childComplexity int) int
 		DeletionStartedAt         func(childComplexity int) int
 		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
 		ID                        func(childComplexity int) int
 		Image                     func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
@@ -1265,7 +1271,7 @@ type ComplexityRoot struct {
 		Name                      func(childComplexity int) int
 		NetworkPolicy             func(childComplexity int) int
 		OpenSearch                func(childComplexity int) int
-		Postgreses                func(childComplexity int) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Resources                 func(childComplexity int) int
 		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
@@ -1923,13 +1929,16 @@ type ComplexityRoot struct {
 		Branch              func(childComplexity int, name string) int
 		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
 		DesiredActiveBranch func(childComplexity int) int
+		Extensions          func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Labels              func(childComplexity int) int
 		MajorVersion        func(childComplexity int) int
 		Name                func(childComplexity int) int
 		Resources           func(childComplexity int) int
+		Team                func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
+		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	PostgresAccess struct {
@@ -1957,14 +1966,17 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
-		ID              func(childComplexity int) int
-		Labels          func(childComplexity int) int
-		Name            func(childComplexity int) int
-		Postgres        func(childComplexity int) int
-		State           func(childComplexity int) int
-		Team            func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Configuration       func(childComplexity int) int
+		CreatedAt           func(childComplexity int) int
+		EarliestRestoreTime func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		Labels              func(childComplexity int) int
+		Name                func(childComplexity int) int
+		Postgres            func(childComplexity int) int
+		State               func(childComplexity int) int
+		Team                func(childComplexity int) int
+		TeamEnvironment     func(childComplexity int) int
+		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	PostgresBranchActivatedActivityLogEntry struct {
@@ -2035,6 +2047,10 @@ type ComplexityRoot struct {
 		State func(childComplexity int) int
 	}
 
+	PostgresConfiguration struct {
+		Parameters func(childComplexity int) int
+	}
+
 	PostgresConnection struct {
 		Edges    func(childComplexity int) int
 		Facets   func(childComplexity int) int
@@ -2091,6 +2107,11 @@ type ComplexityRoot struct {
 	PostgresGrantAccessActivityLogEntryData struct {
 		Grantee func(childComplexity int) int
 		Until   func(childComplexity int) int
+	}
+
+	PostgresParameter struct {
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	PostgresPersonalAccessConnectionActivityLogEntry struct {
@@ -2152,6 +2173,22 @@ type ComplexityRoot struct {
 		Field    func(childComplexity int) int
 		NewValue func(childComplexity int) int
 		OldValue func(childComplexity int) int
+	}
+
+	PostgresWorkload struct {
+		Branch   func(childComplexity int) int
+		Workload func(childComplexity int) int
+	}
+
+	PostgresWorkloadConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	PostgresWorkloadEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	Price struct {
@@ -4021,10 +4058,47 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	WorkloadEventConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WorkloadEventEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	WorkloadKillingEvent struct {
+		Container   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Message     func(childComplexity int) int
+		Reason      func(childComplexity int) int
+		TriggeredAt func(childComplexity int) int
+	}
+
 	WorkloadLogLine struct {
 		Instance func(childComplexity int) int
 		Message  func(childComplexity int) int
 		Time     func(childComplexity int) int
+	}
+
+	WorkloadPostgres struct {
+		Branch    func(childComplexity int) int
+		EnvPrefix func(childComplexity int) int
+		Postgres  func(childComplexity int) int
+		Role      func(childComplexity int) int
+	}
+
+	WorkloadPostgresConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WorkloadPostgresEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	WorkloadProblemIssue struct {
@@ -4041,6 +4115,14 @@ type ComplexityRoot struct {
 	WorkloadResourceQuantity struct {
 		CPU    func(childComplexity int) int
 		Memory func(childComplexity int) int
+	}
+
+	WorkloadSuccessfulRescaleEvent struct {
+		Direction   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Message     func(childComplexity int) int
+		NewSize     func(childComplexity int) int
+		TriggeredAt func(childComplexity int) int
 	}
 
 	WorkloadUtilization struct {
@@ -4413,6 +4495,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Application.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "Application.events":
+		if e.ComplexityRoot.Application.Events == nil {
+			break
+		}
+
+		args, err := ec.field_Application_events_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.Events(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*event.WorkloadEventFilter)), true
+
 	case "Application.history":
 		if e.ComplexityRoot.Application.History == nil {
 			break
@@ -4543,7 +4637,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		return e.ComplexityRoot.Application.Postgreses(childComplexity), true
+		args, err := ec.field_Application_postgreses_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Application.resources":
 		if e.ComplexityRoot.Application.Resources == nil {
@@ -5346,6 +5445,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.AuditLog.LogURL(childComplexity), true
+
+	case "AvailableValueOptions.defaultValues":
+		if e.ComplexityRoot.AvailableValueOptions.DefaultValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.DefaultValues(childComplexity), true
+
+	case "AvailableValueOptions.id":
+		if e.ComplexityRoot.AvailableValueOptions.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.ID(childComplexity), true
+
+	case "AvailableValueOptions.values":
+		if e.ComplexityRoot.AvailableValueOptions.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.Values(childComplexity), true
+
+	case "AvailableValues.id":
+		if e.ComplexityRoot.AvailableValues.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.ID(childComplexity), true
+
+	case "AvailableValues.postgresMajorVersions":
+		if e.ComplexityRoot.AvailableValues.PostgresMajorVersions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.PostgresMajorVersions(childComplexity), true
 
 	case "BigQueryDataset.access":
 		if e.ComplexityRoot.BigQueryDataset.Access == nil {
@@ -7180,6 +7314,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.EntraIDAuthIntegration.Name(childComplexity), true
 
+	case "Environment.availableValues":
+		if e.ComplexityRoot.Environment.AvailableValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Environment.AvailableValues(childComplexity), true
+
 	case "Environment.id":
 		if e.ComplexityRoot.Environment.ID == nil {
 			break
@@ -7259,55 +7400,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.EnvironmentEdge.Node(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.cvssScore":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.CvssScore(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.id":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.ID(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.ingresses":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Ingresses == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Ingresses(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.message":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Message(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.severity":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Severity == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Severity(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.teamEnvironment":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.TeamEnvironment(childComplexity), true
-
-	case "ExternalIngressCriticalVulnerabilityIssue.workload":
-		if e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ExternalIngressCriticalVulnerabilityIssue.Workload(childComplexity), true
 
 	case "ExternalIngressUrgentVulnerabilityIssue.id":
 		if e.ComplexityRoot.ExternalIngressUrgentVulnerabilityIssue.ID == nil {
@@ -8510,6 +8602,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.Deployments(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
+	case "Job.events":
+		if e.ComplexityRoot.Job.Events == nil {
+			break
+		}
+
+		args, err := ec.field_Job_events_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.Events(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*event.WorkloadEventFilter)), true
+
 	case "Job.id":
 		if e.ComplexityRoot.Job.ID == nil {
 			break
@@ -8607,7 +8711,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		return e.ComplexityRoot.Job.Postgreses(childComplexity), true
+		args, err := ec.field_Job_postgreses_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.Postgreses(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Job.resources":
 		if e.ComplexityRoot.Job.Resources == nil {
@@ -11932,6 +12041,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
 
+	case "Postgres.extensions":
+		if e.ComplexityRoot.Postgres.Extensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Extensions(childComplexity), true
+
 	case "Postgres.highAvailability":
 		if e.ComplexityRoot.Postgres.HighAvailability == nil {
 			break
@@ -11974,12 +12090,31 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
 
+	case "Postgres.team":
+		if e.ComplexityRoot.Postgres.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Team(childComplexity), true
+
 	case "Postgres.teamEnvironment":
 		if e.ComplexityRoot.Postgres.TeamEnvironment == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Postgres.TeamEnvironment(childComplexity), true
+
+	case "Postgres.workloads":
+		if e.ComplexityRoot.Postgres.Workloads == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_workloads_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "PostgresAccess.accessLevel":
 		if e.ComplexityRoot.PostgresAccess.AccessLevel == nil {
@@ -12106,6 +12241,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
+
+	case "PostgresBranch.configuration":
+		if e.ComplexityRoot.PostgresBranch.Configuration == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Configuration(childComplexity), true
+
+	case "PostgresBranch.createdAt":
+		if e.ComplexityRoot.PostgresBranch.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.CreatedAt(childComplexity), true
+
+	case "PostgresBranch.earliestRestoreTime":
+		if e.ComplexityRoot.PostgresBranch.EarliestRestoreTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.EarliestRestoreTime(childComplexity), true
 
 	case "PostgresBranch.id":
 		if e.ComplexityRoot.PostgresBranch.ID == nil {
@@ -12476,6 +12632,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
 
+	case "PostgresConfiguration.parameters":
+		if e.ComplexityRoot.PostgresConfiguration.Parameters == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConfiguration.Parameters(childComplexity), true
+
 	case "PostgresConnection.edges":
 		if e.ComplexityRoot.PostgresConnection.Edges == nil {
 			break
@@ -12734,6 +12897,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
+
+	case "PostgresParameter.name":
+		if e.ComplexityRoot.PostgresParameter.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresParameter.Name(childComplexity), true
+
+	case "PostgresParameter.value":
+		if e.ComplexityRoot.PostgresParameter.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresParameter.Value(childComplexity), true
 
 	case "PostgresPersonalAccessConnectionActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor == nil {
@@ -13014,6 +13191,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
+	case "PostgresWorkload.branch":
+		if e.ComplexityRoot.PostgresWorkload.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkload.Branch(childComplexity), true
+
+	case "PostgresWorkload.workload":
+		if e.ComplexityRoot.PostgresWorkload.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkload.Workload(childComplexity), true
+
+	case "PostgresWorkloadConnection.edges":
+		if e.ComplexityRoot.PostgresWorkloadConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadConnection.Edges(childComplexity), true
+
+	case "PostgresWorkloadConnection.nodes":
+		if e.ComplexityRoot.PostgresWorkloadConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadConnection.Nodes(childComplexity), true
+
+	case "PostgresWorkloadConnection.pageInfo":
+		if e.ComplexityRoot.PostgresWorkloadConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadConnection.PageInfo(childComplexity), true
+
+	case "PostgresWorkloadEdge.cursor":
+		if e.ComplexityRoot.PostgresWorkloadEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadEdge.Cursor(childComplexity), true
+
+	case "PostgresWorkloadEdge.node":
+		if e.ComplexityRoot.PostgresWorkloadEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkloadEdge.Node(childComplexity), true
 
 	case "Price.value":
 		if e.ComplexityRoot.Price.Value == nil {
@@ -21337,6 +21563,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadEdge.Node(childComplexity), true
 
+	case "WorkloadEventConnection.edges":
+		if e.ComplexityRoot.WorkloadEventConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventConnection.Edges(childComplexity), true
+
+	case "WorkloadEventConnection.nodes":
+		if e.ComplexityRoot.WorkloadEventConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventConnection.Nodes(childComplexity), true
+
+	case "WorkloadEventConnection.pageInfo":
+		if e.ComplexityRoot.WorkloadEventConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventConnection.PageInfo(childComplexity), true
+
+	case "WorkloadEventEdge.cursor":
+		if e.ComplexityRoot.WorkloadEventEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventEdge.Cursor(childComplexity), true
+
+	case "WorkloadEventEdge.node":
+		if e.ComplexityRoot.WorkloadEventEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadEventEdge.Node(childComplexity), true
+
+	case "WorkloadKillingEvent.container":
+		if e.ComplexityRoot.WorkloadKillingEvent.Container == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.Container(childComplexity), true
+
+	case "WorkloadKillingEvent.id":
+		if e.ComplexityRoot.WorkloadKillingEvent.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.ID(childComplexity), true
+
+	case "WorkloadKillingEvent.message":
+		if e.ComplexityRoot.WorkloadKillingEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.Message(childComplexity), true
+
+	case "WorkloadKillingEvent.reason":
+		if e.ComplexityRoot.WorkloadKillingEvent.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.Reason(childComplexity), true
+
+	case "WorkloadKillingEvent.triggeredAt":
+		if e.ComplexityRoot.WorkloadKillingEvent.TriggeredAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadKillingEvent.TriggeredAt(childComplexity), true
+
 	case "WorkloadLogLine.instance":
 		if e.ComplexityRoot.WorkloadLogLine.Instance == nil {
 			break
@@ -21357,6 +21653,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WorkloadLogLine.Time(childComplexity), true
+
+	case "WorkloadPostgres.branch":
+		if e.ComplexityRoot.WorkloadPostgres.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgres.Branch(childComplexity), true
+
+	case "WorkloadPostgres.envPrefix":
+		if e.ComplexityRoot.WorkloadPostgres.EnvPrefix == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgres.EnvPrefix(childComplexity), true
+
+	case "WorkloadPostgres.postgres":
+		if e.ComplexityRoot.WorkloadPostgres.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgres.Postgres(childComplexity), true
+
+	case "WorkloadPostgres.role":
+		if e.ComplexityRoot.WorkloadPostgres.Role == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgres.Role(childComplexity), true
+
+	case "WorkloadPostgresConnection.edges":
+		if e.ComplexityRoot.WorkloadPostgresConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgresConnection.Edges(childComplexity), true
+
+	case "WorkloadPostgresConnection.nodes":
+		if e.ComplexityRoot.WorkloadPostgresConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgresConnection.Nodes(childComplexity), true
+
+	case "WorkloadPostgresConnection.pageInfo":
+		if e.ComplexityRoot.WorkloadPostgresConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgresConnection.PageInfo(childComplexity), true
+
+	case "WorkloadPostgresEdge.cursor":
+		if e.ComplexityRoot.WorkloadPostgresEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgresEdge.Cursor(childComplexity), true
+
+	case "WorkloadPostgresEdge.node":
+		if e.ComplexityRoot.WorkloadPostgresEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadPostgresEdge.Node(childComplexity), true
 
 	case "WorkloadProblemIssue.endOfLife":
 		if e.ComplexityRoot.WorkloadProblemIssue.EndOfLife == nil {
@@ -21427,6 +21786,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WorkloadResourceQuantity.Memory(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.direction":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Direction == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Direction(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.id":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.ID(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.message":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.Message(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.newSize":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.NewSize == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.NewSize(childComplexity), true
+
+	case "WorkloadSuccessfulRescaleEvent.triggeredAt":
+		if e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.TriggeredAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadSuccessfulRescaleEvent.TriggeredAt(childComplexity), true
 
 	case "WorkloadUtilization.current":
 		if e.ComplexityRoot.WorkloadUtilization.Current == nil {
@@ -21817,6 +22211,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
+		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
 		ec.unmarshalInputWorkloadUtilizationSeriesInput,
@@ -23786,6 +24181,43 @@ type RoleEdge {
 	cursor: Cursor!
 }
 `, BuiltIn: false},
+	{Name: "../schema/available_values.graphqls", Input: `extend type Environment {
+	"""
+	Available configuration values accepted in this environment.
+	"""
+	availableValues: AvailableValues!
+}
+
+"""
+Available configuration values for an environment, updated as platform capabilities change.
+"""
+type AvailableValues implements Node {
+	"""
+	The globally unique ID of this environment's available configuration values.
+	"""
+	id: ID!
+}
+
+"""
+Allowed string values and the default selection for a setting in an environment.
+"""
+type AvailableValueOptions implements Node {
+	"""
+	The globally unique ID of these configuration options.
+	"""
+	id: ID!
+	"""
+	The values accepted for this setting.
+	"""
+	values: [String!]!
+	"""
+	The default selection. Null when no default is declared; an empty list means
+	an explicitly empty default. Scalar settings have at most one default value;
+	settings accepting multiple values may have several.
+	"""
+	defaultValues: [String!]
+}
+`, BuiltIn: false},
 	{Name: "../schema/bigquery.graphqls", Input: `extend type Team {
 	"BigQuery datasets owned by the team."
 	bigQueryDatasets(
@@ -25741,7 +26173,7 @@ enum InstanceGroupValueSourceKind {
 	SPEC
 
 	"""
-	The value was injected by the Nais platform (naiserator), not defined by the user.
+	The value was injected by the Nais platform, not defined by the user.
 	"""
 	NAIS
 }
@@ -25977,8 +26409,6 @@ enum IssueType {
 	INVALID_SPEC @deprecated(reason: "Use WORKLOAD_PROBLEM instead.")
 	MISSING_SBOM
 	VULNERABLE_IMAGE
-	EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
-		@deprecated(reason: "Use EXTERNAL_INGRESS_URGENT_VULNERABILITY.")
 	"Raised when a workload has external ingress exposure and urgent vulnerabilities."
 	EXTERNAL_INGRESS_URGENT_VULNERABILITY
 	UNLEASH_RELEASE_CHANNEL
@@ -25995,26 +26425,6 @@ type VulnerableImageIssue implements Issue & Node {
 	workload: Workload!
 	riskScore: Int!
 	critical: Int!
-}
-
-"Deprecated: use ExternalIngressUrgentVulnerabilityIssue."
-type ExternalIngressCriticalVulnerabilityIssue implements Issue & Node {
-	"The globally unique identifier for this issue."
-	id: ID! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"The team environment where the affected workload is deployed."
-	teamEnvironment: TeamEnvironment!
-		@deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"The severity assigned to this issue."
-	severity: Severity! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"A human-readable description of the issue."
-	message: String! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-
-	"The workload with critical vulnerabilities and external ingresses."
-	workload: Workload! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"The highest CVSS score among vulnerabilities relevant to this issue."
-	cvssScore: Float! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
-	"External ingress URLs that expose the workload."
-	ingresses: [String!]! @deprecated(reason: "Use ExternalIngressUrgentVulnerabilityIssue instead.")
 }
 
 "Raised when a workload with external ingresses has one or more urgent vulnerability-priority findings."
@@ -28241,7 +28651,15 @@ type WorkloadLogLine {
 	instance: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
+	{Name: "../schema/postgres.graphqls", Input: `extend type AvailableValues {
+	"""
+	PostgreSQL major versions accepted when creating a database in this environment.
+	Returns an error if the available versions cannot be determined.
+	"""
+	postgresMajorVersions: AvailableValueOptions!
+}
+
+extend type Team {
 	"Postgres databases owned by the team, including those without branches."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -28271,18 +28689,45 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadPostgresConnection!
 }
 
 extend type Application {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadPostgresConnection!
 }
 
 extend type Job {
-	"Postgres databases referenced by uses.postgres, whether or not they have an active branch."
-	postgreses: PostgresConnection!
+	"Postgres references configured in uses.postgres, including their resolved branch."
+	postgreses(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): WorkloadPostgresConnection!
 }
 
 "Filter a team's Postgres databases by environment and user-defined labels."
@@ -28325,11 +28770,17 @@ type PostgresBranch implements Persistence & Node {
 	id: ID!
 	"Local name of this branch within its Postgres."
 	name: String!
+	"Time when this branch was created."
+	createdAt: Time!
+	"Earliest time the branch can currently be restored from its archived backups."
+	earliestRestoreTime: Time
+	"Configured PostgreSQL settings for this branch. Null until configuration is available."
+	configuration: PostgresConfiguration
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
 	postgres: Postgres!
-	"Workloads using this branch while it is active."
+	"Workloads explicitly using this branch, or following it while it is active."
 	workloads(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -28349,24 +28800,53 @@ type PostgresBranch implements Persistence & Node {
 	labels: [ResourceLabel!]!
 }
 
+"Configured PostgreSQL settings for a branch."
+type PostgresConfiguration {
+	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit default values are not included."
+	parameters: [PostgresParameter!]!
+}
+
+"An explicitly configured PostgreSQL parameter."
+type PostgresParameter {
+	"PostgreSQL parameter name, including any extension prefix."
+	name: String!
+	"Unmodified configured value, including units when specified."
+	value: String!
+}
+
 "A Postgres whose active branch can change."
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
+	"Team owning this Postgres."
+	team: Team!
 	"Team environment containing this Postgres."
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
+	"Names of PostgreSQL extensions configured for this Postgres."
+	extensions: [String!]!
 	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	"Branch requested for activation; may differ from the active branch while activation is in progress."
 	desiredActiveBranch: String
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
+	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
+	workloads(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+	): PostgresWorkloadConnection!
 	"Branch with this local name in this Postgres."
 	branch(name: String!): PostgresBranch!
 	"Branches belonging to this Postgres."
@@ -28379,6 +28859,72 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
+}
+
+"A workload referencing a Postgres and the branch it uses."
+type PostgresWorkload {
+	"The application or job referencing this Postgres."
+	workload: Workload!
+	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
+	branch: PostgresBranch!
+}
+
+"A Postgres reference from a workload's uses.postgres configuration."
+type WorkloadPostgres {
+	"Prefix prepended to the environment variables for this Postgres."
+	envPrefix: String
+	"Database privileges granted to the workload. Defaults to admin."
+	role: PostgresUserRole!
+	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
+	branch: PostgresBranch!
+	"The Postgres resource referenced by this use."
+	postgres: Postgres!
+}
+
+"Database privileges requested by a Postgres workload use."
+enum PostgresUserRole {
+	"Admin access, including a separate readwrite credential for ordinary application traffic."
+	ADMIN
+	"Read-only database access."
+	READ
+	"Read and write database access."
+	READWRITE
+}
+
+"A paginated list of Postgres uses configured by a workload."
+type WorkloadPostgresConnection {
+	"Pagination information, including the total number of Postgres uses before pagination."
+	pageInfo: PageInfo!
+	"Postgres uses on this page."
+	nodes: [WorkloadPostgres!]!
+	"Postgres uses with their pagination cursors."
+	edges: [WorkloadPostgresEdge!]!
+}
+
+"A Postgres use and its pagination cursor."
+type WorkloadPostgresEdge {
+	"Cursor for this Postgres use in the connection."
+	cursor: Cursor!
+	"The Postgres use and the branch it resolves to."
+	node: WorkloadPostgres!
+}
+
+"A paginated list of workload and branch relationships. Each workload is included once."
+type PostgresWorkloadConnection {
+	"Pagination information, including the total number of workloads before pagination."
+	pageInfo: PageInfo!
+	"Workload and branch relationships on this page."
+	nodes: [PostgresWorkload!]!
+	"Workload and branch relationships with their pagination cursors."
+	edges: [PostgresWorkloadEdge!]!
+}
+
+"A workload and branch relationship with its pagination cursor."
+type PostgresWorkloadEdge {
+	"Cursor for this workload in the connection."
+	cursor: Cursor!
+	"The workload and the branch it uses."
+	node: PostgresWorkload!
 }
 
 "A paginated list of Postgres databases."
@@ -28411,7 +28957,7 @@ type PostgresResources {
 	diskSize: String
 }
 
-"Reconciliation and observed health of a PostgresBranch."
+"Provisioning state and observed health of a PostgresBranch."
 enum PostgresBranchState {
 	"The branch is healthy and ready."
 	AVAILABLE
@@ -28463,10 +29009,11 @@ type PostgresBranchStateFacetItem {
 	count: Int!
 }
 
-extend union SearchNode = PostgresBranch
+extend union SearchNode = Postgres
 
 extend enum SearchType {
-	POSTGRES_BRANCH
+	"Search for Postgres databases by name."
+	POSTGRES
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -28513,7 +29060,7 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
-"An audit-log entry for personal Postgres access created through the API broker."
+"An audit-log entry for personal Postgres access creation."
 type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -28748,7 +29295,7 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
-	A personal Postgres access was created through the API broker
+	A personal Postgres access was created
 	"""
 	POSTGRES_PERSONAL_ACCESS_CREATED
 	"""
@@ -28772,7 +29319,7 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	EXPERIMENTAL: DO NOT USE
-	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
+	Create time-limited personal access to a Postgres branch.
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
@@ -28848,7 +29395,7 @@ type CreatePostgresBranchPayload {
 	postgresBranch: PostgresBranch!
 }
 
-"Request a branch for normal workloads; pgrator activates it once its cluster is ready."
+"Request a branch for normal workloads. It becomes active once its database is ready."
 input ActivatePostgresBranchInput {
 	"Name of the owning Postgres."
 	postgres: String!
@@ -28860,7 +29407,7 @@ input ActivatePostgresBranchInput {
 	teamSlug: Slug!
 }
 
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
@@ -28927,7 +29474,7 @@ type PostgresAccess implements Node {
 	state: PostgresAccessState!
 	"Human-readable message for the current state."
 	message: String
-	"Name of the controller-owned relay mapping, once created. Contains no credential."
+	"Connection routing identifier, once available. Contains no credential."
 	relayAccess: String
 	"""
 	EXPERIMENTAL: DO NOT USE
@@ -28936,13 +29483,13 @@ type PostgresAccess implements Node {
 	connection: PostgresAccessConnectionDetails
 }
 
-"High-level reconciliation state of a personal Postgres access."
+"Current state of a personal Postgres access."
 enum PostgresAccessState {
-	"The controller has not finished provisioning the access."
+	"The access is being prepared."
 	PENDING
 	"The access and its connection materials are ready."
 	READY
-	"The controller cannot provision the requested access."
+	"The requested access could not be prepared."
 	FAILED
 	"The server-controlled expiry time has passed."
 	EXPIRED
@@ -28974,7 +29521,7 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
@@ -28984,6 +29531,8 @@ input CreatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
 	diskSize: String
+	"Initial user-defined labels to apply."
+	labels: [ResourceLabelInput!]
 }
 
 "Result of creating a Postgres."
@@ -29008,6 +29557,8 @@ input UpdatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'."
 	diskSize: String
+	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
+	labels: [ResourceLabelInput!]
 }
 
 "Result of updating a Postgres."
@@ -32367,8 +32918,8 @@ extend type Mutation {
 	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
 	team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addTeamOwners` + "`" + ` mutation.
 
-	Creation of a team will also create external resources for the team, which will be managed by the Nais API
-	reconcilers. This will be done asynchronously.
+	Creation of a team will also create external resources for the team. These resources are managed by the platform
+	and are created asynchronously.
 
 	Refer to the [official Nais documentation](https://docs.nais.io/explanations/team/) for more information regarding
 	Nais teams.
@@ -32439,7 +32990,7 @@ The team type represents a team on the [Nais platform](https://nais.io/).
 
 Learn more about what Nais teams are and what they can be used for in the [official Nais documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [Nais API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by the platform.
 """
 type Team implements Node {
 	"The globally unique ID of the team."
@@ -33794,7 +34345,7 @@ type User implements Node {
 	name: String!
 
 	"""
-	The external ID of the user. This value is managed by the Nais API user synchronization.
+	The external ID of the user. This value is managed by the platform.
 	"""
 	externalID: String!
 
@@ -36027,6 +36578,126 @@ enum SBOMStatus {
 	FAILED
 }
 `, BuiltIn: false},
+	{Name: "../schema/workload_events.graphqls", Input: `extend interface Workload {
+	"Workload events, newest first."
+	events(
+		"Get the first n items, optionally after a cursor."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items before a cursor."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter events by time."
+		filter: WorkloadEventFilter
+	): WorkloadEventConnection!
+}
+
+extend type Application {
+	"Application events, newest first."
+	events(
+		"Get the first n items, optionally after a cursor."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items before a cursor."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter events by time."
+		filter: WorkloadEventFilter
+	): WorkloadEventConnection!
+}
+
+extend type Job {
+	"Job events, newest first."
+	events(
+		"Get the first n items, optionally after a cursor."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items before a cursor."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Filter events by time."
+		filter: WorkloadEventFilter
+	): WorkloadEventConnection!
+}
+
+"Event time bounds."
+input WorkloadEventFilter {
+	"Only include events triggered at or after this timestamp."
+	from: Time
+	"Only include events triggered before this timestamp."
+	to: Time
+}
+
+"A workload event."
+interface WorkloadEvent implements Node {
+	"Unique event identifier."
+	id: ID!
+	"When the event occurred."
+	triggeredAt: Time!
+	"Event summary."
+	message: String!
+}
+
+"A successful replica count change."
+type WorkloadSuccessfulRescaleEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the event occurred."
+	triggeredAt: Time!
+	"Event summary."
+	message: String!
+	"Replica count after an autoscaling event."
+	newSize: Int!
+	"Autoscaling direction."
+	direction: WorkloadSuccessfulRescaleEventDirection!
+}
+
+"Autoscaling direction."
+enum WorkloadSuccessfulRescaleEventDirection {
+	"Replica count increased."
+	UP
+	"Replica count decreased."
+	DOWN
+}
+
+"A container restart."
+type WorkloadKillingEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the event occurred."
+	triggeredAt: Time!
+	"Event summary."
+	message: String!
+	"Restarted container."
+	container: String!
+	"Restart reason."
+	reason: String!
+}
+
+"A paginated collection of events."
+type WorkloadEventConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+	"Events in this page."
+	nodes: [WorkloadEvent!]!
+	"Events with their pagination cursors."
+	edges: [WorkloadEventEdge!]!
+}
+
+"An event with its pagination cursor."
+type WorkloadEventEdge {
+	"Pagination cursor for the event."
+	cursor: Cursor!
+	"The event."
+	node: WorkloadEvent!
+}
+`, BuiltIn: false},
 	{Name: "../schema/workloads.graphqls", Input: `extend type Team {
 	"""
 	Nais workloads owned by the team.
@@ -36762,6 +37433,8 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_imageVulnerabilityHistory(ctx, field)
 	case "vulnerabilityFixHistory":
 		return ec.fieldContext_Application_vulnerabilityFixHistory(ctx, field)
+	case "events":
+		return ec.fieldContext_Application_events(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Application", field.Name)
 }
@@ -36956,6 +37629,28 @@ func (ec *executionContext) childFields_AuditLog(ctx context.Context, field grap
 		return ec.fieldContext_AuditLog_logUrl(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type AuditLog", field.Name)
+}
+
+func (ec *executionContext) childFields_AvailableValueOptions(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValueOptions_id(ctx, field)
+	case "values":
+		return ec.fieldContext_AvailableValueOptions_values(ctx, field)
+	case "defaultValues":
+		return ec.fieldContext_AvailableValueOptions_defaultValues(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValueOptions", field.Name)
+}
+
+func (ec *executionContext) childFields_AvailableValues(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValues_id(ctx, field)
+	case "postgresMajorVersions":
+		return ec.fieldContext_AvailableValues_postgresMajorVersions(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValues", field.Name)
 }
 
 func (ec *executionContext) childFields_BigQueryDataset(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -37790,6 +38485,8 @@ func (ec *executionContext) childFields_Environment(ctx context.Context, field g
 		return ec.fieldContext_Environment_name(ctx, field)
 	case "oidcIssuerURL":
 		return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
+	case "availableValues":
+		return ec.fieldContext_Environment_availableValues(ctx, field)
 	case "metrics":
 		return ec.fieldContext_Environment_metrics(ctx, field)
 	case "workloads":
@@ -38308,6 +39005,8 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_imageVulnerabilityHistory(ctx, field)
 	case "vulnerabilityFixHistory":
 		return ec.fieldContext_Job_vulnerabilityFixHistory(ctx, field)
+	case "events":
+		return ec.fieldContext_Job_events(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
 }
@@ -39052,12 +39751,16 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_Postgres_id(ctx, field)
+	case "team":
+		return ec.fieldContext_Postgres_team(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_Postgres_teamEnvironment(ctx, field)
 	case "name":
 		return ec.fieldContext_Postgres_name(ctx, field)
 	case "majorVersion":
 		return ec.fieldContext_Postgres_majorVersion(ctx, field)
+	case "extensions":
+		return ec.fieldContext_Postgres_extensions(ctx, field)
 	case "highAvailability":
 		return ec.fieldContext_Postgres_highAvailability(ctx, field)
 	case "resources":
@@ -39066,6 +39769,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_desiredActiveBranch(ctx, field)
 	case "activeBranch":
 		return ec.fieldContext_Postgres_activeBranch(ctx, field)
+	case "workloads":
+		return ec.fieldContext_Postgres_workloads(ctx, field)
 	case "branch":
 		return ec.fieldContext_Postgres_branch(ctx, field)
 	case "branches":
@@ -39132,6 +39837,12 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_id(ctx, field)
 	case "name":
 		return ec.fieldContext_PostgresBranch_name(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_PostgresBranch_createdAt(ctx, field)
+	case "earliestRestoreTime":
+		return ec.fieldContext_PostgresBranch_earliestRestoreTime(ctx, field)
+	case "configuration":
+		return ec.fieldContext_PostgresBranch_configuration(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":
@@ -39206,6 +39917,14 @@ func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "parameters":
+		return ec.fieldContext_PostgresConfiguration_parameters(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresConfiguration", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -39246,6 +39965,16 @@ func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(
 		return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresParameter(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_PostgresParameter_name(ctx, field)
+	case "value":
+		return ec.fieldContext_PostgresParameter_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresParameter", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -39292,6 +40021,38 @@ func (ec *executionContext) childFields_PostgresUpdatedActivityLogEntryDataUpdat
 		return ec.fieldContext_PostgresUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresWorkload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workload":
+		return ec.fieldContext_PostgresWorkload_workload(ctx, field)
+	case "branch":
+		return ec.fieldContext_PostgresWorkload_branch(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkload", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresWorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresWorkloadConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresWorkloadConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresWorkloadConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkloadConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresWorkloadEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresWorkloadEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresWorkloadEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkloadEdge", field.Name)
 }
 
 func (ec *executionContext) childFields_Price(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -41676,6 +42437,28 @@ func (ec *executionContext) childFields_WorkloadEdge(ctx context.Context, field 
 	return nil, fmt.Errorf("no field named %q was found under type WorkloadEdge", field.Name)
 }
 
+func (ec *executionContext) childFields_WorkloadEventConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WorkloadEventConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WorkloadEventConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WorkloadEventConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadEventConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadEventEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WorkloadEventEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WorkloadEventEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadEventEdge", field.Name)
+}
+
 func (ec *executionContext) childFields_WorkloadLogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "time":
@@ -41686,6 +42469,42 @@ func (ec *executionContext) childFields_WorkloadLogLine(ctx context.Context, fie
 		return ec.fieldContext_WorkloadLogLine_instance(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WorkloadLogLine", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadPostgres(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "envPrefix":
+		return ec.fieldContext_WorkloadPostgres_envPrefix(ctx, field)
+	case "role":
+		return ec.fieldContext_WorkloadPostgres_role(ctx, field)
+	case "branch":
+		return ec.fieldContext_WorkloadPostgres_branch(ctx, field)
+	case "postgres":
+		return ec.fieldContext_WorkloadPostgres_postgres(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadPostgres", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadPostgresConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WorkloadPostgresConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WorkloadPostgresConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WorkloadPostgresConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadPostgresConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadPostgresEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WorkloadPostgresEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WorkloadPostgresEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadPostgresEdge", field.Name)
 }
 
 func (ec *executionContext) childFields_WorkloadResourceQuantity(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

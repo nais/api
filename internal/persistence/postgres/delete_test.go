@@ -8,12 +8,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/sirupsen/logrus/hooks/test"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -43,6 +45,15 @@ func TestDeletePostgresBranchRequiresInactiveBranch(t *testing.T) {
 				t.Errorf("deletion error = %v; denied = %v", err, tt.wantDenied)
 			}
 		})
+	}
+}
+
+func TestBranchDeletionProtectsInitialMainDuringPendingActivation(t *testing.T) {
+	postgres := &unstructured.Unstructured{Object: map[string]any{"spec": map[string]any{"activeBranch": "restored"}}}
+	for _, branch := range []string{"main", "restored"} {
+		if err := ensureInstanceMayBeDeleted(branch, postgres); err == nil {
+			t.Errorf("branch %q must be protected until activation is observed", branch)
+		}
 	}
 }
 
@@ -91,10 +102,87 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
 		t.Fatalf("job referenced Postgres = %+v, error = %v", instances, err)
 	}
+	page, err := pagination.ParsePage(new(3), nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		name   string
+		uses   []liberatorv1.PostgresUse
+		branch map[string]string
+	}{
+		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "green", "reports": "recovered"}},
+		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "restored", "reports": "recovered"}},
+	} {
+		usages, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", test.uses, page)
+		if err != nil {
+			t.Fatalf("%s Postgres uses: %v", test.name, err)
+		}
+		if totalCount != len(test.branch) || len(usages) != len(test.branch) {
+			t.Fatalf("%s Postgres uses = (%d, %d), want %d", test.name, len(usages), totalCount, len(test.branch))
+		}
+		for _, usage := range usages {
+			if want := test.branch[usage.Postgres.Name]; usage.Branch.Name != want {
+				t.Errorf("%s Postgres %q branch = %q, want %q", test.name, usage.Postgres.Name, usage.Branch.Name, want)
+			}
+			delete(test.branch, usage.Postgres.Name)
+		}
+		if len(test.branch) != 0 {
+			t.Errorf("%s Postgres uses missing references: %v", test.name, test.branch)
+		}
+	}
+
+	usesWithMissingOffPageBranch := append([]liberatorv1.PostgresUse(nil), apps[0].Spec.Uses.Postgres...)
+	for index := range usesWithMissingOffPageBranch {
+		if usesWithMissingOffPageBranch[index].Name == "reports" {
+			usesWithMissingOffPageBranch[index].Branch = "missing"
+		}
+	}
+	firstPage, err := pagination.ParsePage(new(1), nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pageUses, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPageBranch, firstPage)
+	if err != nil || totalCount != 3 || len(pageUses) != 1 || pageUses[0].Postgres.Name != "archive" {
+		t.Fatalf("first Postgres use page = (%+v, %d), error = %v", pageUses, totalCount, err)
+	}
+	reportsPage, err := pagination.ParsePage(new(3), nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPageBranch, reportsPage); err == nil {
+		t.Fatal("expected an error for a missing branch on the requested page")
+	}
+
 	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
 		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
-		if len(workloads) != 2 || workloads[0].GetName() != "consumer" || workloads[1].GetName() != "scheduled-reader" {
+		wantCount := 2
+		if entry.postgres == "orders" {
+			wantCount = 1
+		}
+		if len(workloads) != wantCount || workloads[0].GetName() != "consumer" || wantCount == 2 && workloads[1].GetName() != "scheduled-reader" {
 			t.Errorf("workloads for %q = %+v", entry.branch, workloads)
+		}
+	}
+	for _, name := range []string{"orders", "reports", "archive"} {
+		pg, err := GetPostgres(ctx, team, "dev", name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		workloads := WorkloadsForPostgres(ctx, pg)
+		if len(workloads) != 2 || workloads[0].Workload.GetName() != "consumer" || workloads[1].Workload.GetName() != "scheduled-reader" {
+			t.Errorf("aggregate workloads for %q = %+v", pg.Name, workloads)
+		}
+	}
+	if workloads := WorkloadsForPostgres(ctx, &Postgres{Name: "unreferenced", TeamSlug: team, EnvironmentName: "dev"}); len(workloads) != 0 {
+		t.Errorf("unreferenced Postgres workloads = %+v", workloads)
+	}
+	for _, pg := range []*Postgres{
+		{Name: "orders", TeamSlug: team, EnvironmentName: "prod"},
+		{Name: "orders", TeamSlug: slug.Slug("another-team"), EnvironmentName: "dev"},
+	} {
+		if workloads := WorkloadsForPostgres(ctx, pg); len(workloads) != 0 {
+			t.Errorf("workloads leaked across team or environment for %+v: %+v", pg, workloads)
 		}
 	}
 }
@@ -116,12 +204,13 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
 	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
+	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, name := range []string{"main", "recovered"} {
 		instance, err := GetReadyPostgresBranch(ctx, team, "dev", "foobar", name)

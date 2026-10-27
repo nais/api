@@ -5,6 +5,14 @@ metadata:
   name: "{{ .Release.Name }}"
 rules:
   - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
       - ""
     resources:
       - pods
@@ -164,6 +172,12 @@ rules:
     verbs:
       - get
   - apiGroups:
+      - barmancloud.cnpg.io
+    resources:
+      - objectstores
+    verbs:
+      - get
+  - apiGroups:
       - "aiven.nais.io"
     resources:
       - aivenapplications
@@ -205,6 +219,14 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: "{{ .Release.Name }}"
 rules:
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - ""
     resources:

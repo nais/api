@@ -26,6 +26,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
+	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/nais/api/internal/kubernetes/event/pubsublog"
 	"github.com/nais/api/internal/loki"
 	"github.com/nais/api/internal/persistence"
@@ -6502,6 +6503,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
+	case event.WorkloadSuccessfulRescaleEvent:
+		return ec._WorkloadSuccessfulRescaleEvent(ctx, sel, &obj)
+	case *event.WorkloadSuccessfulRescaleEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadSuccessfulRescaleEvent(ctx, sel, obj)
 	case issue.WorkloadProblemIssue:
 		return ec._WorkloadProblemIssue(ctx, sel, &obj)
 	case *issue.WorkloadProblemIssue:
@@ -6509,6 +6517,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._WorkloadProblemIssue(ctx, sel, obj)
+	case event.WorkloadKillingEvent:
+		return ec._WorkloadKillingEvent(ctx, sel, &obj)
+	case *event.WorkloadKillingEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadKillingEvent(ctx, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
@@ -7165,13 +7180,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ExternalIngressUrgentVulnerabilityIssue(ctx, sel, obj)
-	case issue.ExternalIngressCriticalVulnerabilityIssue:
-		return ec._ExternalIngressCriticalVulnerabilityIssue(ctx, sel, &obj)
-	case *issue.ExternalIngressCriticalVulnerabilityIssue:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._ExternalIngressCriticalVulnerabilityIssue(ctx, sel, obj)
 	case issue.DeprecatedRegistryIssue:
 		return ec._DeprecatedRegistryIssue(ctx, sel, &obj)
 	case *issue.DeprecatedRegistryIssue:
@@ -7305,6 +7313,11 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._WorkloadVulnerabilitySummary(ctx, sel, obj)
+	case event.WorkloadEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadEvent(ctx, sel, obj)
 	case usersync.UserSyncLogEntry:
 		if obj == nil {
 			return graphql.Null
@@ -7510,6 +7523,20 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._CVE(ctx, sel, obj)
+	case environment.AvailableValues:
+		return ec._AvailableValues(ctx, sel, &obj)
+	case *environment.AvailableValues:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AvailableValues(ctx, sel, obj)
+	case environment.AvailableValueOptions:
+		return ec._AvailableValueOptions(ctx, sel, &obj)
+	case *environment.AvailableValueOptions:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._AvailableValueOptions(ctx, sel, obj)
 	case application.ApplicationInstance:
 		return ec._ApplicationInstance(ctx, sel, &obj)
 	case *application.ApplicationInstance:

@@ -195,10 +195,3 @@ GROUP BY
 ORDER BY
 	service_account_id
 ;
-
--- TODO: Remove once static service accounts has been removed
--- name: DeleteStaticServiceAccounts :exec
-DELETE FROM service_accounts
-WHERE
-	name LIKE 'nais-%'
-;

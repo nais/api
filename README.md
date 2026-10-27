@@ -37,6 +37,10 @@ CONTEXT="dev" WITH_LOG_PROXY="true" mise run local|debug
 
 Check practices used in this project here: [docs/practices.md](docs/practices.md)
 
+### Adding a product-specific relay access mutation
+
+Follow the [shared relay integration requirements](https://github.com/nais/relay/blob/main/SERVICE-INTEGRATION.md) and fill in the [integration template](https://github.com/nais/relay/blob/main/SERVICE-INTEGRATION-TEMPLATE.md) in the product's design or rollout documentation. A new access must be requested through an authenticated, product-specific NAIS API mutation; document its authorization, target selection and owner-only delivery before enabling it.
+
 ### Graph-API
 
 We have defined a set of practices for the Graph-API in the [docs/graphql_practices.md](docs/graphql_practices.md) file.

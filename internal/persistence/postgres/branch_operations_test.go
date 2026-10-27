@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
+	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	"github.com/sirupsen/logrus/hooks/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -59,12 +60,13 @@ func TestBranchOperationsRejectMissingBranches(t *testing.T) {
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
 	branchWatcher := NewPostgresBranchWatcher(ctx, mgr)
+	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, branchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	for _, tt := range []struct{ postgres, branch, want string }{
 		{"foobar", "missing", "not found"},
@@ -119,5 +121,140 @@ func TestCreateBranchNeverTreatsDifferentRecoveryAsSameRequest(t *testing.T) {
 	input.SourceBranch = "other"
 	if sameRecovery(obj, input) {
 		t.Fatal("different source must not be treated as a retry")
+	}
+}
+
+func TestCreateBranchRejectsUnavailableRecovery(t *testing.T) {
+	earliest := time.Date(2026, time.September, 29, 0, 0, 0, 0, time.UTC)
+	for _, scenario := range []struct {
+		name           string
+		missingWindow  bool
+		deletingBranch bool
+		targetTime     time.Time
+		want           string
+	}{
+		{name: "missing recovery window", missingWindow: true, targetTime: earliest, want: "no recoverable restore window yet"},
+		{name: "before recovery window", targetTime: earliest.Add(-time.Second), want: "restore time must not be before the earliest recoverable time 2026-09-29T00:00:00Z"},
+		{name: "matching branch being deleted", deletingBranch: true, targetTime: earliest, want: `PostgresBranch "restore" is being deleted`},
+	} {
+		t.Run(scenario.name, func(t *testing.T) {
+			scheme, err := kubernetes.NewScheme()
+			if err != nil {
+				t.Fatal(err)
+			}
+			clusters, err := kubernetes.CreateClusterConfigMap("nav", []string{"dev"}, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			log, _ := test.NewNullLogger()
+			mgr, err := watcher.NewManager(scheme, clusters, log, watcher.WithClientCreator(fake.Clients(os.DirFS("../../../integration_tests/k8s_resources/postgres_crud"))))
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(mgr.Stop)
+			ctx := context.Background()
+			branchWatcher := NewPostgresBranchWatcher(ctx, mgr)
+			postgresWatcher := NewPostgresWatcher(ctx, mgr)
+			wait, cancel := context.WithTimeout(ctx, 5*time.Second)
+			defer cancel()
+			if !mgr.WaitForReady(wait) {
+				t.Fatal("watchers did not synchronize")
+			}
+			ctx = NewLoaderContext(ctx, branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+			input := CreatePostgresBranchInput{
+				Postgres: "existing", Branch: "restore", SourceBranch: "main", TargetTime: scenario.targetTime,
+				EnvironmentName: "dev", TeamSlug: slug.Slug("pg-crud-team"),
+			}
+			if scenario.missingWindow {
+				client, err := branchWatcher.SystemAuthenticatedClient(ctx, "dev", watcher.WithImpersonatedClientGVR(barmanObjectStoreGVR))
+				if err != nil {
+					t.Fatal(err)
+				}
+				stores := client.Namespace(input.TeamSlug.String())
+				store, err := stores.Get(ctx, "existing-main-backups", metav1.GetOptions{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				unstructured.RemoveNestedField(store.Object, "status", "serverRecoveryWindow")
+				if _, err := stores.Update(ctx, store, metav1.UpdateOptions{}); err != nil {
+					t.Fatal(err)
+				}
+			}
+			branches, err := branchClient(ctx, input.EnvironmentName, input.TeamSlug)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if scenario.deletingBranch {
+				branch, err := getBranchResource(ctx, branches, input.Postgres, input.SourceBranch)
+				if err != nil {
+					t.Fatal(err)
+				}
+				branch = branch.DeepCopy()
+				branch.SetName(nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch))
+				branch.SetResourceVersion("")
+				if err := unstructured.SetNestedField(branch.Object, input.Branch, "spec", "branchName"); err != nil {
+					t.Fatal(err)
+				}
+				if err := unstructured.SetNestedMap(branch.Object, map[string]any{
+					"sourceBranch": input.SourceBranch, "targetTime": input.TargetTime.Format(time.RFC3339),
+				}, "spec", "bootstrap", "recovery"); err != nil {
+					t.Fatal(err)
+				}
+				deletingAt := metav1.NewTime(time.Now())
+				branch.SetDeletionTimestamp(&deletingAt)
+				if !sameRecovery(branch, input) {
+					t.Fatal("terminating branch must have matching recovery settings")
+				}
+				if _, err := branches.Create(ctx, branch, metav1.CreateOptions{}); err != nil {
+					t.Fatal(err)
+				}
+			}
+			payload, err := CreateBranch(ctx, input)
+			if err == nil || !strings.Contains(err.Error(), scenario.want) || payload != nil {
+				t.Fatalf("CreateBranch = (%+v, %v), want nil payload and error containing %q", payload, err, scenario.want)
+			}
+			if !scenario.deletingBranch {
+				if _, err := branches.Get(ctx, nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch), metav1.GetOptions{}); err == nil {
+					t.Fatal("rejected request created a branch")
+				}
+			}
+		})
+	}
+}
+
+func TestFirstRecoverabilityPoint(t *testing.T) {
+	want := time.Date(2026, time.September, 30, 12, 0, 0, 0, time.UTC)
+	objectStore := &unstructured.Unstructured{Object: map[string]any{
+		"status": map[string]any{
+			"serverRecoveryWindow": map[string]any{
+				"pg-orders-main": map[string]any{
+					"firstRecoverabilityPoint": want.Format(time.RFC3339),
+				},
+			},
+		},
+	}}
+	got, err := firstRecoverabilityPoint(objectStore, "pg-orders-main")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got == nil || !got.Equal(want) {
+		t.Fatalf("firstRecoverabilityPoint = %v, want %v", got, want)
+	}
+
+	got, err = firstRecoverabilityPoint(objectStore, "missing-cluster")
+	if err != nil || got != nil {
+		t.Errorf("missing recovery window = (%v, %v), want (nil, nil)", got, err)
+	}
+}
+
+func TestBarmanObjectStoreName(t *testing.T) {
+	cluster := &unstructured.Unstructured{Object: map[string]any{
+		"spec": map[string]any{"plugins": []any{
+			map[string]any{"name": "barman-cloud.cloudnative-pg.io", "parameters": map[string]any{"barmanObjectName": "orders-store"}},
+		}},
+	}}
+	got, err := barmanObjectStoreName(cluster)
+	if err != nil || got != "orders-store" {
+		t.Fatalf("barmanObjectStoreName = (%q, %v), want (%q, nil)", got, err, "orders-store")
 	}
 }

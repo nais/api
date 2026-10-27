@@ -2,6 +2,7 @@ Helper.readK8sResources("k8s_resources/issues")
 local user = User.new("name", "auth@user.com", "sdf")
 Team.new("myteam", "purpose", "#slack_channel")
 Team.new("sortteam", "purpose", "#slack_channel")
+Team.new("devteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
 checker:runChecks()
 
@@ -552,11 +553,51 @@ Test.gql("VulnerableImageIssue", function(t)
 		data = {
 			team = {
 				issues = {
+					nodes = {},
+				},
+			},
+		},
+	}
+end)
+
+Test.gql("Known exploited workload without external ingress has only image issue", function(t)
+	t.addHeader("x-user-email", user:email())
+
+	t.query [[
+		query {
+			team(slug: "devteam") {
+				imageIssues: issues(filter: {issueType: VULNERABLE_IMAGE}) {
+					nodes {
+						__typename
+						severity
+						message
+						... on VulnerableImageIssue {
+							critical
+							riskScore
+							workload {
+								name
+							}
+						}
+					}
+				}
+				urgentIssues: issues(filter: {issueType: EXTERNAL_INGRESS_URGENT_VULNERABILITY}) {
+					nodes {
+						__typename
+					}
+				}
+			}
+		}
+	]]
+
+	t.check {
+		data = {
+			team = {
+				imageIssues = {
 					nodes = {
 						{
 							__typename = "VulnerableImageIssue",
+							severity = "WARNING",
 							message = "Image 'vulnerable-image' has 2 known-exploited vulnerabilities",
-							severity = "CRITICAL",
 							critical = 5,
 							riskScore = 250,
 							workload = {
@@ -564,6 +605,9 @@ Test.gql("VulnerableImageIssue", function(t)
 							},
 						},
 					},
+				},
+				urgentIssues = {
+					nodes = {},
 				},
 			},
 		},
@@ -605,59 +649,9 @@ Test.gql("ExternalIngressUrgentVulnerabilityIssue", function(t)
 					nodes = {
 						{
 							__typename = "ExternalIngressUrgentVulnerabilityIssue",
-							message = "Workload 'vulnerable' (exposed via external ingress) has 2 urgent vulnerabilities",
+							message = "Urgent: Workload 'vulnerable' is exposed via external ingress and has 2 known-exploited vulnerabilities",
 							severity = "CRITICAL",
 							priorityUrgent = 2,
-							ingresses = { "https://vulnerable.example.com" },
-							workload = {
-								name = "vulnerable",
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-end)
-
-Test.gql("ExternalIngressCriticalVulnerabilityIssue remains queryable", function(t)
-	t.addHeader("x-user-email", user:email())
-
-	t.query [[
-		query {
-			team(slug: "myteam") {
-				issues(
-					filter: {
-						issueType: EXTERNAL_INGRESS_CRITICAL_VULNERABILITY
-					},
-				) {
-					nodes {
-						__typename
-						severity
-						message
-						... on ExternalIngressCriticalVulnerabilityIssue {
-							cvssScore
-							ingresses
-							workload {
-								name
-							}
-						}
-					}
-				}
-			}
-		}
-	]]
-
-	t.check {
-		data = {
-			team = {
-				issues = {
-					nodes = {
-						{
-							__typename = "ExternalIngressCriticalVulnerabilityIssue",
-							message = "Workload 'vulnerable' (exposed via external ingress) has 2 urgent vulnerabilities",
-							severity = "CRITICAL",
-							cvssScore = 9.0,
 							ingresses = { "https://vulnerable.example.com" },
 							workload = {
 								name = "vulnerable",

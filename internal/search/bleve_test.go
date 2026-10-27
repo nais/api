@@ -148,6 +148,38 @@ func TestSearchEmptyQueryWithoutUserTeamsReturnsNoDefaults(t *testing.T) {
 	}
 }
 
+func TestSearchPostgresByDatabaseNameAndTeam(t *testing.T) {
+	searcher := newTestSearcher(t, nil, []Document{
+		newTestDocument("orders-a", "POSTGRES", "orders", withTeam("team-a")),
+		newTestDocument("orders-b", "POSTGRES", "orders", withTeam("team-b")),
+		newTestDocument("reports-a", "POSTGRES", "reports", withTeam("team-a")),
+		newTestDocument("orders-app", "APPLICATION", "orders", withTeam("team-a")),
+	})
+	for _, tt := range []struct {
+		name  string
+		query string
+		teams []slug.Slug
+		want  []string
+	}{
+		{"database name", "orders", nil, []string{"orders-a", "orders-b"}},
+		{"team scope", "orders", []slug.Slug{"team-a"}, []string{"orders-a"}},
+		{"database prefix", "orde", []slug.Slug{"team-b"}, []string{"orders-b"}},
+		{"unknown team", "orders", []slug.Slug{"team-c"}, nil},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := searcher.Search(newTestContext(), newTestPage(t, 10), SearchFilter{
+				Query: tt.query,
+				Types: []SearchType{"POSTGRES"},
+				Teams: tt.teams,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			assertSameElements(t, tt.want, testNodeIDs(result.Nodes()))
+		})
+	}
+}
+
 type testQuerier struct {
 	teamSlugs []slug.Slug
 }

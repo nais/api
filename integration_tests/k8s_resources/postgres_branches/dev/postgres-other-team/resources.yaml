@@ -1,0 +1,30 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: foobar
+spec:
+  majorVersion: "17"
+status:
+  activeBranch: main
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: foobar-main-a4f04c0c
+spec:
+  postgres: foobar
+  branchName: main
+status:
+  configuration:
+    parameters:
+      work_mem: 16MB
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-with-postgres
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: foobar

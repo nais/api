@@ -1,0 +1,59 @@
+apiVersion: storage.cnrm.cloud.google.com/v1beta1
+kind: StorageBucket
+metadata:
+  name: assets
+  annotations:
+    cnrm.cloud.google.com/project-id: bucket-project
+  labels:
+    purpose: assets
+spec:
+  publicAccessPrevention: enforced
+  uniformBucketLevelAccess: true
+---
+apiVersion: storage.cnrm.cloud.google.com/v1beta1
+kind: StorageBucket
+metadata:
+  name: uploads
+  annotations:
+    cnrm.cloud.google.com/project-id: bucket-project
+    cnrm.cloud.google.com/deletion-policy: abandon
+  labels:
+    purpose: uploads
+spec:
+  publicAccessPrevention: inherited
+  uniformBucketLevelAccess: false
+---
+apiVersion: storage.cnrm.cloud.google.com/v1beta1
+kind: StorageBucket
+metadata:
+  name: postgres-backup
+  annotations:
+    cnrm.cloud.google.com/project-id: bucket-project
+  labels:
+    postgres.nais.io/name: orders
+    purpose: backup
+spec:
+  publicAccessPrevention: enforced
+  uniformBucketLevelAccess: true
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: bucket-app
+spec:
+  image: example/bucket-app:latest
+  gcp:
+    buckets:
+      - name: assets
+      - name: postgres-backup
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: bucket-job
+spec:
+  image: example/bucket-job:latest
+  gcp:
+    buckets:
+      - name: uploads
+      - name: postgres-backup

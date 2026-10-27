@@ -18,11 +18,14 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/rest"
@@ -166,7 +169,7 @@ func ParseResource(scheme *runtime.Scheme, b []byte, ns string) (v runtime.Objec
 		panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
 	}
 
-	if ns != "" {
+	if ns != "" && r.GetKind() != "CustomResourceDefinition" {
 		r.SetNamespace(ns)
 		lbls := r.GetLabels()
 		if lbls == nil {
@@ -225,6 +228,77 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			mapperatorv1.GroupVersion.WithResource("valkeys"):                     "ValkeyList",
 			mapperatorv1.GroupVersion.WithResource("opensearches"):                "OpenSearchList",
 		})
+
+	// The fake client filters lists, but its default watch reactor ignores label selectors.
+	client.PrependWatchReactor("*", func(action k8stesting.Action) (bool, watch.Interface, error) {
+		watchAction, ok := action.(k8stesting.WatchAction)
+		if !ok {
+			return false, nil, nil
+		}
+		selector := watchAction.GetWatchRestrictions().Labels
+		if selector == nil || selector.Empty() {
+			return false, nil, nil
+		}
+		kinds, err := (&FakeKindsResolver{scheme: newScheme}).KindsFor(action.GetResource())
+		if err != nil {
+			return true, nil, err
+		}
+		list, err := client.Tracker().List(action.GetResource(), kinds[0], action.GetNamespace())
+		if err != nil {
+			return true, nil, err
+		}
+		items, err := meta.ExtractList(list)
+		if err != nil {
+			return true, nil, err
+		}
+		matching := make(map[types.NamespacedName]runtime.Object)
+		for _, item := range items {
+			obj, err := meta.Accessor(item)
+			if err != nil {
+				return true, nil, err
+			}
+			if selector.Matches(labels.Set(obj.GetLabels())) {
+				matching[types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}] = item.DeepCopyObject()
+			}
+		}
+		stream, err := client.Tracker().Watch(action.GetResource(), action.GetNamespace())
+		if err != nil {
+			return true, nil, err
+		}
+		return true, watch.Filter(stream, func(event watch.Event) (watch.Event, bool) {
+			if event.Type != watch.Added && event.Type != watch.Modified && event.Type != watch.Deleted {
+				return event, true
+			}
+			obj, err := meta.Accessor(event.Object)
+			if err != nil {
+				return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
+			}
+			key := types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}
+			previous, wasMatching := matching[key]
+			isMatching := event.Type != watch.Deleted && selector.Matches(labels.Set(obj.GetLabels()))
+			if isMatching {
+				matching[key] = event.Object.DeepCopyObject()
+				if !wasMatching {
+					event.Type = watch.Added
+				}
+				return event, true
+			}
+			delete(matching, key)
+			if !wasMatching {
+				return event, false
+			}
+			if event.Type != watch.Deleted {
+				// Leaving a selector is a deletion of the last matching object.
+				old, err := meta.Accessor(previous)
+				if err != nil {
+					return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
+				}
+				old.SetResourceVersion(obj.GetResourceVersion())
+				event = watch.Event{Type: watch.Deleted, Object: previous}
+			}
+			return event, true
+		}), nil
+	})
 
 	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		patchAction, ok := action.(k8stesting.PatchAction)

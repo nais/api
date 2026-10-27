@@ -1,0 +1,20 @@
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: foobar-failed-68299523
+  namespace: someteamname
+spec:
+  postgres: foobar
+  branchName: failed
+status:
+  configuration:
+    parameters:
+      shared_buffers: 128MB
+  reconcilePhase: Failed
+  conditions:
+    - type: RecoveryFailed
+      status: "True"
+      reason: Unrecoverable
+    - type: Ready
+      status: "False"
+      reason: RecoveryFailed

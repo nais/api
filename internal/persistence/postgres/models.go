@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,6 +18,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
+	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -53,11 +55,13 @@ type PostgresBranchStateFacetItem struct {
 // PostgresBranch represents an independently running database instance.
 type PostgresBranch struct {
 	Name            string                 `json:"name"`
+	CreatedAt       time.Time              `json:"createdAt"`
 	EnvironmentName string                 `json:"-"`
 	TeamSlug        slug.Slug              `json:"-"`
 	PostgresName    string                 `json:"postgres"`
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
+	Configuration   *PostgresConfiguration `json:"configuration,omitempty"`
 }
 
 type TeamPostgresFilter struct {
@@ -66,9 +70,34 @@ type TeamPostgresFilter struct {
 }
 
 type (
-	PostgresConnection = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
-	PostgresEdge       = pagination.Edge[*Postgres]
+	PostgresConnection         = pagination.FacetableConnection[*Postgres, *TeamPostgresFilter]
+	PostgresEdge               = pagination.Edge[*Postgres]
+	WorkloadPostgresConnection = pagination.Connection[*WorkloadPostgres]
+	WorkloadPostgresEdge       = pagination.Edge[*WorkloadPostgres]
+	PostgresWorkloadConnection = pagination.Connection[*PostgresWorkload]
+	PostgresWorkloadEdge       = pagination.Edge[*PostgresWorkload]
 )
+
+type PostgresWorkload struct {
+	Workload     workload.Workload `json:"workload"`
+	PostgresName string            `json:"-"`
+	BranchName   string            `json:"-"`
+}
+
+type PostgresUserRole string
+
+const (
+	PostgresUserRoleAdmin     PostgresUserRole = "ADMIN"
+	PostgresUserRoleRead      PostgresUserRole = "READ"
+	PostgresUserRoleReadwrite PostgresUserRole = "READWRITE"
+)
+
+type WorkloadPostgres struct {
+	EnvPrefix *string          `json:"envPrefix,omitempty"`
+	Role      PostgresUserRole `json:"role"`
+	Branch    *PostgresBranch  `json:"branch"`
+	Postgres  *Postgres        `json:"postgres"`
+}
 
 type PostgresFacets struct {
 	AllInstances      []*Postgres
@@ -83,6 +112,7 @@ type Postgres struct {
 	ActiveBranch        *string                `json:"activeBranch,omitempty"`
 	DesiredActiveBranch *string                `json:"desiredActiveBranch,omitempty"`
 	MajorVersion        string                 `json:"majorVersion"`
+	Extensions          []string               `json:"extensions"`
 	HighAvailability    bool                   `json:"highAvailability"`
 	Resources           PostgresResources      `json:"resources"`
 	Labels              []*model.ResourceLabel `json:"labels"`
@@ -96,6 +126,7 @@ type PostgresResources struct {
 }
 
 func (Postgres) IsNode()            {}
+func (Postgres) IsSearchNode()      {}
 func (Postgres) IsActivityLogger()  {}
 func (p *Postgres) ID() ident.Ident { return newPostgresIdent(p.TeamSlug, p.EnvironmentName, p.Name) }
 
@@ -165,8 +196,6 @@ func (e PostgresBranchState) MarshalJSON() ([]byte, error) {
 func (PostgresBranch) IsPersistence() {}
 
 func (PostgresBranch) IsNode() {}
-
-func (PostgresBranch) IsSearchNode() {}
 
 type CreatePostgresBranchInput struct {
 	Postgres        string    `json:"postgres"`
@@ -405,10 +434,6 @@ func (p *PostgresBranch) GetName() string {
 	return nais_io_v1.PostgresBranchObjectName(p.PostgresName, p.Name)
 }
 
-func (p *PostgresBranch) SearchName() string {
-	return p.PostgresName + "/" + p.Name
-}
-
 func (p *PostgresBranch) GetNamespace() string {
 	return p.TeamSlug.String()
 }
@@ -430,10 +455,12 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
 	}
 	state := PostgresBranchStateProgressing
+	var configuration *PostgresConfiguration
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
+		configuration = toPostgresConfiguration(obj.Status.Configuration)
 	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels), Configuration: configuration}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
@@ -452,9 +479,13 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		text := value.String()
 		return &text
 	}
+	extensions := make([]string, 0, len(obj.Spec.Extensions))
+	for _, extension := range obj.Spec.Extensions {
+		extensions = append(extensions, extension.Name)
+	}
 	return &Postgres{
 		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
-		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, HighAvailability: obj.Spec.HighAvailability,
+		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, Extensions: extensions, HighAvailability: obj.Spec.HighAvailability,
 		Resources: PostgresResources{
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
@@ -463,9 +494,14 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	}, nil
 }
 
-// postgresStateFromConditions interprets the CNPG phase mirrored by pgrator.
+// postgresStateFromConditions interprets pgrator and CNPG status conditions.
 // ObservedState=False means no phase has been observed, not a failed cluster.
 func postgresStateFromConditions(conditions []metav1.Condition, reconciled bool) PostgresBranchState {
+	for _, condition := range conditions {
+		if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue && condition.Reason == "Unrecoverable" {
+			return PostgresBranchStateDegraded
+		}
+	}
 	if !reconciled {
 		return PostgresBranchStateProgressing
 	}
@@ -671,19 +707,16 @@ type PostgresAccessConnectionDetails struct {
 	RelayToken    string `json:"relayToken"`
 }
 
-// supportedMajorVersions are the versions the API accepts for new Postgres. The CRD enum
-// also allows older versions, but those are not offered to users.
-var supportedMajorVersions = []string{"18"}
-
 type CreatePostgresInput struct {
-	Name             string    `json:"name"`
-	EnvironmentName  string    `json:"environmentName"`
-	TeamSlug         slug.Slug `json:"teamSlug"`
-	MajorVersion     string    `json:"majorVersion"`
-	HighAvailability *bool     `json:"highAvailability,omitempty"`
-	CPU              *string   `json:"cpu,omitempty"`
-	Memory           *string   `json:"memory,omitempty"`
-	DiskSize         *string   `json:"diskSize,omitempty"`
+	Name             string                 `json:"name"`
+	EnvironmentName  string                 `json:"environmentName"`
+	TeamSlug         slug.Slug              `json:"teamSlug"`
+	MajorVersion     string                 `json:"majorVersion"`
+	HighAvailability *bool                  `json:"highAvailability,omitempty"`
+	CPU              *string                `json:"cpu,omitempty"`
+	Memory           *string                `json:"memory,omitempty"`
+	DiskSize         *string                `json:"diskSize,omitempty"`
+	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
 type CreatePostgresPayload struct {
@@ -691,13 +724,14 @@ type CreatePostgresPayload struct {
 }
 
 type UpdatePostgresInput struct {
-	Name             string    `json:"name"`
-	EnvironmentName  string    `json:"environmentName"`
-	TeamSlug         slug.Slug `json:"teamSlug"`
-	HighAvailability *bool     `json:"highAvailability,omitempty"`
-	CPU              *string   `json:"cpu,omitempty"`
-	Memory           *string   `json:"memory,omitempty"`
-	DiskSize         *string   `json:"diskSize,omitempty"`
+	Name             string                 `json:"name"`
+	EnvironmentName  string                 `json:"environmentName"`
+	TeamSlug         slug.Slug              `json:"teamSlug"`
+	HighAvailability *bool                  `json:"highAvailability,omitempty"`
+	CPU              *string                `json:"cpu,omitempty"`
+	Memory           *string                `json:"memory,omitempty"`
+	DiskSize         *string                `json:"diskSize,omitempty"`
+	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
 type UpdatePostgresPayload struct {
@@ -705,7 +739,19 @@ type UpdatePostgresPayload struct {
 }
 
 func (i *CreatePostgresInput) Validate(ctx context.Context) error {
-	return i.ValidationErrors(ctx).NilIfEmpty()
+	if err := i.ValidationErrors(ctx).NilIfEmpty(); err != nil {
+		return err
+	}
+	versions, err := AvailableMajorVersions(ctx, i.EnvironmentName)
+	if err != nil {
+		return err
+	}
+	if !slices.Contains(versions.Values, i.MajorVersion) {
+		verr := validate.New()
+		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(versions.Values, ", "))
+		return verr
+	}
+	return nil
 }
 
 func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
@@ -725,10 +771,11 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	if i.TeamSlug == "" {
 		verr.Add("teamSlug", "Team slug must not be empty.")
 	}
-	if !contains(supportedMajorVersions, i.MajorVersion) {
-		verr.Add("majorVersion", "Major version must be one of: %s.", strings.Join(supportedMajorVersions, ", "))
+	if i.MajorVersion == "" {
+		verr.Add("majorVersion", "Major version must not be empty.")
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	validatePostgresUserLabels(verr, i.Labels)
 	return verr
 }
 
@@ -753,11 +800,30 @@ func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 		verr.Add("teamSlug", "Team slug must not be empty.")
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
+	validatePostgresUserLabels(verr, i.Labels)
 	return verr
 }
 
+func validatePostgresUserLabels(verr *validate.ValidationErrors, labels []*model.ResourceLabel) {
+	if err := model.ValidateUserLabels(labels); err != nil {
+		verr.Add("labels", "%s", err.Error())
+	}
+}
+
 func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *string) {
-	for field, value := range map[string]*string{"cpu": cpu, "memory": memory, "diskSize": diskSize} {
+	limits := []struct {
+		field  string
+		value  *string
+		min    resource.Quantity
+		hasMin bool
+		max    resource.Quantity
+	}{
+		{field: "cpu", value: cpu, max: resource.MustParse("8")},
+		{field: "memory", value: memory, max: resource.MustParse("32Gi")},
+		{field: "diskSize", value: diskSize, min: resource.MustParse("10Gi"), hasMin: true, max: resource.MustParse("1000Gi")},
+	}
+	for _, limit := range limits {
+		field, value := limit.field, limit.value
 		if value == nil {
 			continue
 		}
@@ -766,15 +832,10 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 			verr.Add(field, "%q is not a valid quantity.", *value)
 		} else if quantity.Sign() <= 0 {
 			verr.Add(field, "%q must be greater than zero.", *value)
+		} else if limit.hasMin && quantity.Cmp(limit.min) < 0 {
+			verr.Add(field, "%q must be at least %s.", *value, limit.min.String())
+		} else if quantity.Cmp(limit.max) > 0 {
+			verr.Add(field, "%q must be no greater than %s.", *value, limit.max.String())
 		}
 	}
-}
-
-func contains(values []string, value string) bool {
-	for _, v := range values {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }

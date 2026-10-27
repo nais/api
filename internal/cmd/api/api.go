@@ -129,10 +129,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
-	if err := setupStaticServiceAccounts(ctx, pool, cfg.StaticServiceAccounts); err != nil {
-		return err
-	}
-
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		return fmt.Errorf("create k8s scheme: %w", err)
@@ -262,14 +258,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
 		go eventWatcher.Run(ctx)
 	} else {
 		log.Info("Start fake event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
@@ -278,7 +274,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	var jwtMiddleware func(next http.Handler) http.Handler
 	if !cfg.JWT.SkipMiddleware {
-		jwtMiddleware, err = middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, cfg.Zitadel.OrganizationID, log.WithField("subsystem", "jwt"))
+		orgIDs := []string{cfg.Zitadel.OrganizationID}
+		if cfg.Zitadel.NaisOrganizationID != "" {
+			orgIDs = append(orgIDs, cfg.Zitadel.NaisOrganizationID)
+		}
+		jwtMiddleware, err = middleware.JWTAuthentication(ctx, cfg.JWT.Issuer, cfg.JWT.Audience, orgIDs, log.WithField("subsystem", "jwt"))
 		if err != nil {
 			return fmt.Errorf("failed to create JWT authentication middleware: %w", err)
 		}
@@ -305,6 +305,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	lokiClient, err := loki.NewClient(cfg.Tenant, log.WithField("subsystem", "loki_client"), lokiClientOpts...)
 	if err != nil {
 		return fmt.Errorf("create loki client: %w", err)
+	}
+
+	lokiProxy, err := loki.NewProxy(cfg.Logging.LokiQuerierAddress, log.WithField("subsystem", "loki_proxy"))
+	if err != nil {
+		return fmt.Errorf("create loki proxy: %w", err)
 	}
 
 	contextDependencies, err := ConfigureGraph(
@@ -347,6 +352,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			githubOIDCMiddleware,
 			authHandler,
 			graphHandler,
+			lokiProxy,
 			contextDependencies,
 			log.WithField("subsystem", "http"),
 		)

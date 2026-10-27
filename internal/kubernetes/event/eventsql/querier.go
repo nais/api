@@ -4,9 +4,14 @@ package eventsql
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
+	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
+	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*K8sEvent, error)
+	ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*K8sEvent, error)
 	Upsert(ctx context.Context, arg []UpsertParams) *UpsertBatchResults
 }
 

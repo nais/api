@@ -114,8 +114,9 @@ type UnleashConfig struct {
 }
 
 type loggingConfig struct {
-	LokiDefault       bool `env:"LOGGING_LOKI_CLUSTER_DEFAULT"`
-	SecureLogsDefault bool `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
+	LokiDefault        bool   `env:"LOGGING_LOKI_CLUSTER_DEFAULT"`
+	SecureLogsDefault  bool   `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
+	LokiQuerierAddress string `env:"LOKI_QUERIER_ADDRESS,default=http://loki-query-frontend.nais-system.svc:3100"`
 }
 
 type zitadelConfig struct {
@@ -130,6 +131,10 @@ type zitadelConfig struct {
 
 	// OrganizationID is the ID of the organization to use for the Zitadel API
 	OrganizationID string `env:"ZITADEL_ORGANIZATION_ID"`
+
+	// NaisOrganizationID enables syncing and authenticating nais.io users from this Zitadel organization.
+	// The usersync machine user must have read access to its users.
+	NaisOrganizationID string `env:"ZITADEL_NAIS_ORGANIZATION_ID"`
 }
 
 func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestination {
@@ -173,10 +178,6 @@ type Config struct {
 
 	LogFormat string `env:"LOG_FORMAT,default=json"`
 	LogLevel  string `env:"LOG_LEVEL,default=info"`
-
-	// StaticServiceAccounts A JSON-encoded value describing a set of service accounts to be created when the
-	// application starts. Refer to the README for the format.
-	StaticServiceAccounts StaticServiceAccounts `env:"STATIC_SERVICE_ACCOUNTS"`
 
 	// ListenAddress is host:port combination used by the http server
 	ListenAddress         string `env:"LISTEN_ADDRESS,default=127.0.0.1:3000"`

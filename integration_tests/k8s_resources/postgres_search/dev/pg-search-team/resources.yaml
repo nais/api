@@ -1,0 +1,14 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: orders
+spec:
+  majorVersion: "17"
+---
+apiVersion: nais.io/v1
+kind: PostgresBranch
+metadata:
+  name: orders-green-d77a35b4
+spec:
+  postgres: orders
+  branchName: green

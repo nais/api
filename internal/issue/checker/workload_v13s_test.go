@@ -106,35 +106,31 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 	}
 
 	issues := workload.vulnerabilities(ctx)
-	actNowIssues := make([]*Issue, 0)
-	criticalIssues := make([]*Issue, 0)
+	urgentIssues := make([]*Issue, 0)
 	for i := range issues {
 		if issues[i].IssueType == issue.IssueTypeExternalIngressUrgentVulnerability {
-			actNowIssues = append(actNowIssues, issues[i])
-		}
-		if issues[i].IssueType == issue.IssueTypeExternalIngressCriticalVulnerability {
-			criticalIssues = append(criticalIssues, issues[i])
+			urgentIssues = append(urgentIssues, issues[i])
 		}
 	}
 
 	if !wantIssue {
-		if len(actNowIssues) != 0 {
-			t.Fatalf("expected 0 external ingress act-now issues, got %d", len(actNowIssues))
+		if len(urgentIssues) != 0 {
+			t.Fatalf("expected 0 external ingress urgent issues, got %d", len(urgentIssues))
 		}
-		if len(criticalIssues) != 0 {
-			t.Fatalf("expected 0 external ingress critical issues, got %d", len(criticalIssues))
+		if got := len(filterIssues(issues, issue.IssueTypeVulnerableImage)); got != 1 {
+			t.Fatalf("expected 1 known-exploited image issue for duplicate summaries, got %d", got)
 		}
 		return
 	}
 
-	if len(actNowIssues) != 1 {
-		t.Fatalf("expected 1 external ingress act-now issue, got %d", len(actNowIssues))
+	if len(urgentIssues) != 1 {
+		t.Fatalf("expected 1 external ingress urgent issue, got %d", len(urgentIssues))
 	}
-	if len(criticalIssues) != 1 {
-		t.Fatalf("expected 1 external ingress critical issue, got %d", len(criticalIssues))
+	if got := len(filterIssues(issues, issue.IssueTypeVulnerableImage)); got != 0 {
+		t.Fatalf("expected no known-exploited image issues when urgent exists, got %d", got)
 	}
 
-	got := actNowIssues[0]
+	got := urgentIssues[0]
 	if got.IssueType != issue.IssueTypeExternalIngressUrgentVulnerability {
 		t.Fatalf("expected issue type %s, got %s", issue.IssueTypeExternalIngressUrgentVulnerability, got.IssueType)
 	}
@@ -142,10 +138,13 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 	if got.ResourceName != workloadName {
 		t.Fatalf("expected resource %s, got %s", workloadName, got.ResourceName)
 	}
+	if want := "Urgent: Workload '" + workloadName + "' is exposed via external ingress and has 2 known-exploited vulnerabilities"; got.Message != want {
+		t.Fatalf("expected %q, got %q", want, got.Message)
+	}
 
 	details, ok := got.IssueDetails.(issue.ExternalIngressUrgentVulnerabilityIssueDetails)
 	if !ok {
-		t.Fatalf("expected external ingress act-now details, got %T", got.IssueDetails)
+		t.Fatalf("expected external ingress urgent details, got %T", got.IssueDetails)
 	}
 
 	if details.PriorityUrgent != 2 {
@@ -154,18 +153,6 @@ func testVulnerabilitiesExternalIngressUrgentIssue(t *testing.T, workloadName, e
 
 	if len(details.Ingresses) != 1 || details.Ingresses[0] != expectedIngress {
 		t.Fatalf("expected only external ingress URL, got %+v", details.Ingresses)
-	}
-
-	criticalDetails, ok := criticalIssues[0].IssueDetails.(issue.ExternalIngressCriticalVulnerabilityIssueDetails)
-	if !ok {
-		t.Fatalf("expected external ingress critical details, got %T", criticalIssues[0].IssueDetails)
-	}
-
-	if len(criticalDetails.Ingresses) != 1 || criticalDetails.Ingresses[0] != expectedIngress {
-		t.Fatalf("expected only external ingress URL on critical issue, got %+v", criticalDetails.Ingresses)
-	}
-	if criticalDetails.CvssScore != legacyCriticalCvssScore {
-		t.Fatalf("expected cvssScore %.1f on critical issue, got %v", legacyCriticalCvssScore, criticalDetails.CvssScore)
 	}
 }
 
@@ -204,16 +191,13 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 		highRisk               int32
 		wantVulnerableImage    bool
 		wantUrgentIngress      bool
-		wantCriticalIngress    bool
 		wantExternalIngressURL string
 	}{
 		{
 			name:                   "kev findings with confirmed exposure resolve to urgent",
 			workloadName:           "ext-app",
 			kevCount:               2,
-			wantVulnerableImage:    true,
 			wantUrgentIngress:      true,
-			wantCriticalIngress:    true,
 			wantExternalIngressURL: "https://ext.example.com",
 		},
 		{
@@ -250,6 +234,7 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 								Namespace: "devteam",
 								Type:      "app",
 								Name:      tt.workloadName,
+								ImageName: "test-image",
 							},
 							VulnerabilitySummary: &vulnerabilities.Summary{
 								Critical:  2,
@@ -270,11 +255,24 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 
 			vulnerableImageIssues := filterIssues(issues, issue.IssueTypeVulnerableImage)
 			urgentIssues := filterIssues(issues, issue.IssueTypeExternalIngressUrgentVulnerability)
-			criticalIssues := filterIssues(issues, issue.IssueTypeExternalIngressCriticalVulnerability)
-
 			assertIssueCount(t, vulnerableImageIssues, tt.wantVulnerableImage, issue.IssueTypeVulnerableImage)
 			assertIssueCount(t, urgentIssues, tt.wantUrgentIngress, issue.IssueTypeExternalIngressUrgentVulnerability)
-			assertIssueCount(t, criticalIssues, tt.wantCriticalIngress, issue.IssueTypeExternalIngressCriticalVulnerability)
+
+			if tt.wantUrgentIngress && urgentIssues[0].Severity != issue.SeverityCritical {
+				t.Fatalf("expected urgent issue to have critical severity, got %s", urgentIssues[0].Severity)
+			}
+			if tt.wantUrgentIngress {
+				urgentDetails, ok := urgentIssues[0].IssueDetails.(issue.ExternalIngressUrgentVulnerabilityIssueDetails)
+				if !ok {
+					t.Fatalf("expected urgent ingress details, got %T", urgentIssues[0].IssueDetails)
+				}
+				if urgentDetails.PriorityUrgent != int(tt.kevCount) {
+					t.Fatalf("expected priorityUrgent %d, got %d", tt.kevCount, urgentDetails.PriorityUrgent)
+				}
+				if len(urgentDetails.Ingresses) != 1 || urgentDetails.Ingresses[0] != tt.wantExternalIngressURL {
+					t.Fatalf("expected only %q, got %+v", tt.wantExternalIngressURL, urgentDetails.Ingresses)
+				}
+			}
 
 			if !tt.wantVulnerableImage {
 				return
@@ -290,31 +288,11 @@ func TestVulnerabilities_UrgentGatesIssueEmission(t *testing.T) {
 			if details.RiskScore != 100 {
 				t.Fatalf("expected risk score 100, got %d", details.RiskScore)
 			}
-
-			if !tt.wantUrgentIngress {
-				return
+			if vulnerableImageIssues[0].Severity != issue.SeverityWarning {
+				t.Fatalf("expected known-exploited image issue to have warning severity, got %s", vulnerableImageIssues[0].Severity)
 			}
-
-			urgentDetails, ok := urgentIssues[0].IssueDetails.(issue.ExternalIngressUrgentVulnerabilityIssueDetails)
-			if !ok {
-				t.Fatalf("expected urgent ingress details, got %T", urgentIssues[0].IssueDetails)
-			}
-			if urgentDetails.PriorityUrgent != int(tt.kevCount) {
-				t.Fatalf("expected priorityUrgent %d, got %d", tt.kevCount, urgentDetails.PriorityUrgent)
-			}
-			if len(urgentDetails.Ingresses) != 1 || urgentDetails.Ingresses[0] != tt.wantExternalIngressURL {
-				t.Fatalf("expected only %q, got %+v", tt.wantExternalIngressURL, urgentDetails.Ingresses)
-			}
-
-			criticalDetails, ok := criticalIssues[0].IssueDetails.(issue.ExternalIngressCriticalVulnerabilityIssueDetails)
-			if !ok {
-				t.Fatalf("expected critical ingress details, got %T", criticalIssues[0].IssueDetails)
-			}
-			if criticalDetails.CvssScore != legacyCriticalCvssScore {
-				t.Fatalf("expected cvssScore %.1f, got %v", legacyCriticalCvssScore, criticalDetails.CvssScore)
-			}
-			if len(criticalDetails.Ingresses) != 1 || criticalDetails.Ingresses[0] != tt.wantExternalIngressURL {
-				t.Fatalf("expected only %q on critical issue, got %+v", tt.wantExternalIngressURL, criticalDetails.Ingresses)
+			if want := "Image 'test-image' has 2 known-exploited vulnerabilities"; vulnerableImageIssues[0].Message != want {
+				t.Fatalf("expected %q, got %q", want, vulnerableImageIssues[0].Message)
 			}
 		})
 	}

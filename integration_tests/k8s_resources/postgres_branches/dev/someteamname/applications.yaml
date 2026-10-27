@@ -40,3 +40,26 @@ metadata:
   namespace: someteamname
 spec:
   image: ghcr.io/nais/testapp:latest
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: shared-reader
+  namespace: someteamname
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: another-db
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: shared-reader
+  namespace: someteamname
+spec:
+  image: ghcr.io/nais/testapp:latest
+  schedule: "0 0 * * *"
+  uses:
+    postgres:
+      - name: another-db

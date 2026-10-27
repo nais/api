@@ -19,6 +19,8 @@ spec:
   branchName: main
 status:
   reconcilePhase: Completed
+  configuration:
+    parameters: {}
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState
       status: "True"

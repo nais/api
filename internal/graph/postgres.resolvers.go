@@ -2,8 +2,10 @@ package graph
 
 import (
 	"context"
+	"time"
 
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/postgres"
@@ -11,28 +13,27 @@ import (
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
+	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 )
 
-func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
+func (r *applicationResolver) Postgreses(ctx context.Context, obj *application.Application, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
+	var uses []liberatorv1.PostgresUse
+	if obj.Spec != nil && obj.Spec.Uses != nil {
+		uses = obj.Spec.Uses.Postgres
 	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
-func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
-	if obj.Spec == nil || obj.Spec.Uses == nil {
-		return pagination.NewFacetableConnection(pagination.EmptyConnection[*postgres.Postgres](), nil, (*postgres.TeamPostgresFilter)(nil)), nil
+func (r *availableValuesResolver) PostgresMajorVersions(ctx context.Context, obj *environment.AvailableValues) (*environment.AvailableValueOptions, error) {
+	return postgres.AvailableMajorVersions(ctx, obj.EnvironmentName)
+}
+
+func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
+	var uses []liberatorv1.PostgresUse
+	if obj.Spec != nil && obj.Spec.Uses != nil {
+		uses = obj.Spec.Uses.Postgres
 	}
-	instances, err := postgres.ListPostgresForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Spec.Uses.Postgres)
-	if err != nil {
-		return nil, err
-	}
-	return pagination.NewFacetableConnection(pagination.NewConnectionWithoutPagination(instances), instances, (*postgres.TeamPostgresFilter)(nil)), nil
+	return workloadPostgresConnectionForWorkload(ctx, obj.TeamSlug, obj.EnvironmentName, uses, first, after, last, before)
 }
 
 func (r *mutationResolver) CreatePostgresAccess(ctx context.Context, input postgres.CreatePostgresAccessInput) (*postgres.CreatePostgresAccessPayload, error) {
@@ -85,6 +86,10 @@ func (r *mutationResolver) DeletePostgres(ctx context.Context, input postgres.De
 	return postgres.DeletePostgres(ctx, input)
 }
 
+func (r *postgresResolver) Team(ctx context.Context, obj *postgres.Postgres) (*team.Team, error) {
+	return team.Get(ctx, obj.TeamSlug)
+}
+
 func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -94,6 +99,15 @@ func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postg
 		return nil, nil
 	}
 	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, *obj.ActiveBranch)
+}
+
+func (r *postgresResolver) Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresWorkload], error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	workloads := postgres.WorkloadsForPostgres(ctx, obj)
+	return pagination.NewConnection(pagination.Slice(workloads, page), page, len(workloads)), nil
 }
 
 func (r *postgresResolver) Branch(ctx context.Context, obj *postgres.Postgres, name string) (*postgres.PostgresBranch, error) {
@@ -124,6 +138,10 @@ func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.P
 	return postgres.GetPostgresAccessConnection(ctx, postgres.PostgresAccessConnectionInput{
 		Name: obj.Name, TeamSlug: obj.TeamSlug, EnvironmentName: obj.EnvironmentName,
 	})
+}
+
+func (r *postgresBranchResolver) EarliestRestoreTime(ctx context.Context, obj *postgres.PostgresBranch) (*time.Time, error) {
+	return postgres.EarliestRestoreTime(ctx, obj)
 }
 
 func (r *postgresBranchResolver) Team(ctx context.Context, obj *postgres.PostgresBranch) (*team.Team, error) {
@@ -166,6 +184,10 @@ func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination
 	return &postgres.PostgresFacets{AllInstances: obj.GetAllItems(), FilteredInstances: filtered}, nil
 }
 
+func (r *postgresWorkloadResolver) Branch(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.PostgresBranch, error) {
+	return postgres.GetPostgresBranch(ctx, obj.Workload.GetTeamSlug(), obj.Workload.GetEnvironmentName(), obj.PostgresName, obj.BranchName)
+}
+
 func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -202,10 +224,15 @@ func (r *Resolver) PostgresConnection() gengql.PostgresConnectionResolver {
 	return &postgresConnectionResolver{r}
 }
 
+func (r *Resolver) PostgresWorkload() gengql.PostgresWorkloadResolver {
+	return &postgresWorkloadResolver{r}
+}
+
 type (
 	postgresResolver                 struct{ *Resolver }
 	postgresAccessResolver           struct{ *Resolver }
 	postgresBranchResolver           struct{ *Resolver }
 	postgresBranchConnectionResolver struct{ *Resolver }
 	postgresConnectionResolver       struct{ *Resolver }
+	postgresWorkloadResolver         struct{ *Resolver }
 )

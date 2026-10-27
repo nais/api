@@ -1,0 +1,251 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.19.0
+    helm.sh/resource-policy: keep
+    meta.helm.sh/release-name: pgrator
+    meta.helm.sh/release-namespace: nais-system
+  creationTimestamp: "2026-09-02T12:43:32Z"
+  generation: 4
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: postgres.nais.io
+  resourceVersion: "1790831993027679000"
+  uid: f160849a-52da-43f5-be72-7eec6851a011
+spec:
+  conversion:
+    strategy: None
+  group: nais.io
+  names:
+    categories:
+      - nais
+    kind: Postgres
+    listKind: PostgresList
+    plural: postgres
+    singular: postgres
+  scope: Namespaced
+  versions:
+    - additionalPrinterColumns:
+        - jsonPath: .spec.majorVersion
+          name: Major Version
+          type: string
+        - jsonPath: .spec.resources.diskSize
+          name: Disk Size
+          type: string
+        - jsonPath: .spec.resources.cpu
+          name: CPU
+          type: string
+        - jsonPath: .spec.resources.memory
+          name: Memory
+          type: string
+        - jsonPath: .status.activeBranch
+          name: Active branch
+          type: string
+        - jsonPath: .status.reconcileTime
+          name: Last reconcile
+          type: string
+      name: v1
+      schema:
+        openAPIV3Schema:
+          description: Postgres is the Schema for the postgres API
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: spec defines the desired state of Postgres
+              properties:
+                activeBranch:
+                  description: |-
+                    ActiveBranch selects the local branch name within this Postgres for normal workloads.
+                    When omitted, pgrator retains the current active branch.
+                  type: string
+                extensions:
+                  description: Extensions to enable in the Postgres database.
+                  items:
+                    properties:
+                      name:
+                        description: Name of the Postgres extension to enable.
+                        type: string
+                    required:
+                      - name
+                    type: object
+                  type: array
+                highAvailability:
+                  description: |-
+                    HighAvailability adds a third instance and enables synchronous replication.
+
+                    A cluster always runs a primary and a standby, so failover is available either
+                    way. What this adds is the guarantee that an acknowledged commit survives
+                    losing the primary, at the cost of write latency.
+                  type: boolean
+                majorVersion:
+                  description: MajorVersion of Postgres to use.
+                  enum:
+                    - "18"
+                    - "17"
+                    - "16"
+                  type: string
+                resources:
+                  default: {}
+                  description: Resources configures compute and disk for the Postgres
+                    cluster.
+                  properties:
+                    cpu:
+                      anyOf:
+                        - type: integer
+                        - type: string
+                      default: 100m
+                      description: Cpu is the CPU resources for the Postgres cluster.
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    diskSize:
+                      anyOf:
+                        - type: integer
+                        - type: string
+                      default: 10Gi
+                      description: DiskSize is the disk size for the Postgres cluster.
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    memory:
+                      anyOf:
+                        - type: integer
+                        - type: string
+                      default: 512Mi
+                      description: Memory is the memory resources for the Postgres cluster.
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                  type: object
+              required:
+                - majorVersion
+              type: object
+            status:
+              description: status defines the observed state of Postgres
+              properties:
+                activeBranch:
+                  description: ActiveBranch is the local branch name currently selected
+                    by pgrator.
+                  type: string
+                conditions:
+                  description: |-
+                    conditions represent the current state of the controlled resource.
+                    Each condition has a unique type and reflects the status of a specific aspect of the resource.
+
+                    Standard condition types include:
+                    - "Available": the resource is fully functional
+                    - "Progressing": the resource is being created or updated
+                    - "Degraded": the resource failed to reach or maintain its desired state
+
+                    The status of each condition is one of True, False, or Unknown.
+                  items:
+                    description: Condition contains details for one aspect of the current
+                      state of this API Resource.
+                    properties:
+                      lastTransitionTime:
+                        description: |-
+                          lastTransitionTime is the last time the condition transitioned from one status to another.
+                          This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        format: date-time
+                        type: string
+                      message:
+                        description: |-
+                          message is a human readable message indicating details about the transition.
+                          This may be an empty string.
+                        maxLength: 32768
+                        type: string
+                      observedGeneration:
+                        description: |-
+                          observedGeneration represents the .metadata.generation that the condition was set based upon.
+                          For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                          with respect to the current state of the instance.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      reason:
+                        description: |-
+                          reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                          Producers of specific condition types may define expected values and meanings for this field,
+                          and whether the values are considered a guaranteed API.
+                          The value should be a CamelCase string.
+                          This field may not be empty.
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                        type: string
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                        type: string
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                        type: string
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    type: object
+                  type: array
+                  x-kubernetes-list-map-keys:
+                    - type
+                  x-kubernetes-list-type: map
+                correlationID:
+                  type: string
+                observedGeneration:
+                  format: int64
+                  type: integer
+                reconcilePhase:
+                  type: string
+                reconcileTime:
+                  format: date-time
+                  type: string
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+status:
+  acceptedNames:
+    categories:
+      - nais
+    kind: Postgres
+    listKind: PostgresList
+    plural: postgres
+    singular: postgres
+  conditions:
+    - lastTransitionTime: "2026-09-02T12:43:32Z"
+      message: no conflicts found
+      reason: NoConflicts
+      status: "True"
+      type: NamesAccepted
+    - lastTransitionTime: "2026-09-02T12:43:32Z"
+      message: the initial names have been accepted
+      reason: InitialNamesAccepted
+      status: "True"
+      type: Established
+  storedVersions:
+    - v1

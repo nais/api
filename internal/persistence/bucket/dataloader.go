@@ -27,7 +27,7 @@ func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*Buc
 		Group:    "storage.cnrm.cloud.google.com",
 		Version:  "v1beta1",
 		Resource: "storagebuckets",
-	}))
+	}), watcher.WithInformerFilter("!postgres.nais.io/name"))
 	w.Start(ctx)
 	return w
 }

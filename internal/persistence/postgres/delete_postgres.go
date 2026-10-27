@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/kubernetes/watcher"
@@ -89,12 +90,7 @@ func DeletePostgres(ctx context.Context, input DeletePostgresInput) (*DeletePost
 }
 
 func hasPostgresDeletionFinalizer(finalizers []string) bool {
-	for _, finalizer := range finalizers {
-		if finalizer == "postgres.nais.io" {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(finalizers, "postgres.nais.io")
 }
 
 func listPostgresDependents(ctx context.Context, environment string, team slug.Slug, gvr schema.GroupVersionResource) (*unstructured.UnstructuredList, error) {

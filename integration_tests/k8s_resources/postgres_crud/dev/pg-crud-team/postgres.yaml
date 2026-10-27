@@ -33,7 +33,28 @@ kind: Cluster
 metadata:
   name: pg-existing-main-f68e5aa4
   namespace: pg-crud-team
+spec:
+  plugins:
+    - enabled: true
+      isWALArchiver: true
+      name: barman-cloud.cloudnative-pg.io
+      parameters:
+        barmanObjectName: existing-main-backups
 status:
   conditions:
     - type: Ready
       status: "True"
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: existing-main-backups
+  namespace: pg-crud-team
+spec:
+  configuration:
+    destinationPath: gs://postgres-test-backups
+status:
+  serverRecoveryWindow:
+    pg-existing-main-f68e5aa4:
+      firstRecoverabilityPoint: "2026-09-29T00:00:00Z"
+      lastSuccessfulBackupTime: "2026-09-30T12:00:00Z"

@@ -42,6 +42,11 @@ go test -v -tags=integration_test -run "TestIntegration/<testnavn>" ./integratio
 5. **Før PR-arbeid leveres**: Kjør CI sin format- og genereringskommando `mise run fmt ::: generate`. Se gjennom `git status --short` og ta med alle endringer i genererte filer; tester og bygg alene avslører ikke utdaterte genererte filer. Når endringene er committet, skal `mise run fmt ::: generate && git diff --exit-code` passere på ren arbeidskopi.
 6. **Ved kompileringsfeil**: Sjekk at generert kode er oppdatert
 
+## Tester
+
+- Bruk vanlige Go-sjekker med `t.Error`/`t.Fatal` og varianter, ikke `testify/assert` eller `testify/require`.
+- Sammenlign structs med `github.com/google/go-cmp/cmp`, gjerne `cmp.Diff` for lesbare feilmeldinger.
+
 ## Dokumentasjon
 
 - **Utviklingspraksis**: `docs/practices.md`

@@ -171,6 +171,15 @@ sql:
         out: "../internal/grpc/grpcdeployment/grpcdeploymentsql"
 
   - <<: *default_domain
+    name: "Service accounts SQL for gRPC"
+    queries: "../internal/grpc/grpcserviceaccount/queries"
+    gen:
+      go:
+        <<: *default_go
+        package: "grpcserviceaccountsql"
+        out: "../internal/grpc/grpcserviceaccount/grpcserviceaccountsql"
+
+  - <<: *default_domain
     name: "Usersync SQL"
     queries: "../internal/usersync/queries"
     gen:

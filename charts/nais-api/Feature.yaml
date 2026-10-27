@@ -4,7 +4,7 @@ environmentKinds:
 dependencies:
   - allOf:
       - monitoring-crds
-      - fqdn-policy
+      - fqdn-policy-crds
 
 values:
   apiserverIP:
@@ -131,12 +131,6 @@ values:
     config:
       type: string
 
-  staticServiceAccounts:
-    displayName: Static nais-api service accounts
-    description: JSON-encoded list of static service accounts
-    computed:
-      template: "{{.Management.teams_static_service_accounts | quote}}"
-
   database.instance:
     displayName: Cloud SQL instance name
     description: The name of the Cloud SQL instance
@@ -243,6 +237,12 @@ values:
     description: Organization ID in Zitadel for this tenant
     computed:
       template: "{{ .Env.zitadel_organization_id | quote }}"
+
+  zitadel.naisOrganizationID:
+    displayName: Nais Zitadel organization ID
+    description: Enables syncing active nais.io users as viewers and allows nais.io Console login
+    computed:
+      template: '{{ .Env.zitadel_nais_organization_id | default "" | quote }}'
 
   aiven.projects:
     displayName: Aiven projects

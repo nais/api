@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strconv"
 	"strings"
@@ -34,7 +35,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/utils/ptr"
 )
 
 func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgresBranchPayload, error) {
@@ -71,7 +71,14 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err := ensureInstanceMayBeDeleted(input.Branch, postgres); err != nil {
 		return nil, err
 	}
-	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: ptr.To(instance.GetUID())}}); err != nil {
+	branches, err := client.Namespace(input.TeamSlug.String()).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("listing remaining Postgres branches before deletion: %w", err)
+	}
+	if err := ensureAnotherBranchExists(input.Postgres, input.Branch, branches); err != nil {
+		return nil, err
+	}
+	if err := client.Namespace(input.TeamSlug.String()).Delete(ctx, objectName, metav1.DeleteOptions{Preconditions: &metav1.Preconditions{UID: new(instance.GetUID())}}); err != nil {
 		return nil, err
 	}
 
@@ -96,14 +103,29 @@ func ensureInstanceMayBeDeleted(branch string, postgres *unstructured.Unstructur
 	if obj.Status != nil {
 		current = obj.Status.ActiveBranch
 	}
-	// Pgrator selects main when neither field is set.
-	if requested == "" && current == "" {
+	// Until an observed selection exists, bindings follow the initial main,
+	// even when activation of another branch has already been requested.
+	if current == "" {
 		current = nais_io_v1.DefaultBranchName
 	}
 	if branch == requested || branch == current {
 		return apierror.Errorf("PostgresBranch %q is active and cannot be deleted", branch)
 	}
 	return nil
+}
+
+func ensureAnotherBranchExists(postgres, branch string, branches *unstructured.UnstructuredList) error {
+	for i := range branches.Items {
+		obj := &branches.Items[i]
+		if obj.GetDeletionTimestamp() != nil {
+			continue
+		}
+		candidate, err := toPostgresBranch(obj, "")
+		if err == nil && candidate.PostgresName == postgres && candidate.Name != branch {
+			return nil
+		}
+	}
+	return apierror.Errorf("PostgresBranch %q is the last branch in Postgres %q; delete the whole Postgres instead", branch, postgres)
 }
 
 // ListPostgresForWorkload resolves the Postgres databases referenced by a workload,
@@ -121,6 +143,94 @@ func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmen
 		return cmp.Compare(a.Name, b.Name)
 	})
 	return instances, nil
+}
+
+func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse, page *pagination.Pagination) ([]*WorkloadPostgres, int, error) {
+	uniqueUses, err := uniquePostgresUses(uses)
+	if err != nil {
+		return nil, 0, err
+	}
+	slices.SortFunc(uniqueUses, func(a, b liberatorv1.PostgresUse) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	totalCount := len(uniqueUses)
+	pageUses := pagination.Slice(uniqueUses, page)
+	instances, err := ListPostgresForWorkload(ctx, teamSlug, environmentName, pageUses)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	usesByName := make(map[string]liberatorv1.PostgresUse, len(pageUses))
+	for _, use := range pageUses {
+		usesByName[use.Name] = use
+	}
+
+	workloadPostgreses := make([]*WorkloadPostgres, 0, len(instances))
+	for _, instance := range instances {
+		use := usesByName[instance.Name]
+		branchName := selectedBranchName(instance, use)
+		branch, err := GetPostgresBranch(ctx, teamSlug, environmentName, instance.Name, branchName)
+		if err != nil {
+			return nil, 0, err
+		}
+		role, err := workloadPostgresRole(use.Role)
+		if err != nil {
+			return nil, 0, err
+		}
+		workloadPostgreses = append(workloadPostgreses, &WorkloadPostgres{
+			EnvPrefix: optionalPostgresUseString(use.EnvPrefix),
+			Role:      role,
+			Branch:    branch,
+			Postgres:  instance,
+		})
+	}
+	return workloadPostgreses, totalCount, nil
+}
+
+func workloadPostgresRole(role string) (PostgresUserRole, error) {
+	switch role {
+	case "", "admin":
+		return PostgresUserRoleAdmin, nil
+	case "read":
+		return PostgresUserRoleRead, nil
+	case "readwrite":
+		return PostgresUserRoleReadwrite, nil
+	default:
+		return "", fmt.Errorf("unknown Postgres use role %q", role)
+	}
+}
+
+func optionalPostgresUseString(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+func uniquePostgresUses(uses []liberatorv1.PostgresUse) ([]liberatorv1.PostgresUse, error) {
+	unique := make([]liberatorv1.PostgresUse, 0, len(uses))
+	byName := make(map[string]liberatorv1.PostgresUse, len(uses))
+	for _, use := range uses {
+		if existing, ok := byName[use.Name]; ok {
+			if existing.Branch != use.Branch {
+				return nil, fmt.Errorf("workload references multiple branches for Postgres %q", use.Name)
+			}
+			continue
+		}
+		byName[use.Name] = use
+		unique = append(unique, use)
+	}
+	return unique, nil
+}
+
+func selectedBranchName(instance *Postgres, use liberatorv1.PostgresUse) string {
+	if use.Branch != "" {
+		return use.Branch
+	}
+	if instance.ActiveBranch != nil {
+		return *instance.ActiveBranch
+	}
+	return nais_io_v1.DefaultBranchName
 }
 
 func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
@@ -441,7 +551,7 @@ func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Paginat
 }
 
 func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*Postgres, error) {
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgres"}))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName)
 	if err != nil {
 		return nil, err
 	}
@@ -633,19 +743,51 @@ func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentNa
 		return nil
 	}
 	postgres, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName)
-	if err != nil || postgres.ActiveBranch == nil || *postgres.ActiveBranch != branchName {
+	if err != nil {
 		return nil
 	}
+	usesBranch := func(use liberatorv1.PostgresUse) bool {
+		return use.Name == instance.PostgresName && selectedBranchName(postgres, use) == branchName
+	}
+	return workloadsMatchingPostgresUse(ctx, teamSlug, environmentName, usesBranch)
+}
+
+func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWorkload {
+	workloads := workloadsMatchingPostgresUse(ctx, postgres.TeamSlug, postgres.EnvironmentName, func(use liberatorv1.PostgresUse) bool {
+		return use.Name == postgres.Name
+	})
+	ret := make([]*PostgresWorkload, 0, len(workloads))
+	for _, current := range workloads {
+		var uses []liberatorv1.PostgresUse
+		switch current := current.(type) {
+		case *application.Application:
+			uses = current.Spec.Uses.Postgres
+		case *job.Job:
+			uses = current.Spec.Uses.Postgres
+		}
+		branchName := nais_io_v1.DefaultBranchName
+		for _, use := range uses {
+			if use.Name == postgres.Name {
+				branchName = selectedBranchName(postgres, use)
+				break
+			}
+		}
+		ret = append(ret, &PostgresWorkload{Workload: current, PostgresName: postgres.Name, BranchName: branchName})
+	}
+	return ret
+}
+
+func workloadsMatchingPostgresUse(ctx context.Context, teamSlug slug.Slug, environmentName string, matches func(liberatorv1.PostgresUse) bool) []workload.Workload {
 	apps := application.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	jobs := job.ListAllForTeamInEnvironment(ctx, teamSlug, environmentName)
 	ret := make([]workload.Workload, 0)
 	for _, app := range apps {
-		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, func(use liberatorv1.PostgresUse) bool { return use.Name == instance.PostgresName }) {
+		if app.Spec != nil && app.Spec.Uses != nil && slices.ContainsFunc(app.Spec.Uses.Postgres, matches) {
 			ret = append(ret, app)
 		}
 	}
 	for _, j := range jobs {
-		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, func(use liberatorv1.PostgresUse) bool { return use.Name == instance.PostgresName }) {
+		if j.Spec != nil && j.Spec.Uses != nil && slices.ContainsFunc(j.Spec.Uses.Postgres, matches) {
 			ret = append(ret, j)
 		}
 	}
@@ -695,6 +837,7 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	}
 	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(pg)
+	setPostgresUserLabels(pg, input.Labels)
 	if input.HighAvailability != nil {
 		pg.Spec.HighAvailability = *input.HighAvailability
 	}
@@ -751,6 +894,7 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 
 	var changes []*PostgresUpdatedActivityLogEntryDataUpdatedField
 	for _, f := range []func(*nais_io_v1.Postgres, UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error){
+		updatePostgresUserLabels,
 		updateHighAvailability,
 		updateResources,
 	} {
@@ -789,6 +933,38 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 		return nil, err
 	}
 	return &UpdatePostgresPayload{Postgres: ret}, nil
+}
+
+func setPostgresUserLabels(pg *nais_io_v1.Postgres, labels []*model.ResourceLabel) bool {
+	existing := pg.GetLabels()
+	merged := model.MergeUserLabels(existing, labels)
+	for key, value := range existing {
+		if model.HiddenLabelKey(key, value) {
+			merged[key] = value
+		}
+	}
+	if maps.Equal(existing, merged) {
+		return false
+	}
+	pg.SetLabels(merged)
+	return true
+}
+
+func updatePostgresUserLabels(pg *nais_io_v1.Postgres, input UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.Labels == nil {
+		return nil, nil
+	}
+
+	oldLabels := pg.GetLabels()
+	if !setPostgresUserLabels(pg, input.Labels) {
+		return nil, nil
+	}
+
+	return []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
+		Field:    "labels",
+		OldValue: new(model.FormatUserLabels(model.UserLabels(oldLabels))),
+		NewValue: new(model.FormatUserLabels(model.UserLabels(pg.GetLabels()))),
+	}}, nil
 }
 
 // applyResources sets the quantities that were provided. Omitted values are left as they are,
