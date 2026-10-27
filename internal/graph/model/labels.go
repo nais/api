@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/99designs/gqlgen/graphql"
 	labelpolicy "github.com/nais/v13s/pkg/api/labels"
 	"k8s.io/apimachinery/pkg/api/validate/content"
 	"k8s.io/apimachinery/pkg/labels"
@@ -85,13 +86,8 @@ func ValidateUserLabels(labels []*ResourceLabel) error {
 }
 
 func (l *LabelFilters) UnmarshalGQL(v any) error {
-	inputList, ok := v.([]any)
-	if !ok {
-		return nil
-	}
-
 	var filters LabelFilters
-	for _, item := range inputList {
+	for _, item := range graphql.CoerceList(v) {
 		itemMap, ok := item.(map[string]any)
 		if !ok {
 			continue
