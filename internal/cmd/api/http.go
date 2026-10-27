@@ -104,7 +104,8 @@ func newHTTPRouter(
 	contextDependencies func(http.Handler) http.Handler,
 ) http.Handler {
 	router := chi.NewRouter()
-	router.Method("GET", "/",
+	router.Method(
+		"GET", "/",
 		otelhttp.NewHandler(playground.Handler("GraphQL playground", "/graphql"), "playground"),
 	)
 
