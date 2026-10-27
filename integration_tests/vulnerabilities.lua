@@ -239,22 +239,22 @@ end)
 Test.gql("Filter vulnerability summaries by user labels", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
-		query($filter: TeamVulnerabilitySummaryFilter = { labels: [{ key: "owner", value: "label-test" }, { key: "empty" }] }) {
+		query($labels: [LabelFilter!] = [{ key: "owner", value: "label-test" }, { key: "empty" }]) {
 			team(slug: "slug-1") {
 				exists: vulnerabilitySummaries(
 					first: 1
-					filter: $filter
+					labels: $labels
 					orderBy: { field: VULNERABILITY_RISK_SCORE, direction: DESC }
 				) {
 					pageInfo { totalCount }
 					nodes { workload { name } }
 				}
 				empty: vulnerabilitySummaries(
-					filter: { labels: [{ key: "owner", value: "label-test" }, { key: "empty", value: "" }] }
+					labels: [{ key: "owner", value: "label-test" }, { key: "empty", value: "" }]
 				) {
 					pageInfo { totalCount }
 				}
-				missing: vulnerabilitySummaries(filter: { labels: [{ key: "absent-label" }] }) {
+				missing: vulnerabilitySummaries(labels: [{ key: "absent-label" }]) {
 					pageInfo { totalCount }
 				}
 			}
