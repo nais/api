@@ -7,6 +7,9 @@ spec:
   postgres: foobar
   branchName: failed
 status:
+  configuration:
+    parameters:
+      shared_buffers: 128MB
   reconcilePhase: Failed
   conditions:
     - type: RecoveryFailed

@@ -31,8 +31,8 @@ extend type Mutation {
 	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
 	team will not get an initial owner. To add one or more owners to the team, refer to the `addTeamOwners` mutation.
 
-	Creation of a team will also create external resources for the team, which will be managed by the Nais API
-	reconcilers. This will be done asynchronously.
+	Creation of a team will also create external resources for the team. These resources are managed by the platform
+	and are created asynchronously.
 
 	Refer to the [official Nais documentation](https://docs.nais.io/explanations/team/) for more information regarding
 	Nais teams.
@@ -103,7 +103,7 @@ The team type represents a team on the [Nais platform](https://nais.io/).
 
 Learn more about what Nais teams are and what they can be used for in the [official Nais documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [Nais API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by the platform.
 """
 type Team implements Node {
 	"The globally unique ID of the team."

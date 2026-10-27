@@ -61,6 +61,7 @@ type PostgresBranch struct {
 	PostgresName    string                 `json:"postgres"`
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
+	Configuration   *PostgresConfiguration `json:"configuration,omitempty"`
 }
 
 type TeamPostgresFilter struct {
@@ -453,10 +454,12 @@ func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*Po
 		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
 	}
 	state := PostgresBranchStateProgressing
+	var configuration *PostgresConfiguration
 	if obj.Status != nil {
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
+		configuration = toPostgresConfiguration(obj.Status.Configuration)
 	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels)}, nil
+	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels), Configuration: configuration}, nil
 }
 
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {

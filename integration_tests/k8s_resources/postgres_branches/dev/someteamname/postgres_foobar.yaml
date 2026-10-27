@@ -23,6 +23,27 @@ spec:
   branchName: main
 status:
   clusterName: pg-foobar-main-a4f04c0c
+  configuration:
+    parameters:
+      log_min_duration_statement: "1000"
+      shared_buffers: 512MB
+      effective_cache_size: 1536MB
+      work_mem: 32MB
+      maintenance_work_mem: 256MB
+      random_page_cost: "1.1"
+      effective_io_concurrency: "200"
+      huge_pages: "off"
+      track_io_timing: "on"
+      commit_delay: "100"
+      commit_siblings: "10"
+      max_wal_size: 2GB
+      wal_compression: zstd
+      checkpoint_timeout: 10min
+      bgwriter_lru_maxpages: "200"
+      pg_stat_statements.track: all
+      pgaudit.log: read,write,ddl,role
+      pgaudit.log_parameter: "on"
+      pgaudit.log_relation: "on"
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState
