@@ -307,6 +307,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
+	lokiProxy, err := loki.NewProxy(cfg.Logging.LokiQuerierAddress, log.WithField("subsystem", "loki_proxy"))
+	if err != nil {
+		return fmt.Errorf("create loki proxy: %w", err)
+	}
+
 	contextDependencies, err := ConfigureGraph(
 		ctx,
 		cfg.Fakes,
@@ -347,6 +352,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			githubOIDCMiddleware,
 			authHandler,
 			graphHandler,
+			lokiProxy,
 			contextDependencies,
 			log.WithField("subsystem", "http"),
 		)
