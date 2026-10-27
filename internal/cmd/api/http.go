@@ -155,7 +155,7 @@ func newHTTPRouter(
 			))
 			r.Method("POST", "/", graphHandler)
 		})
-		r.Mount("/api/loki", otelhttp.NewHandler(lokiProxy, "loki"))
+		r.Mount("/api/loki", otelhttp.NewHandler(http.StripPrefix("/api", lokiProxy), "loki"))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {

@@ -43,7 +43,7 @@ func TestLokiProxyAuthentication(t *testing.T) {
 			})
 			router := newHTTPRouter(Fakes{}, jwt, kubernetes, github, authn.New(nil, log), nil, proxy, identity)
 			for _, websocketRequest := range []bool{false, true} {
-				req := httptest.NewRequest("GET", "/api/loki/dev/loki/api/v1/tail", nil)
+				req := httptest.NewRequest("GET", "/api/loki/api/v1/tail", nil)
 				if websocketRequest {
 					req.Header.Set("Connection", "Upgrade")
 					req.Header.Set("Upgrade", "websocket")
@@ -80,7 +80,7 @@ func TestLokiProxyWebSocketAuthentication(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer upstream.Close()
-	proxy, err := loki.NewProxy(upstream.URL, []string{"dev"}, log)
+	proxy, err := loki.NewProxy(upstream.URL, log)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestLokiProxyWebSocketAuthentication(t *testing.T) {
 	defer server.Close()
 
 	for _, authenticated := range []bool{false, true} {
-		req := httptest.NewRequest("GET", "/api/loki/dev/loki/api/v1/labels", nil)
+		req := httptest.NewRequest("GET", "/api/loki/api/v1/labels", nil)
 		want := http.StatusUnauthorized
 		headers := http.Header{}
 		if authenticated {
@@ -112,7 +112,7 @@ func TestLokiProxyWebSocketAuthentication(t *testing.T) {
 			t.Errorf("authenticated=%v: got %d, want %d", authenticated, resp.Code, want)
 		}
 
-		target := "ws" + strings.TrimPrefix(server.URL, "http") + "/api/loki/dev/loki/api/v1/tail?query=" + url.QueryEscape(`{app="test"}`)
+		target := "ws" + strings.TrimPrefix(server.URL, "http") + "/api/loki/api/v1/tail?query=" + url.QueryEscape(`{app="test"}`)
 		conn, respWS, err := websocket.DefaultDialer.DialContext(t.Context(), target, headers)
 		if !authenticated {
 			if err == nil {

@@ -307,7 +307,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
-	lokiProxy, err := loki.NewProxy(cfg.Logging.LokiQuerierAddress, cfg.K8s.AllClusterNames(), log.WithField("subsystem", "loki_proxy"))
+	lokiProxy, err := loki.NewProxy(cfg.Logging.LokiQuerierAddress, log.WithField("subsystem", "loki_proxy"))
 	if err != nil {
 		return fmt.Errorf("create loki proxy: %w", err)
 	}
