@@ -30,4 +30,5 @@ spec:
                     properties:
                       name:
                         type: string
-                        enum: ["tablefunc", "citext", "pg_trgm", "pgaudit", "postgis", "timescaledb"]
+                        enum:
+                          ["tablefunc", "citext", "pg_trgm", "pgaudit", "postgis", "timescaledb"]
