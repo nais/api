@@ -17,7 +17,6 @@ import (
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/ident"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -3113,7 +3112,7 @@ type ComplexityRoot struct {
 		ViewerIsMember            func(childComplexity int) int
 		ViewerIsOwner             func(childComplexity int) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
-		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, labels []*model.LabelFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
+		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
 		WorkloadUtilization       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Workloads                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
@@ -17606,7 +17605,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.VulnerabilitySummaries(childComplexity, args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter), args["labels"].([]*model.LabelFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder)), true
+		return e.ComplexityRoot.Team.VulnerabilitySummaries(childComplexity, args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder)), true
 
 	case "Team.vulnerabilitySummary":
 		if e.ComplexityRoot.Team.VulnerabilitySummary == nil {
@@ -35748,18 +35747,18 @@ extend type ContainerImage {
 }
 
 extend type Team {
-	vulnerabilitySummary(filter: TeamVulnerabilitySummaryFilter): TeamVulnerabilitySummary!
+	vulnerabilitySummary(
+		"""
+		Filter the aggregate by environment, priority or KEV.
+		User-label filters are rejected; use vulnerabilitySummaries for label-filtered workloads.
+		"""
+		filter: TeamVulnerabilitySummaryFilter
+	): TeamVulnerabilitySummary!
 
 	"Fetch vulnerability summaries for workloads in the team."
 	vulnerabilitySummaries(
-		"Filter vulnerability summaries by environment."
+		"Filter workload vulnerability summaries by environment, priority, KEV or user labels."
 		filter: TeamVulnerabilitySummaryFilter
-
-		"""
-		Match all user-label filters. An omitted value matches any value;
-		an empty string matches only an empty value.
-		"""
-		labels: [LabelFilter!]
 
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -35806,6 +35805,13 @@ extend enum ActivityLogEntryResourceType {
 Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
+	"""
+	Match all user-label filters for Team.vulnerabilitySummaries.
+	An omitted value matches any value; an empty string matches only an empty value.
+	Team.vulnerabilitySummary rejects nonempty label filters.
+	"""
+	labels: [LabelFilter!]
+
 	"""
 	Only return vulnerability summaries for the given environment.
 	"""

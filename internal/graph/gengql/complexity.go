@@ -8,7 +8,6 @@ import (
 	authz "github.com/nais/api/internal/auth/authz"
 	deployment "github.com/nais/api/internal/deployment"
 	repository "github.com/nais/api/internal/github/repository"
-	model "github.com/nais/api/internal/graph/model"
 	pagination "github.com/nais/api/internal/graph/pagination"
 	issue "github.com/nais/api/internal/issue"
 	event "github.com/nais/api/internal/kubernetes/event"
@@ -273,7 +272,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Valkeys = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, labels []*model.LabelFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
+	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int {

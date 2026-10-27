@@ -19,7 +19,6 @@ import (
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/ident"
-	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/issue"
@@ -87,7 +86,7 @@ type TeamResolver interface {
 	ImageVulnerabilityHistory(ctx context.Context, obj *team.Team, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilityFixHistory(ctx context.Context, obj *team.Team, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 	VulnerabilitySummary(ctx context.Context, obj *team.Team, filter *vulnerability.TeamVulnerabilitySummaryFilter) (*vulnerability.TeamVulnerabilitySummary, error)
-	VulnerabilitySummaries(ctx context.Context, obj *team.Team, filter *vulnerability.TeamVulnerabilitySummaryFilter, labels []*model.LabelFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) (*pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary], error)
+	VulnerabilitySummaries(ctx context.Context, obj *team.Team, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) (*pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary], error)
 	Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error)
 }
 type TeamDeleteKeyResolver interface {
@@ -1386,54 +1385,46 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 		return nil, err
 	}
 	args["filter"] = arg0
-	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "labels",
-		func(ctx context.Context, v any) ([]*model.LabelFilter, error) {
-			return ec.unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, v)
-		})
-	if err != nil {
-		return nil, err
-	}
-	args["labels"] = arg1
-	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
 			return ec.unmarshalOInt2ᚖint(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["first"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+	args["first"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
 			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["after"] = arg3
-	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+	args["after"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
 			return ec.unmarshalOInt2ᚖint(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["last"] = arg4
-	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
 			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["before"] = arg5
-	arg6, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+	args["before"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*vulnerability.VulnerabilitySummaryOrder, error) {
 			return ec.unmarshalOVulnerabilitySummaryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilitySummaryOrder(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["orderBy"] = arg6
+	args["orderBy"] = arg5
 	return args, nil
 }
 
@@ -3260,7 +3251,7 @@ func (ec *executionContext) _Team_vulnerabilitySummaries(ctx context.Context, fi
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Team().VulnerabilitySummaries(ctx, obj, fc.Args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter), fc.Args["labels"].([]*model.LabelFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder))
+			return ec.Resolvers.Team().VulnerabilitySummaries(ctx, obj, fc.Args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary]) graphql.Marshaler {
