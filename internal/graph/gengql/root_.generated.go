@@ -1678,6 +1678,7 @@ type ComplexityRoot struct {
 		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
 		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
+		ReanalyzeVulnerabilities         func(childComplexity int, input vulnerability.ReanalyzeVulnerabilitiesInput) int
 		RemoveConfigValue                func(childComplexity int, input config.RemoveConfigValueInput) int
 		RemoveRepositoryFromTeam         func(childComplexity int, input repository.RemoveRepositoryFromTeamInput) int
 		RemoveSecretValue                func(childComplexity int, input secret.RemoveSecretValueInput) int
@@ -2244,6 +2245,11 @@ type ComplexityRoot struct {
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int) int
+	}
+
+	ReanalyzeVulnerabilitiesPayload struct {
+		NumImages   func(childComplexity int) int
+		RequestedAt func(childComplexity int) int
 	}
 
 	Reconciler struct {
@@ -10708,6 +10714,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.EnableReconciler(childComplexity, args["input"].(reconciler.EnableReconcilerInput)), true
 
+	case "Mutation.reanalyzeVulnerabilities":
+		if e.ComplexityRoot.Mutation.ReanalyzeVulnerabilities == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_reanalyzeVulnerabilities_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ReanalyzeVulnerabilities(childComplexity, args["input"].(vulnerability.ReanalyzeVulnerabilitiesInput)), true
+
 	case "Mutation.removeConfigValue":
 		if e.ComplexityRoot.Mutation.RemoveConfigValue == nil {
 			break
@@ -13651,6 +13669,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity), true
+
+	case "ReanalyzeVulnerabilitiesPayload.numImages":
+		if e.ComplexityRoot.ReanalyzeVulnerabilitiesPayload.NumImages == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ReanalyzeVulnerabilitiesPayload.NumImages(childComplexity), true
+
+	case "ReanalyzeVulnerabilitiesPayload.requestedAt":
+		if e.ComplexityRoot.ReanalyzeVulnerabilitiesPayload.RequestedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ReanalyzeVulnerabilitiesPayload.RequestedAt(childComplexity), true
 
 	case "Reconciler.activityLog":
 		if e.ComplexityRoot.Reconciler.ActivityLog == nil {
@@ -22149,6 +22181,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchOrder,
 		ec.unmarshalInputPostgresBranchFilter,
 		ec.unmarshalInputPostgresBranchOrder,
+		ec.unmarshalInputReanalyzeVulnerabilitiesInput,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
@@ -35466,6 +35499,9 @@ extend enum ActivityLogActivityType {
 	This mutation is currently unstable and may change in the future.
 	"""
 	updateImageVulnerability(input: UpdateImageVulnerabilityInput!): UpdateImageVulnerabilityPayload!
+
+	"Queue vulnerability reanalysis for one workload or all workloads in a team environment."
+	reanalyzeVulnerabilities(input: ReanalyzeVulnerabilitiesInput!): ReanalyzeVulnerabilitiesPayload!
 }
 
 extend type Query {
@@ -36462,6 +36498,27 @@ input UpdateImageVulnerabilityInput {
 	state: ImageVulnerabilitySuppressionState
 }
 
+"Omit both workload selectors to reanalyze the whole team environment, or supply both to select one workload."
+input ReanalyzeVulnerabilitiesInput {
+	"Team that owns the workloads."
+	teamSlug: Slug!
+	"Environment where the workloads run."
+	environmentName: String!
+	"Workload to reanalyze; omit for the whole team environment."
+	workloadName: String
+	"Type of the selected workload; required when workloadName is set."
+	workloadType: WorkloadType
+}
+
+"Result of requesting vulnerability reanalysis, not of completed analyses."
+type ReanalyzeVulnerabilitiesPayload {
+	"Number of eligible image tags submitted for reanalysis; duplicates may already be queued."
+	numImages: Int!
+
+	"Time the reanalysis request was accepted, if any image tag was eligible. Not an analysis completion time."
+	requestedAt: Time
+}
+
 type UpdateImageVulnerabilityPayload {
 	"The vulnerability updated."
 	vulnerability: ImageVulnerability
@@ -37167,6 +37224,9 @@ enum ValueEncoding {
 Input for filtering team workloads.
 """
 input TeamWorkloadsFilter {
+	"Match workloads whose name contains this text, ignoring case."
+	name: String
+
 	"""
 	Only return workloads from the given named environments.
 	"""
@@ -40079,6 +40139,16 @@ func (ec *executionContext) childFields_PrometheusAlarm(ctx context.Context, fie
 		return ec.fieldContext_PrometheusAlarm_since(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PrometheusAlarm", field.Name)
+}
+
+func (ec *executionContext) childFields_ReanalyzeVulnerabilitiesPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "numImages":
+		return ec.fieldContext_ReanalyzeVulnerabilitiesPayload_numImages(ctx, field)
+	case "requestedAt":
+		return ec.fieldContext_ReanalyzeVulnerabilitiesPayload_requestedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ReanalyzeVulnerabilitiesPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_Reconciler(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
