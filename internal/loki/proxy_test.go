@@ -98,7 +98,7 @@ func TestProxyHTTP(t *testing.T) {
 }
 
 func TestProxyRejectsCrossOriginWebSocket(t *testing.T) {
-	proxy := mountedProxy(t, "http://loki-querier:3100")
+	proxy := mountedProxy(t, "http://loki-query-frontend:3100")
 	req := httptest.NewRequest("GET", "/api/loki/api/v1/tail", nil)
 	req.Header.Set("Connection", "Upgrade")
 	req.Header.Set("Upgrade", "websocket")
