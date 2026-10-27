@@ -22,3 +22,11 @@ spec:
                 majorVersion:
                   type: string
                   enum: ["18", "17", "16"]
+                extensions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        enum: ["tablefunc", "citext", "pg_trgm", "pgaudit", "postgis", "timescaledb"]

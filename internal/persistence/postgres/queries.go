@@ -833,7 +833,10 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 			Name:      input.Name,
 			Namespace: input.TeamSlug.String(),
 		},
-		Spec: nais_io_v1.PostgresSpec{MajorVersion: input.MajorVersion},
+		Spec: nais_io_v1.PostgresSpec{
+			MajorVersion: input.MajorVersion,
+			Extensions:   postgresExtensions(input.Extensions),
+		},
 	}
 	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(pg)
@@ -897,6 +900,7 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 		updatePostgresUserLabels,
 		updateHighAvailability,
 		updateResources,
+		updateExtensions,
 	} {
 		res, err := f(pg, input)
 		if err != nil {
@@ -1033,6 +1037,35 @@ func updateHighAvailability(pg *nais_io_v1.Postgres, input UpdatePostgresInput) 
 		Field:    "highAvailability",
 		OldValue: new(strconv.FormatBool(old)),
 		NewValue: new(strconv.FormatBool(pg.Spec.HighAvailability)),
+	}}, nil
+}
+
+func postgresExtensions(names []string) []nais_io_v1.PostgresExtension {
+	extensions := make([]nais_io_v1.PostgresExtension, 0, len(names))
+	for _, name := range names {
+		extensions = append(extensions, nais_io_v1.PostgresExtension{Name: name})
+	}
+	return extensions
+}
+
+func updateExtensions(pg *nais_io_v1.Postgres, input UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error) {
+	if input.Extensions == nil {
+		return nil, nil
+	}
+
+	oldNames := make([]string, 0, len(pg.Spec.Extensions))
+	for _, extension := range pg.Spec.Extensions {
+		oldNames = append(oldNames, extension.Name)
+	}
+	if slices.Equal(oldNames, input.Extensions) {
+		return nil, nil
+	}
+
+	pg.Spec.Extensions = postgresExtensions(input.Extensions)
+	return []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
+		Field:    "extensions",
+		OldValue: new(strings.Join(oldNames, ",")),
+		NewValue: new(strings.Join(input.Extensions, ",")),
 	}}, nil
 }
 

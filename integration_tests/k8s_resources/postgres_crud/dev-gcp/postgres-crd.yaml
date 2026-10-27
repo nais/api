@@ -23,3 +23,11 @@ spec:
                   type: string
                   enum: ["18", "17"]
                   default: "17"
+                extensions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        enum: ["tablefunc", "citext", "pg_trgm", "pgaudit", "postgis", "timescaledb"]

@@ -24,6 +24,17 @@ Test.gql("Discover the default Postgres version for the target environment", fun
 	}
 end)
 
+Test.gql("Discover Postgres extensions accepted in an environment", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ environment(name: "dev") { availableValues { postgresExtensions { values defaultValues } } } }]]
+	t.check {
+		data = { environment = { availableValues = { postgresExtensions = {
+			values = { "tablefunc", "citext", "pg_trgm", "pgaudit", "postgis", "timescaledb" },
+			defaultValues = Null,
+		} } } },
+	}
+end)
+
 Test.gql("String options can be fetched by node ID", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query(string.format([[{ node(id: "%s") { ... on AvailableValueOptions { id values defaultValues } } }]],
@@ -48,7 +59,7 @@ local function create(name, extra)
 	return string.format(
 		[[mutation { createPostgres(input: {
 			name: "%s", environmentName: "dev", teamSlug: "pg-crud-team", %s
-		}) { postgres { name majorVersion highAvailability resources { cpu memory diskSize } } } }]],
+		}) { postgres { name majorVersion extensions highAvailability resources { cpu memory diskSize } } } }]],
 		name,
 		extra
 	)
@@ -72,11 +83,26 @@ Test.gql("Team members can create Postgres with defaults left to the platform", 
 				postgres = {
 					name = "fresh",
 					majorVersion = "18",
+					extensions = {},
 					highAvailability = false,
 					resources = { cpu = Null, memory = Null, diskSize = Null },
 				},
 			},
 		},
+	}
+end)
+
+Test.gql("Team members can create Postgres with extensions", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query(create("extended", 'majorVersion: "18", extensions: ["pg_trgm", "citext"]'))
+	t.check {
+		data = { createPostgres = { postgres = {
+			name = "extended",
+			majorVersion = "18",
+			extensions = { "pg_trgm", "citext" },
+			highAvailability = false,
+			resources = { cpu = Null, memory = Null, diskSize = Null },
+		} } },
 	}
 end)
 
@@ -89,6 +115,7 @@ Test.gql("Team members can create Postgres with explicit resources", function(t)
 				postgres = {
 					name = "sized",
 					majorVersion = "18",
+					extensions = {},
 					highAvailability = true,
 					resources = { cpu = "250m", memory = "1Gi", diskSize = "20Gi" },
 				},
@@ -267,9 +294,29 @@ Test.gql("Every major version offered by the environment can be selected", funct
 			data = { createPostgres = { postgres = {
 				name = "version-" .. version,
 				majorVersion = version,
+				extensions = {},
 				highAvailability = false,
 				resources = { cpu = Null, memory = Null, diskSize = Null },
 			} } },
 		}
 	end
+end)
+
+Test.gql("Team members can replace and clear Postgres extensions", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[mutation { updatePostgres(input: {
+		name: "existing", environmentName: "dev", teamSlug: "pg-crud-team",
+		extensions: ["citext", "pg_trgm"]
+	}) { postgres { extensions } } }]]
+	t.check {
+		data = { updatePostgres = { postgres = { extensions = { "citext", "pg_trgm" } } } },
+	}
+
+	t.query [[mutation { updatePostgres(input: {
+		name: "existing", environmentName: "dev", teamSlug: "pg-crud-team",
+		extensions: []
+	}) { postgres { extensions } } }]]
+	t.check {
+		data = { updatePostgres = { postgres = { extensions = {} } } },
+	}
 end)
