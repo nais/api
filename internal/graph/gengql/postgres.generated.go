@@ -29,8 +29,6 @@ type PostgresResolver interface {
 	Team(ctx context.Context, obj *postgres.Postgres) (*team.Team, error)
 	TeamEnvironment(ctx context.Context, obj *postgres.Postgres) (*team.TeamEnvironment, error)
 
-	Extensions(ctx context.Context, obj *postgres.Postgres) ([]postgres.PostgresExtension, error)
-
 	ActiveBranch(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresBranch, error)
 	Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresWorkload], error)
 	Branch(ctx context.Context, obj *postgres.Postgres, name string) (*postgres.PostgresBranch, error)
@@ -586,18 +584,18 @@ func (ec *executionContext) _Postgres_extensions(ctx context.Context, field grap
 			return ec.fieldContext_Postgres_extensions(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Postgres().Extensions(ctx, obj)
+			return obj.Extensions, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []postgres.PostgresExtension) graphql.Marshaler {
-			return ec.marshalOPostgresExtension2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtensionᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
 		},
 		true,
-		false,
+		true,
 	)
 }
 func (ec *executionContext) fieldContext_Postgres_extensions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Postgres", field, true, true, errors.New("field of type PostgresExtension does not have child fields"))
+	return graphql.NewScalarFieldContext("Postgres", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Postgres_highAvailability(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
@@ -6159,38 +6157,10 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "extensions":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Postgres_extensions(ctx, field, obj)
-				return res
+			out.Values[i] = ec._Postgres_extensions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "highAvailability":
 			out.Values[i] = ec._Postgres_highAvailability(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -9095,23 +9065,6 @@ func (ec *executionContext) marshalNPostgresEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	return ret
 }
 
-func (ec *executionContext) unmarshalNPostgresExtension2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtension(ctx context.Context, v any) (postgres.PostgresExtension, error) {
-	tmp, err := graphql.UnmarshalString(v)
-	res := postgres.PostgresExtension(tmp)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNPostgresExtension2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtension(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresExtension) graphql.Marshaler {
-	_ = sel
-	res := graphql.MarshalString(string(v))
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) marshalNPostgresFacets2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresFacets(ctx context.Context, sel ast.SelectionSet, v postgres.PostgresFacets) graphql.Marshaler {
 	return ec._PostgresFacets(ctx, sel, &v)
 }
@@ -9427,43 +9380,6 @@ func (ec *executionContext) marshalOPostgresBranchState2ᚕgithubᚗcomᚋnais�
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
 		return ec.marshalNPostgresBranchState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresBranchState(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOPostgresExtension2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtensionᚄ(ctx context.Context, v any) ([]postgres.PostgresExtension, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []any
-	vSlice = graphql.CoerceList(v)
-	var err error
-	res := make([]postgres.PostgresExtension, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNPostgresExtension2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtension(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOPostgresExtension2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtensionᚄ(ctx context.Context, sel ast.SelectionSet, v []postgres.PostgresExtension) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNPostgresExtension2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresExtension(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

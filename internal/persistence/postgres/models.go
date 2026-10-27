@@ -12,7 +12,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -116,31 +115,6 @@ type Postgres struct {
 	HighAvailability    bool                   `json:"highAvailability"`
 	Resources           PostgresResources      `json:"resources"`
 	Labels              []*model.ResourceLabel `json:"labels"`
-}
-
-type PostgresExtension string
-
-var allPostgresExtensions = map[PostgresExtension]struct{}{
-	"TABLEFUNC": {}, "CITEXT": {}, "PAGEINSPECT": {}, "HSTORE": {},
-	"PG_LOGICALINSPECT": {}, "XML2": {}, "FILE_FDW": {}, "PGROWLOCKS": {},
-	"PG_VISIBILITY": {}, "PGSTATTUPLE": {}, "DICT_INT": {}, "PG_FREESPACEMAP": {},
-	"TCN": {}, "BLOOM": {}, "BTREE_GIN": {}, "UNACCENT": {},
-	"SEG": {}, "TSM_SYSTEM_ROWS": {}, "INSERT_USERNAME": {}, "DICT_XSYN": {},
-	"TSM_SYSTEM_TIME": {}, "POSTGRES_FDW": {}, "AUTOINC": {}, "EARTHDISTANCE": {},
-	"AMCHECK": {}, "FUZZYSTRMATCH": {}, "PLPGSQL": {}, "REFINT": {},
-	"UUID_OSSP": {}, "INTARRAY": {}, "BTREE_GIST": {}, "PG_BUFFERCACHE": {},
-	"PG_STAT_STATEMENTS": {}, "INTAGG": {}, "LTREE": {}, "CUBE": {},
-	"PG_WALINSPECT": {}, "DBLINK": {}, "PG_PREWARM": {}, "SSLINFO": {},
-	"PGCRYPTO": {}, "MODDATETIME": {}, "PG_TRGM": {}, "PG_SURGERY": {},
-	"ISN": {}, "LO": {}, "VECTOR": {}, "PGAUDIT": {},
-}
-
-func PostgresExtensionFromName(name string) (PostgresExtension, error) {
-	extension := PostgresExtension(strings.ToUpper(strings.ReplaceAll(name, "-", "_")))
-	if _, ok := allPostgresExtensions[extension]; !ok {
-		return "", apierror.Errorf("unsupported Postgres extension %q", name)
-	}
-	return extension, nil
 }
 
 // PostgresResources contains only resource requests observed on the Postgres CR.

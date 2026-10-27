@@ -50,6 +50,18 @@ Test.gql("List Postgres and their branches together", function(t)
 	} } } } }
 end)
 
+Test.gql("Postgres extensions preserve configured names", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
+		configured: postgres(name:"foobar") { extensions }
+		empty: postgres(name:"another-db") { extensions }
+	} } }]]
+	t.check { data = { team = { environment = {
+		configured = { extensions = { "pgaudit", "uuid-ossp", "postgis", "timescaledb" } },
+		empty = { extensions = {} },
+	} } } }
+end)
+
 Test.gql("Retrieve logical Postgres and selected physical instance separately", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {

@@ -89,18 +89,6 @@ func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Po
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *postgresResolver) Extensions(ctx context.Context, obj *postgres.Postgres) ([]postgres.PostgresExtension, error) {
-	extensions := make([]postgres.PostgresExtension, 0, len(obj.Extensions))
-	for _, name := range obj.Extensions {
-		extension, err := postgres.PostgresExtensionFromName(name)
-		if err != nil {
-			return nil, err
-		}
-		extensions = append(extensions, extension)
-	}
-	return extensions, nil
-}
-
 func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresBranch, error) {
 	if obj.ActiveBranch == nil {
 		return nil, nil

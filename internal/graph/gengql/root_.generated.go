@@ -28512,8 +28512,8 @@ type Postgres implements Node {
 	name: String!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
-	"PostgreSQL extensions configured for this Postgres."
-	extensions: [PostgresExtension!]
+	"Names of PostgreSQL extensions configured for this Postgres."
+	extensions: [String!]!
 	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
@@ -28545,106 +28545,6 @@ type Postgres implements Node {
 	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
-}
-
-"PostgreSQL extensions available in the standard Postgres image."
-enum PostgresExtension {
-	"The ` + "`" + `tablefunc` + "`" + ` extension."
-	TABLEFUNC
-	"The ` + "`" + `citext` + "`" + ` extension."
-	CITEXT
-	"The ` + "`" + `pageinspect` + "`" + ` extension."
-	PAGEINSPECT
-	"The ` + "`" + `hstore` + "`" + ` extension."
-	HSTORE
-	"The ` + "`" + `pg_logicalinspect` + "`" + ` extension."
-	PG_LOGICALINSPECT
-	"The ` + "`" + `xml2` + "`" + ` extension."
-	XML2
-	"The ` + "`" + `file_fdw` + "`" + ` extension."
-	FILE_FDW
-	"The ` + "`" + `pgrowlocks` + "`" + ` extension."
-	PGROWLOCKS
-	"The ` + "`" + `pg_visibility` + "`" + ` extension."
-	PG_VISIBILITY
-	"The ` + "`" + `pgstattuple` + "`" + ` extension."
-	PGSTATTUPLE
-	"The ` + "`" + `dict_int` + "`" + ` extension."
-	DICT_INT
-	"The ` + "`" + `pg_freespacemap` + "`" + ` extension."
-	PG_FREESPACEMAP
-	"The ` + "`" + `tcn` + "`" + ` extension."
-	TCN
-	"The ` + "`" + `bloom` + "`" + ` extension."
-	BLOOM
-	"The ` + "`" + `btree_gin` + "`" + ` extension."
-	BTREE_GIN
-	"The ` + "`" + `unaccent` + "`" + ` extension."
-	UNACCENT
-	"The ` + "`" + `seg` + "`" + ` extension."
-	SEG
-	"The ` + "`" + `tsm_system_rows` + "`" + ` extension."
-	TSM_SYSTEM_ROWS
-	"The ` + "`" + `insert_username` + "`" + ` extension."
-	INSERT_USERNAME
-	"The ` + "`" + `dict_xsyn` + "`" + ` extension."
-	DICT_XSYN
-	"The ` + "`" + `tsm_system_time` + "`" + ` extension."
-	TSM_SYSTEM_TIME
-	"The ` + "`" + `postgres_fdw` + "`" + ` extension."
-	POSTGRES_FDW
-	"The ` + "`" + `autoinc` + "`" + ` extension."
-	AUTOINC
-	"The ` + "`" + `earthdistance` + "`" + ` extension."
-	EARTHDISTANCE
-	"The ` + "`" + `amcheck` + "`" + ` extension."
-	AMCHECK
-	"The ` + "`" + `fuzzystrmatch` + "`" + ` extension."
-	FUZZYSTRMATCH
-	"The ` + "`" + `plpgsql` + "`" + ` extension."
-	PLPGSQL
-	"The ` + "`" + `refint` + "`" + ` extension."
-	REFINT
-	"The ` + "`" + `uuid-ossp` + "`" + ` extension."
-	UUID_OSSP
-	"The ` + "`" + `intarray` + "`" + ` extension."
-	INTARRAY
-	"The ` + "`" + `btree_gist` + "`" + ` extension."
-	BTREE_GIST
-	"The ` + "`" + `pg_buffercache` + "`" + ` extension."
-	PG_BUFFERCACHE
-	"The ` + "`" + `pg_stat_statements` + "`" + ` extension."
-	PG_STAT_STATEMENTS
-	"The ` + "`" + `intagg` + "`" + ` extension."
-	INTAGG
-	"The ` + "`" + `ltree` + "`" + ` extension."
-	LTREE
-	"The ` + "`" + `cube` + "`" + ` extension."
-	CUBE
-	"The ` + "`" + `pg_walinspect` + "`" + ` extension."
-	PG_WALINSPECT
-	"The ` + "`" + `dblink` + "`" + ` extension."
-	DBLINK
-	"The ` + "`" + `pg_prewarm` + "`" + ` extension."
-	PG_PREWARM
-	"The ` + "`" + `sslinfo` + "`" + ` extension."
-	SSLINFO
-	"The ` + "`" + `pgcrypto` + "`" + ` extension."
-	PGCRYPTO
-	"The ` + "`" + `moddatetime` + "`" + ` extension."
-	MODDATETIME
-	"The ` + "`" + `pg_trgm` + "`" + ` extension."
-	PG_TRGM
-	"The ` + "`" + `pg_surgery` + "`" + ` extension."
-	PG_SURGERY
-	"The ` + "`" + `isn` + "`" + ` extension."
-	ISN
-	"The ` + "`" + `lo` + "`" + ` extension."
-	LO
-	"The ` + "`" + `vector` + "`" + ` extension."
-	VECTOR
-	"The ` + "`" + `pgaudit` + "`" + ` extension."
-	PGAUDIT
 }
 
 "A workload referencing a Postgres and the branch it uses."
