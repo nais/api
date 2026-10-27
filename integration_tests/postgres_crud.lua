@@ -264,6 +264,7 @@ Test.gql("Creating and updating Postgres is recorded in the activity log", funct
 			},
 			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(), environmentName = "dev", teamSlug = "pg-crud-team" },
 			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(), environmentName = "dev", teamSlug = "pg-crud-team" },
+			{ __typename = "PostgresCreatedActivityLogEntry", message = "Created Postgres", actor = member:email(), resourceType = "POSTGRES", resourceName = Ignore(), environmentName = "dev", teamSlug = "pg-crud-team" },
 		} } } },
 	}
 end)
