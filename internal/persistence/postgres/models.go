@@ -716,6 +716,7 @@ type CreatePostgresInput struct {
 	CPU              *string                `json:"cpu,omitempty"`
 	Memory           *string                `json:"memory,omitempty"`
 	DiskSize         *string                `json:"diskSize,omitempty"`
+	Extensions       []string               `json:"extensions,omitempty"`
 	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
 }
 
@@ -731,6 +732,7 @@ type UpdatePostgresInput struct {
 	CPU              *string                `json:"cpu,omitempty"`
 	Memory           *string                `json:"memory,omitempty"`
 	DiskSize         *string                `json:"diskSize,omitempty"`
+	Extensions       []string               `json:"extensions,omitempty"`
 	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
 }
 

@@ -144,6 +144,36 @@ func TestExtractEnum(t *testing.T) {
 	}
 }
 
+func TestExtractEnumFromArrayItemProperty(t *testing.T) {
+	obj := definition()
+	version := obj.Object["spec"].(map[string]any)["versions"].([]any)[0].(map[string]any)
+	extensions := map[string]any{
+		"type": "array",
+		"items": map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"name": map[string]any{"type": "string", "enum": []any{"pg_trgm", "postgis", "timescaledb"}},
+			},
+		},
+	}
+	if err := unstructured.SetNestedMap(version, extensions, "schema", "openAPIV3Schema", "properties", "spec", "properties", "extensions"); err != nil {
+		t.Fatal(err)
+	}
+
+	enum := Enum{
+		Name: "postgresExtensions", CRDName: "postgres.nais.io", Version: "v1",
+		Path: []string{"spec", "extensions", "items", "name"},
+	}
+	got, err := enum.extract(obj)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := &AvailableValueOptions{Values: []string{"pg_trgm", "postgis", "timescaledb"}}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("options mismatch (-want +got):\n%s", diff)
+	}
+}
+
 func TestExtractStringDefaults(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
