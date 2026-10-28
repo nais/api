@@ -16,7 +16,8 @@ type Enum struct {
 	Name    string
 	CRDName string
 	Version string
-	Path    []string
+	// Path traverses properties; "items" selects an array's item schema.
+	Path []string
 }
 
 type AvailableValueOptions struct {
@@ -184,6 +185,10 @@ func (e Enum) extract(obj *unstructured.Unstructured) (*AvailableValueOptions, e
 		}
 		path := []string{"schema", "openAPIV3Schema"}
 		for _, property := range e.Path {
+			if property == "items" {
+				path = append(path, "items")
+				continue
+			}
 			path = append(path, "properties", property)
 		}
 		property, found, err := unstructured.NestedMap(version, path...)

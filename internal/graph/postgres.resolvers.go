@@ -28,6 +28,10 @@ func (r *availableValuesResolver) PostgresMajorVersions(ctx context.Context, obj
 	return postgres.AvailableMajorVersions(ctx, obj.EnvironmentName)
 }
 
+func (r *availableValuesResolver) PostgresExtensions(ctx context.Context, obj *environment.AvailableValues) (*environment.AvailableValueOptions, error) {
+	return postgres.AvailableExtensions(ctx, obj.EnvironmentName)
+}
+
 func (r *jobResolver) Postgreses(ctx context.Context, obj *job.Job, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.WorkloadPostgres], error) {
 	var uses []liberatorv1.PostgresUse
 	if obj.Spec != nil && obj.Spec.Uses != nil {

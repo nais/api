@@ -5551,7 +5551,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "highAvailability", "cpu", "memory", "diskSize", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5586,6 +5586,13 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.MajorVersion = data
+		case "extensions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("extensions"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Extensions = data
 		case "highAvailability":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("highAvailability"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -5857,7 +5864,7 @@ func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "highAvailability", "cpu", "memory", "diskSize", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "highAvailability", "cpu", "memory", "diskSize", "extensions", "labels"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5913,6 +5920,13 @@ func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.DiskSize = data
+		case "extensions":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("extensions"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Extensions = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
 			data, err := ec.unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)

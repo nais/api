@@ -4,6 +4,11 @@ extend type AvailableValues {
 	Returns an error if the available versions cannot be determined.
 	"""
 	postgresMajorVersions: AvailableValueOptions!
+	"""
+	PostgreSQL extensions accepted when creating or updating a Postgres in this environment.
+	Returns an error if the available values cannot be determined.
+	"""
+	postgresExtensions: AvailableValueOptions!
 }
 
 extend type Team {
@@ -870,6 +875,8 @@ input CreatePostgresInput {
 	teamSlug: Slug!
 	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
+	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions."
+	extensions: [String!]
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
 	"Requested CPU, for example '100m'. If omitted, the platform default is used."
@@ -904,6 +911,8 @@ input UpdatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'."
 	diskSize: String
+	"The complete set of extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions. When omitted or null, existing extensions are left unchanged; use an empty list to remove all configured extensions."
+	extensions: [String!]
 	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
 	labels: [ResourceLabelInput!]
 }

@@ -462,6 +462,7 @@ type ComplexityRoot struct {
 
 	AvailableValues struct {
 		ID                    func(childComplexity int) int
+		PostgresExtensions    func(childComplexity int) int
 		PostgresMajorVersions func(childComplexity int) int
 	}
 
@@ -5480,6 +5481,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.AvailableValues.ID(childComplexity), true
+
+	case "AvailableValues.postgresExtensions":
+		if e.ComplexityRoot.AvailableValues.PostgresExtensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.PostgresExtensions(childComplexity), true
 
 	case "AvailableValues.postgresMajorVersions":
 		if e.ComplexityRoot.AvailableValues.PostgresMajorVersions == nil {
@@ -28693,6 +28701,11 @@ type WorkloadLogLine {
 	Returns an error if the available versions cannot be determined.
 	"""
 	postgresMajorVersions: AvailableValueOptions!
+	"""
+	PostgreSQL extensions accepted when creating or updating a Postgres in this environment.
+	Returns an error if the available values cannot be determined.
+	"""
+	postgresExtensions: AvailableValueOptions!
 }
 
 extend type Team {
@@ -29559,6 +29572,8 @@ input CreatePostgresInput {
 	teamSlug: Slug!
 	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
+	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions."
+	extensions: [String!]
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
 	"Requested CPU, for example '100m'. If omitted, the platform default is used."
@@ -29593,6 +29608,8 @@ input UpdatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'."
 	diskSize: String
+	"The complete set of extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions. When omitted or null, existing extensions are left unchanged; use an empty list to remove all configured extensions."
+	extensions: [String!]
 	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
 	labels: [ResourceLabelInput!]
 }
@@ -37725,6 +37742,8 @@ func (ec *executionContext) childFields_AvailableValues(ctx context.Context, fie
 		return ec.fieldContext_AvailableValues_id(ctx, field)
 	case "postgresMajorVersions":
 		return ec.fieldContext_AvailableValues_postgresMajorVersions(ctx, field)
+	case "postgresExtensions":
+		return ec.fieldContext_AvailableValues_postgresExtensions(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type AvailableValues", field.Name)
 }

@@ -197,6 +197,66 @@ func TestUpdatePostgresWithoutLabelsKeepsExistingLabelsAndUpdatesOtherFields(t *
 	}
 }
 
+func TestUpdatePostgresExtensions(t *testing.T) {
+	for _, tt := range []struct {
+		name        string
+		input       []string
+		setInput    bool
+		want        []nais_io_v1.PostgresExtension
+		wantChanges []*PostgresUpdatedActivityLogEntryDataUpdatedField
+	}{
+		{
+			name: "omitted extensions preserve existing values",
+			want: []nais_io_v1.PostgresExtension{{Name: "pg_trgm"}},
+		},
+		{
+			name:     "extensions replace existing values",
+			input:    []string{"citext", "pg_trgm"},
+			setInput: true,
+			want:     []nais_io_v1.PostgresExtension{{Name: "citext"}, {Name: "pg_trgm"}},
+			wantChanges: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
+				Field: "extensions", OldValue: new("pg_trgm"), NewValue: new("citext,pg_trgm"),
+			}},
+		},
+		{
+			name:     "empty extensions remove all values",
+			input:    []string{},
+			setInput: true,
+			want:     []nais_io_v1.PostgresExtension{},
+			wantChanges: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
+				Field: "extensions", OldValue: new("pg_trgm"), NewValue: new(""),
+			}},
+		},
+		{
+			name:     "unchanged extensions are a no-op",
+			input:    []string{"pg_trgm"},
+			setInput: true,
+			want:     []nais_io_v1.PostgresExtension{{Name: "pg_trgm"}},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			pg := &nais_io_v1.Postgres{Spec: nais_io_v1.PostgresSpec{
+				Extensions: []nais_io_v1.PostgresExtension{{Name: "pg_trgm"}},
+			}}
+			input := UpdatePostgresInput{}
+			if tt.setInput {
+				input.Extensions = tt.input
+			}
+
+			changes, err := updateExtensions(pg, input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(tt.want, pg.Spec.Extensions); diff != "" {
+				t.Errorf("extensions mismatch (-want +got):\n%s", diff)
+			}
+			if diff := cmp.Diff(tt.wantChanges, changes); diff != "" {
+				t.Errorf("changes mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestUniquePostgresUses(t *testing.T) {
 	tests := []struct {
 		name    string
