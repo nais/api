@@ -573,7 +573,7 @@ type ComplexityRoot struct {
 		RiskAssessment     func(childComplexity int) int
 		Severity           func(childComplexity int) int
 		Title              func(childComplexity int) int
-		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
+		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter, orderBy *vulnerability.CVEWorkloadOrder) int
 	}
 
 	CVEConnection struct {
@@ -585,6 +585,12 @@ type ComplexityRoot struct {
 	CVEEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	CVEImpact struct {
+		ImageCount    func(childComplexity int) int
+		PackageCount  func(childComplexity int) int
+		WorkloadCount func(childComplexity int) int
 	}
 
 	ChangeDeploymentKeyPayload struct {
@@ -4173,6 +4179,7 @@ type ComplexityRoot struct {
 
 	WorkloadWithVulnerabilityConnection struct {
 		Edges    func(childComplexity int) int
+		Impact   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -5930,7 +5937,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.CVEWorkloadsFilter)), true
+		return e.ComplexityRoot.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.CVEWorkloadsFilter), args["orderBy"].(*vulnerability.CVEWorkloadOrder)), true
 
 	case "CVEConnection.edges":
 		if e.ComplexityRoot.CVEConnection.Edges == nil {
@@ -5966,6 +5973,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CVEEdge.Node(childComplexity), true
+
+	case "CVEImpact.imageCount":
+		if e.ComplexityRoot.CVEImpact.ImageCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVEImpact.ImageCount(childComplexity), true
+
+	case "CVEImpact.packageCount":
+		if e.ComplexityRoot.CVEImpact.PackageCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVEImpact.PackageCount(childComplexity), true
+
+	case "CVEImpact.workloadCount":
+		if e.ComplexityRoot.CVEImpact.WorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVEImpact.WorkloadCount(childComplexity), true
 
 	case "ChangeDeploymentKeyPayload.deploymentKey":
 		if e.ComplexityRoot.ChangeDeploymentKeyPayload.DeploymentKey == nil {
@@ -22034,6 +22062,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Edges(childComplexity), true
 
+	case "WorkloadWithVulnerabilityConnection.impact":
+		if e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Impact == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Impact(childComplexity), true
+
 	case "WorkloadWithVulnerabilityConnection.nodes":
 		if e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Nodes == nil {
 			break
@@ -22088,6 +22123,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputCVEFilter,
 		ec.unmarshalInputCVEOrder,
+		ec.unmarshalInputCVEWorkloadOrder,
 		ec.unmarshalInputCVEWorkloadsFilter,
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigFilter,
@@ -36097,7 +36133,44 @@ type CVE implements Node {
 
 		"Filter workloads. When teamSlugs is set only workloads belonging to those teams are returned."
 		filter: CVEWorkloadsFilter
+
+		"Order all matching findings before pagination. Defaults to team ascending."
+		orderBy: CVEWorkloadOrder
 	): WorkloadWithVulnerabilityConnection!
+}
+
+"Ordering options for workloads affected by a CVE."
+input CVEWorkloadOrder {
+	"The field to order findings by."
+	field: CVEWorkloadOrderField!
+	"The direction to order findings by."
+	direction: OrderDirection!
+}
+
+"Fields available for ordering workloads affected by a CVE."
+enum CVEWorkloadOrderField {
+	"Workload name."
+	WORKLOAD
+	"Container image name and tag."
+	IMAGE
+	"Affected package name."
+	PACKAGE
+	"Owning team."
+	TEAM
+	"Workload environment."
+	ENVIRONMENT
+	"Whether the finding is suppressed."
+	SUPPRESSED
+}
+
+"Distinct affected resources across the entire filtered selection, including suppressed findings."
+type CVEImpact {
+	"Number of distinct workloads, regardless of how many packages are affected."
+	workloadCount: Int!
+	"Number of distinct container image references, identified by name and tag."
+	imageCount: Int!
+	"Number of distinct affected package identifiers."
+	packageCount: Int!
 }
 
 "Filter for workloads affected by a CVE. When teamSlugs is provided only workloads belonging to those teams are returned."
@@ -36107,6 +36180,9 @@ input CVEWorkloadsFilter {
 }
 
 type WorkloadWithVulnerabilityConnection {
+	"Distinct affected resource counts across all matching findings, not just this page. Null when the counts are unavailable, such as on a page past the last finding."
+	impact: CVEImpact
+
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
 
@@ -37887,6 +37963,18 @@ func (ec *executionContext) childFields_CVEEdge(ctx context.Context, field graph
 		return ec.fieldContext_CVEEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CVEEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_CVEImpact(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workloadCount":
+		return ec.fieldContext_CVEImpact_workloadCount(ctx, field)
+	case "imageCount":
+		return ec.fieldContext_CVEImpact_imageCount(ctx, field)
+	case "packageCount":
+		return ec.fieldContext_CVEImpact_packageCount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CVEImpact", field.Name)
 }
 
 func (ec *executionContext) childFields_ChangeDeploymentKeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -42611,6 +42699,8 @@ func (ec *executionContext) childFields_WorkloadWithVulnerability(ctx context.Co
 
 func (ec *executionContext) childFields_WorkloadWithVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "impact":
+		return ec.fieldContext_WorkloadWithVulnerabilityConnection_impact(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_WorkloadWithVulnerabilityConnection_pageInfo(ctx, field)
 	case "edges":
