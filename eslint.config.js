@@ -46,6 +46,7 @@ export default [
 							"ApplicationManifest",
 							"ApplicationResources",
 							"CVEImpact",
+							"KEVEntry",
 						],
 						suffixes: ["Payload", "Connection", "Edge", "Status"],
 					},
