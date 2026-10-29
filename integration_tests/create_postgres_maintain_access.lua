@@ -1,9 +1,9 @@
-local user = User.new("dba-user", "dba@usersen.com")
+local user = User.new("maintain-user", "maintain@usersen.com")
 local nonMember = User.new("non-member", "nonmember@usersen.com")
-local team = Team.new("someteamname", "Personal DBA access", "#slack_channel")
+local team = Team.new("someteamname", "Personal instance maintenance access", "#slack_channel")
 team:addMember(user)
 
-local serviceAccount = ServiceAccount.new("dba-service-account", team:slug())
+local serviceAccount = ServiceAccount.new("maintain-service-account", team:slug())
 serviceAccount:assignRole("Team owner")
 
 Helper.readK8sResources("k8s_resources/create_postgres_access")
@@ -11,11 +11,11 @@ Helper.readK8sResources("k8s_resources/create_postgres_access")
 local request = [[
 	mutation { createPostgresAccess(input: {
 		postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
-		accessLevel: DBA, reason: "Investigating database maintenance", ttl: "30m"
+		accessLevel: MAINTAIN, reason: "Investigating database maintenance", ttl: "30m"
 	}) { name expiresAt } }
 ]]
 
-Test.gql("Service accounts cannot request personal DBA access", function(t)
+Test.gql("Service accounts cannot request personal maintain access", function(t)
 	t.addHeader("authorization", "Bearer " .. serviceAccount:token())
 	t.query(request)
 	t.check {
@@ -28,7 +28,7 @@ Test.gql("Service accounts cannot request personal DBA access", function(t)
 	}
 end)
 
-Test.gql("Personal DBA access requires team authorization", function(t)
+Test.gql("Personal maintain access requires team authorization", function(t)
 	t.addHeader("x-user-email", nonMember:email())
 	t.query(request)
 	t.check {
@@ -41,41 +41,41 @@ Test.gql("Personal DBA access requires team authorization", function(t)
 	}
 end)
 
-Test.gql("A team member can request personal DBA access", function(t)
+Test.gql("A team member can request personal maintain access", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query(request)
-	t.check { data = { createPostgresAccess = { name = "postgres-access-7ca5ed09d19eac69", expiresAt = NotNull() } } }
+	t.check { data = { createPostgresAccess = { name = "postgres-access-420767dcef636fe6", expiresAt = NotNull() } } }
 end)
 
-Test.k8s("Personal DBA access uses the authenticated identity and dba access level", function(t)
-	t.check("nais.io/v1", "postgresaccesses", "dev", team:slug(), "postgres-access-7ca5ed09d19eac69", {
+Test.k8s("Personal maintain access uses the authenticated identity and maintain access level", function(t)
+	t.check("nais.io/v1", "postgresaccesses", "dev", team:slug(), "postgres-access-420767dcef636fe6", {
 		apiVersion = "nais.io/v1",
 		kind = "PostgresAccess",
 		metadata = Ignore(),
 		spec = {
 			postgresBranch = "foobar-main-a4f04c0c",
 			username = user:email(),
-			accessLevel = "dba",
+			accessLevel = "maintain",
 			expiresAt = NotNull(),
 		},
 	})
 end)
 
-Test.gql("Personal DBA access is returned through GraphQL and audited", function(t)
+Test.gql("Personal maintain access is returned through GraphQL and audited", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "someteamname") {
-		environment(name: "dev") { postgresAccess(name: "postgres-access-7ca5ed09d19eac69") { accessLevel } }
+		environment(name: "dev") { postgresAccess(name: "postgres-access-420767dcef636fe6") { accessLevel } }
 		activityLog(filter: { activityTypes: [POSTGRES_PERSONAL_ACCESS_CREATED] }) { nodes {
 			message
 			... on PostgresPersonalAccessCreatedActivityLogEntry { data { username accessLevel expiresAt reason } }
 		} }
 	} }]]
 	t.check { data = { team = {
-		environment = { postgresAccess = { accessLevel = "DBA" } },
+		environment = { postgresAccess = { accessLevel = "MAINTAIN" } },
 		activityLog = { nodes = { {
-			message = Contains("Requested DBA personal Postgres access for dba@usersen.com"),
+			message = Contains("Requested MAINTAIN personal Postgres access for maintain@usersen.com"),
 			data = {
-				username = user:email(), accessLevel = "DBA", expiresAt = NotNull(),
+				username = user:email(), accessLevel = "MAINTAIN", expiresAt = NotNull(),
 				reason = "Investigating database maintenance",
 			},
 		} } },

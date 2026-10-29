@@ -18,7 +18,7 @@ func TestPostgresAccessLevels(t *testing.T) {
 		{level: PostgresAccessLevelRead, crd: "read"},
 		{level: PostgresAccessLevelReadWrite, crd: "readwrite"},
 		{level: PostgresAccessLevelReadWriteCreate, crd: "readwritecreate"},
-		{level: PostgresAccessLevelDBA, crd: "dba"},
+		{level: PostgresAccessLevelMaintain, crd: "maintain"},
 	} {
 		t.Run(tt.level.String(), func(t *testing.T) {
 			var level PostgresAccessLevel
@@ -61,7 +61,8 @@ func TestPostgresAccessLevelRejectsInvalidInput(t *testing.T) {
 		value any
 	}{
 		{name: "empty", value: ""},
-		{name: "lowercase", value: "dba"},
+		{name: "lowercase", value: "maintain"},
+		{name: "old name", value: "DBA"},
 		{name: "admin", value: "ADMIN"},
 		{name: "unknown", value: "UNKNOWN"},
 		{name: "non-string", value: 42},

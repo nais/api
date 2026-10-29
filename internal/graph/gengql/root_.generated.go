@@ -29420,8 +29420,8 @@ enum PostgresAccessLevel {
 	READWRITE
 	"Read, modify, and create database objects where supported."
 	READWRITECREATE
-	"Monitor and maintain the database server through pg_monitor and pg_maintain, without granting application data access or ownership."
-	DBA
+	"Monitor and maintain the PostgreSQL instance through pg_monitor and pg_maintain, without granting application data access or database ownership."
+	MAINTAIN
 }
 
 "Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
