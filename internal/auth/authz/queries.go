@@ -317,6 +317,10 @@ func CanDeleteOpenSearch(ctx context.Context, teamSlug slug.Slug) error {
 }
 
 func CanGrantPostgresAccess(ctx context.Context, teamSlug slug.Slug) error {
+	if ActorFromContext(ctx).User.IsServiceAccount() {
+		return ErrUnauthorized
+	}
+
 	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:access:grant")
 }
 
