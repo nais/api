@@ -294,6 +294,7 @@ func newGQLRunner(
 		lokiClient,
 		"test-audit-project", // auditLogProjectID for testing
 		"test-location",      // auditLogLocation for testing
+		nil,                  // webhookDispatcher
 		log,
 	)
 	if err != nil {
@@ -340,7 +341,8 @@ func newGQLRunner(
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
-	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
+	container, err := postgres.Run(
+		ctx, "docker.io/postgres:16-alpine",
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),
