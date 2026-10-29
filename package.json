@@ -6,5 +6,17 @@
 		"eslint": "^9.39.1",
 		"prettier": "^3.9.4",
 		"prettier-plugin-sql-custom": "git+https://github.com/nais/prettier-plugin-sql.git"
+	},
+	"pnpm": {
+		"overrides": {
+			"js-yaml@<4.3.2": "^4.3.2",
+			"@graphql-tools/utils@<12.0.2": "^12.0.2",
+			"@graphql-tools/executor-legacy-ws@<1.1.35": "^1.1.35",
+			"@fastify/busboy@<3.2.2": "^3.2.2",
+			"brace-expansion@<1.1.21": "^1.1.21",
+			"brace-expansion@>=2 <5.0.12": "^5.0.12",
+			"browserslist@<4.28.7": "^4.28.7",
+			"baseline-browser-mapping@<2.11.0": "^2.11.0"
+		}
 	}
 }
