@@ -59,7 +59,6 @@ Test.k8s("Secret apply still updates the Kubernetes object", function(t)
 		metadata = {
 			name = "apply-secret",
 			namespace = team:slug(),
-			managedFields = Ignore(),
 			annotations = { snapshot = "NEW_SNAPSHOT" },
 		},
 	})

@@ -65,7 +65,7 @@ local replacement = [[
 	]}
 ]]
 
-Test.rest("apply removes omitted owned fields and reports changes", function(t)
+Test.rest("apply replaces omitted fields and reports changes", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.send("POST", "/api/v1/teams/apply-replace-team/environments/dev/apply", replacement)
 	t.check(200, {
@@ -101,7 +101,6 @@ Test.k8s("omitted CPU limit and metadata are removed from the stored Application
 		metadata = {
 			name = "my-app",
 			namespace = team:slug(),
-			managedFields = Ignore(),
 			labels = { kept = "same" },
 		},
 		spec = {
@@ -121,7 +120,6 @@ Test.k8s("omitted data keys and top-level fields are removed from the stored Con
 		metadata = {
 			name = "my-config",
 			namespace = team:slug(),
-			managedFields = Ignore(),
 		},
 		data = { kept = "new" },
 	})

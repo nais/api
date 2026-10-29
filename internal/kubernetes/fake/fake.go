@@ -17,14 +17,13 @@ import (
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	mapperatorv1 "github.com/nais/pgrator/pkg/api/v1"
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/managedfields"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/dynamic"
 	dynfake "k8s.io/client-go/dynamic/fake"
@@ -271,7 +270,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 			}
 			obj, err := meta.Accessor(event.Object)
 			if err != nil {
-				return watch.Event{Type: watch.Error, Object: &apierrors.NewInternalError(err).ErrStatus}, true
+				return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
 			}
 			key := types.NamespacedName{Namespace: obj.GetNamespace(), Name: obj.GetName()}
 			previous, wasMatching := matching[key]
@@ -291,7 +290,7 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 				// Leaving a selector is a deletion of the last matching object.
 				old, err := meta.Accessor(previous)
 				if err != nil {
-					return watch.Event{Type: watch.Error, Object: &apierrors.NewInternalError(err).ErrStatus}, true
+					return watch.Event{Type: watch.Error, Object: &errors.NewInternalError(err).ErrStatus}, true
 				}
 				old.SetResourceVersion(obj.GetResourceVersion())
 				event = watch.Event{Type: watch.Deleted, Object: previous}
@@ -356,68 +355,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		}
 
 		return true, modified, nil
-	})
-
-	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
-		patchAction, ok := action.(k8stesting.PatchAction)
-		if !ok {
-			return false, nil, nil
-		}
-
-		if patchAction.GetPatchType() != types.ApplyPatchType {
-			return false, nil, nil
-		}
-		patchWithOptions, ok := action.(k8stesting.PatchActionImpl)
-		if !ok {
-			return true, nil, fmt.Errorf("expected PatchActionImpl, got %T", action)
-		}
-
-		gvr := patchAction.GetResource()
-		ns := patchAction.GetNamespace()
-		name := patchAction.GetName()
-
-		desired := &unstructured.Unstructured{}
-		if err := json.Unmarshal(patchAction.GetPatch(), desired); err != nil {
-			return true, nil, fmt.Errorf("unmarshaling apply patch: %w", err)
-		}
-
-		existing, err := client.Tracker().Get(gvr, ns, name)
-		created := apierrors.IsNotFound(err)
-		if err != nil {
-			if !created {
-				return true, nil, err
-			}
-			existing = &unstructured.Unstructured{Object: map[string]any{
-				"apiVersion": desired.GetAPIVersion(),
-				"kind":       desired.GetKind(),
-			}}
-		}
-		gvk := desired.GroupVersionKind()
-		// A per-kind scheme avoids converting to another kind registered with
-		// the same unstructured Go type and group/version.
-		applyScheme := runtime.NewScheme()
-		applyScheme.AddKnownTypeWithName(gvk, &unstructured.Unstructured{})
-		manager, err := managedfields.NewDefaultCRDFieldManager(
-			managedfields.NewDeducedTypeConverter(),
-			applyScheme, applyScheme, applyScheme, gvk, gvk.GroupVersion(), "", nil,
-		)
-		if err != nil {
-			return true, nil, fmt.Errorf("creating field manager: %w", err)
-		}
-		options := patchWithOptions.GetPatchOptions()
-		force := options.Force != nil && *options.Force
-		applied, err := manager.Apply(existing, desired, options.FieldManager, force)
-		if err != nil {
-			return true, nil, err
-		}
-		if created {
-			if err := client.Tracker().Create(gvr, applied, ns); err != nil {
-				return true, nil, fmt.Errorf("creating object via apply: %w", err)
-			}
-		} else if err := client.Tracker().Update(gvr, applied, ns); err != nil {
-			return true, nil, fmt.Errorf("updating object via apply: %w", err)
-		}
-		return true, applied, nil
 	})
 
 	return client
