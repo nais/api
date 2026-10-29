@@ -570,6 +570,7 @@ type ComplexityRoot struct {
 		HasKevEntry        func(childComplexity int) int
 		ID                 func(childComplexity int) int
 		Identifier         func(childComplexity int) int
+		KevEntry           func(childComplexity int) int
 		KnownRansomwareUse func(childComplexity int) int
 		Priority           func(childComplexity int) int
 		RiskAssessment     func(childComplexity int) int
@@ -1450,6 +1451,12 @@ type ComplexityRoot struct {
 	JobUpdatedActivityLogEntryData struct {
 		ChangedFields     func(childComplexity int) int
 		GitHubActorClaims func(childComplexity int) int
+	}
+
+	KEVEntry struct {
+		Description       func(childComplexity int) int
+		DescriptionSource func(childComplexity int) int
+		ReferenceUrls     func(childComplexity int) int
 	}
 
 	KafkaCredentials struct {
@@ -5910,6 +5917,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CVE.Identifier(childComplexity), true
 
+	case "CVE.kevEntry":
+		if e.ComplexityRoot.CVE.KevEntry == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.KevEntry(childComplexity), true
+
 	case "CVE.knownRansomwareUse":
 		if e.ComplexityRoot.CVE.KnownRansomwareUse == nil {
 			break
@@ -9521,6 +9535,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobUpdatedActivityLogEntryData.GitHubActorClaims(childComplexity), true
+
+	case "KEVEntry.description":
+		if e.ComplexityRoot.KEVEntry.Description == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KEVEntry.Description(childComplexity), true
+
+	case "KEVEntry.descriptionSource":
+		if e.ComplexityRoot.KEVEntry.DescriptionSource == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KEVEntry.DescriptionSource(childComplexity), true
+
+	case "KEVEntry.referenceUrls":
+		if e.ComplexityRoot.KEVEntry.ReferenceUrls == nil {
+			break
+		}
+
+		return e.ComplexityRoot.KEVEntry.ReferenceUrls(childComplexity), true
 
 	case "KafkaCredentials.accessCert":
 		if e.ComplexityRoot.KafkaCredentials.AccessCert == nil {
@@ -36191,6 +36226,18 @@ enum CVEPriority {
 	MONITOR
 }
 
+"A Known Exploited Vulnerability catalog entry."
+type KEVEntry {
+	"Catalog description, available when fetching a CVE by its identifier."
+	description: String
+
+	"Reference URLs from the catalog providing the description."
+	referenceUrls: [String!]!
+
+	"Catalog providing the description and reference URLs."
+	descriptionSource: String
+}
+
 type CVE implements Node {
 	"The globally unique ID of the CVE."
 	id: ID!
@@ -36230,6 +36277,9 @@ type CVE implements Node {
 
 	"Risk and threat intelligence signals used to prioritize the CVE."
 	riskAssessment: VulnerabilityRiskAssessment!
+
+	"Known exploitation details, or null when no KEV entry is available. Catalog details are available when fetching a CVE by its identifier."
+	kevEntry: KEVEntry
 
 	"Affected workloads"
 	workloads(
@@ -38053,6 +38103,8 @@ func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.C
 		return ec.fieldContext_CVE_knownRansomwareUse(ctx, field)
 	case "riskAssessment":
 		return ec.fieldContext_CVE_riskAssessment(ctx, field)
+	case "kevEntry":
+		return ec.fieldContext_CVE_kevEntry(ctx, field)
 	case "workloads":
 		return ec.fieldContext_CVE_workloads(ctx, field)
 	}
@@ -39405,6 +39457,18 @@ func (ec *executionContext) childFields_JobUpdatedActivityLogEntryData(ctx conte
 		return ec.fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_KEVEntry(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "description":
+		return ec.fieldContext_KEVEntry_description(ctx, field)
+	case "referenceUrls":
+		return ec.fieldContext_KEVEntry_referenceUrls(ctx, field)
+	case "descriptionSource":
+		return ec.fieldContext_KEVEntry_descriptionSource(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type KEVEntry", field.Name)
 }
 
 func (ec *executionContext) childFields_KafkaCredentials(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
