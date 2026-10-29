@@ -35748,10 +35748,7 @@ extend type ContainerImage {
 
 extend type Team {
 	vulnerabilitySummary(
-		"""
-		Filter the aggregate by environment, priority or KEV.
-		User-label filters are rejected; use vulnerabilitySummaries for label-filtered workloads.
-		"""
+		"Filter the aggregate by environment, priority, KEV or user labels."
 		filter: TeamVulnerabilitySummaryFilter
 	): TeamVulnerabilitySummary!
 
@@ -35806,9 +35803,8 @@ Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
 	"""
-	Match all user-label filters for Team.vulnerabilitySummaries.
+	Match all user-label filters for team vulnerability summaries and their aggregate.
 	An omitted value matches any value; an empty string matches only an empty value.
-	Team.vulnerabilitySummary rejects nonempty label filters.
 	"""
 	labels: [LabelFilter!]
 
@@ -36520,7 +36516,7 @@ type TeamVulnerabilitySummary {
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 
-	"Trend of vulnerability status for the team."
+	"Trend of vulnerability status for the whole team. Not affected by the vulnerabilitySummary filter."
 	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
 
