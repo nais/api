@@ -47,7 +47,6 @@ Test.k8s("verify resource was created in fake environment", function(t)
 		metadata = {
 			name = "my-app",
 			namespace = "apply-team",
-			managedFields = Ignore(),
 		},
 		spec = {
 			image = "example.com/my-app:v1",
@@ -119,7 +118,6 @@ Test.k8s("verify resource was updated in fake environment", function(t)
 		metadata = {
 			name = "my-app",
 			namespace = "apply-team",
-			managedFields = Ignore(),
 		},
 		spec = {
 			image = "example.com/my-app:v2",
