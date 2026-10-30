@@ -135,6 +135,10 @@ func formatParam(t types.Type) string {
 		return "*" + formatParam(p.Elem())
 	}
 
+	if s, ok := t.(*types.Slice); ok {
+		return "[]" + formatParam(s.Elem())
+	}
+
 	if n, ok := t.(*types.Named); ok {
 		if n.Obj().Pkg() == nil {
 			return n.Obj().Name()
@@ -215,6 +219,9 @@ func importsForField(f *Field) []Import {
 }
 
 func importFromType(t types.Type) Import {
+	if s, ok := t.(*types.Slice); ok {
+		t = s.Elem()
+	}
 	if p, ok := t.(*types.Pointer); ok {
 		t = p.Elem()
 	}
