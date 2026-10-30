@@ -110,6 +110,7 @@ type ResolverRoot interface {
 	PostgresAccess() PostgresAccessResolver
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
+	PostgresBranchIssue() PostgresBranchIssueResolver
 	PostgresConnection() PostgresConnectionResolver
 	PostgresWorkload() PostgresWorkloadResolver
 	PrometheusAlert() PrometheusAlertResolver
@@ -1977,6 +1978,7 @@ type ComplexityRoot struct {
 		CreatedAt           func(childComplexity int) int
 		EarliestRestoreTime func(childComplexity int) int
 		ID                  func(childComplexity int) int
+		Issues              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Labels              func(childComplexity int) int
 		Name                func(childComplexity int) int
 		Postgres            func(childComplexity int) int
@@ -2047,6 +2049,14 @@ type ComplexityRoot struct {
 		Environments func(childComplexity int) int
 		Labels       func(childComplexity int) int
 		States       func(childComplexity int) int
+	}
+
+	PostgresBranchIssue struct {
+		Branch          func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 	}
 
 	PostgresBranchStateFacetItem struct {
@@ -12306,6 +12316,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranch.ID(childComplexity), true
 
+	case "PostgresBranch.issues":
+		if e.ComplexityRoot.PostgresBranch.Issues == nil {
+			break
+		}
+
+		args, err := ec.field_PostgresBranch_issues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
+
 	case "PostgresBranch.labels":
 		if e.ComplexityRoot.PostgresBranch.Labels == nil {
 			break
@@ -12653,6 +12675,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranchFacets.States(childComplexity), true
+
+	case "PostgresBranchIssue.branch":
+		if e.ComplexityRoot.PostgresBranchIssue.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.Branch(childComplexity), true
+
+	case "PostgresBranchIssue.id":
+		if e.ComplexityRoot.PostgresBranchIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.ID(childComplexity), true
+
+	case "PostgresBranchIssue.message":
+		if e.ComplexityRoot.PostgresBranchIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.Message(childComplexity), true
+
+	case "PostgresBranchIssue.severity":
+		if e.ComplexityRoot.PostgresBranchIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.Severity(childComplexity), true
+
+	case "PostgresBranchIssue.teamEnvironment":
+		if e.ComplexityRoot.PostgresBranchIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.TeamEnvironment(childComplexity), true
 
 	case "PostgresBranchStateFacetItem.count":
 		if e.ComplexityRoot.PostgresBranchStateFacetItem.Count == nil {
@@ -26430,6 +26487,8 @@ enum Severity {
 }
 
 enum ResourceType {
+	"A branch of a Postgres database."
+	POSTGRES_BRANCH
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -26439,6 +26498,8 @@ enum ResourceType {
 }
 
 enum IssueType {
+	"Raised when a Postgres branch has reported a failure."
+	POSTGRES_BRANCH
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -26567,6 +26628,20 @@ type ValkeyIssue implements Issue & Node {
 
 	valkey: Valkey!
 	event: String!
+}
+
+"A failure reported by a Postgres branch, including inactive branches."
+type PostgresBranchIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"Team environment containing the affected branch."
+	teamEnvironment: TeamEnvironment!
+	"Severity of the reported failure."
+	severity: Severity!
+	"Description of the reported failure."
+	message: String!
+	"The branch that reported the failure."
+	branch: PostgresBranch!
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {
@@ -28845,6 +28920,21 @@ type PostgresBranch implements Persistence & Node {
 	): WorkloadConnection!
 	"Current observed state of the branch."
 	state: PostgresBranchState!
+	"Issues affecting this branch."
+	issues(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Ordering options for the issues."
+		orderBy: IssueOrder
+		"Filtering options for the issues."
+		filter: ResourceIssueFilter
+	): IssueConnection!
 	"User-defined labels on this branch."
 	labels: [ResourceLabel!]!
 }
@@ -39967,6 +40057,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_workloads(ctx, field)
 	case "state":
 		return ec.fieldContext_PostgresBranch_state(ctx, field)
+	case "issues":
+		return ec.fieldContext_PostgresBranch_issues(ctx, field)
 	case "labels":
 		return ec.fieldContext_PostgresBranch_labels(ctx, field)
 	}

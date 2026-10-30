@@ -148,6 +148,21 @@ type PostgresBranch implements Persistence & Node {
 	): WorkloadConnection!
 	"Current observed state of the branch."
 	state: PostgresBranchState!
+	"Issues affecting this branch."
+	issues(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Ordering options for the issues."
+		orderBy: IssueOrder
+		"Filtering options for the issues."
+		filter: ResourceIssueFilter
+	): IssueConnection!
 	"User-defined labels on this branch."
 	labels: [ResourceLabel!]!
 }
