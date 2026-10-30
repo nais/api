@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20261026141157-c409ca158083
 	github.com/nais/tester v0.2.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20261028130253-277e2ab529a9
+	github.com/nais/v13s/pkg/api v0.0.0-20261030132547-a9a2531ae5e2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.24.0
@@ -490,5 +490,3 @@ replace go.etcd.io/etcd/api/v3 => go.etcd.io/etcd/api/v3 v3.6.14
 replace go.etcd.io/etcd/client/pkg/v3 => go.etcd.io/etcd/client/pkg/v3 v3.6.14
 
 replace go.etcd.io/etcd/client/v3 => go.etcd.io/etcd/client/v3 v3.6.14
-
-replace github.com/nais/v13s/pkg/api => ../v13s/pkg/api
