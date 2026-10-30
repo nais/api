@@ -35942,6 +35942,12 @@ Input for filtering image vulnerabilities.
 """
 input ImageVulnerabilityFilter {
 	"""
+	Only return vulnerabilities for this PURL type, for example maven or npm.
+	Omit to include all package types.
+	"""
+	packageType: String
+
+	"""
 	Only return vulnerabilities with the given severity.
 	"""
 	severity: ImageVulnerabilitySeverity
