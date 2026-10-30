@@ -243,18 +243,31 @@ Test.gql("Requesting access again returns the live access instead of creating an
 	t.check { data = { team = { activityLog = { nodes = { { message = Contains("creator@usersen.com") } } } } } }
 end)
 
-Test.gql("Requesting a different access level while one is live is rejected", function(t)
+Test.gql("Changing access level revokes and recreates live access", function(t)
 	t.addHeader("x-user-email", creatorUser:email())
-	t.query [[
-		mutation { createPostgresAccess(input: {
-			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
-			accessLevel: READ, reason: "Testing personal database access"
-		}) { name } }
-	]]
-	t.check {
-		errors = { { locations = NotNull(), path = { "createPostgresAccess" }, message = Contains("already have readwrite access") } },
-		data = Null,
-	}
+	-- Cover both a downgrade and an upgrade of the same user's access.
+	for _, level in ipairs({ "READ", "READWRITE" }) do
+		t.query(string.format([[
+			mutation { createPostgresAccess(input: {
+				postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+				accessLevel: %s, reason: "Testing personal database access"
+			}) { name expiresAt } }
+		]], level))
+		t.check { data = { createPostgresAccess = { name = "postgres-access-dae1133f0d5c798a", expiresAt = NotNull() } } }
+
+		t.query [[{ team(slug: "someteamname") { environment(name: "dev") {
+			postgresAccess(name: "postgres-access-dae1133f0d5c798a") { accessLevel }
+		} } }]]
+		t.check { data = { team = { environment = { postgresAccess = { accessLevel = level } } } } }
+	end
+
+	-- Each replacement is a new, audited access request.
+	t.query [[{ team(slug: "someteamname") { activityLog(filter: { activityTypes: [POSTGRES_PERSONAL_ACCESS_CREATED] }) { nodes { message } } } }]]
+	t.check { data = { team = { activityLog = { nodes = {
+		{ message = Contains("Requested READWRITE personal Postgres access for creator@usersen.com") },
+		{ message = Contains("Requested READ personal Postgres access for creator@usersen.com") },
+		{ message = Contains("Requested READWRITE personal Postgres access for creator@usersen.com") },
+	} } } } }
 end)
 
 Test.gql("Personal access targets a physical instance, even when its name differs from logical Postgres", function(t)
