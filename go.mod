@@ -44,7 +44,7 @@ require (
 	github.com/nais/pgrator/pkg/api v0.0.0-20261026141157-c409ca158083
 	github.com/nais/tester v0.2.0
 	github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe
-	github.com/nais/v13s/pkg/api v0.0.0-20261028130253-277e2ab529a9
+	github.com/nais/v13s/pkg/api v0.0.0-20261030132547-a9a2531ae5e2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/prometheus/client_golang v1.24.0
@@ -79,7 +79,7 @@ require (
 	golang.org/x/sync v0.24.0
 	golang.org/x/text v0.43.0
 	golang.org/x/tools v0.51.0
-	google.golang.org/api v0.304.0
+	google.golang.org/api v0.308.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260715232425-e75dac1f907d
 	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
@@ -460,7 +460,7 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	google.golang.org/genai v1.54.0 // indirect
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
