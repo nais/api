@@ -29420,6 +29420,8 @@ enum PostgresAccessLevel {
 	READWRITE
 	"Read, modify, and create database objects where supported."
 	READWRITECREATE
+	"Administer the application database with its owner's privileges, including creating schemas and altering or dropping existing objects. New objects are owned by the personal role unless SET ROLE app is used. Does not grant instance-wide monitoring or maintenance roles."
+	ADMIN
 	"Monitor and maintain the PostgreSQL instance through pg_monitor and pg_maintain, without granting application data access or database ownership."
 	MAINTAIN
 }
