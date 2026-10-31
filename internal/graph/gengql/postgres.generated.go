@@ -16,6 +16,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
@@ -50,6 +51,8 @@ type PostgresBranchResolver interface {
 	TeamEnvironment(ctx context.Context, obj *postgres.PostgresBranch) (*team.TeamEnvironment, error)
 	Postgres(ctx context.Context, obj *postgres.PostgresBranch) (*postgres.Postgres, error)
 	Workloads(ctx context.Context, obj *postgres.PostgresBranch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error)
+
+	Issues(ctx context.Context, obj *postgres.PostgresBranch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error)
 }
 type PostgresBranchConnectionResolver interface {
 	Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (*postgres.PostgresBranchFacets, error)
@@ -64,6 +67,60 @@ type PostgresWorkloadResolver interface {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_PostgresBranch_issues_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+		func(ctx context.Context, v any) (*issue.IssueOrder, error) {
+			return ec.unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["orderBy"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*issue.ResourceIssueFilter, error) {
+			return ec.unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
+	return args, nil
+}
 
 func (ec *executionContext) field_PostgresBranch_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -1652,6 +1709,50 @@ func (ec *executionContext) _PostgresBranch_state(ctx context.Context, field gra
 }
 func (ec *executionContext) fieldContext_PostgresBranch_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresBranch", field, false, false, errors.New("field of type PostgresBranchState does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBranch_issues(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBranch_issues(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.PostgresBranch().Issues(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*issue.IssueOrder), fc.Args["filter"].(*issue.ResourceIssueFilter))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *issue.IssueConnection) graphql.Marshaler {
+			return ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBranch_issues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresBranch",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_IssueConnection(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_PostgresBranch_issues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _PostgresBranch_labels(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBranch) (ret graphql.Marshaler) {
@@ -6986,6 +7087,42 @@ func (ec *executionContext) _PostgresBranch(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "issues":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresBranch_issues(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "labels":
 			out.Values[i] = ec._PostgresBranch_labels(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
