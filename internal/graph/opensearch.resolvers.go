@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -86,7 +87,7 @@ func (r *openSearchResolver) Issues(ctx context.Context, obj *opensearch.OpenSea
 	}
 
 	scope := &issue.IssueScope{
-		ResourceName: obj.Name,
+		ResourceName: strings.TrimPrefix(obj.Name, opensearch.NamePrefix(obj.TeamSlug)),
 		ResourceType: issue.ResourceTypeOpensearch,
 		Env:          obj.EnvironmentName,
 	}
