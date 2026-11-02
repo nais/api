@@ -267,13 +267,13 @@ func (r *teamInventoryCountsResolver) Configs(ctx context.Context, obj *team.Tea
 	}, nil
 }
 
-func (r *Resolver) Config() gengql.ConfigResolver { return &configResolver{r} }
+func (r *Resolver) Config() gengql.ConfigResolver { return &configResolver{r.resolver} }
 
 func (r *Resolver) ConfigConnection() gengql.ConfigConnectionResolver {
-	return &configConnectionResolver{r}
+	return &configConnectionResolver{r.resolver}
 }
 
 type (
-	configResolver           struct{ *Resolver }
-	configConnectionResolver struct{ *Resolver }
+	configResolver           struct{ *resolver }
+	configConnectionResolver struct{ *resolver }
 )

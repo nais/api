@@ -1,7 +1,9 @@
 package loki
 
 import (
+	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/nais/api/internal/environmentmapper"
 )
@@ -81,5 +83,46 @@ func TestInjectEnvToQuery(t *testing.T) {
 				t.Errorf("expected query %q, got %q", tt.want, got)
 			}
 		})
+	}
+}
+
+func TestTailResponseUnmarshal(t *testing.T) {
+	payload := `{
+		"streams": [
+			{
+				"stream": {"service_name": "myapp", "k8s_cluster_name": "dev-gcp"},
+				"values": [
+					["1723986725000000123", "first log line"],
+					["1723986726000000456", "second log line", {"trace_id": "abc123"}]
+				]
+			}
+		]
+	}`
+
+	var resp tailResponse
+	if err := json.Unmarshal([]byte(payload), &resp); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(resp.Streams) != 1 {
+		t.Fatalf("expected 1 stream, got %d", len(resp.Streams))
+	}
+
+	stream := resp.Streams[0]
+	if stream.Labels["service_name"] != "myapp" {
+		t.Errorf("expected service_name=myapp, got %q", stream.Labels["service_name"])
+	}
+	if len(stream.Entries) != 2 {
+		t.Fatalf("expected 2 entries, got %d", len(stream.Entries))
+	}
+
+	if want := time.Unix(0, 1723986725000000123); !stream.Entries[0].Timestamp.Equal(want) {
+		t.Errorf("expected timestamp %v, got %v", want, stream.Entries[0].Timestamp)
+	}
+	if stream.Entries[0].Line != "first log line" {
+		t.Errorf("expected line %q, got %q", "first log line", stream.Entries[0].Line)
+	}
+	if stream.Entries[1].Line != "second log line" {
+		t.Errorf("expected line %q, got %q", "second log line", stream.Entries[1].Line)
 	}
 }

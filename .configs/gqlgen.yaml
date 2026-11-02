@@ -19,9 +19,14 @@ resolver:
   dir: internal/graph
   package: graph
   omit_template_comment: true
+  resolver_template: .configs/resolver.gotpl
 
 # Omit Query / Mutation models
 omit_root_models: true
+omit_complexity: true
+use_function_syntax_for_execution_context: true
+skip_import_grouping: true
+use_buffer_pooling: true
 
 go_initialisms:
   replace_defaults: false

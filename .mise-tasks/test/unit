@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 #MISE description="Run unit tests"
+#MISE wait_for=["generate", "fmt:go"]
 
 go test --race ./... github.com/nais/api/pkg/apiclient/...

@@ -5,10 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/ident"
@@ -19,6 +15,9 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -56,12 +55,12 @@ type TeamServiceUtilizationSqlInstancesResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_SqlInstance_flags_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -69,7 +68,7 @@ func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, ra
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -77,7 +76,7 @@ func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, ra
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -85,7 +84,7 @@ func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, ra
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -94,12 +93,12 @@ func (ec *executionContext) field_SqlInstance_flags_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_SqlInstance_issues_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -107,7 +106,7 @@ func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, r
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -115,7 +114,7 @@ func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, r
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -123,7 +122,7 @@ func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, r
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -131,7 +130,7 @@ func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, r
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*issue.IssueOrder, error) {
-			return ec.unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, v)
+			return unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -139,7 +138,7 @@ func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, r
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*issue.ResourceIssueFilter, error) {
-			return ec.unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter(ctx, v)
+			return unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -148,12 +147,12 @@ func (ec *executionContext) field_SqlInstance_issues_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_SqlInstance_users_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -161,7 +160,7 @@ func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, ra
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -169,7 +168,7 @@ func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, ra
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -177,7 +176,7 @@ func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, ra
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -185,7 +184,7 @@ func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, ra
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*sqlinstance.SQLInstanceUserOrder, error) {
-			return ec.unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx, v)
+			return unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -202,393 +201,393 @@ func (ec *executionContext) field_SqlInstance_users_args(ctx context.Context, ra
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AuditLog_logUrl(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.AuditLog) (ret graphql.Marshaler) {
+func _AuditLog_logUrl(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.AuditLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AuditLog_logUrl(ctx, field)
+			return fieldContext_AuditLog_logUrl(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.LogURL, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AuditLog_logUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AuditLog_logUrl(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("AuditLog", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_id(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_id(ctx, field)
+			return fieldContext_SqlDatabase_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_name(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_name(ctx, field)
+			return fieldContext_SqlDatabase_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_team(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_team(ctx, field)
+			return fieldContext_SqlDatabase_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlDatabase().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlDatabase",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlDatabase_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_teamEnvironment(ctx, field)
+			return fieldContext_SqlDatabase_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlDatabase().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlDatabase",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlDatabase_charset(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_charset(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_charset(ctx, field)
+			return fieldContext_SqlDatabase_charset(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Charset, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_charset(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_charset(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_collation(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_collation(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_collation(ctx, field)
+			return fieldContext_SqlDatabase_collation(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Collation, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_collation(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_collation(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_deletionPolicy(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_deletionPolicy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_deletionPolicy(ctx, field)
+			return fieldContext_SqlDatabase_deletionPolicy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DeletionPolicy, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_deletionPolicy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_deletionPolicy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_healthy(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_healthy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_healthy(ctx, field)
+			return fieldContext_SqlDatabase_healthy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Healthy, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_healthy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_healthy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlDatabase", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlDatabase_labels(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
+func _SqlDatabase_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLDatabase) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlDatabase_labels(ctx, field)
+			return fieldContext_SqlDatabase_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlDatabase_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlDatabase_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlDatabase",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_id(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_id(ctx, field)
+			return fieldContext_SqlInstance_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_name(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_name(ctx, field)
+			return fieldContext_SqlInstance_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_team(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_team(ctx, field)
+			return fieldContext_SqlInstance_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_teamEnvironment(ctx, field)
+			return fieldContext_SqlInstance_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_workload(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_workload(ctx, field)
+			return fieldContext_SqlInstance_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().Workload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_workload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
@@ -601,403 +600,403 @@ func (ec *executionContext) fieldContext_SqlInstance_workload(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_cascadingDelete(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_cascadingDelete(ctx, field)
+			return fieldContext_SqlInstance_cascadingDelete(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CascadingDelete, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_cascadingDelete(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_cascadingDelete(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_connectionName(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_connectionName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_connectionName(ctx, field)
+			return fieldContext_SqlInstance_connectionName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ConnectionName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_connectionName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_connectionName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_diskAutoresize(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_diskAutoresize(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_diskAutoresize(ctx, field)
+			return fieldContext_SqlInstance_diskAutoresize(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DiskAutoresize, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bool) graphql.Marshaler {
-			return ec.marshalOBoolean2ᚖbool(ctx, selections, v)
+			return marshalOBoolean2ᚖbool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_diskAutoresize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_diskAutoresize(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_diskAutoresizeLimit(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_diskAutoresizeLimit(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_diskAutoresizeLimit(ctx, field)
+			return fieldContext_SqlInstance_diskAutoresizeLimit(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DiskAutoresizeLimit, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int64) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint64(ctx, selections, v)
+			return marshalOInt2ᚖint64(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_diskAutoresizeLimit(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_diskAutoresizeLimit(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_highAvailability(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_highAvailability(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_highAvailability(ctx, field)
+			return fieldContext_SqlInstance_highAvailability(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.HighAvailability, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_highAvailability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_highAvailability(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_healthy(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_healthy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_healthy(ctx, field)
+			return fieldContext_SqlInstance_healthy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Healthy, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_healthy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_healthy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_maintenanceVersion(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_maintenanceVersion(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_maintenanceVersion(ctx, field)
+			return fieldContext_SqlInstance_maintenanceVersion(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.MaintenanceVersion, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_maintenanceVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_maintenanceVersion(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_maintenanceWindow(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_maintenanceWindow(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_maintenanceWindow(ctx, field)
+			return fieldContext_SqlInstance_maintenanceWindow(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.MaintenanceWindow, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceMaintenanceWindow) graphql.Marshaler {
-			return ec.marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMaintenanceWindow(ctx, selections, v)
+			return marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMaintenanceWindow(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_maintenanceWindow(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_maintenanceWindow(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceMaintenanceWindow(ctx, field)
+			return childFields_SqlInstanceMaintenanceWindow(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_backupConfiguration(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_backupConfiguration(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_backupConfiguration(ctx, field)
+			return fieldContext_SqlInstance_backupConfiguration(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.BackupConfiguration, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceBackupConfiguration) graphql.Marshaler {
-			return ec.marshalOSqlInstanceBackupConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceBackupConfiguration(ctx, selections, v)
+			return marshalOSqlInstanceBackupConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceBackupConfiguration(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_backupConfiguration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_backupConfiguration(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceBackupConfiguration(ctx, field)
+			return childFields_SqlInstanceBackupConfiguration(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_projectID(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_projectID(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_projectID(ctx, field)
+			return fieldContext_SqlInstance_projectID(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ProjectID, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_projectID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_projectID(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_tier(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_tier(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_tier(ctx, field)
+			return fieldContext_SqlInstance_tier(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Tier, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_tier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_tier(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_version(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_version(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_version(ctx, field)
+			return fieldContext_SqlInstance_version(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Version, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_version(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_version(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_status(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_status(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_status(ctx, field)
+			return fieldContext_SqlInstance_status(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Status, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceStatus) graphql.Marshaler {
-			return ec.marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx, selections, v)
+			return marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_status(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceStatus(ctx, field)
+			return childFields_SqlInstanceStatus(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_labels(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_labels(ctx, field)
+			return fieldContext_SqlInstance_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_database(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_database(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_database(ctx, field)
+			return fieldContext_SqlInstance_database(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().Database(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLDatabase) graphql.Marshaler {
-			return ec.marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLDatabase(ctx, selections, v)
+			return marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLDatabase(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_database(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_database(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlDatabase(ctx, field)
+			return childFields_SqlDatabase(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_flags(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_flags(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_flags(ctx, field)
+			return fieldContext_SqlInstance_flags(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1005,20 +1004,20 @@ func (ec *executionContext) _SqlInstance_flags(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceFlagConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNSqlInstanceFlagConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_flags(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_flags(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceFlagConnection(ctx, field)
+			return childFields_SqlInstanceFlagConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1028,20 +1027,20 @@ func (ec *executionContext) fieldContext_SqlInstance_flags(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_SqlInstance_flags_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_SqlInstance_flags_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_users(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_users(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_users(ctx, field)
+			return fieldContext_SqlInstance_users(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1049,20 +1048,20 @@ func (ec *executionContext) _SqlInstance_users(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_users(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceUserConnection(ctx, field)
+			return childFields_SqlInstanceUserConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1072,75 +1071,75 @@ func (ec *executionContext) fieldContext_SqlInstance_users(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_SqlInstance_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_SqlInstance_users_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_metrics(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_metrics(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_metrics(ctx, field)
+			return fieldContext_SqlInstance_metrics(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().Metrics(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
-			return ec.marshalNSqlInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics(ctx, selections, v)
+			return marshalNSqlInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_metrics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_metrics(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceMetrics(ctx, field)
+			return childFields_SqlInstanceMetrics(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_state(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_state(ctx, field)
+			return fieldContext_SqlInstance_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().State(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v sqlinstance.SQLInstanceState) graphql.Marshaler {
-			return ec.marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState(ctx, selections, v)
+			return marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstance", field, true, true, errors.New("field of type SqlInstanceState does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstance_issues(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_issues(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_issues(ctx, field)
+			return fieldContext_SqlInstance_issues(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1148,20 +1147,20 @@ func (ec *executionContext) _SqlInstance_issues(ctx context.Context, field graph
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *issue.IssueConnection) graphql.Marshaler {
-			return ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, selections, v)
+			return marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_issues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_issues(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_IssueConnection(ctx, field)
+			return childFields_IssueConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1171,1386 +1170,1386 @@ func (ec *executionContext) fieldContext_SqlInstance_issues(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_SqlInstance_issues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_SqlInstance_issues_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_auditLog(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_auditLog(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_auditLog(ctx, field)
+			return fieldContext_SqlInstance_auditLog(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().AuditLog(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.AuditLog) graphql.Marshaler {
-			return ec.marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog(ctx, selections, v)
+			return marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_auditLog(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_auditLog(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AuditLog(ctx, field)
+			return childFields_AuditLog(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstance_cost(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
+func _SqlInstance_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstance_cost(ctx, field)
+			return fieldContext_SqlInstance_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstance().Cost(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.SQLInstanceCost) graphql.Marshaler {
-			return ec.marshalNSqlInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx, selections, v)
+			return marshalNSqlInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstance_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstance_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstance",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceCost(ctx, field)
+			return childFields_SqlInstanceCost(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceBackupConfiguration_enabled(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
+func _SqlInstanceBackupConfiguration_enabled(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceBackupConfiguration_enabled(ctx, field)
+			return fieldContext_SqlInstanceBackupConfiguration_enabled(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Enabled, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bool) graphql.Marshaler {
-			return ec.marshalOBoolean2ᚖbool(ctx, selections, v)
+			return marshalOBoolean2ᚖbool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceBackupConfiguration_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceBackupConfiguration_enabled(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceBackupConfiguration", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceBackupConfiguration_startTime(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
+func _SqlInstanceBackupConfiguration_startTime(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceBackupConfiguration_startTime(ctx, field)
+			return fieldContext_SqlInstanceBackupConfiguration_startTime(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.StartTime, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceBackupConfiguration_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceBackupConfiguration_startTime(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceBackupConfiguration", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceBackupConfiguration_retainedBackups(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
+func _SqlInstanceBackupConfiguration_retainedBackups(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceBackupConfiguration_retainedBackups(ctx, field)
+			return fieldContext_SqlInstanceBackupConfiguration_retainedBackups(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RetainedBackups, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int64) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint64(ctx, selections, v)
+			return marshalOInt2ᚖint64(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceBackupConfiguration_retainedBackups(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceBackupConfiguration_retainedBackups(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceBackupConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
+func _SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx, field)
+			return fieldContext_SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PointInTimeRecovery, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bool) graphql.Marshaler {
-			return ec.marshalOBoolean2ᚖbool(ctx, selections, v)
+			return marshalOBoolean2ᚖbool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceBackupConfiguration_pointInTimeRecovery(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceBackupConfiguration_pointInTimeRecovery(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceBackupConfiguration", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
+func _SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceBackupConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx, field)
+			return fieldContext_SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TransactionLogRetentionDays, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int64) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint64(ctx, selections, v)
+			return marshalOInt2ᚖint64(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceBackupConfiguration_transactionLogRetentionDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceBackupConfiguration_transactionLogRetentionDays(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceBackupConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
+func _SqlInstanceConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceConnection_pageInfo(ctx, field)
+			return fieldContext_SqlInstanceConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
+func _SqlInstanceConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceConnection_nodes(ctx, field)
+			return fieldContext_SqlInstanceConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*sqlinstance.SQLInstance) graphql.Marshaler {
-			return ec.marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx, selections, v)
+			return marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstance(ctx, field)
+			return childFields_SqlInstance(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
+func _SqlInstanceConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceConnection_edges(ctx, field)
+			return fieldContext_SqlInstanceConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceEdge(ctx, field)
+			return childFields_SqlInstanceEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceCpu_cores(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceCPU) (ret graphql.Marshaler) {
+func _SqlInstanceCpu_cores(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceCPU) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceCpu_cores(ctx, field)
+			return fieldContext_SqlInstanceCpu_cores(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cores, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceCpu_cores(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceCpu_cores(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceCpu", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceCpu_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceCPU) (ret graphql.Marshaler) {
+func _SqlInstanceCpu_utilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceCPU) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceCpu_utilization(ctx, field)
+			return fieldContext_SqlInstanceCpu_utilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Utilization, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceCpu_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceCpu_utilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceCpu", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceDisk_quotaBytes(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceDisk) (ret graphql.Marshaler) {
+func _SqlInstanceDisk_quotaBytes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceDisk) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceDisk_quotaBytes(ctx, field)
+			return fieldContext_SqlInstanceDisk_quotaBytes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.QuotaBytes, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceDisk_quotaBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceDisk_quotaBytes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceDisk", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceDisk_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceDisk) (ret graphql.Marshaler) {
+func _SqlInstanceDisk_utilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceDisk) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceDisk_utilization(ctx, field)
+			return fieldContext_SqlInstanceDisk_utilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Utilization, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceDisk_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceDisk_utilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceDisk", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
+func _SqlInstanceEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceEdge_cursor(ctx, field)
+			return fieldContext_SqlInstanceEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
+func _SqlInstanceEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceEdge_node(ctx, field)
+			return fieldContext_SqlInstanceEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstance) graphql.Marshaler {
-			return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, selections, v)
+			return marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstance(ctx, field)
+			return childFields_SqlInstance(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceFlag_name(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceFlag) (ret graphql.Marshaler) {
+func _SqlInstanceFlag_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceFlag) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlag_name(ctx, field)
+			return fieldContext_SqlInstanceFlag_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlag_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlag_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceFlag", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceFlag_value(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceFlag) (ret graphql.Marshaler) {
+func _SqlInstanceFlag_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceFlag) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlag_value(ctx, field)
+			return fieldContext_SqlInstanceFlag_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlag_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlag_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceFlag", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceFlagConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
+func _SqlInstanceFlagConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlagConnection_pageInfo(ctx, field)
+			return fieldContext_SqlInstanceFlagConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlagConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlagConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceFlagConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceFlagConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
+func _SqlInstanceFlagConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlagConnection_nodes(ctx, field)
+			return fieldContext_SqlInstanceFlagConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*sqlinstance.SQLInstanceFlag) graphql.Marshaler {
-			return ec.marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx, selections, v)
+			return marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlagConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlagConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceFlagConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceFlag(ctx, field)
+			return childFields_SqlInstanceFlag(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceFlagConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
+func _SqlInstanceFlagConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlagConnection_edges(ctx, field)
+			return fieldContext_SqlInstanceFlagConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlagConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlagConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceFlagConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceFlagEdge(ctx, field)
+			return childFields_SqlInstanceFlagEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceFlagEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
+func _SqlInstanceFlagEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlagEdge_cursor(ctx, field)
+			return fieldContext_SqlInstanceFlagEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlagEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlagEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceFlagEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceFlagEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
+func _SqlInstanceFlagEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceFlag]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceFlagEdge_node(ctx, field)
+			return fieldContext_SqlInstanceFlagEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceFlag) graphql.Marshaler {
-			return ec.marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, selections, v)
+			return marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceFlagEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceFlagEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceFlagEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceFlag(ctx, field)
+			return childFields_SqlInstanceFlag(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceMaintenanceWindow_day(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMaintenanceWindow) (ret graphql.Marshaler) {
+func _SqlInstanceMaintenanceWindow_day(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMaintenanceWindow) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMaintenanceWindow_day(ctx, field)
+			return fieldContext_SqlInstanceMaintenanceWindow_day(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Day, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
-			return ec.marshalNInt2int64(ctx, selections, v)
+			return marshalNInt2int64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMaintenanceWindow_day(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMaintenanceWindow_day(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceMaintenanceWindow", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceMaintenanceWindow_hour(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMaintenanceWindow) (ret graphql.Marshaler) {
+func _SqlInstanceMaintenanceWindow_hour(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMaintenanceWindow) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMaintenanceWindow_hour(ctx, field)
+			return fieldContext_SqlInstanceMaintenanceWindow_hour(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Hour, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
-			return ec.marshalNInt2int64(ctx, selections, v)
+			return marshalNInt2int64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMaintenanceWindow_hour(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMaintenanceWindow_hour(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceMaintenanceWindow", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceMemory_quotaBytes(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMemory) (ret graphql.Marshaler) {
+func _SqlInstanceMemory_quotaBytes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMemory) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMemory_quotaBytes(ctx, field)
+			return fieldContext_SqlInstanceMemory_quotaBytes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.QuotaBytes, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMemory_quotaBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMemory_quotaBytes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceMemory", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceMemory_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMemory) (ret graphql.Marshaler) {
+func _SqlInstanceMemory_utilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMemory) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMemory_utilization(ctx, field)
+			return fieldContext_SqlInstanceMemory_utilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Utilization, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMemory_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMemory_utilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceMemory", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceMetrics_cpu(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMetrics) (ret graphql.Marshaler) {
+func _SqlInstanceMetrics_cpu(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMetrics) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMetrics_cpu(ctx, field)
+			return fieldContext_SqlInstanceMetrics_cpu(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstanceMetrics().CPU(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceCPU) graphql.Marshaler {
-			return ec.marshalNSqlInstanceCpu2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU(ctx, selections, v)
+			return marshalNSqlInstanceCpu2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMetrics_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMetrics_cpu(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceMetrics",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceCpu(ctx, field)
+			return childFields_SqlInstanceCpu(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceMetrics_memory(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMetrics) (ret graphql.Marshaler) {
+func _SqlInstanceMetrics_memory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMetrics) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMetrics_memory(ctx, field)
+			return fieldContext_SqlInstanceMetrics_memory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstanceMetrics().Memory(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceMemory) graphql.Marshaler {
-			return ec.marshalNSqlInstanceMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory(ctx, selections, v)
+			return marshalNSqlInstanceMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMetrics_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMetrics_memory(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceMetrics",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceMemory(ctx, field)
+			return childFields_SqlInstanceMemory(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceMetrics_disk(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMetrics) (ret graphql.Marshaler) {
+func _SqlInstanceMetrics_disk(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceMetrics) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceMetrics_disk(ctx, field)
+			return fieldContext_SqlInstanceMetrics_disk(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SqlInstanceMetrics().Disk(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceDisk) graphql.Marshaler {
-			return ec.marshalNSqlInstanceDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk(ctx, selections, v)
+			return marshalNSqlInstanceDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceMetrics_disk(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceMetrics_disk(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceMetrics",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceDisk(ctx, field)
+			return childFields_SqlInstanceDisk(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceStatus_publicIpAddress(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceStatus) (ret graphql.Marshaler) {
+func _SqlInstanceStatus_publicIpAddress(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceStatus_publicIpAddress(ctx, field)
+			return fieldContext_SqlInstanceStatus_publicIpAddress(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PublicIPAddress, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceStatus_publicIpAddress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceStatus_publicIpAddress(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceStatus", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceStatus_privateIpAddress(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceStatus) (ret graphql.Marshaler) {
+func _SqlInstanceStatus_privateIpAddress(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceStatus_privateIpAddress(ctx, field)
+			return fieldContext_SqlInstanceStatus_privateIpAddress(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PrivateIPAddress, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceStatus_privateIpAddress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceStatus_privateIpAddress(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceStatus", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceUser_name(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceUser) (ret graphql.Marshaler) {
+func _SqlInstanceUser_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceUser) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUser_name(ctx, field)
+			return fieldContext_SqlInstanceUser_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUser_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUser_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceUser", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceUser_authentication(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.SQLInstanceUser) (ret graphql.Marshaler) {
+func _SqlInstanceUser_authentication(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.SQLInstanceUser) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUser_authentication(ctx, field)
+			return fieldContext_SqlInstanceUser_authentication(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Authentication, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUser_authentication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUser_authentication(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceUser", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceUserConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+func _SqlInstanceUserConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUserConnection_pageInfo(ctx, field)
+			return fieldContext_SqlInstanceUserConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUserConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUserConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceUserConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceUserConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+func _SqlInstanceUserConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUserConnection_nodes(ctx, field)
+			return fieldContext_SqlInstanceUserConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*sqlinstance.SQLInstanceUser) graphql.Marshaler {
-			return ec.marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx, selections, v)
+			return marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUserConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUserConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceUserConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceUser(ctx, field)
+			return childFields_SqlInstanceUser(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceUserConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+func _SqlInstanceUserConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUserConnection_edges(ctx, field)
+			return fieldContext_SqlInstanceUserConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUserConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUserConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceUserConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceUserEdge(ctx, field)
+			return childFields_SqlInstanceUserEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceUserEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+func _SqlInstanceUserEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUserEdge_cursor(ctx, field)
+			return fieldContext_SqlInstanceUserEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUserEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUserEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceUserEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _SqlInstanceUserEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
+func _SqlInstanceUserEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceUserEdge_node(ctx, field)
+			return fieldContext_SqlInstanceUserEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstanceUser) graphql.Marshaler {
-			return ec.marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, selections, v)
+			return marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceUserEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceUserEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SqlInstanceUserEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceUser(ctx, field)
+			return childFields_SqlInstanceUser(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCountSqlInstances_total(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamInventoryCountSQLInstances) (ret graphql.Marshaler) {
+func _TeamInventoryCountSqlInstances_total(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamInventoryCountSQLInstances) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountSqlInstances_total(ctx, field)
+			return fieldContext_TeamInventoryCountSqlInstances_total(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountSqlInstances_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountSqlInstances_total(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountSqlInstances", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstances_cpu(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstances_cpu(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstances_cpu(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstances_cpu(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamServiceUtilizationSqlInstances().CPU(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
-			return ec.marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx, selections, v)
+			return marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstances_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstances_cpu(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamServiceUtilizationSqlInstances",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamServiceUtilizationSqlInstancesCPU(ctx, field)
+			return childFields_TeamServiceUtilizationSqlInstancesCPU(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstances_memory(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstances_memory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstances_memory(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstances_memory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamServiceUtilizationSqlInstances().Memory(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
-			return ec.marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx, selections, v)
+			return marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstances_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstances_memory(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamServiceUtilizationSqlInstances",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamServiceUtilizationSqlInstancesMemory(ctx, field)
+			return childFields_TeamServiceUtilizationSqlInstancesMemory(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstances_disk(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstances_disk(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstances) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstances_disk(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstances_disk(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamServiceUtilizationSqlInstances().Disk(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
-			return ec.marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx, selections, v)
+			return marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstances_disk(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstances_disk(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamServiceUtilizationSqlInstances",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamServiceUtilizationSqlInstancesDisk(ctx, field)
+			return childFields_TeamServiceUtilizationSqlInstancesDisk(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU_used(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesCPU_used(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Used, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesCPU_used(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesCPU", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU_requested(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesCPU_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Requested, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesCPU_requested(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesCPU", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesCPU_utilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Utilization, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesCPU_utilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesCPU", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk_used(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesDisk_used(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Used, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesDisk_used(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesDisk", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk_requested(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesDisk_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Requested, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesDisk_requested(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesDisk", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesDisk_utilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Utilization, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesDisk_utilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesDisk", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory_used(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesMemory_used(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Used, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesMemory_used(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesMemory", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory_requested(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesMemory_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Requested, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesMemory_requested(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesMemory", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory_utilization(ctx context.Context, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
+func _TeamServiceUtilizationSqlInstancesMemory_utilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, field)
+			return fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Utilization, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilizationSqlInstancesMemory_utilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamServiceUtilizationSqlInstancesMemory", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
@@ -2558,7 +2557,7 @@ func (ec *executionContext) fieldContext_TeamServiceUtilizationSqlInstancesMemor
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputSqlInstanceFilter(ctx context.Context, obj any) (sqlinstance.SQLInstanceFilter, error) {
+func unmarshalInputSqlInstanceFilter(ctx context.Context, ec *executionContext, obj any) (sqlinstance.SQLInstanceFilter, error) {
 	var it sqlinstance.SQLInstanceFilter
 	if obj == nil {
 		return it, nil
@@ -2578,7 +2577,7 @@ func (ec *executionContext) unmarshalInputSqlInstanceFilter(ctx context.Context,
 		switch k {
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2588,7 +2587,7 @@ func (ec *executionContext) unmarshalInputSqlInstanceFilter(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSqlInstanceOrder(ctx context.Context, obj any) (sqlinstance.SQLInstanceOrder, error) {
+func unmarshalInputSqlInstanceOrder(ctx context.Context, ec *executionContext, obj any) (sqlinstance.SQLInstanceOrder, error) {
 	var it sqlinstance.SQLInstanceOrder
 	if obj == nil {
 		return it, nil
@@ -2608,14 +2607,14 @@ func (ec *executionContext) unmarshalInputSqlInstanceOrder(ctx context.Context, 
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx, v)
+			data, err := unmarshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2625,7 +2624,7 @@ func (ec *executionContext) unmarshalInputSqlInstanceOrder(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSqlInstanceUserOrder(ctx context.Context, obj any) (sqlinstance.SQLInstanceUserOrder, error) {
+func unmarshalInputSqlInstanceUserOrder(ctx context.Context, ec *executionContext, obj any) (sqlinstance.SQLInstanceUserOrder, error) {
 	var it sqlinstance.SQLInstanceUserOrder
 	if obj == nil {
 		return it, nil
@@ -2645,14 +2644,14 @@ func (ec *executionContext) unmarshalInputSqlInstanceUserOrder(ctx context.Conte
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx, v)
+			data, err := unmarshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2672,7 +2671,7 @@ func (ec *executionContext) unmarshalInputSqlInstanceUserOrder(ctx context.Conte
 
 var auditLogImplementors = []string{"AuditLog"}
 
-func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.AuditLog) graphql.Marshaler {
+func _AuditLog(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.AuditLog) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, auditLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2682,7 +2681,7 @@ func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AuditLog")
 		case "logUrl":
-			out.Values[i] = ec._AuditLog_logUrl(ctx, field, obj)
+			out.Values[i] = _AuditLog_logUrl(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2711,7 +2710,7 @@ func (ec *executionContext) _AuditLog(ctx context.Context, sel ast.SelectionSet,
 
 var sqlDatabaseImplementors = []string{"SqlDatabase", "Persistence", "Node"}
 
-func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLDatabase) graphql.Marshaler {
+func _SqlDatabase(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLDatabase) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlDatabaseImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2721,12 +2720,12 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlDatabase")
 		case "id":
-			out.Values[i] = ec._SqlDatabase_id(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._SqlDatabase_name(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2739,7 +2738,7 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlDatabase_team(ctx, field, obj)
+				res = _SqlDatabase_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2775,7 +2774,7 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlDatabase_teamEnvironment(ctx, field, obj)
+				res = _SqlDatabase_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2803,18 +2802,18 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "charset":
-			out.Values[i] = ec._SqlDatabase_charset(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_charset(ctx, ec, field, obj)
 		case "collation":
-			out.Values[i] = ec._SqlDatabase_collation(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_collation(ctx, ec, field, obj)
 		case "deletionPolicy":
-			out.Values[i] = ec._SqlDatabase_deletionPolicy(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_deletionPolicy(ctx, ec, field, obj)
 		case "healthy":
-			out.Values[i] = ec._SqlDatabase_healthy(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_healthy(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "labels":
-			out.Values[i] = ec._SqlDatabase_labels(ctx, field, obj)
+			out.Values[i] = _SqlDatabase_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2843,7 +2842,7 @@ func (ec *executionContext) _SqlDatabase(ctx context.Context, sel ast.SelectionS
 
 var sqlInstanceImplementors = []string{"SqlInstance", "SearchNode", "Persistence", "Node"}
 
-func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstance) graphql.Marshaler {
+func _SqlInstance(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstance) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2853,12 +2852,12 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstance")
 		case "id":
-			out.Values[i] = ec._SqlInstance_id(ctx, field, obj)
+			out.Values[i] = _SqlInstance_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._SqlInstance_name(ctx, field, obj)
+			out.Values[i] = _SqlInstance_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2871,7 +2870,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_team(ctx, field, obj)
+				res = _SqlInstance_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2907,7 +2906,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_teamEnvironment(ctx, field, obj)
+				res = _SqlInstance_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2943,7 +2942,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_workload(ctx, field, obj)
+				res = _SqlInstance_workload(ctx, ec, field, obj)
 				return res
 			}
 
@@ -2968,51 +2967,51 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "cascadingDelete":
-			out.Values[i] = ec._SqlInstance_cascadingDelete(ctx, field, obj)
+			out.Values[i] = _SqlInstance_cascadingDelete(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "connectionName":
-			out.Values[i] = ec._SqlInstance_connectionName(ctx, field, obj)
+			out.Values[i] = _SqlInstance_connectionName(ctx, ec, field, obj)
 		case "diskAutoresize":
-			out.Values[i] = ec._SqlInstance_diskAutoresize(ctx, field, obj)
+			out.Values[i] = _SqlInstance_diskAutoresize(ctx, ec, field, obj)
 		case "diskAutoresizeLimit":
-			out.Values[i] = ec._SqlInstance_diskAutoresizeLimit(ctx, field, obj)
+			out.Values[i] = _SqlInstance_diskAutoresizeLimit(ctx, ec, field, obj)
 		case "highAvailability":
-			out.Values[i] = ec._SqlInstance_highAvailability(ctx, field, obj)
+			out.Values[i] = _SqlInstance_highAvailability(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "healthy":
-			out.Values[i] = ec._SqlInstance_healthy(ctx, field, obj)
+			out.Values[i] = _SqlInstance_healthy(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "maintenanceVersion":
-			out.Values[i] = ec._SqlInstance_maintenanceVersion(ctx, field, obj)
+			out.Values[i] = _SqlInstance_maintenanceVersion(ctx, ec, field, obj)
 		case "maintenanceWindow":
-			out.Values[i] = ec._SqlInstance_maintenanceWindow(ctx, field, obj)
+			out.Values[i] = _SqlInstance_maintenanceWindow(ctx, ec, field, obj)
 		case "backupConfiguration":
-			out.Values[i] = ec._SqlInstance_backupConfiguration(ctx, field, obj)
+			out.Values[i] = _SqlInstance_backupConfiguration(ctx, ec, field, obj)
 		case "projectID":
-			out.Values[i] = ec._SqlInstance_projectID(ctx, field, obj)
+			out.Values[i] = _SqlInstance_projectID(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "tier":
-			out.Values[i] = ec._SqlInstance_tier(ctx, field, obj)
+			out.Values[i] = _SqlInstance_tier(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "version":
-			out.Values[i] = ec._SqlInstance_version(ctx, field, obj)
+			out.Values[i] = _SqlInstance_version(ctx, ec, field, obj)
 		case "status":
-			out.Values[i] = ec._SqlInstance_status(ctx, field, obj)
+			out.Values[i] = _SqlInstance_status(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "labels":
-			out.Values[i] = ec._SqlInstance_labels(ctx, field, obj)
+			out.Values[i] = _SqlInstance_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -3025,7 +3024,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_database(ctx, field, obj)
+				res = _SqlInstance_database(ctx, ec, field, obj)
 				return res
 			}
 
@@ -3058,7 +3057,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_flags(ctx, field, obj)
+				res = _SqlInstance_flags(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3094,7 +3093,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_users(ctx, field, obj)
+				res = _SqlInstance_users(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3130,7 +3129,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_metrics(ctx, field, obj)
+				res = _SqlInstance_metrics(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3166,7 +3165,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_state(ctx, field, obj)
+				res = _SqlInstance_state(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3202,7 +3201,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_issues(ctx, field, obj)
+				res = _SqlInstance_issues(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3238,7 +3237,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_auditLog(ctx, field, obj)
+				res = _SqlInstance_auditLog(ctx, ec, field, obj)
 				return res
 			}
 
@@ -3271,7 +3270,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstance_cost(ctx, field, obj)
+				res = _SqlInstance_cost(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3323,7 +3322,7 @@ func (ec *executionContext) _SqlInstance(ctx context.Context, sel ast.SelectionS
 
 var sqlInstanceBackupConfigurationImplementors = []string{"SqlInstanceBackupConfiguration"}
 
-func (ec *executionContext) _SqlInstanceBackupConfiguration(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceBackupConfiguration) graphql.Marshaler {
+func _SqlInstanceBackupConfiguration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceBackupConfiguration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceBackupConfigurationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3333,15 +3332,15 @@ func (ec *executionContext) _SqlInstanceBackupConfiguration(ctx context.Context,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceBackupConfiguration")
 		case "enabled":
-			out.Values[i] = ec._SqlInstanceBackupConfiguration_enabled(ctx, field, obj)
+			out.Values[i] = _SqlInstanceBackupConfiguration_enabled(ctx, ec, field, obj)
 		case "startTime":
-			out.Values[i] = ec._SqlInstanceBackupConfiguration_startTime(ctx, field, obj)
+			out.Values[i] = _SqlInstanceBackupConfiguration_startTime(ctx, ec, field, obj)
 		case "retainedBackups":
-			out.Values[i] = ec._SqlInstanceBackupConfiguration_retainedBackups(ctx, field, obj)
+			out.Values[i] = _SqlInstanceBackupConfiguration_retainedBackups(ctx, ec, field, obj)
 		case "pointInTimeRecovery":
-			out.Values[i] = ec._SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx, field, obj)
+			out.Values[i] = _SqlInstanceBackupConfiguration_pointInTimeRecovery(ctx, ec, field, obj)
 		case "transactionLogRetentionDays":
-			out.Values[i] = ec._SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx, field, obj)
+			out.Values[i] = _SqlInstanceBackupConfiguration_transactionLogRetentionDays(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3367,7 +3366,7 @@ func (ec *executionContext) _SqlInstanceBackupConfiguration(ctx context.Context,
 
 var sqlInstanceConnectionImplementors = []string{"SqlInstanceConnection"}
 
-func (ec *executionContext) _SqlInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
+func _SqlInstanceConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3377,17 +3376,17 @@ func (ec *executionContext) _SqlInstanceConnection(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceConnection")
 		case "pageInfo":
-			out.Values[i] = ec._SqlInstanceConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _SqlInstanceConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._SqlInstanceConnection_nodes(ctx, field, obj)
+			out.Values[i] = _SqlInstanceConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._SqlInstanceConnection_edges(ctx, field, obj)
+			out.Values[i] = _SqlInstanceConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3416,7 +3415,7 @@ func (ec *executionContext) _SqlInstanceConnection(ctx context.Context, sel ast.
 
 var sqlInstanceCpuImplementors = []string{"SqlInstanceCpu"}
 
-func (ec *executionContext) _SqlInstanceCpu(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceCPU) graphql.Marshaler {
+func _SqlInstanceCpu(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceCPU) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceCpuImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3426,12 +3425,12 @@ func (ec *executionContext) _SqlInstanceCpu(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceCpu")
 		case "cores":
-			out.Values[i] = ec._SqlInstanceCpu_cores(ctx, field, obj)
+			out.Values[i] = _SqlInstanceCpu_cores(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "utilization":
-			out.Values[i] = ec._SqlInstanceCpu_utilization(ctx, field, obj)
+			out.Values[i] = _SqlInstanceCpu_utilization(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3460,7 +3459,7 @@ func (ec *executionContext) _SqlInstanceCpu(ctx context.Context, sel ast.Selecti
 
 var sqlInstanceDiskImplementors = []string{"SqlInstanceDisk"}
 
-func (ec *executionContext) _SqlInstanceDisk(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceDisk) graphql.Marshaler {
+func _SqlInstanceDisk(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceDisk) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceDiskImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3470,12 +3469,12 @@ func (ec *executionContext) _SqlInstanceDisk(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceDisk")
 		case "quotaBytes":
-			out.Values[i] = ec._SqlInstanceDisk_quotaBytes(ctx, field, obj)
+			out.Values[i] = _SqlInstanceDisk_quotaBytes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "utilization":
-			out.Values[i] = ec._SqlInstanceDisk_utilization(ctx, field, obj)
+			out.Values[i] = _SqlInstanceDisk_utilization(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3504,7 +3503,7 @@ func (ec *executionContext) _SqlInstanceDisk(ctx context.Context, sel ast.Select
 
 var sqlInstanceEdgeImplementors = []string{"SqlInstanceEdge"}
 
-func (ec *executionContext) _SqlInstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
+func _SqlInstanceEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3514,12 +3513,12 @@ func (ec *executionContext) _SqlInstanceEdge(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceEdge")
 		case "cursor":
-			out.Values[i] = ec._SqlInstanceEdge_cursor(ctx, field, obj)
+			out.Values[i] = _SqlInstanceEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._SqlInstanceEdge_node(ctx, field, obj)
+			out.Values[i] = _SqlInstanceEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3548,7 +3547,7 @@ func (ec *executionContext) _SqlInstanceEdge(ctx context.Context, sel ast.Select
 
 var sqlInstanceFlagImplementors = []string{"SqlInstanceFlag"}
 
-func (ec *executionContext) _SqlInstanceFlag(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceFlag) graphql.Marshaler {
+func _SqlInstanceFlag(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceFlag) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceFlagImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3558,12 +3557,12 @@ func (ec *executionContext) _SqlInstanceFlag(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceFlag")
 		case "name":
-			out.Values[i] = ec._SqlInstanceFlag_name(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlag_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._SqlInstanceFlag_value(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlag_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3592,7 +3591,7 @@ func (ec *executionContext) _SqlInstanceFlag(ctx context.Context, sel ast.Select
 
 var sqlInstanceFlagConnectionImplementors = []string{"SqlInstanceFlagConnection"}
 
-func (ec *executionContext) _SqlInstanceFlagConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
+func _SqlInstanceFlagConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceFlagConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3602,17 +3601,17 @@ func (ec *executionContext) _SqlInstanceFlagConnection(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceFlagConnection")
 		case "pageInfo":
-			out.Values[i] = ec._SqlInstanceFlagConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlagConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._SqlInstanceFlagConnection_nodes(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlagConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._SqlInstanceFlagConnection_edges(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlagConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3641,7 +3640,7 @@ func (ec *executionContext) _SqlInstanceFlagConnection(ctx context.Context, sel 
 
 var sqlInstanceFlagEdgeImplementors = []string{"SqlInstanceFlagEdge"}
 
-func (ec *executionContext) _SqlInstanceFlagEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
+func _SqlInstanceFlagEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceFlagEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3651,12 +3650,12 @@ func (ec *executionContext) _SqlInstanceFlagEdge(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceFlagEdge")
 		case "cursor":
-			out.Values[i] = ec._SqlInstanceFlagEdge_cursor(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlagEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._SqlInstanceFlagEdge_node(ctx, field, obj)
+			out.Values[i] = _SqlInstanceFlagEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3685,7 +3684,7 @@ func (ec *executionContext) _SqlInstanceFlagEdge(ctx context.Context, sel ast.Se
 
 var sqlInstanceMaintenanceWindowImplementors = []string{"SqlInstanceMaintenanceWindow"}
 
-func (ec *executionContext) _SqlInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceMaintenanceWindow) graphql.Marshaler {
+func _SqlInstanceMaintenanceWindow(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceMaintenanceWindow) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceMaintenanceWindowImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3695,12 +3694,12 @@ func (ec *executionContext) _SqlInstanceMaintenanceWindow(ctx context.Context, s
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceMaintenanceWindow")
 		case "day":
-			out.Values[i] = ec._SqlInstanceMaintenanceWindow_day(ctx, field, obj)
+			out.Values[i] = _SqlInstanceMaintenanceWindow_day(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "hour":
-			out.Values[i] = ec._SqlInstanceMaintenanceWindow_hour(ctx, field, obj)
+			out.Values[i] = _SqlInstanceMaintenanceWindow_hour(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3729,7 +3728,7 @@ func (ec *executionContext) _SqlInstanceMaintenanceWindow(ctx context.Context, s
 
 var sqlInstanceMemoryImplementors = []string{"SqlInstanceMemory"}
 
-func (ec *executionContext) _SqlInstanceMemory(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceMemory) graphql.Marshaler {
+func _SqlInstanceMemory(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceMemory) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceMemoryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3739,12 +3738,12 @@ func (ec *executionContext) _SqlInstanceMemory(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceMemory")
 		case "quotaBytes":
-			out.Values[i] = ec._SqlInstanceMemory_quotaBytes(ctx, field, obj)
+			out.Values[i] = _SqlInstanceMemory_quotaBytes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "utilization":
-			out.Values[i] = ec._SqlInstanceMemory_utilization(ctx, field, obj)
+			out.Values[i] = _SqlInstanceMemory_utilization(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3773,7 +3772,7 @@ func (ec *executionContext) _SqlInstanceMemory(ctx context.Context, sel ast.Sele
 
 var sqlInstanceMetricsImplementors = []string{"SqlInstanceMetrics"}
 
-func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
+func _SqlInstanceMetrics(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceMetricsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3791,7 +3790,7 @@ func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.Sel
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstanceMetrics_cpu(ctx, field, obj)
+				res = _SqlInstanceMetrics_cpu(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3827,7 +3826,7 @@ func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.Sel
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstanceMetrics_memory(ctx, field, obj)
+				res = _SqlInstanceMetrics_memory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3863,7 +3862,7 @@ func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.Sel
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SqlInstanceMetrics_disk(ctx, field, obj)
+				res = _SqlInstanceMetrics_disk(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3915,7 +3914,7 @@ func (ec *executionContext) _SqlInstanceMetrics(ctx context.Context, sel ast.Sel
 
 var sqlInstanceStatusImplementors = []string{"SqlInstanceStatus"}
 
-func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceStatus) graphql.Marshaler {
+func _SqlInstanceStatus(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceStatus) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceStatusImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3925,9 +3924,9 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceStatus")
 		case "publicIpAddress":
-			out.Values[i] = ec._SqlInstanceStatus_publicIpAddress(ctx, field, obj)
+			out.Values[i] = _SqlInstanceStatus_publicIpAddress(ctx, ec, field, obj)
 		case "privateIpAddress":
-			out.Values[i] = ec._SqlInstanceStatus_privateIpAddress(ctx, field, obj)
+			out.Values[i] = _SqlInstanceStatus_privateIpAddress(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3953,7 +3952,7 @@ func (ec *executionContext) _SqlInstanceStatus(ctx context.Context, sel ast.Sele
 
 var sqlInstanceUserImplementors = []string{"SqlInstanceUser"}
 
-func (ec *executionContext) _SqlInstanceUser(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceUser) graphql.Marshaler {
+func _SqlInstanceUser(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.SQLInstanceUser) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceUserImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3963,12 +3962,12 @@ func (ec *executionContext) _SqlInstanceUser(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceUser")
 		case "name":
-			out.Values[i] = ec._SqlInstanceUser_name(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUser_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "authentication":
-			out.Values[i] = ec._SqlInstanceUser_authentication(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUser_authentication(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3997,7 +3996,7 @@ func (ec *executionContext) _SqlInstanceUser(ctx context.Context, sel ast.Select
 
 var sqlInstanceUserConnectionImplementors = []string{"SqlInstanceUserConnection"}
 
-func (ec *executionContext) _SqlInstanceUserConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+func _SqlInstanceUserConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceUserConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4007,17 +4006,17 @@ func (ec *executionContext) _SqlInstanceUserConnection(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceUserConnection")
 		case "pageInfo":
-			out.Values[i] = ec._SqlInstanceUserConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUserConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._SqlInstanceUserConnection_nodes(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUserConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._SqlInstanceUserConnection_edges(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUserConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4046,7 +4045,7 @@ func (ec *executionContext) _SqlInstanceUserConnection(ctx context.Context, sel 
 
 var sqlInstanceUserEdgeImplementors = []string{"SqlInstanceUserEdge"}
 
-func (ec *executionContext) _SqlInstanceUserEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+func _SqlInstanceUserEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceUserEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4056,12 +4055,12 @@ func (ec *executionContext) _SqlInstanceUserEdge(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceUserEdge")
 		case "cursor":
-			out.Values[i] = ec._SqlInstanceUserEdge_cursor(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUserEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._SqlInstanceUserEdge_node(ctx, field, obj)
+			out.Values[i] = _SqlInstanceUserEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4090,7 +4089,7 @@ func (ec *executionContext) _SqlInstanceUserEdge(ctx context.Context, sel ast.Se
 
 var teamInventoryCountSqlInstancesImplementors = []string{"TeamInventoryCountSqlInstances"}
 
-func (ec *executionContext) _TeamInventoryCountSqlInstances(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
+func _TeamInventoryCountSqlInstances(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountSqlInstancesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4100,7 +4099,7 @@ func (ec *executionContext) _TeamInventoryCountSqlInstances(ctx context.Context,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountSqlInstances")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountSqlInstances_total(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountSqlInstances_total(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4129,7 +4128,7 @@ func (ec *executionContext) _TeamInventoryCountSqlInstances(ctx context.Context,
 
 var teamServiceUtilizationSqlInstancesImplementors = []string{"TeamServiceUtilizationSqlInstances"}
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
+func _TeamServiceUtilizationSqlInstances(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4147,7 +4146,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Cont
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamServiceUtilizationSqlInstances_cpu(ctx, field, obj)
+				res = _TeamServiceUtilizationSqlInstances_cpu(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4183,7 +4182,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Cont
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamServiceUtilizationSqlInstances_memory(ctx, field, obj)
+				res = _TeamServiceUtilizationSqlInstances_memory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4219,7 +4218,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Cont
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamServiceUtilizationSqlInstances_disk(ctx, field, obj)
+				res = _TeamServiceUtilizationSqlInstances_disk(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4271,7 +4270,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstances(ctx context.Cont
 
 var teamServiceUtilizationSqlInstancesCPUImplementors = []string{"TeamServiceUtilizationSqlInstancesCPU"}
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
+func _TeamServiceUtilizationSqlInstancesCPU(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesCPUImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4281,17 +4280,17 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU(ctx context.C
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstancesCPU")
 		case "used":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesCPU_used(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesCPU_used(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "requested":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesCPU_requested(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesCPU_requested(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "utilization":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesCPU_utilization(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4320,7 +4319,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesCPU(ctx context.C
 
 var teamServiceUtilizationSqlInstancesDiskImplementors = []string{"TeamServiceUtilizationSqlInstancesDisk"}
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
+func _TeamServiceUtilizationSqlInstancesDisk(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesDiskImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4330,17 +4329,17 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk(ctx context.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstancesDisk")
 		case "used":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesDisk_used(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesDisk_used(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "requested":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesDisk_requested(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesDisk_requested(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "utilization":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesDisk_utilization(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4369,7 +4368,7 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesDisk(ctx context.
 
 var teamServiceUtilizationSqlInstancesMemoryImplementors = []string{"TeamServiceUtilizationSqlInstancesMemory"}
 
-func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx context.Context, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
+func _TeamServiceUtilizationSqlInstancesMemory(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationSqlInstancesMemoryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4379,17 +4378,17 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx contex
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamServiceUtilizationSqlInstancesMemory")
 		case "used":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesMemory_used(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesMemory_used(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "requested":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesMemory_requested(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesMemory_requested(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "utilization":
-			out.Values[i] = ec._TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, field, obj)
+			out.Values[i] = _TeamServiceUtilizationSqlInstancesMemory_utilization(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4420,15 +4419,15 @@ func (ec *executionContext) _TeamServiceUtilizationSqlInstancesMemory(ctx contex
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNSqlInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstance) graphql.Marshaler {
-	return ec._SqlInstance(ctx, sel, &v)
+func marshalNSqlInstance2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstance) graphql.Marshaler {
+	return _SqlInstance(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstance) graphql.Marshaler {
+func marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*sqlinstance.SQLInstance) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, sel, v[i])
+		return marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4440,67 +4439,67 @@ func (ec *executionContext) marshalNSqlInstance2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstance) graphql.Marshaler {
+func marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstance) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstance(ctx, sel, v)
+	return _SqlInstance(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
-	return ec._SqlInstanceConnection(ctx, sel, &v)
+func marshalNSqlInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
+	return _SqlInstanceConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
+func marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceConnection(ctx, sel, v)
+	return _SqlInstanceConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceCpu2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceCPU) graphql.Marshaler {
-	return ec._SqlInstanceCpu(ctx, sel, &v)
+func marshalNSqlInstanceCpu2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceCPU) graphql.Marshaler {
+	return _SqlInstanceCpu(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceCpu2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceCPU) graphql.Marshaler {
+func marshalNSqlInstanceCpu2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceCPU(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceCPU) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceCpu(ctx, sel, v)
+	return _SqlInstanceCpu(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceDisk2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceDisk) graphql.Marshaler {
-	return ec._SqlInstanceDisk(ctx, sel, &v)
+func marshalNSqlInstanceDisk2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceDisk) graphql.Marshaler {
+	return _SqlInstanceDisk(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceDisk) graphql.Marshaler {
+func marshalNSqlInstanceDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceDisk(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceDisk) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceDisk(ctx, sel, v)
+	return _SqlInstanceDisk(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
-	return ec._SqlInstanceEdge(ctx, sel, &v)
+func marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
+	return _SqlInstanceEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
+func marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstance]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNSqlInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4512,11 +4511,11 @@ func (ec *executionContext) marshalNSqlInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
-func (ec *executionContext) marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceFlag) graphql.Marshaler {
+func marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlagᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceFlag) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, sel, v[i])
+		return marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4528,39 +4527,39 @@ func (ec *executionContext) marshalNSqlInstanceFlag2ᚕᚖgithubᚗcomᚋnaisᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceFlag) graphql.Marshaler {
+func marshalNSqlInstanceFlag2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFlag(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceFlag) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceFlag(ctx, sel, v)
+	return _SqlInstanceFlag(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceFlagConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
-	return ec._SqlInstanceFlagConnection(ctx, sel, &v)
+func marshalNSqlInstanceFlagConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
+	return _SqlInstanceFlagConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceFlagConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
+func marshalNSqlInstanceFlagConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceFlagConnection(ctx, sel, v)
+	return _SqlInstanceFlagConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
-	return ec._SqlInstanceFlagEdge(ctx, sel, &v)
+func marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
+	return _SqlInstanceFlagEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
+func marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceFlag]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNSqlInstanceFlagEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4572,51 +4571,51 @@ func (ec *executionContext) marshalNSqlInstanceFlagEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNSqlInstanceMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceMemory) graphql.Marshaler {
-	return ec._SqlInstanceMemory(ctx, sel, &v)
+func marshalNSqlInstanceMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceMemory) graphql.Marshaler {
+	return _SqlInstanceMemory(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMemory) graphql.Marshaler {
+func marshalNSqlInstanceMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMemory(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMemory) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceMemory(ctx, sel, v)
+	return _SqlInstanceMemory(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
-	return ec._SqlInstanceMetrics(ctx, sel, &v)
+func marshalNSqlInstanceMetrics2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
+	return _SqlInstanceMetrics(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
+func marshalNSqlInstanceMetrics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMetrics(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMetrics) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceMetrics(ctx, sel, v)
+	return _SqlInstanceMetrics(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx context.Context, v any) (sqlinstance.SQLInstanceOrderField, error) {
+func unmarshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx context.Context, ec *executionContext, v any) (sqlinstance.SQLInstanceOrderField, error) {
 	var res sqlinstance.SQLInstanceOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceOrderField) graphql.Marshaler {
+func marshalNSqlInstanceOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState(ctx context.Context, v any) (sqlinstance.SQLInstanceState, error) {
+func unmarshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState(ctx context.Context, ec *executionContext, v any) (sqlinstance.SQLInstanceState, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := sqlinstance.SQLInstanceState(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceState) graphql.Marshaler {
+func marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceState(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceState) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
@@ -4627,21 +4626,21 @@ func (ec *executionContext) marshalNSqlInstanceState2githubᚗcomᚋnaisᚋapi�
 	return res
 }
 
-func (ec *executionContext) marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceStatus) graphql.Marshaler {
+func marshalNSqlInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceStatus(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceStatus(ctx, sel, v)
+	return _SqlInstanceStatus(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceUser) graphql.Marshaler {
+func marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*sqlinstance.SQLInstanceUser) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, sel, v[i])
+		return marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4653,39 +4652,39 @@ func (ec *executionContext) marshalNSqlInstanceUser2ᚕᚖgithubᚗcomᚋnaisᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceUser) graphql.Marshaler {
+func marshalNSqlInstanceUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUser(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceUser) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceUser(ctx, sel, v)
+	return _SqlInstanceUser(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceUserConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
-	return ec._SqlInstanceUserConnection(ctx, sel, &v)
+func marshalNSqlInstanceUserConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	return _SqlInstanceUserConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+func marshalNSqlInstanceUserConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceUserConnection(ctx, sel, v)
+	return _SqlInstanceUserConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
-	return ec._SqlInstanceUserEdge(ctx, sel, &v)
+func marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+	return _SqlInstanceUserEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
+func marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*sqlinstance.SQLInstanceUser]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNSqlInstanceUserEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4697,135 +4696,135 @@ func (ec *executionContext) marshalNSqlInstanceUserEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx context.Context, v any) (sqlinstance.SQLInstanceUserOrderField, error) {
+func unmarshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx context.Context, ec *executionContext, v any) (sqlinstance.SQLInstanceUserOrderField, error) {
 	var res sqlinstance.SQLInstanceUserOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx context.Context, sel ast.SelectionSet, v sqlinstance.SQLInstanceUserOrderField) graphql.Marshaler {
+func marshalNSqlInstanceUserOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.SQLInstanceUserOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountSqlInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
-	return ec._TeamInventoryCountSqlInstances(ctx, sel, &v)
+func marshalNTeamInventoryCountSqlInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
+	return _TeamInventoryCountSqlInstances(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
+func marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCountSqlInstances(ctx, sel, v)
+	return _TeamInventoryCountSqlInstances(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
-	return ec._TeamServiceUtilizationSqlInstances(ctx, sel, &v)
+func marshalNTeamServiceUtilizationSqlInstances2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
+	return _TeamServiceUtilizationSqlInstances(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
+func marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamServiceUtilizationSqlInstances(ctx, sel, v)
+	return _TeamServiceUtilizationSqlInstances(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesCPU2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
-	return ec._TeamServiceUtilizationSqlInstancesCPU(ctx, sel, &v)
+func marshalNTeamServiceUtilizationSqlInstancesCPU2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
+	return _TeamServiceUtilizationSqlInstancesCPU(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
+func marshalNTeamServiceUtilizationSqlInstancesCPU2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesCPU(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesCPU) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamServiceUtilizationSqlInstancesCPU(ctx, sel, v)
+	return _TeamServiceUtilizationSqlInstancesCPU(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesDisk2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
-	return ec._TeamServiceUtilizationSqlInstancesDisk(ctx, sel, &v)
+func marshalNTeamServiceUtilizationSqlInstancesDisk2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
+	return _TeamServiceUtilizationSqlInstancesDisk(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
+func marshalNTeamServiceUtilizationSqlInstancesDisk2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesDisk(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesDisk) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamServiceUtilizationSqlInstancesDisk(ctx, sel, v)
+	return _TeamServiceUtilizationSqlInstancesDisk(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx context.Context, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
-	return ec._TeamServiceUtilizationSqlInstancesMemory(ctx, sel, &v)
+func marshalNTeamServiceUtilizationSqlInstancesMemory2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
+	return _TeamServiceUtilizationSqlInstancesMemory(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
+func marshalNTeamServiceUtilizationSqlInstancesMemory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstancesMemory(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstancesMemory) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamServiceUtilizationSqlInstancesMemory(ctx, sel, v)
+	return _TeamServiceUtilizationSqlInstancesMemory(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.AuditLog) graphql.Marshaler {
+func marshalOAuditLog2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐAuditLog(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.AuditLog) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._AuditLog(ctx, sel, v)
+	return _AuditLog(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLDatabase(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLDatabase) graphql.Marshaler {
+func marshalOSqlDatabase2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLDatabase(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLDatabase) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._SqlDatabase(ctx, sel, v)
+	return _SqlDatabase(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOSqlInstanceBackupConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceBackupConfiguration(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceBackupConfiguration) graphql.Marshaler {
+func marshalOSqlInstanceBackupConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceBackupConfiguration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceBackupConfiguration) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._SqlInstanceBackupConfiguration(ctx, sel, v)
+	return _SqlInstanceBackupConfiguration(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSqlInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFilter(ctx context.Context, v any) (*sqlinstance.SQLInstanceFilter, error) {
+func unmarshalOSqlInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFilter(ctx context.Context, ec *executionContext, v any) (*sqlinstance.SQLInstanceFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputSqlInstanceFilter(ctx, v)
+	res, err := unmarshalInputSqlInstanceFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMaintenanceWindow(ctx context.Context, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMaintenanceWindow) graphql.Marshaler {
+func marshalOSqlInstanceMaintenanceWindow2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceMaintenanceWindow(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *sqlinstance.SQLInstanceMaintenanceWindow) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._SqlInstanceMaintenanceWindow(ctx, sel, v)
+	return _SqlInstanceMaintenanceWindow(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx context.Context, v any) (*sqlinstance.SQLInstanceOrder, error) {
+func unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx context.Context, ec *executionContext, v any) (*sqlinstance.SQLInstanceOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputSqlInstanceOrder(ctx, v)
+	res, err := unmarshalInputSqlInstanceOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx context.Context, v any) (*sqlinstance.SQLInstanceUserOrder, error) {
+func unmarshalOSqlInstanceUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceUserOrder(ctx context.Context, ec *executionContext, v any) (*sqlinstance.SQLInstanceUserOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputSqlInstanceUserOrder(ctx, v)
+	res, err := unmarshalInputSqlInstanceUserOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

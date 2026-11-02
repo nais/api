@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -25,6 +20,10 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -49,12 +48,12 @@ type ConfigConnectionResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Config_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Config_activityLog_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -62,7 +61,7 @@ func (ec *executionContext) field_Config_activityLog_args(ctx context.Context, r
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -70,7 +69,7 @@ func (ec *executionContext) field_Config_activityLog_args(ctx context.Context, r
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -78,7 +77,7 @@ func (ec *executionContext) field_Config_activityLog_args(ctx context.Context, r
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -86,7 +85,7 @@ func (ec *executionContext) field_Config_activityLog_args(ctx context.Context, r
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
-			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+			return unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -95,12 +94,12 @@ func (ec *executionContext) field_Config_activityLog_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Config_applications_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Config_applications_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -108,7 +107,7 @@ func (ec *executionContext) field_Config_applications_args(ctx context.Context, 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -116,7 +115,7 @@ func (ec *executionContext) field_Config_applications_args(ctx context.Context, 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -124,7 +123,7 @@ func (ec *executionContext) field_Config_applications_args(ctx context.Context, 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -133,12 +132,12 @@ func (ec *executionContext) field_Config_applications_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Config_jobs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Config_jobs_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -146,7 +145,7 @@ func (ec *executionContext) field_Config_jobs_args(ctx context.Context, rawArgs 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -154,7 +153,7 @@ func (ec *executionContext) field_Config_jobs_args(ctx context.Context, rawArgs 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -162,7 +161,7 @@ func (ec *executionContext) field_Config_jobs_args(ctx context.Context, rawArgs 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -171,12 +170,12 @@ func (ec *executionContext) field_Config_jobs_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Config_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Config_workloads_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -184,7 +183,7 @@ func (ec *executionContext) field_Config_workloads_args(ctx context.Context, raw
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -192,7 +191,7 @@ func (ec *executionContext) field_Config_workloads_args(ctx context.Context, raw
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -200,7 +199,7 @@ func (ec *executionContext) field_Config_workloads_args(ctx context.Context, raw
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -217,219 +216,219 @@ func (ec *executionContext) field_Config_workloads_args(ctx context.Context, raw
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AddConfigValuePayload_config(ctx context.Context, field graphql.CollectedField, obj *config.AddConfigValuePayload) (ret graphql.Marshaler) {
+func _AddConfigValuePayload_config(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.AddConfigValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AddConfigValuePayload_config(ctx, field)
+			return fieldContext_AddConfigValuePayload_config(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Config, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_AddConfigValuePayload_config(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AddConfigValuePayload_config(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddConfigValuePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_id(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_id(ctx, field)
+			return fieldContext_Config_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Config", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Config_name(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_name(ctx, field)
+			return fieldContext_Config_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Config", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Config_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_teamEnvironment(ctx, field)
+			return fieldContext_Config_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Config().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_team(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_team(ctx, field)
+			return fieldContext_Config_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Config().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_values(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_values(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_values(ctx, field)
+			return fieldContext_Config_values(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Config().Values(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*config.ConfigValue) graphql.Marshaler {
-			return ec.marshalNConfigValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueᚄ(ctx, selections, v)
+			return marshalNConfigValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_values(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigValue(ctx, field)
+			return childFields_ConfigValue(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_labels(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_labels(ctx, field)
+			return fieldContext_Config_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_applications(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_applications(ctx, field)
+			return fieldContext_Config_applications(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -437,20 +436,20 @@ func (ec *executionContext) _Config_applications(ctx context.Context, field grap
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_applications(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ApplicationConnection(ctx, field)
+			return childFields_ApplicationConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -460,20 +459,20 @@ func (ec *executionContext) fieldContext_Config_applications(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Config_applications_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Config_applications_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_jobs(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_jobs(ctx, field)
+			return fieldContext_Config_jobs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -481,20 +480,20 @@ func (ec *executionContext) _Config_jobs(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_jobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobConnection(ctx, field)
+			return childFields_JobConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -504,20 +503,20 @@ func (ec *executionContext) fieldContext_Config_jobs(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Config_jobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Config_jobs_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_workloads(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_workloads(ctx, field)
+			return fieldContext_Config_workloads(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -525,20 +524,20 @@ func (ec *executionContext) _Config_workloads(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadConnection(ctx, field)
+			return childFields_WorkloadConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -548,75 +547,75 @@ func (ec *executionContext) fieldContext_Config_workloads(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Config_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Config_workloads_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_lastModifiedAt(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_lastModifiedAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_lastModifiedAt(ctx, field)
+			return fieldContext_Config_lastModifiedAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.LastModifiedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Config_lastModifiedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_lastModifiedAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Config", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _Config_lastModifiedBy(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_lastModifiedBy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_lastModifiedBy(ctx, field)
+			return fieldContext_Config_lastModifiedBy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Config().LastModifiedBy(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *user.User) graphql.Marshaler {
-			return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, selections, v)
+			return marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Config_lastModifiedBy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_lastModifiedBy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_User(ctx, field)
+			return childFields_User(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Config_activityLog(ctx context.Context, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
+func _Config_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.Config) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Config_activityLog(ctx, field)
+			return fieldContext_Config_activityLog(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -624,20 +623,20 @@ func (ec *executionContext) _Config_activityLog(ctx context.Context, field graph
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, selections, v)
+			return marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Config_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Config_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Config",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEntryConnection(ctx, field)
+			return childFields_ActivityLogEntryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -647,1311 +646,1311 @@ func (ec *executionContext) fieldContext_Config_activityLog(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Config_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Config_activityLog_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
+func _ConfigConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigConnection_pageInfo(ctx, field)
+			return fieldContext_ConfigConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
+func _ConfigConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigConnection_nodes(ctx, field)
+			return fieldContext_ConfigConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*config.Config) graphql.Marshaler {
-			return ec.marshalNConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigᚄ(ctx, selections, v)
+			return marshalNConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
+func _ConfigConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigConnection_edges(ctx, field)
+			return fieldContext_ConfigConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*config.Config]) graphql.Marshaler {
-			return ec.marshalNConfigEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNConfigEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigEdge(ctx, field)
+			return childFields_ConfigEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
+func _ConfigConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigConnection_facets(ctx, field)
+			return fieldContext_ConfigConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ConfigConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.ConfigFacets) graphql.Marshaler {
-			return ec.marshalOConfigFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFacets(ctx, selections, v)
+			return marshalOConfigFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigFacets(ctx, field)
+			return childFields_ConfigFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_id(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_message(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigCreatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigCreatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_ConfigCreatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigCreatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_id(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_actor(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_message(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigDeletedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigDeletedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_ConfigDeletedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigDeletedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*config.Config]) (ret graphql.Marshaler) {
+func _ConfigEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*config.Config]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigEdge_cursor(ctx, field)
+			return fieldContext_ConfigEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*config.Config]) (ret graphql.Marshaler) {
+func _ConfigEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*config.Config]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigEdge_node(ctx, field)
+			return fieldContext_ConfigEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigFacets_environments(ctx context.Context, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
+func _ConfigFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigFacets_environments(ctx, field)
+			return fieldContext_ConfigFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigFacets_inUse(ctx context.Context, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
+func _ConfigFacets_inUse(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigFacets_inUse(ctx, field)
+			return fieldContext_ConfigFacets_inUse(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.InUse(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
-			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+			return marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigFacets_inUse(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigFacets_inUse(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BooleanFacetItem(ctx, field)
+			return childFields_BooleanFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigFacets_labels(ctx context.Context, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
+func _ConfigFacets_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigFacets_labels(ctx, field)
+			return fieldContext_ConfigFacets_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+			return marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigFacets_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LabelFacetItem(ctx, field)
+			return childFields_LabelFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.ConfigUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNConfigUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNConfigUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigUpdatedActivityLogEntryData(ctx, field)
+			return childFields_ConfigUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntryData_updatedFields(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntryData_updatedFields(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntryData_updatedFields(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UpdatedFields, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-			return ec.marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, selections, v)
+			return marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntryData_updatedFields(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ConfigUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigUpdatedActivityLogEntryDataUpdatedField(ctx, field)
+			return childFields_ConfigUpdatedActivityLogEntryDataUpdatedField(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Field, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+			return fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.NewValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigValue_name(ctx context.Context, field graphql.CollectedField, obj *config.ConfigValue) (ret graphql.Marshaler) {
+func _ConfigValue_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigValue_name(ctx, field)
+			return fieldContext_ConfigValue_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigValue_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigValue_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigValue", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigValue_value(ctx context.Context, field graphql.CollectedField, obj *config.ConfigValue) (ret graphql.Marshaler) {
+func _ConfigValue_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigValue_value(ctx, field)
+			return fieldContext_ConfigValue_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigValue_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigValue_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigValue", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ConfigValue_encoding(ctx context.Context, field graphql.CollectedField, obj *config.ConfigValue) (ret graphql.Marshaler) {
+func _ConfigValue_encoding(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.ConfigValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfigValue_encoding(ctx, field)
+			return fieldContext_ConfigValue_encoding(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Encoding, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
-			return ec.marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, selections, v)
+			return marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ConfigValue_encoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfigValue_encoding(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfigValue", field, false, false, errors.New("field of type ValueEncoding does not have child fields"))
 }
 
-func (ec *executionContext) _CreateConfigPayload_config(ctx context.Context, field graphql.CollectedField, obj *config.CreateConfigPayload) (ret graphql.Marshaler) {
+func _CreateConfigPayload_config(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.CreateConfigPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CreateConfigPayload_config(ctx, field)
+			return fieldContext_CreateConfigPayload_config(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Config, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_CreateConfigPayload_config(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CreateConfigPayload_config(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateConfigPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteConfigPayload_configDeleted(ctx context.Context, field graphql.CollectedField, obj *config.DeleteConfigPayload) (ret graphql.Marshaler) {
+func _DeleteConfigPayload_configDeleted(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.DeleteConfigPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteConfigPayload_configDeleted(ctx, field)
+			return fieldContext_DeleteConfigPayload_configDeleted(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ConfigDeleted, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalOBoolean2bool(ctx, selections, v)
+			return marshalOBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteConfigPayload_configDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteConfigPayload_configDeleted(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeleteConfigPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _RemoveConfigValuePayload_config(ctx context.Context, field graphql.CollectedField, obj *config.RemoveConfigValuePayload) (ret graphql.Marshaler) {
+func _RemoveConfigValuePayload_config(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.RemoveConfigValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RemoveConfigValuePayload_config(ctx, field)
+			return fieldContext_RemoveConfigValuePayload_config(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Config, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RemoveConfigValuePayload_config(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RemoveConfigValuePayload_config(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveConfigValuePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCountConfigs_total(ctx context.Context, field graphql.CollectedField, obj *config.TeamInventoryCountConfigs) (ret graphql.Marshaler) {
+func _TeamInventoryCountConfigs_total(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.TeamInventoryCountConfigs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountConfigs_total(ctx, field)
+			return fieldContext_TeamInventoryCountConfigs_total(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountConfigs_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountConfigs_total(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountConfigs", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _UpdateConfigPayload_config(ctx context.Context, field graphql.CollectedField, obj *config.UpdateConfigPayload) (ret graphql.Marshaler) {
+func _UpdateConfigPayload_config(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.UpdateConfigPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateConfigPayload_config(ctx, field)
+			return fieldContext_UpdateConfigPayload_config(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Config, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateConfigPayload_config(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateConfigPayload_config(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateConfigPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UpdateConfigValuePayload_config(ctx context.Context, field graphql.CollectedField, obj *config.UpdateConfigValuePayload) (ret graphql.Marshaler) {
+func _UpdateConfigValuePayload_config(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *config.UpdateConfigValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateConfigValuePayload_config(ctx, field)
+			return fieldContext_UpdateConfigValuePayload_config(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Config, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateConfigValuePayload_config(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateConfigValuePayload_config(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateConfigValuePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -1961,7 +1960,7 @@ func (ec *executionContext) fieldContext_UpdateConfigValuePayload_config(_ conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddConfigValueInput(ctx context.Context, obj any) (config.AddConfigValueInput, error) {
+func unmarshalInputAddConfigValueInput(ctx context.Context, ec *executionContext, obj any) (config.AddConfigValueInput, error) {
 	var it config.AddConfigValueInput
 	if obj == nil {
 		return it, nil
@@ -1981,28 +1980,28 @@ func (ec *executionContext) unmarshalInputAddConfigValueInput(ctx context.Contex
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx, v)
+			data, err := unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2012,7 +2011,7 @@ func (ec *executionContext) unmarshalInputAddConfigValueInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputConfigFilter(ctx context.Context, obj any) (config.ConfigFilter, error) {
+func unmarshalInputConfigFilter(ctx context.Context, ec *executionContext, obj any) (config.ConfigFilter, error) {
 	var it config.ConfigFilter
 	if obj == nil {
 		return it, nil
@@ -2032,28 +2031,28 @@ func (ec *executionContext) unmarshalInputConfigFilter(ctx context.Context, obj 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "inUse":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("inUse"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := unmarshalOBoolean2ᚖbool(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.InUse = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2063,7 +2062,7 @@ func (ec *executionContext) unmarshalInputConfigFilter(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputConfigOrder(ctx context.Context, obj any) (config.ConfigOrder, error) {
+func unmarshalInputConfigOrder(ctx context.Context, ec *executionContext, obj any) (config.ConfigOrder, error) {
 	var it config.ConfigOrder
 	if obj == nil {
 		return it, nil
@@ -2083,14 +2082,14 @@ func (ec *executionContext) unmarshalInputConfigOrder(ctx context.Context, obj a
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNConfigOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrderField(ctx, v)
+			data, err := unmarshalNConfigOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2100,7 +2099,7 @@ func (ec *executionContext) unmarshalInputConfigOrder(ctx context.Context, obj a
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputConfigValueInput(ctx context.Context, obj any) (config.ConfigValueInput, error) {
+func unmarshalInputConfigValueInput(ctx context.Context, ec *executionContext, obj any) (config.ConfigValueInput, error) {
 	var it config.ConfigValueInput
 	if obj == nil {
 		return it, nil
@@ -2124,21 +2123,21 @@ func (ec *executionContext) unmarshalInputConfigValueInput(ctx context.Context, 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Value = data
 		case "encoding":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("encoding"))
-			data, err := ec.unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, v)
+			data, err := unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2148,7 +2147,7 @@ func (ec *executionContext) unmarshalInputConfigValueInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateConfigInput(ctx context.Context, obj any) (config.CreateConfigInput, error) {
+func unmarshalInputCreateConfigInput(ctx context.Context, ec *executionContext, obj any) (config.CreateConfigInput, error) {
 	var it config.CreateConfigInput
 	if obj == nil {
 		return it, nil
@@ -2168,35 +2167,35 @@ func (ec *executionContext) unmarshalInputCreateConfigInput(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)
+			data, err := unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Labels = data
 		case "values":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-			data, err := ec.unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx, v)
+			data, err := unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2206,7 +2205,7 @@ func (ec *executionContext) unmarshalInputCreateConfigInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteConfigInput(ctx context.Context, obj any) (config.DeleteConfigInput, error) {
+func unmarshalInputDeleteConfigInput(ctx context.Context, ec *executionContext, obj any) (config.DeleteConfigInput, error) {
 	var it config.DeleteConfigInput
 	if obj == nil {
 		return it, nil
@@ -2226,21 +2225,21 @@ func (ec *executionContext) unmarshalInputDeleteConfigInput(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2250,7 +2249,7 @@ func (ec *executionContext) unmarshalInputDeleteConfigInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveConfigValueInput(ctx context.Context, obj any) (config.RemoveConfigValueInput, error) {
+func unmarshalInputRemoveConfigValueInput(ctx context.Context, ec *executionContext, obj any) (config.RemoveConfigValueInput, error) {
 	var it config.RemoveConfigValueInput
 	if obj == nil {
 		return it, nil
@@ -2270,28 +2269,28 @@ func (ec *executionContext) unmarshalInputRemoveConfigValueInput(ctx context.Con
 		switch k {
 		case "configName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("configName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.ConfigName = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "valueName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2301,7 +2300,7 @@ func (ec *executionContext) unmarshalInputRemoveConfigValueInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateConfigInput(ctx context.Context, obj any) (config.UpdateConfigInput, error) {
+func unmarshalInputUpdateConfigInput(ctx context.Context, ec *executionContext, obj any) (config.UpdateConfigInput, error) {
 	var it config.UpdateConfigInput
 	if obj == nil {
 		return it, nil
@@ -2321,35 +2320,35 @@ func (ec *executionContext) unmarshalInputUpdateConfigInput(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)
+			data, err := unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Labels = data
 		case "values":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("values"))
-			data, err := ec.unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx, v)
+			data, err := unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2359,7 +2358,7 @@ func (ec *executionContext) unmarshalInputUpdateConfigInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateConfigValueInput(ctx context.Context, obj any) (config.UpdateConfigValueInput, error) {
+func unmarshalInputUpdateConfigValueInput(ctx context.Context, ec *executionContext, obj any) (config.UpdateConfigValueInput, error) {
 	var it config.UpdateConfigValueInput
 	if obj == nil {
 		return it, nil
@@ -2379,28 +2378,28 @@ func (ec *executionContext) unmarshalInputUpdateConfigValueInput(ctx context.Con
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx, v)
+			data, err := unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2420,7 +2419,7 @@ func (ec *executionContext) unmarshalInputUpdateConfigValueInput(ctx context.Con
 
 var addConfigValuePayloadImplementors = []string{"AddConfigValuePayload"}
 
-func (ec *executionContext) _AddConfigValuePayload(ctx context.Context, sel ast.SelectionSet, obj *config.AddConfigValuePayload) graphql.Marshaler {
+func _AddConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.AddConfigValuePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, addConfigValuePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2430,7 +2429,7 @@ func (ec *executionContext) _AddConfigValuePayload(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AddConfigValuePayload")
 		case "config":
-			out.Values[i] = ec._AddConfigValuePayload_config(ctx, field, obj)
+			out.Values[i] = _AddConfigValuePayload_config(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2456,7 +2455,7 @@ func (ec *executionContext) _AddConfigValuePayload(ctx context.Context, sel ast.
 
 var configImplementors = []string{"Config", "Node", "ActivityLogger"}
 
-func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, obj *config.Config) graphql.Marshaler {
+func _Config(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.Config) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2466,12 +2465,12 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Config")
 		case "id":
-			out.Values[i] = ec._Config_id(ctx, field, obj)
+			out.Values[i] = _Config_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._Config_name(ctx, field, obj)
+			out.Values[i] = _Config_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2484,7 +2483,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_teamEnvironment(ctx, field, obj)
+				res = _Config_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2520,7 +2519,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_team(ctx, field, obj)
+				res = _Config_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2556,7 +2555,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_values(ctx, field, obj)
+				res = _Config_values(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2584,7 +2583,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "labels":
-			out.Values[i] = ec._Config_labels(ctx, field, obj)
+			out.Values[i] = _Config_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2597,7 +2596,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_applications(ctx, field, obj)
+				res = _Config_applications(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2633,7 +2632,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_jobs(ctx, field, obj)
+				res = _Config_jobs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2669,7 +2668,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_workloads(ctx, field, obj)
+				res = _Config_workloads(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2697,7 +2696,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "lastModifiedAt":
-			out.Values[i] = ec._Config_lastModifiedAt(ctx, field, obj)
+			out.Values[i] = _Config_lastModifiedAt(ctx, ec, field, obj)
 		case "lastModifiedBy":
 			field := field
 
@@ -2707,7 +2706,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_lastModifiedBy(ctx, field, obj)
+				res = _Config_lastModifiedBy(ctx, ec, field, obj)
 				return res
 			}
 
@@ -2740,7 +2739,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Config_activityLog(ctx, field, obj)
+				res = _Config_activityLog(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2792,7 +2791,7 @@ func (ec *executionContext) _Config(ctx context.Context, sel ast.SelectionSet, o
 
 var configConnectionImplementors = []string{"ConfigConnection"}
 
-func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
+func _ConfigConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2802,17 +2801,17 @@ func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigConnection")
 		case "pageInfo":
-			out.Values[i] = ec._ConfigConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _ConfigConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._ConfigConnection_nodes(ctx, field, obj)
+			out.Values[i] = _ConfigConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._ConfigConnection_edges(ctx, field, obj)
+			out.Values[i] = _ConfigConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2825,7 +2824,7 @@ func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ConfigConnection_facets(ctx, field, obj)
+				res = _ConfigConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -2874,7 +2873,7 @@ func (ec *executionContext) _ConfigConnection(ctx context.Context, sel ast.Selec
 
 var configCreatedActivityLogEntryImplementors = []string{"ConfigCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ConfigCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigCreatedActivityLogEntry) graphql.Marshaler {
+func _ConfigCreatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigCreatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2884,44 +2883,44 @@ func (ec *executionContext) _ConfigCreatedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ConfigCreatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _ConfigCreatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2947,7 +2946,7 @@ func (ec *executionContext) _ConfigCreatedActivityLogEntry(ctx context.Context, 
 
 var configDeletedActivityLogEntryImplementors = []string{"ConfigDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ConfigDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigDeletedActivityLogEntry) graphql.Marshaler {
+func _ConfigDeletedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigDeletedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2957,44 +2956,44 @@ func (ec *executionContext) _ConfigDeletedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ConfigDeletedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _ConfigDeletedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3020,7 +3019,7 @@ func (ec *executionContext) _ConfigDeletedActivityLogEntry(ctx context.Context, 
 
 var configEdgeImplementors = []string{"ConfigEdge"}
 
-func (ec *executionContext) _ConfigEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*config.Config]) graphql.Marshaler {
+func _ConfigEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*config.Config]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3030,12 +3029,12 @@ func (ec *executionContext) _ConfigEdge(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigEdge")
 		case "cursor":
-			out.Values[i] = ec._ConfigEdge_cursor(ctx, field, obj)
+			out.Values[i] = _ConfigEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._ConfigEdge_node(ctx, field, obj)
+			out.Values[i] = _ConfigEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3064,7 +3063,7 @@ func (ec *executionContext) _ConfigEdge(ctx context.Context, sel ast.SelectionSe
 
 var configFacetsImplementors = []string{"ConfigFacets"}
 
-func (ec *executionContext) _ConfigFacets(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigFacets) graphql.Marshaler {
+func _ConfigFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3082,7 +3081,7 @@ func (ec *executionContext) _ConfigFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ConfigFacets_environments(ctx, field, obj)
+				res = _ConfigFacets_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3118,7 +3117,7 @@ func (ec *executionContext) _ConfigFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ConfigFacets_inUse(ctx, field, obj)
+				res = _ConfigFacets_inUse(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3154,7 +3153,7 @@ func (ec *executionContext) _ConfigFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ConfigFacets_labels(ctx, field, obj)
+				res = _ConfigFacets_labels(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3206,7 +3205,7 @@ func (ec *executionContext) _ConfigFacets(ctx context.Context, sel ast.Selection
 
 var configUpdatedActivityLogEntryImplementors = []string{"ConfigUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigUpdatedActivityLogEntry) graphql.Marshaler {
+func _ConfigUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3216,46 +3215,46 @@ func (ec *executionContext) _ConfigUpdatedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3284,7 +3283,7 @@ func (ec *executionContext) _ConfigUpdatedActivityLogEntry(ctx context.Context, 
 
 var configUpdatedActivityLogEntryDataImplementors = []string{"ConfigUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigUpdatedActivityLogEntryData) graphql.Marshaler {
+func _ConfigUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3294,7 +3293,7 @@ func (ec *executionContext) _ConfigUpdatedActivityLogEntryData(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigUpdatedActivityLogEntryData")
 		case "updatedFields":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntryData_updatedFields(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3323,7 +3322,7 @@ func (ec *executionContext) _ConfigUpdatedActivityLogEntryData(ctx context.Conte
 
 var configUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"ConfigUpdatedActivityLogEntryDataUpdatedField"}
 
-func (ec *executionContext) _ConfigUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func _ConfigUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configUpdatedActivityLogEntryDataUpdatedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3333,14 +3332,14 @@ func (ec *executionContext) _ConfigUpdatedActivityLogEntryDataUpdatedField(ctx c
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigUpdatedActivityLogEntryDataUpdatedField")
 		case "field":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field, obj)
 		case "newValue":
-			out.Values[i] = ec._ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
+			out.Values[i] = _ConfigUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3366,7 +3365,7 @@ func (ec *executionContext) _ConfigUpdatedActivityLogEntryDataUpdatedField(ctx c
 
 var configValueImplementors = []string{"ConfigValue"}
 
-func (ec *executionContext) _ConfigValue(ctx context.Context, sel ast.SelectionSet, obj *config.ConfigValue) graphql.Marshaler {
+func _ConfigValue(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.ConfigValue) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, configValueImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3376,17 +3375,17 @@ func (ec *executionContext) _ConfigValue(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfigValue")
 		case "name":
-			out.Values[i] = ec._ConfigValue_name(ctx, field, obj)
+			out.Values[i] = _ConfigValue_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._ConfigValue_value(ctx, field, obj)
+			out.Values[i] = _ConfigValue_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "encoding":
-			out.Values[i] = ec._ConfigValue_encoding(ctx, field, obj)
+			out.Values[i] = _ConfigValue_encoding(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3415,7 +3414,7 @@ func (ec *executionContext) _ConfigValue(ctx context.Context, sel ast.SelectionS
 
 var createConfigPayloadImplementors = []string{"CreateConfigPayload"}
 
-func (ec *executionContext) _CreateConfigPayload(ctx context.Context, sel ast.SelectionSet, obj *config.CreateConfigPayload) graphql.Marshaler {
+func _CreateConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.CreateConfigPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createConfigPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3425,7 +3424,7 @@ func (ec *executionContext) _CreateConfigPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CreateConfigPayload")
 		case "config":
-			out.Values[i] = ec._CreateConfigPayload_config(ctx, field, obj)
+			out.Values[i] = _CreateConfigPayload_config(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3451,7 +3450,7 @@ func (ec *executionContext) _CreateConfigPayload(ctx context.Context, sel ast.Se
 
 var deleteConfigPayloadImplementors = []string{"DeleteConfigPayload"}
 
-func (ec *executionContext) _DeleteConfigPayload(ctx context.Context, sel ast.SelectionSet, obj *config.DeleteConfigPayload) graphql.Marshaler {
+func _DeleteConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.DeleteConfigPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deleteConfigPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3461,7 +3460,7 @@ func (ec *executionContext) _DeleteConfigPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteConfigPayload")
 		case "configDeleted":
-			out.Values[i] = ec._DeleteConfigPayload_configDeleted(ctx, field, obj)
+			out.Values[i] = _DeleteConfigPayload_configDeleted(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3487,7 +3486,7 @@ func (ec *executionContext) _DeleteConfigPayload(ctx context.Context, sel ast.Se
 
 var removeConfigValuePayloadImplementors = []string{"RemoveConfigValuePayload"}
 
-func (ec *executionContext) _RemoveConfigValuePayload(ctx context.Context, sel ast.SelectionSet, obj *config.RemoveConfigValuePayload) graphql.Marshaler {
+func _RemoveConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.RemoveConfigValuePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, removeConfigValuePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3497,7 +3496,7 @@ func (ec *executionContext) _RemoveConfigValuePayload(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RemoveConfigValuePayload")
 		case "config":
-			out.Values[i] = ec._RemoveConfigValuePayload_config(ctx, field, obj)
+			out.Values[i] = _RemoveConfigValuePayload_config(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3523,7 +3522,7 @@ func (ec *executionContext) _RemoveConfigValuePayload(ctx context.Context, sel a
 
 var teamInventoryCountConfigsImplementors = []string{"TeamInventoryCountConfigs"}
 
-func (ec *executionContext) _TeamInventoryCountConfigs(ctx context.Context, sel ast.SelectionSet, obj *config.TeamInventoryCountConfigs) graphql.Marshaler {
+func _TeamInventoryCountConfigs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.TeamInventoryCountConfigs) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountConfigsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3533,7 +3532,7 @@ func (ec *executionContext) _TeamInventoryCountConfigs(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountConfigs")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountConfigs_total(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountConfigs_total(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3562,7 +3561,7 @@ func (ec *executionContext) _TeamInventoryCountConfigs(ctx context.Context, sel 
 
 var updateConfigPayloadImplementors = []string{"UpdateConfigPayload"}
 
-func (ec *executionContext) _UpdateConfigPayload(ctx context.Context, sel ast.SelectionSet, obj *config.UpdateConfigPayload) graphql.Marshaler {
+func _UpdateConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.UpdateConfigPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateConfigPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3572,7 +3571,7 @@ func (ec *executionContext) _UpdateConfigPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateConfigPayload")
 		case "config":
-			out.Values[i] = ec._UpdateConfigPayload_config(ctx, field, obj)
+			out.Values[i] = _UpdateConfigPayload_config(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3598,7 +3597,7 @@ func (ec *executionContext) _UpdateConfigPayload(ctx context.Context, sel ast.Se
 
 var updateConfigValuePayloadImplementors = []string{"UpdateConfigValuePayload"}
 
-func (ec *executionContext) _UpdateConfigValuePayload(ctx context.Context, sel ast.SelectionSet, obj *config.UpdateConfigValuePayload) graphql.Marshaler {
+func _UpdateConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *config.UpdateConfigValuePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateConfigValuePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3608,7 +3607,7 @@ func (ec *executionContext) _UpdateConfigValuePayload(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateConfigValuePayload")
 		case "config":
-			out.Values[i] = ec._UpdateConfigValuePayload_config(ctx, field, obj)
+			out.Values[i] = _UpdateConfigValuePayload_config(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3636,34 +3635,34 @@ func (ec *executionContext) _UpdateConfigValuePayload(ctx context.Context, sel a
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAddConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValueInput(ctx context.Context, v any) (config.AddConfigValueInput, error) {
-	res, err := ec.unmarshalInputAddConfigValueInput(ctx, v)
+func unmarshalNAddConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValueInput(ctx context.Context, ec *executionContext, v any) (config.AddConfigValueInput, error) {
+	res, err := unmarshalInputAddConfigValueInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAddConfigValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValuePayload(ctx context.Context, sel ast.SelectionSet, v config.AddConfigValuePayload) graphql.Marshaler {
-	return ec._AddConfigValuePayload(ctx, sel, &v)
+func marshalNAddConfigValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.AddConfigValuePayload) graphql.Marshaler {
+	return _AddConfigValuePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAddConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValuePayload(ctx context.Context, sel ast.SelectionSet, v *config.AddConfigValuePayload) graphql.Marshaler {
+func marshalNAddConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐAddConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.AddConfigValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AddConfigValuePayload(ctx, sel, v)
+	return _AddConfigValuePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNConfig2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx context.Context, sel ast.SelectionSet, v config.Config) graphql.Marshaler {
-	return ec._Config(ctx, sel, &v)
+func marshalNConfig2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.Config) graphql.Marshaler {
+	return _Config(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigᚄ(ctx context.Context, sel ast.SelectionSet, v []*config.Config) graphql.Marshaler {
+func marshalNConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*config.Config) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, sel, v[i])
+		return marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3675,39 +3674,39 @@ func (ec *executionContext) marshalNConfig2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return ret
 }
 
-func (ec *executionContext) marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx context.Context, sel ast.SelectionSet, v *config.Config) graphql.Marshaler {
+func marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.Config) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Config(ctx, sel, v)
+	return _Config(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNConfigConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
-	return ec._ConfigConnection(ctx, sel, &v)
+func marshalNConfigConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
+	return _ConfigConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
+func marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ConfigConnection(ctx, sel, v)
+	return _ConfigConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNConfigEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*config.Config]) graphql.Marshaler {
-	return ec._ConfigEdge(ctx, sel, &v)
+func marshalNConfigEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*config.Config]) graphql.Marshaler {
+	return _ConfigEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfigEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*config.Config]) graphql.Marshaler {
+func marshalNConfigEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*config.Config]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNConfigEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNConfigEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3719,31 +3718,31 @@ func (ec *executionContext) marshalNConfigEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) unmarshalNConfigOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrderField(ctx context.Context, v any) (config.ConfigOrderField, error) {
+func unmarshalNConfigOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrderField(ctx context.Context, ec *executionContext, v any) (config.ConfigOrderField, error) {
 	var res config.ConfigOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNConfigOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrderField(ctx context.Context, sel ast.SelectionSet, v config.ConfigOrderField) graphql.Marshaler {
+func marshalNConfigOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.ConfigOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNConfigUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *config.ConfigUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNConfigUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.ConfigUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ConfigUpdatedActivityLogEntryData(ctx, sel, v)
+	return _ConfigUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+		return marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3755,21 +3754,21 @@ func (ec *executionContext) marshalNConfigUpdatedActivityLogEntryDataUpdatedFiel
 	return ret
 }
 
-func (ec *executionContext) marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNConfigUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.ConfigUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ConfigUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
+	return _ConfigUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNConfigValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*config.ConfigValue) graphql.Marshaler {
+func marshalNConfigValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*config.ConfigValue) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNConfigValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValue(ctx, sel, v[i])
+		return marshalNConfigValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValue(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3781,161 +3780,161 @@ func (ec *executionContext) marshalNConfigValue2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNConfigValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValue(ctx context.Context, sel ast.SelectionSet, v *config.ConfigValue) graphql.Marshaler {
+func marshalNConfigValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValue(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.ConfigValue) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ConfigValue(ctx, sel, v)
+	return _ConfigValue(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx context.Context, v any) (*config.ConfigValueInput, error) {
-	res, err := ec.unmarshalInputConfigValueInput(ctx, v)
+func unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx context.Context, ec *executionContext, v any) (*config.ConfigValueInput, error) {
+	res, err := unmarshalInputConfigValueInput(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigInput(ctx context.Context, v any) (config.CreateConfigInput, error) {
-	res, err := ec.unmarshalInputCreateConfigInput(ctx, v)
+func unmarshalNCreateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigInput(ctx context.Context, ec *executionContext, v any) (config.CreateConfigInput, error) {
+	res, err := unmarshalInputCreateConfigInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateConfigPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigPayload(ctx context.Context, sel ast.SelectionSet, v config.CreateConfigPayload) graphql.Marshaler {
-	return ec._CreateConfigPayload(ctx, sel, &v)
+func marshalNCreateConfigPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.CreateConfigPayload) graphql.Marshaler {
+	return _CreateConfigPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigPayload(ctx context.Context, sel ast.SelectionSet, v *config.CreateConfigPayload) graphql.Marshaler {
+func marshalNCreateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐCreateConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.CreateConfigPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CreateConfigPayload(ctx, sel, v)
+	return _CreateConfigPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeleteConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigInput(ctx context.Context, v any) (config.DeleteConfigInput, error) {
-	res, err := ec.unmarshalInputDeleteConfigInput(ctx, v)
+func unmarshalNDeleteConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigInput(ctx context.Context, ec *executionContext, v any) (config.DeleteConfigInput, error) {
+	res, err := unmarshalInputDeleteConfigInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeleteConfigPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigPayload(ctx context.Context, sel ast.SelectionSet, v config.DeleteConfigPayload) graphql.Marshaler {
-	return ec._DeleteConfigPayload(ctx, sel, &v)
+func marshalNDeleteConfigPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.DeleteConfigPayload) graphql.Marshaler {
+	return _DeleteConfigPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigPayload(ctx context.Context, sel ast.SelectionSet, v *config.DeleteConfigPayload) graphql.Marshaler {
+func marshalNDeleteConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐDeleteConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.DeleteConfigPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeleteConfigPayload(ctx, sel, v)
+	return _DeleteConfigPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRemoveConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValueInput(ctx context.Context, v any) (config.RemoveConfigValueInput, error) {
-	res, err := ec.unmarshalInputRemoveConfigValueInput(ctx, v)
+func unmarshalNRemoveConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValueInput(ctx context.Context, ec *executionContext, v any) (config.RemoveConfigValueInput, error) {
+	res, err := unmarshalInputRemoveConfigValueInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRemoveConfigValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValuePayload(ctx context.Context, sel ast.SelectionSet, v config.RemoveConfigValuePayload) graphql.Marshaler {
-	return ec._RemoveConfigValuePayload(ctx, sel, &v)
+func marshalNRemoveConfigValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.RemoveConfigValuePayload) graphql.Marshaler {
+	return _RemoveConfigValuePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNRemoveConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValuePayload(ctx context.Context, sel ast.SelectionSet, v *config.RemoveConfigValuePayload) graphql.Marshaler {
+func marshalNRemoveConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐRemoveConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.RemoveConfigValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RemoveConfigValuePayload(ctx, sel, v)
+	return _RemoveConfigValuePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountConfigs2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs(ctx context.Context, sel ast.SelectionSet, v config.TeamInventoryCountConfigs) graphql.Marshaler {
-	return ec._TeamInventoryCountConfigs(ctx, sel, &v)
+func marshalNTeamInventoryCountConfigs2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.TeamInventoryCountConfigs) graphql.Marshaler {
+	return _TeamInventoryCountConfigs(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs(ctx context.Context, sel ast.SelectionSet, v *config.TeamInventoryCountConfigs) graphql.Marshaler {
+func marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.TeamInventoryCountConfigs) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCountConfigs(ctx, sel, v)
+	return _TeamInventoryCountConfigs(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigInput(ctx context.Context, v any) (config.UpdateConfigInput, error) {
-	res, err := ec.unmarshalInputUpdateConfigInput(ctx, v)
+func unmarshalNUpdateConfigInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigInput(ctx context.Context, ec *executionContext, v any) (config.UpdateConfigInput, error) {
+	res, err := unmarshalInputUpdateConfigInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateConfigPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigPayload(ctx context.Context, sel ast.SelectionSet, v config.UpdateConfigPayload) graphql.Marshaler {
-	return ec._UpdateConfigPayload(ctx, sel, &v)
+func marshalNUpdateConfigPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.UpdateConfigPayload) graphql.Marshaler {
+	return _UpdateConfigPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigPayload(ctx context.Context, sel ast.SelectionSet, v *config.UpdateConfigPayload) graphql.Marshaler {
+func marshalNUpdateConfigPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.UpdateConfigPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateConfigPayload(ctx, sel, v)
+	return _UpdateConfigPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValueInput(ctx context.Context, v any) (config.UpdateConfigValueInput, error) {
-	res, err := ec.unmarshalInputUpdateConfigValueInput(ctx, v)
+func unmarshalNUpdateConfigValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValueInput(ctx context.Context, ec *executionContext, v any) (config.UpdateConfigValueInput, error) {
+	res, err := unmarshalInputUpdateConfigValueInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateConfigValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValuePayload(ctx context.Context, sel ast.SelectionSet, v config.UpdateConfigValuePayload) graphql.Marshaler {
-	return ec._UpdateConfigValuePayload(ctx, sel, &v)
+func marshalNUpdateConfigValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v config.UpdateConfigValuePayload) graphql.Marshaler {
+	return _UpdateConfigValuePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValuePayload(ctx context.Context, sel ast.SelectionSet, v *config.UpdateConfigValuePayload) graphql.Marshaler {
+func marshalNUpdateConfigValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐUpdateConfigValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.UpdateConfigValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateConfigValuePayload(ctx, sel, v)
+	return _UpdateConfigValuePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx context.Context, sel ast.SelectionSet, v *config.Config) graphql.Marshaler {
+func marshalOConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.Config) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Config(ctx, sel, v)
+	return _Config(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOConfigFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFacets(ctx context.Context, sel ast.SelectionSet, v *config.ConfigFacets) graphql.Marshaler {
+func marshalOConfigFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *config.ConfigFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._ConfigFacets(ctx, sel, v)
+	return _ConfigFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFilter(ctx context.Context, v any) (*config.ConfigFilter, error) {
+func unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFilter(ctx context.Context, ec *executionContext, v any) (*config.ConfigFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputConfigFilter(ctx, v)
+	res, err := unmarshalInputConfigFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrder(ctx context.Context, v any) (*config.ConfigOrder, error) {
+func unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrder(ctx context.Context, ec *executionContext, v any) (*config.ConfigOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputConfigOrder(ctx, v)
+	res, err := unmarshalInputConfigOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx context.Context, v any) ([]*config.ConfigValueInput, error) {
+func unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInputᚄ(ctx context.Context, ec *executionContext, v any) ([]*config.ConfigValueInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3945,7 +3944,7 @@ func (ec *executionContext) unmarshalOConfigValueInput2ᚕᚖgithubᚗcomᚋnais
 	res := make([]*config.ConfigValueInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx, vSlice[i])
+		res[i], err = unmarshalNConfigValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigValueInput(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}

@@ -65,13 +65,13 @@ func (r *teamInventoryCountsResolver) Buckets(ctx context.Context, obj *team.Tea
 	}, nil
 }
 
-func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r} }
+func (r *Resolver) Bucket() gengql.BucketResolver { return &bucketResolver{r.resolver} }
 
 func (r *Resolver) BucketConnection() gengql.BucketConnectionResolver {
-	return &bucketConnectionResolver{r}
+	return &bucketConnectionResolver{r.resolver}
 }
 
 type (
-	bucketResolver           struct{ *Resolver }
-	bucketConnectionResolver struct{ *Resolver }
+	bucketResolver           struct{ *resolver }
+	bucketConnectionResolver struct{ *resolver }
 )

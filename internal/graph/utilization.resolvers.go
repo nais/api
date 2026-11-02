@@ -79,24 +79,24 @@ func (r *workloadUtilizationDataResolver) Workload(ctx context.Context, obj *uti
 }
 
 func (r *Resolver) TeamServiceUtilization() gengql.TeamServiceUtilizationResolver {
-	return &teamServiceUtilizationResolver{r}
+	return &teamServiceUtilizationResolver{r.resolver}
 }
 
 func (r *Resolver) TeamUtilizationData() gengql.TeamUtilizationDataResolver {
-	return &teamUtilizationDataResolver{r}
+	return &teamUtilizationDataResolver{r.resolver}
 }
 
 func (r *Resolver) WorkloadUtilization() gengql.WorkloadUtilizationResolver {
-	return &workloadUtilizationResolver{r}
+	return &workloadUtilizationResolver{r.resolver}
 }
 
 func (r *Resolver) WorkloadUtilizationData() gengql.WorkloadUtilizationDataResolver {
-	return &workloadUtilizationDataResolver{r}
+	return &workloadUtilizationDataResolver{r.resolver}
 }
 
 type (
-	teamServiceUtilizationResolver  struct{ *Resolver }
-	teamUtilizationDataResolver     struct{ *Resolver }
-	workloadUtilizationResolver     struct{ *Resolver }
-	workloadUtilizationDataResolver struct{ *Resolver }
+	teamServiceUtilizationResolver  struct{ *resolver }
+	teamUtilizationDataResolver     struct{ *resolver }
+	workloadUtilizationResolver     struct{ *resolver }
+	workloadUtilizationDataResolver struct{ *resolver }
 )

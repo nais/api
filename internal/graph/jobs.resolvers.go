@@ -198,33 +198,35 @@ func (r *updateJobPayloadResolver) Job(ctx context.Context, obj *job.UpdateJobPa
 }
 
 func (r *Resolver) DeleteJobPayload() gengql.DeleteJobPayloadResolver {
-	return &deleteJobPayloadResolver{r}
+	return &deleteJobPayloadResolver{r.resolver}
 }
 
 func (r *Resolver) DeleteJobRunPayload() gengql.DeleteJobRunPayloadResolver {
-	return &deleteJobRunPayloadResolver{r}
+	return &deleteJobRunPayloadResolver{r.resolver}
 }
 
-func (r *Resolver) Job() gengql.JobResolver { return &jobResolver{r} }
+func (r *Resolver) Job() gengql.JobResolver { return &jobResolver{r.resolver} }
 
-func (r *Resolver) JobConnection() gengql.JobConnectionResolver { return &jobConnectionResolver{r} }
+func (r *Resolver) JobConnection() gengql.JobConnectionResolver {
+	return &jobConnectionResolver{r.resolver}
+}
 
-func (r *Resolver) JobRun() gengql.JobRunResolver { return &jobRunResolver{r} }
+func (r *Resolver) JobRun() gengql.JobRunResolver { return &jobRunResolver{r.resolver} }
 
 func (r *Resolver) TriggerJobPayload() gengql.TriggerJobPayloadResolver {
-	return &triggerJobPayloadResolver{r}
+	return &triggerJobPayloadResolver{r.resolver}
 }
 
 func (r *Resolver) UpdateJobPayload() gengql.UpdateJobPayloadResolver {
-	return &updateJobPayloadResolver{r}
+	return &updateJobPayloadResolver{r.resolver}
 }
 
 type (
-	deleteJobPayloadResolver    struct{ *Resolver }
-	deleteJobRunPayloadResolver struct{ *Resolver }
-	jobResolver                 struct{ *Resolver }
-	jobConnectionResolver       struct{ *Resolver }
-	jobRunResolver              struct{ *Resolver }
-	triggerJobPayloadResolver   struct{ *Resolver }
-	updateJobPayloadResolver    struct{ *Resolver }
+	deleteJobPayloadResolver    struct{ *resolver }
+	deleteJobRunPayloadResolver struct{ *resolver }
+	jobResolver                 struct{ *resolver }
+	jobConnectionResolver       struct{ *resolver }
+	jobRunResolver              struct{ *resolver }
+	triggerJobPayloadResolver   struct{ *resolver }
+	updateJobPayloadResolver    struct{ *resolver }
 )

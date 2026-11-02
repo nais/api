@@ -232,29 +232,33 @@ func (r *teamInventoryCountsResolver) PostgresBranches(ctx context.Context, obj 
 	}, nil
 }
 
-func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r} }
+func (r *Resolver) Postgres() gengql.PostgresResolver { return &postgresResolver{r.resolver} }
 
-func (r *Resolver) PostgresAccess() gengql.PostgresAccessResolver { return &postgresAccessResolver{r} }
+func (r *Resolver) PostgresAccess() gengql.PostgresAccessResolver {
+	return &postgresAccessResolver{r.resolver}
+}
 
-func (r *Resolver) PostgresBranch() gengql.PostgresBranchResolver { return &postgresBranchResolver{r} }
+func (r *Resolver) PostgresBranch() gengql.PostgresBranchResolver {
+	return &postgresBranchResolver{r.resolver}
+}
 
 func (r *Resolver) PostgresBranchConnection() gengql.PostgresBranchConnectionResolver {
-	return &postgresBranchConnectionResolver{r}
+	return &postgresBranchConnectionResolver{r.resolver}
 }
 
 func (r *Resolver) PostgresConnection() gengql.PostgresConnectionResolver {
-	return &postgresConnectionResolver{r}
+	return &postgresConnectionResolver{r.resolver}
 }
 
 func (r *Resolver) PostgresWorkload() gengql.PostgresWorkloadResolver {
-	return &postgresWorkloadResolver{r}
+	return &postgresWorkloadResolver{r.resolver}
 }
 
 type (
-	postgresResolver                 struct{ *Resolver }
-	postgresAccessResolver           struct{ *Resolver }
-	postgresBranchResolver           struct{ *Resolver }
-	postgresBranchConnectionResolver struct{ *Resolver }
-	postgresConnectionResolver       struct{ *Resolver }
-	postgresWorkloadResolver         struct{ *Resolver }
+	postgresResolver                 struct{ *resolver }
+	postgresAccessResolver           struct{ *resolver }
+	postgresBranchResolver           struct{ *resolver }
+	postgresBranchConnectionResolver struct{ *resolver }
+	postgresConnectionResolver       struct{ *resolver }
+	postgresWorkloadResolver         struct{ *resolver }
 )

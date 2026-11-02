@@ -98,13 +98,15 @@ func (r *teamWorkloadsFilterResolver) SbomStatus(ctx context.Context, obj *workl
 	return nil
 }
 
-func (r *Resolver) ContainerImage() gengql.ContainerImageResolver { return &containerImageResolver{r} }
+func (r *Resolver) ContainerImage() gengql.ContainerImageResolver {
+	return &containerImageResolver{r.resolver}
+}
 
 func (r *Resolver) TeamWorkloadsFilter() gengql.TeamWorkloadsFilterResolver {
-	return &teamWorkloadsFilterResolver{r}
+	return &teamWorkloadsFilterResolver{r.resolver}
 }
 
 type (
-	containerImageResolver      struct{ *Resolver }
-	teamWorkloadsFilterResolver struct{ *Resolver }
+	containerImageResolver      struct{ *resolver }
+	teamWorkloadsFilterResolver struct{ *resolver }
 )

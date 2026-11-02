@@ -171,6 +171,8 @@ func (r *teamResolver) ServiceAccounts(ctx context.Context, obj *team.Team, firs
 	return serviceaccount.ListForTeam(ctx, page, obj.Slug)
 }
 
-func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver { return &serviceAccountResolver{r} }
+func (r *Resolver) ServiceAccount() gengql.ServiceAccountResolver {
+	return &serviceAccountResolver{r.resolver}
+}
 
-type serviceAccountResolver struct{ *Resolver }
+type serviceAccountResolver struct{ *resolver }

@@ -58,7 +58,7 @@ func (r *serviceAccountWorkloadBindingResolver) IsBroken(ctx context.Context, ob
 }
 
 func (r *Resolver) ServiceAccountWorkloadBinding() gengql.ServiceAccountWorkloadBindingResolver {
-	return &serviceAccountWorkloadBindingResolver{r}
+	return &serviceAccountWorkloadBindingResolver{r.resolver}
 }
 
-type serviceAccountWorkloadBindingResolver struct{ *Resolver }
+type serviceAccountWorkloadBindingResolver struct{ *resolver }

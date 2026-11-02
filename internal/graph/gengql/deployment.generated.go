@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -19,6 +14,10 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -32,12 +31,12 @@ type DeploymentResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Deployment_resources_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Deployment_resources_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -45,7 +44,7 @@ func (ec *executionContext) field_Deployment_resources_args(ctx context.Context,
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -53,7 +52,7 @@ func (ec *executionContext) field_Deployment_resources_args(ctx context.Context,
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -61,7 +60,7 @@ func (ec *executionContext) field_Deployment_resources_args(ctx context.Context,
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -70,12 +69,12 @@ func (ec *executionContext) field_Deployment_resources_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Deployment_statuses_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -83,7 +82,7 @@ func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -99,7 +98,7 @@ func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -116,229 +115,229 @@ func (ec *executionContext) field_Deployment_statuses_args(ctx context.Context, 
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ChangeDeploymentKeyPayload_deploymentKey(ctx context.Context, field graphql.CollectedField, obj *deployment.ChangeDeploymentKeyPayload) (ret graphql.Marshaler) {
+func _ChangeDeploymentKeyPayload_deploymentKey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.ChangeDeploymentKeyPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ChangeDeploymentKeyPayload_deploymentKey(ctx, field)
+			return fieldContext_ChangeDeploymentKeyPayload_deploymentKey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DeploymentKey, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
-			return ec.marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx, selections, v)
+			return marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ChangeDeploymentKeyPayload_deploymentKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ChangeDeploymentKeyPayload_deploymentKey(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ChangeDeploymentKeyPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentKey(ctx, field)
+			return childFields_DeploymentKey(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Deployment_id(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_id(ctx, field)
+			return fieldContext_Deployment_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_createdAt(ctx, field)
+			return fieldContext_Deployment_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_teamSlug(ctx, field)
+			return fieldContext_Deployment_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_environmentName(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_environmentName(ctx, field)
+			return fieldContext_Deployment_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_repository(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_repository(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_repository(ctx, field)
+			return fieldContext_Deployment_repository(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Repository, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_repository(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_deployerUsername(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_deployerUsername(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_deployerUsername(ctx, field)
+			return fieldContext_Deployment_deployerUsername(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DeployerUsername, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_deployerUsername(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_deployerUsername(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_commitSha(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_commitSha(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_commitSha(ctx, field)
+			return fieldContext_Deployment_commitSha(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CommitSha, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_commitSha(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_commitSha(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_triggerUrl(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_triggerUrl(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_triggerUrl(ctx, field)
+			return fieldContext_Deployment_triggerUrl(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TriggerUrl, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_triggerUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_triggerUrl(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Deployment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Deployment_resources(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_resources(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_resources(ctx, field)
+			return fieldContext_Deployment_resources(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -346,20 +345,20 @@ func (ec *executionContext) _Deployment_resources(ctx context.Context, field gra
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
-			return ec.marshalNDeploymentResourceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNDeploymentResourceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_resources(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_resources(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Deployment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentResourceConnection(ctx, field)
+			return childFields_DeploymentResourceConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -369,20 +368,20 @@ func (ec *executionContext) fieldContext_Deployment_resources(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Deployment_resources_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Deployment_resources_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Deployment_statuses(ctx context.Context, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
+func _Deployment_statuses(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.Deployment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Deployment_statuses(ctx, field)
+			return fieldContext_Deployment_statuses(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -390,20 +389,20 @@ func (ec *executionContext) _Deployment_statuses(ctx context.Context, field grap
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
-			return ec.marshalNDeploymentStatusConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNDeploymentStatusConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Deployment_statuses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Deployment_statuses(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Deployment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentStatusConnection(ctx, field)
+			return childFields_DeploymentStatusConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -413,1203 +412,1203 @@ func (ec *executionContext) fieldContext_Deployment_statuses(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Deployment_statuses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Deployment_statuses_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_id(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_actor(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_message(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntry_data(ctx, field)
+			return fieldContext_DeploymentActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *deploymentactivity.DeploymentActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNDeploymentActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚋdeploymentactivityᚐDeploymentActivityLogEntryData(ctx, selections, v)
+			return marshalNDeploymentActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚋdeploymentactivityᚐDeploymentActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentActivityLogEntryData(ctx, field)
+			return childFields_DeploymentActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentActivityLogEntryData_triggerURL(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntryData) (ret graphql.Marshaler) {
+func _DeploymentActivityLogEntryData_triggerURL(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.DeploymentActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentActivityLogEntryData_triggerURL(ctx, field)
+			return fieldContext_DeploymentActivityLogEntryData_triggerURL(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TriggerURL, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalOString2string(ctx, selections, v)
+			return marshalOString2string(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentActivityLogEntryData_triggerURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentActivityLogEntryData_triggerURL(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.Deployment]) (ret graphql.Marshaler) {
+func _DeploymentConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.Deployment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentConnection_pageInfo(ctx, field)
+			return fieldContext_DeploymentConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.Deployment]) (ret graphql.Marshaler) {
+func _DeploymentConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.Deployment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentConnection_nodes(ctx, field)
+			return fieldContext_DeploymentConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*deployment.Deployment) graphql.Marshaler {
-			return ec.marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentᚄ(ctx, selections, v)
+			return marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Deployment(ctx, field)
+			return childFields_Deployment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.Deployment]) (ret graphql.Marshaler) {
+func _DeploymentConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.Deployment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentConnection_edges(ctx, field)
+			return fieldContext_DeploymentConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
-			return ec.marshalNDeploymentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNDeploymentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentEdge(ctx, field)
+			return childFields_DeploymentEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*deployment.Deployment]) (ret graphql.Marshaler) {
+func _DeploymentEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*deployment.Deployment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentEdge_cursor(ctx, field)
+			return fieldContext_DeploymentEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*deployment.Deployment]) (ret graphql.Marshaler) {
+func _DeploymentEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*deployment.Deployment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentEdge_node(ctx, field)
+			return fieldContext_DeploymentEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *deployment.Deployment) graphql.Marshaler {
-			return ec.marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx, selections, v)
+			return marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Deployment(ctx, field)
+			return childFields_Deployment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentKey_id(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+func _DeploymentKey_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentKey_id(ctx, field)
+			return fieldContext_DeploymentKey_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentKey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentKey_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentKey", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentKey_key(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+func _DeploymentKey_key(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentKey_key(ctx, field)
+			return fieldContext_DeploymentKey_key(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentKey_key(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentKey", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentKey_created(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+func _DeploymentKey_created(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentKey_created(ctx, field)
+			return fieldContext_DeploymentKey_created(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Created, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentKey_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentKey_created(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentKey", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentKey_expires(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
+func _DeploymentKey_expires(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentKey_expires(ctx, field)
+			return fieldContext_DeploymentKey_expires(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Expires, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentKey_expires(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentKey_expires(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentKey", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentResource_id(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
+func _DeploymentResource_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResource_id(ctx, field)
+			return fieldContext_DeploymentResource_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResource_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResource_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentResource", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentResource_kind(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
+func _DeploymentResource_kind(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResource_kind(ctx, field)
+			return fieldContext_DeploymentResource_kind(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Kind, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResource_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResource_kind(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentResource", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentResource_name(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
+func _DeploymentResource_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentResource) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResource_name(ctx, field)
+			return fieldContext_DeploymentResource_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResource_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResource_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentResource", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentResourceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
+func _DeploymentResourceConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResourceConnection_pageInfo(ctx, field)
+			return fieldContext_DeploymentResourceConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResourceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResourceConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentResourceConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentResourceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
+func _DeploymentResourceConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResourceConnection_nodes(ctx, field)
+			return fieldContext_DeploymentResourceConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*deployment.DeploymentResource) graphql.Marshaler {
-			return ec.marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResourceᚄ(ctx, selections, v)
+			return marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResourceᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResourceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResourceConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentResourceConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentResource(ctx, field)
+			return childFields_DeploymentResource(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentResourceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
+func _DeploymentResourceConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResourceConnection_edges(ctx, field)
+			return fieldContext_DeploymentResourceConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
-			return ec.marshalNDeploymentResourceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNDeploymentResourceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResourceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResourceConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentResourceConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentResourceEdge(ctx, field)
+			return childFields_DeploymentResourceEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentResourceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
+func _DeploymentResourceEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResourceEdge_cursor(ctx, field)
+			return fieldContext_DeploymentResourceEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResourceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResourceEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentResourceEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentResourceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
+func _DeploymentResourceEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentResource]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentResourceEdge_node(ctx, field)
+			return fieldContext_DeploymentResourceEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *deployment.DeploymentResource) graphql.Marshaler {
-			return ec.marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx, selections, v)
+			return marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentResourceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentResourceEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentResourceEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentResource(ctx, field)
+			return childFields_DeploymentResource(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentStatus_id(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
+func _DeploymentStatus_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatus_id(ctx, field)
+			return fieldContext_DeploymentStatus_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatus_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatus_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentStatus", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentStatus_createdAt(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
+func _DeploymentStatus_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatus_createdAt(ctx, field)
+			return fieldContext_DeploymentStatus_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatus_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatus_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentStatus", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentStatus_state(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
+func _DeploymentStatus_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatus_state(ctx, field)
+			return fieldContext_DeploymentStatus_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.State, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v deployment.DeploymentStatusState) graphql.Marshaler {
-			return ec.marshalNDeploymentStatusState2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusState(ctx, selections, v)
+			return marshalNDeploymentStatusState2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatus_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentStatus", field, false, false, errors.New("field of type DeploymentStatusState does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentStatus_message(ctx context.Context, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
+func _DeploymentStatus_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deployment.DeploymentStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatus_message(ctx, field)
+			return fieldContext_DeploymentStatus_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatus_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentStatus", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentStatusConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
+func _DeploymentStatusConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatusConnection_pageInfo(ctx, field)
+			return fieldContext_DeploymentStatusConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatusConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatusConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentStatusConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentStatusConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
+func _DeploymentStatusConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatusConnection_nodes(ctx, field)
+			return fieldContext_DeploymentStatusConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*deployment.DeploymentStatus) graphql.Marshaler {
-			return ec.marshalNDeploymentStatus2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusᚄ(ctx, selections, v)
+			return marshalNDeploymentStatus2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatusConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatusConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentStatusConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentStatus(ctx, field)
+			return childFields_DeploymentStatus(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentStatusConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
+func _DeploymentStatusConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatusConnection_edges(ctx, field)
+			return fieldContext_DeploymentStatusConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
-			return ec.marshalNDeploymentStatusEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNDeploymentStatusEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatusConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatusConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentStatusConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentStatusEdge(ctx, field)
+			return childFields_DeploymentStatusEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeploymentStatusEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
+func _DeploymentStatusEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatusEdge_cursor(ctx, field)
+			return fieldContext_DeploymentStatusEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatusEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatusEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeploymentStatusEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _DeploymentStatusEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
+func _DeploymentStatusEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*deployment.DeploymentStatus]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeploymentStatusEdge_node(ctx, field)
+			return fieldContext_DeploymentStatusEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *deployment.DeploymentStatus) graphql.Marshaler {
-			return ec.marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx, selections, v)
+			return marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeploymentStatusEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeploymentStatusEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeploymentStatusEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentStatus(ctx, field)
+			return childFields_DeploymentStatus(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamDeployKeyUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeployKeyUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeployKeyUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -1617,7 +1616,7 @@ func (ec *executionContext) fieldContext_TeamDeployKeyUpdatedActivityLogEntry_en
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputChangeDeploymentKeyInput(ctx context.Context, obj any) (deployment.ChangeDeploymentKeyInput, error) {
+func unmarshalInputChangeDeploymentKeyInput(ctx context.Context, ec *executionContext, obj any) (deployment.ChangeDeploymentKeyInput, error) {
 	var it deployment.ChangeDeploymentKeyInput
 	if obj == nil {
 		return it, nil
@@ -1637,7 +1636,7 @@ func (ec *executionContext) unmarshalInputChangeDeploymentKeyInput(ctx context.C
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1647,7 +1646,7 @@ func (ec *executionContext) unmarshalInputChangeDeploymentKeyInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, obj any) (deployment.DeploymentFilter, error) {
+func unmarshalInputDeploymentFilter(ctx context.Context, ec *executionContext, obj any) (deployment.DeploymentFilter, error) {
 	var it deployment.DeploymentFilter
 	if obj == nil {
 		return it, nil
@@ -1667,14 +1666,14 @@ func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, 
 		switch k {
 		case "from":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
-			data, err := ec.unmarshalOTime2timeᚐTime(ctx, v)
+			data, err := unmarshalOTime2timeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.From = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1684,7 +1683,7 @@ func (ec *executionContext) unmarshalInputDeploymentFilter(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeploymentOrder(ctx context.Context, obj any) (deployment.DeploymentOrder, error) {
+func unmarshalInputDeploymentOrder(ctx context.Context, ec *executionContext, obj any) (deployment.DeploymentOrder, error) {
 	var it deployment.DeploymentOrder
 	if obj == nil {
 		return it, nil
@@ -1704,14 +1703,14 @@ func (ec *executionContext) unmarshalInputDeploymentOrder(ctx context.Context, o
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx, v)
+			data, err := unmarshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1731,7 +1730,7 @@ func (ec *executionContext) unmarshalInputDeploymentOrder(ctx context.Context, o
 
 var changeDeploymentKeyPayloadImplementors = []string{"ChangeDeploymentKeyPayload"}
 
-func (ec *executionContext) _ChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, obj *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
+func _ChangeDeploymentKeyPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, changeDeploymentKeyPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1741,7 +1740,7 @@ func (ec *executionContext) _ChangeDeploymentKeyPayload(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ChangeDeploymentKeyPayload")
 		case "deploymentKey":
-			out.Values[i] = ec._ChangeDeploymentKeyPayload_deploymentKey(ctx, field, obj)
+			out.Values[i] = _ChangeDeploymentKeyPayload_deploymentKey(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1767,7 +1766,7 @@ func (ec *executionContext) _ChangeDeploymentKeyPayload(ctx context.Context, sel
 
 var deploymentImplementors = []string{"Deployment", "Node"}
 
-func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSet, obj *deployment.Deployment) graphql.Marshaler {
+func _Deployment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deployment.Deployment) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1777,33 +1776,33 @@ func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Deployment")
 		case "id":
-			out.Values[i] = ec._Deployment_id(ctx, field, obj)
+			out.Values[i] = _Deployment_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
-			out.Values[i] = ec._Deployment_createdAt(ctx, field, obj)
+			out.Values[i] = _Deployment_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "teamSlug":
-			out.Values[i] = ec._Deployment_teamSlug(ctx, field, obj)
+			out.Values[i] = _Deployment_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "environmentName":
-			out.Values[i] = ec._Deployment_environmentName(ctx, field, obj)
+			out.Values[i] = _Deployment_environmentName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "repository":
-			out.Values[i] = ec._Deployment_repository(ctx, field, obj)
+			out.Values[i] = _Deployment_repository(ctx, ec, field, obj)
 		case "deployerUsername":
-			out.Values[i] = ec._Deployment_deployerUsername(ctx, field, obj)
+			out.Values[i] = _Deployment_deployerUsername(ctx, ec, field, obj)
 		case "commitSha":
-			out.Values[i] = ec._Deployment_commitSha(ctx, field, obj)
+			out.Values[i] = _Deployment_commitSha(ctx, ec, field, obj)
 		case "triggerUrl":
-			out.Values[i] = ec._Deployment_triggerUrl(ctx, field, obj)
+			out.Values[i] = _Deployment_triggerUrl(ctx, ec, field, obj)
 		case "resources":
 			field := field
 
@@ -1813,7 +1812,7 @@ func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Deployment_resources(ctx, field, obj)
+				res = _Deployment_resources(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1849,7 +1848,7 @@ func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Deployment_statuses(ctx, field, obj)
+				res = _Deployment_statuses(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1901,7 +1900,7 @@ func (ec *executionContext) _Deployment(ctx context.Context, sel ast.SelectionSe
 
 var deploymentActivityLogEntryImplementors = []string{"DeploymentActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _DeploymentActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *deploymentactivity.DeploymentActivityLogEntry) graphql.Marshaler {
+func _DeploymentActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deploymentactivity.DeploymentActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1911,46 +1910,46 @@ func (ec *executionContext) _DeploymentActivityLogEntry(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._DeploymentActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._DeploymentActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._DeploymentActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._DeploymentActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._DeploymentActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._DeploymentActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._DeploymentActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._DeploymentActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._DeploymentActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._DeploymentActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1979,7 +1978,7 @@ func (ec *executionContext) _DeploymentActivityLogEntry(ctx context.Context, sel
 
 var deploymentActivityLogEntryDataImplementors = []string{"DeploymentActivityLogEntryData"}
 
-func (ec *executionContext) _DeploymentActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *deploymentactivity.DeploymentActivityLogEntryData) graphql.Marshaler {
+func _DeploymentActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deploymentactivity.DeploymentActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1989,7 +1988,7 @@ func (ec *executionContext) _DeploymentActivityLogEntryData(ctx context.Context,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentActivityLogEntryData")
 		case "triggerURL":
-			out.Values[i] = ec._DeploymentActivityLogEntryData_triggerURL(ctx, field, obj)
+			out.Values[i] = _DeploymentActivityLogEntryData_triggerURL(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2015,7 +2014,7 @@ func (ec *executionContext) _DeploymentActivityLogEntryData(ctx context.Context,
 
 var deploymentConnectionImplementors = []string{"DeploymentConnection"}
 
-func (ec *executionContext) _DeploymentConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
+func _DeploymentConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2025,17 +2024,17 @@ func (ec *executionContext) _DeploymentConnection(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentConnection")
 		case "pageInfo":
-			out.Values[i] = ec._DeploymentConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _DeploymentConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._DeploymentConnection_nodes(ctx, field, obj)
+			out.Values[i] = _DeploymentConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._DeploymentConnection_edges(ctx, field, obj)
+			out.Values[i] = _DeploymentConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2064,7 +2063,7 @@ func (ec *executionContext) _DeploymentConnection(ctx context.Context, sel ast.S
 
 var deploymentEdgeImplementors = []string{"DeploymentEdge"}
 
-func (ec *executionContext) _DeploymentEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
+func _DeploymentEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2074,12 +2073,12 @@ func (ec *executionContext) _DeploymentEdge(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentEdge")
 		case "cursor":
-			out.Values[i] = ec._DeploymentEdge_cursor(ctx, field, obj)
+			out.Values[i] = _DeploymentEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._DeploymentEdge_node(ctx, field, obj)
+			out.Values[i] = _DeploymentEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2108,7 +2107,7 @@ func (ec *executionContext) _DeploymentEdge(ctx context.Context, sel ast.Selecti
 
 var deploymentKeyImplementors = []string{"DeploymentKey", "Node"}
 
-func (ec *executionContext) _DeploymentKey(ctx context.Context, sel ast.SelectionSet, obj *deployment.DeploymentKey) graphql.Marshaler {
+func _DeploymentKey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deployment.DeploymentKey) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentKeyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2118,22 +2117,22 @@ func (ec *executionContext) _DeploymentKey(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentKey")
 		case "id":
-			out.Values[i] = ec._DeploymentKey_id(ctx, field, obj)
+			out.Values[i] = _DeploymentKey_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "key":
-			out.Values[i] = ec._DeploymentKey_key(ctx, field, obj)
+			out.Values[i] = _DeploymentKey_key(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "created":
-			out.Values[i] = ec._DeploymentKey_created(ctx, field, obj)
+			out.Values[i] = _DeploymentKey_created(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "expires":
-			out.Values[i] = ec._DeploymentKey_expires(ctx, field, obj)
+			out.Values[i] = _DeploymentKey_expires(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2162,7 +2161,7 @@ func (ec *executionContext) _DeploymentKey(ctx context.Context, sel ast.Selectio
 
 var deploymentResourceImplementors = []string{"DeploymentResource", "Node"}
 
-func (ec *executionContext) _DeploymentResource(ctx context.Context, sel ast.SelectionSet, obj *deployment.DeploymentResource) graphql.Marshaler {
+func _DeploymentResource(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deployment.DeploymentResource) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentResourceImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2172,17 +2171,17 @@ func (ec *executionContext) _DeploymentResource(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentResource")
 		case "id":
-			out.Values[i] = ec._DeploymentResource_id(ctx, field, obj)
+			out.Values[i] = _DeploymentResource_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "kind":
-			out.Values[i] = ec._DeploymentResource_kind(ctx, field, obj)
+			out.Values[i] = _DeploymentResource_kind(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._DeploymentResource_name(ctx, field, obj)
+			out.Values[i] = _DeploymentResource_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2211,7 +2210,7 @@ func (ec *executionContext) _DeploymentResource(ctx context.Context, sel ast.Sel
 
 var deploymentResourceConnectionImplementors = []string{"DeploymentResourceConnection"}
 
-func (ec *executionContext) _DeploymentResourceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
+func _DeploymentResourceConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentResourceConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2221,17 +2220,17 @@ func (ec *executionContext) _DeploymentResourceConnection(ctx context.Context, s
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentResourceConnection")
 		case "pageInfo":
-			out.Values[i] = ec._DeploymentResourceConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _DeploymentResourceConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._DeploymentResourceConnection_nodes(ctx, field, obj)
+			out.Values[i] = _DeploymentResourceConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._DeploymentResourceConnection_edges(ctx, field, obj)
+			out.Values[i] = _DeploymentResourceConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2260,7 +2259,7 @@ func (ec *executionContext) _DeploymentResourceConnection(ctx context.Context, s
 
 var deploymentResourceEdgeImplementors = []string{"DeploymentResourceEdge"}
 
-func (ec *executionContext) _DeploymentResourceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
+func _DeploymentResourceEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentResourceEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2270,12 +2269,12 @@ func (ec *executionContext) _DeploymentResourceEdge(ctx context.Context, sel ast
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentResourceEdge")
 		case "cursor":
-			out.Values[i] = ec._DeploymentResourceEdge_cursor(ctx, field, obj)
+			out.Values[i] = _DeploymentResourceEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._DeploymentResourceEdge_node(ctx, field, obj)
+			out.Values[i] = _DeploymentResourceEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2304,7 +2303,7 @@ func (ec *executionContext) _DeploymentResourceEdge(ctx context.Context, sel ast
 
 var deploymentStatusImplementors = []string{"DeploymentStatus", "Node"}
 
-func (ec *executionContext) _DeploymentStatus(ctx context.Context, sel ast.SelectionSet, obj *deployment.DeploymentStatus) graphql.Marshaler {
+func _DeploymentStatus(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deployment.DeploymentStatus) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentStatusImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2314,22 +2313,22 @@ func (ec *executionContext) _DeploymentStatus(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentStatus")
 		case "id":
-			out.Values[i] = ec._DeploymentStatus_id(ctx, field, obj)
+			out.Values[i] = _DeploymentStatus_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._DeploymentStatus_createdAt(ctx, field, obj)
+			out.Values[i] = _DeploymentStatus_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "state":
-			out.Values[i] = ec._DeploymentStatus_state(ctx, field, obj)
+			out.Values[i] = _DeploymentStatus_state(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._DeploymentStatus_message(ctx, field, obj)
+			out.Values[i] = _DeploymentStatus_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2358,7 +2357,7 @@ func (ec *executionContext) _DeploymentStatus(ctx context.Context, sel ast.Selec
 
 var deploymentStatusConnectionImplementors = []string{"DeploymentStatusConnection"}
 
-func (ec *executionContext) _DeploymentStatusConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
+func _DeploymentStatusConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentStatusConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2368,17 +2367,17 @@ func (ec *executionContext) _DeploymentStatusConnection(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentStatusConnection")
 		case "pageInfo":
-			out.Values[i] = ec._DeploymentStatusConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _DeploymentStatusConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._DeploymentStatusConnection_nodes(ctx, field, obj)
+			out.Values[i] = _DeploymentStatusConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._DeploymentStatusConnection_edges(ctx, field, obj)
+			out.Values[i] = _DeploymentStatusConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2407,7 +2406,7 @@ func (ec *executionContext) _DeploymentStatusConnection(ctx context.Context, sel
 
 var deploymentStatusEdgeImplementors = []string{"DeploymentStatusEdge"}
 
-func (ec *executionContext) _DeploymentStatusEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
+func _DeploymentStatusEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deploymentStatusEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2417,12 +2416,12 @@ func (ec *executionContext) _DeploymentStatusEdge(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeploymentStatusEdge")
 		case "cursor":
-			out.Values[i] = ec._DeploymentStatusEdge_cursor(ctx, field, obj)
+			out.Values[i] = _DeploymentStatusEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._DeploymentStatusEdge_node(ctx, field, obj)
+			out.Values[i] = _DeploymentStatusEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2451,7 +2450,7 @@ func (ec *executionContext) _DeploymentStatusEdge(ctx context.Context, sel ast.S
 
 var teamDeployKeyUpdatedActivityLogEntryImplementors = []string{"TeamDeployKeyUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) graphql.Marshaler {
+func _TeamDeployKeyUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeployKeyUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2461,44 +2460,44 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry(ctx context.Co
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamDeployKeyUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamDeployKeyUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2526,30 +2525,30 @@ func (ec *executionContext) _TeamDeployKeyUpdatedActivityLogEntry(ctx context.Co
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNChangeDeploymentKeyInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyInput(ctx context.Context, v any) (deployment.ChangeDeploymentKeyInput, error) {
-	res, err := ec.unmarshalInputChangeDeploymentKeyInput(ctx, v)
+func unmarshalNChangeDeploymentKeyInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyInput(ctx context.Context, ec *executionContext, v any) (deployment.ChangeDeploymentKeyInput, error) {
+	res, err := unmarshalInputChangeDeploymentKeyInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNChangeDeploymentKeyPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, v deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
-	return ec._ChangeDeploymentKeyPayload(ctx, sel, &v)
+func marshalNChangeDeploymentKeyPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
+	return _ChangeDeploymentKeyPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, sel ast.SelectionSet, v *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
+func marshalNChangeDeploymentKeyPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐChangeDeploymentKeyPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *deployment.ChangeDeploymentKeyPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ChangeDeploymentKeyPayload(ctx, sel, v)
+	return _ChangeDeploymentKeyPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentᚄ(ctx context.Context, sel ast.SelectionSet, v []*deployment.Deployment) graphql.Marshaler {
+func marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*deployment.Deployment) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx, sel, v[i])
+		return marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2561,49 +2560,49 @@ func (ec *executionContext) marshalNDeployment2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx context.Context, sel ast.SelectionSet, v *deployment.Deployment) graphql.Marshaler {
+func marshalNDeployment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeployment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *deployment.Deployment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Deployment(ctx, sel, v)
+	return _Deployment(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚋdeploymentactivityᚐDeploymentActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *deploymentactivity.DeploymentActivityLogEntryData) graphql.Marshaler {
+func marshalNDeploymentActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚋdeploymentactivityᚐDeploymentActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *deploymentactivity.DeploymentActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeploymentActivityLogEntryData(ctx, sel, v)
+	return _DeploymentActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
-	return ec._DeploymentConnection(ctx, sel, &v)
+func marshalNDeploymentConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
+	return _DeploymentConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
+func marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeploymentConnection(ctx, sel, v)
+	return _DeploymentConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
-	return ec._DeploymentEdge(ctx, sel, &v)
+func marshalNDeploymentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
+	return _DeploymentEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeploymentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
+func marshalNDeploymentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*deployment.Deployment]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNDeploymentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNDeploymentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2615,21 +2614,21 @@ func (ec *executionContext) marshalNDeploymentEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx context.Context, v any) (deployment.DeploymentOrderField, error) {
+func unmarshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx context.Context, ec *executionContext, v any) (deployment.DeploymentOrderField, error) {
 	var res deployment.DeploymentOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx context.Context, sel ast.SelectionSet, v deployment.DeploymentOrderField) graphql.Marshaler {
+func marshalNDeploymentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v deployment.DeploymentOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResourceᚄ(ctx context.Context, sel ast.SelectionSet, v []*deployment.DeploymentResource) graphql.Marshaler {
+func marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResourceᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*deployment.DeploymentResource) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx, sel, v[i])
+		return marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2641,39 +2640,39 @@ func (ec *executionContext) marshalNDeploymentResource2ᚕᚖgithubᚗcomᚋnais
 	return ret
 }
 
-func (ec *executionContext) marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentResource) graphql.Marshaler {
+func marshalNDeploymentResource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentResource(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *deployment.DeploymentResource) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeploymentResource(ctx, sel, v)
+	return _DeploymentResource(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentResourceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
-	return ec._DeploymentResourceConnection(ctx, sel, &v)
+func marshalNDeploymentResourceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
+	return _DeploymentResourceConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeploymentResourceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
+func marshalNDeploymentResourceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentResource]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeploymentResourceConnection(ctx, sel, v)
+	return _DeploymentResourceConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentResourceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
-	return ec._DeploymentResourceEdge(ctx, sel, &v)
+func marshalNDeploymentResourceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
+	return _DeploymentResourceEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeploymentResourceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
+func marshalNDeploymentResourceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*deployment.DeploymentResource]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNDeploymentResourceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNDeploymentResourceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2685,11 +2684,11 @@ func (ec *executionContext) marshalNDeploymentResourceEdge2ᚕgithubᚗcomᚋnai
 	return ret
 }
 
-func (ec *executionContext) marshalNDeploymentStatus2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []*deployment.DeploymentStatus) graphql.Marshaler {
+func marshalNDeploymentStatus2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*deployment.DeploymentStatus) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx, sel, v[i])
+		return marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2701,39 +2700,39 @@ func (ec *executionContext) marshalNDeploymentStatus2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentStatus) graphql.Marshaler {
+func marshalNDeploymentStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatus(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *deployment.DeploymentStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeploymentStatus(ctx, sel, v)
+	return _DeploymentStatus(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentStatusConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
-	return ec._DeploymentStatusConnection(ctx, sel, &v)
+func marshalNDeploymentStatusConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
+	return _DeploymentStatusConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeploymentStatusConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
+func marshalNDeploymentStatusConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*deployment.DeploymentStatus]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeploymentStatusConnection(ctx, sel, v)
+	return _DeploymentStatusConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNDeploymentStatusEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
-	return ec._DeploymentStatusEdge(ctx, sel, &v)
+func marshalNDeploymentStatusEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
+	return _DeploymentStatusEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeploymentStatusEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
+func marshalNDeploymentStatusEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*deployment.DeploymentStatus]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNDeploymentStatusEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNDeploymentStatusEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2745,36 +2744,36 @@ func (ec *executionContext) marshalNDeploymentStatusEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNDeploymentStatusState2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusState(ctx context.Context, v any) (deployment.DeploymentStatusState, error) {
+func unmarshalNDeploymentStatusState2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusState(ctx context.Context, ec *executionContext, v any) (deployment.DeploymentStatusState, error) {
 	var res deployment.DeploymentStatusState
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeploymentStatusState2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusState(ctx context.Context, sel ast.SelectionSet, v deployment.DeploymentStatusState) graphql.Marshaler {
+func marshalNDeploymentStatusState2githubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentStatusState(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v deployment.DeploymentStatusState) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalODeploymentFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentFilter(ctx context.Context, v any) (*deployment.DeploymentFilter, error) {
+func unmarshalODeploymentFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentFilter(ctx context.Context, ec *executionContext, v any) (*deployment.DeploymentFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputDeploymentFilter(ctx, v)
+	res, err := unmarshalInputDeploymentFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx context.Context, sel ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
+func marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._DeploymentKey(ctx, sel, v)
+	return _DeploymentKey(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalODeploymentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrder(ctx context.Context, v any) (*deployment.DeploymentOrder, error) {
+func unmarshalODeploymentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentOrder(ctx context.Context, ec *executionContext, v any) (*deployment.DeploymentOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputDeploymentOrder(ctx, v)
+	res, err := unmarshalInputDeploymentOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

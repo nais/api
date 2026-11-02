@@ -191,36 +191,36 @@ func (r *updateApplicationPayloadResolver) Application(ctx context.Context, obj 
 	return application.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ApplicationName)
 }
 
-func (r *Resolver) Application() gengql.ApplicationResolver { return &applicationResolver{r} }
+func (r *Resolver) Application() gengql.ApplicationResolver { return &applicationResolver{r.resolver} }
 
 func (r *Resolver) ApplicationConnection() gengql.ApplicationConnectionResolver {
-	return &applicationConnectionResolver{r}
+	return &applicationConnectionResolver{r.resolver}
 }
 
 func (r *Resolver) ApplicationInstance() gengql.ApplicationInstanceResolver {
-	return &applicationInstanceResolver{r}
+	return &applicationInstanceResolver{r.resolver}
 }
 
 func (r *Resolver) DeleteApplicationPayload() gengql.DeleteApplicationPayloadResolver {
-	return &deleteApplicationPayloadResolver{r}
+	return &deleteApplicationPayloadResolver{r.resolver}
 }
 
-func (r *Resolver) Ingress() gengql.IngressResolver { return &ingressResolver{r} }
+func (r *Resolver) Ingress() gengql.IngressResolver { return &ingressResolver{r.resolver} }
 
 func (r *Resolver) RestartApplicationPayload() gengql.RestartApplicationPayloadResolver {
-	return &restartApplicationPayloadResolver{r}
+	return &restartApplicationPayloadResolver{r.resolver}
 }
 
 func (r *Resolver) UpdateApplicationPayload() gengql.UpdateApplicationPayloadResolver {
-	return &updateApplicationPayloadResolver{r}
+	return &updateApplicationPayloadResolver{r.resolver}
 }
 
 type (
-	applicationResolver               struct{ *Resolver }
-	applicationConnectionResolver     struct{ *Resolver }
-	applicationInstanceResolver       struct{ *Resolver }
-	deleteApplicationPayloadResolver  struct{ *Resolver }
-	ingressResolver                   struct{ *Resolver }
-	restartApplicationPayloadResolver struct{ *Resolver }
-	updateApplicationPayloadResolver  struct{ *Resolver }
+	applicationResolver               struct{ *resolver }
+	applicationConnectionResolver     struct{ *resolver }
+	applicationInstanceResolver       struct{ *resolver }
+	deleteApplicationPayloadResolver  struct{ *resolver }
+	ingressResolver                   struct{ *resolver }
+	restartApplicationPayloadResolver struct{ *resolver }
+	updateApplicationPayloadResolver  struct{ *resolver }
 )

@@ -20,7 +20,7 @@ func (r *queryResolver) CurrentUnitPrices(ctx context.Context) (*price.CurrentUn
 }
 
 func (r *Resolver) CurrentUnitPrices() gengql.CurrentUnitPricesResolver {
-	return &currentUnitPricesResolver{r}
+	return &currentUnitPricesResolver{r.resolver}
 }
 
-type currentUnitPricesResolver struct{ *Resolver }
+type currentUnitPricesResolver struct{ *resolver }

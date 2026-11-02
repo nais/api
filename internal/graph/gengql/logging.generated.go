@@ -6,14 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -30,118 +29,118 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _LogDestinationGeneric_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationGeneric) (ret graphql.Marshaler) {
+func _LogDestinationGeneric_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *logging.LogDestinationGeneric) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogDestinationGeneric_id(ctx, field)
+			return fieldContext_LogDestinationGeneric_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogDestinationGeneric_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogDestinationGeneric_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogDestinationGeneric", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _LogDestinationGeneric_name(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationGeneric) (ret graphql.Marshaler) {
+func _LogDestinationGeneric_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *logging.LogDestinationGeneric) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogDestinationGeneric_name(ctx, field)
+			return fieldContext_LogDestinationGeneric_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogDestinationGeneric_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogDestinationGeneric_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogDestinationGeneric", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _LogDestinationLoki_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
+func _LogDestinationLoki_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogDestinationLoki_id(ctx, field)
+			return fieldContext_LogDestinationLoki_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogDestinationLoki_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogDestinationLoki_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogDestinationLoki", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _LogDestinationLoki_grafanaURL(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
+func _LogDestinationLoki_grafanaURL(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *logging.LogDestinationLoki) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogDestinationLoki_grafanaURL(ctx, field)
+			return fieldContext_LogDestinationLoki_grafanaURL(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GrafanaURL(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogDestinationLoki_grafanaURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogDestinationLoki_grafanaURL(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogDestinationLoki", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _LogDestinationSecureLogs_id(ctx context.Context, field graphql.CollectedField, obj *logging.LogDestinationSecureLogs) (ret graphql.Marshaler) {
+func _LogDestinationSecureLogs_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *logging.LogDestinationSecureLogs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogDestinationSecureLogs_id(ctx, field)
+			return fieldContext_LogDestinationSecureLogs_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogDestinationSecureLogs_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogDestinationSecureLogs_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogDestinationSecureLogs", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
@@ -153,31 +152,31 @@ func (ec *executionContext) fieldContext_LogDestinationSecureLogs_id(_ context.C
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.SelectionSet, obj logging.LogDestination) graphql.Marshaler {
+func _LogDestination(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj logging.LogDestination) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case logging.LogDestinationSecureLogs:
-		return ec._LogDestinationSecureLogs(ctx, sel, &obj)
+		return _LogDestinationSecureLogs(ctx, ec, sel, &obj)
 	case *logging.LogDestinationSecureLogs:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._LogDestinationSecureLogs(ctx, sel, obj)
+		return _LogDestinationSecureLogs(ctx, ec, sel, obj)
 	case logging.LogDestinationLoki:
-		return ec._LogDestinationLoki(ctx, sel, &obj)
+		return _LogDestinationLoki(ctx, ec, sel, &obj)
 	case *logging.LogDestinationLoki:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._LogDestinationLoki(ctx, sel, obj)
+		return _LogDestinationLoki(ctx, ec, sel, obj)
 	case logging.LogDestinationGeneric:
-		return ec._LogDestinationGeneric(ctx, sel, &obj)
+		return _LogDestinationGeneric(ctx, ec, sel, &obj)
 	case *logging.LogDestinationGeneric:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._LogDestinationGeneric(ctx, sel, obj)
+		return _LogDestinationGeneric(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -193,7 +192,7 @@ func (ec *executionContext) _LogDestination(ctx context.Context, sel ast.Selecti
 
 var logDestinationGenericImplementors = []string{"LogDestinationGeneric", "LogDestination", "Node"}
 
-func (ec *executionContext) _LogDestinationGeneric(ctx context.Context, sel ast.SelectionSet, obj *logging.LogDestinationGeneric) graphql.Marshaler {
+func _LogDestinationGeneric(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *logging.LogDestinationGeneric) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logDestinationGenericImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -203,12 +202,12 @@ func (ec *executionContext) _LogDestinationGeneric(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LogDestinationGeneric")
 		case "id":
-			out.Values[i] = ec._LogDestinationGeneric_id(ctx, field, obj)
+			out.Values[i] = _LogDestinationGeneric_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._LogDestinationGeneric_name(ctx, field, obj)
+			out.Values[i] = _LogDestinationGeneric_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -237,7 +236,7 @@ func (ec *executionContext) _LogDestinationGeneric(ctx context.Context, sel ast.
 
 var logDestinationLokiImplementors = []string{"LogDestinationLoki", "LogDestination", "Node"}
 
-func (ec *executionContext) _LogDestinationLoki(ctx context.Context, sel ast.SelectionSet, obj *logging.LogDestinationLoki) graphql.Marshaler {
+func _LogDestinationLoki(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *logging.LogDestinationLoki) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logDestinationLokiImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -247,7 +246,7 @@ func (ec *executionContext) _LogDestinationLoki(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LogDestinationLoki")
 		case "id":
-			out.Values[i] = ec._LogDestinationLoki_id(ctx, field, obj)
+			out.Values[i] = _LogDestinationLoki_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -260,7 +259,7 @@ func (ec *executionContext) _LogDestinationLoki(ctx context.Context, sel ast.Sel
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._LogDestinationLoki_grafanaURL(ctx, field, obj)
+				res = _LogDestinationLoki_grafanaURL(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -312,7 +311,7 @@ func (ec *executionContext) _LogDestinationLoki(ctx context.Context, sel ast.Sel
 
 var logDestinationSecureLogsImplementors = []string{"LogDestinationSecureLogs", "LogDestination", "Node"}
 
-func (ec *executionContext) _LogDestinationSecureLogs(ctx context.Context, sel ast.SelectionSet, obj *logging.LogDestinationSecureLogs) graphql.Marshaler {
+func _LogDestinationSecureLogs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *logging.LogDestinationSecureLogs) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logDestinationSecureLogsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -322,7 +321,7 @@ func (ec *executionContext) _LogDestinationSecureLogs(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LogDestinationSecureLogs")
 		case "id":
-			out.Values[i] = ec._LogDestinationSecureLogs_id(ctx, field, obj)
+			out.Values[i] = _LogDestinationSecureLogs_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -353,21 +352,21 @@ func (ec *executionContext) _LogDestinationSecureLogs(ctx context.Context, sel a
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNLogDestination2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestination(ctx context.Context, sel ast.SelectionSet, v logging.LogDestination) graphql.Marshaler {
+func marshalNLogDestination2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestination(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v logging.LogDestination) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._LogDestination(ctx, sel, v)
+	return _LogDestination(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx context.Context, sel ast.SelectionSet, v []logging.LogDestination) graphql.Marshaler {
+func marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []logging.LogDestination) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNLogDestination2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestination(ctx, sel, v[i])
+		return marshalNLogDestination2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestination(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {

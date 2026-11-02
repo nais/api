@@ -5,14 +5,13 @@ package gengql
 import (
 	"context"
 	"errors"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/metrics"
+	"github.com/vektah/gqlparser/v2/ast"
 	"math"
 	"strconv"
 	"sync/atomic"
 	"time"
-
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/metrics"
-	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -29,214 +28,214 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _MetricLabel_name(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricLabel) (ret graphql.Marshaler) {
+func _MetricLabel_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricLabel_name(ctx, field)
+			return fieldContext_MetricLabel_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricLabel_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricLabel_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MetricLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _MetricLabel_value(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricLabel) (ret graphql.Marshaler) {
+func _MetricLabel_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricLabel_value(ctx, field)
+			return fieldContext_MetricLabel_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricLabel_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricLabel_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MetricLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _MetricSeries_labels(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricSeries) (ret graphql.Marshaler) {
+func _MetricSeries_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricSeries_labels(ctx, field)
+			return fieldContext_MetricSeries_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*metrics.MetricLabel) graphql.Marshaler {
-			return ec.marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabelᚄ(ctx, selections, v)
+			return marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricSeries_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricSeries_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MetricSeries",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_MetricLabel(ctx, field)
+			return childFields_MetricLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricSeries_values(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricSeries) (ret graphql.Marshaler) {
+func _MetricSeries_values(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricSeries_values(ctx, field)
+			return fieldContext_MetricSeries_values(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Values, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*metrics.MetricValue) graphql.Marshaler {
-			return ec.marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValueᚄ(ctx, selections, v)
+			return marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValueᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricSeries_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricSeries_values(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MetricSeries",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_MetricValue(ctx, field)
+			return childFields_MetricValue(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricValue_timestamp(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricValue) (ret graphql.Marshaler) {
+func _MetricValue_timestamp(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricValue_timestamp(ctx, field)
+			return fieldContext_MetricValue_timestamp(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Timestamp, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricValue_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricValue_timestamp(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MetricValue", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _MetricValue_value(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricValue) (ret graphql.Marshaler) {
+func _MetricValue_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricValue_value(ctx, field)
+			return fieldContext_MetricValue_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricValue_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricValue_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MetricValue", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _MetricsQueryResult_series(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricsQueryResult) (ret graphql.Marshaler) {
+func _MetricsQueryResult_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricsQueryResult) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricsQueryResult_series(ctx, field)
+			return fieldContext_MetricsQueryResult_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*metrics.MetricSeries) graphql.Marshaler {
-			return ec.marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeriesᚄ(ctx, selections, v)
+			return marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeriesᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricsQueryResult_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricsQueryResult_series(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "MetricsQueryResult",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_MetricSeries(ctx, field)
+			return childFields_MetricSeries(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _MetricsQueryResult_warnings(ctx context.Context, field graphql.CollectedField, obj *metrics.MetricsQueryResult) (ret graphql.Marshaler) {
+func _MetricsQueryResult_warnings(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *metrics.MetricsQueryResult) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MetricsQueryResult_warnings(ctx, field)
+			return fieldContext_MetricsQueryResult_warnings(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Warnings, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
-			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+			return marshalNString2ᚕstringᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MetricsQueryResult_warnings(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MetricsQueryResult_warnings(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MetricsQueryResult", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -244,7 +243,7 @@ func (ec *executionContext) fieldContext_MetricsQueryResult_warnings(_ context.C
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputMetricsQueryInput(ctx context.Context, obj any) (metrics.MetricsQueryInput, error) {
+func unmarshalInputMetricsQueryInput(ctx context.Context, ec *executionContext, obj any) (metrics.MetricsQueryInput, error) {
 	var it metrics.MetricsQueryInput
 	if obj == nil {
 		return it, nil
@@ -264,21 +263,21 @@ func (ec *executionContext) unmarshalInputMetricsQueryInput(ctx context.Context,
 		switch k {
 		case "query":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Query = data
 		case "time":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := unmarshalOTime2ᚖtimeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Time = data
 		case "range":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("range"))
-			data, err := ec.unmarshalOMetricsRangeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsRangeInput(ctx, v)
+			data, err := unmarshalOMetricsRangeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsRangeInput(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -288,7 +287,7 @@ func (ec *executionContext) unmarshalInputMetricsQueryInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputMetricsRangeInput(ctx context.Context, obj any) (metrics.MetricsRangeInput, error) {
+func unmarshalInputMetricsRangeInput(ctx context.Context, ec *executionContext, obj any) (metrics.MetricsRangeInput, error) {
 	var it metrics.MetricsRangeInput
 	if obj == nil {
 		return it, nil
@@ -308,21 +307,21 @@ func (ec *executionContext) unmarshalInputMetricsRangeInput(ctx context.Context,
 		switch k {
 		case "start":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			data, err := unmarshalNTime2timeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Start = data
 		case "end":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			data, err := unmarshalNTime2timeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.End = data
 		case "step":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("step"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := unmarshalNInt2int(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -342,7 +341,7 @@ func (ec *executionContext) unmarshalInputMetricsRangeInput(ctx context.Context,
 
 var metricLabelImplementors = []string{"MetricLabel"}
 
-func (ec *executionContext) _MetricLabel(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricLabel) graphql.Marshaler {
+func _MetricLabel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *metrics.MetricLabel) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, metricLabelImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -352,12 +351,12 @@ func (ec *executionContext) _MetricLabel(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MetricLabel")
 		case "name":
-			out.Values[i] = ec._MetricLabel_name(ctx, field, obj)
+			out.Values[i] = _MetricLabel_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._MetricLabel_value(ctx, field, obj)
+			out.Values[i] = _MetricLabel_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -386,7 +385,7 @@ func (ec *executionContext) _MetricLabel(ctx context.Context, sel ast.SelectionS
 
 var metricSeriesImplementors = []string{"MetricSeries"}
 
-func (ec *executionContext) _MetricSeries(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricSeries) graphql.Marshaler {
+func _MetricSeries(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *metrics.MetricSeries) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, metricSeriesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -396,12 +395,12 @@ func (ec *executionContext) _MetricSeries(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MetricSeries")
 		case "labels":
-			out.Values[i] = ec._MetricSeries_labels(ctx, field, obj)
+			out.Values[i] = _MetricSeries_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "values":
-			out.Values[i] = ec._MetricSeries_values(ctx, field, obj)
+			out.Values[i] = _MetricSeries_values(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -430,7 +429,7 @@ func (ec *executionContext) _MetricSeries(ctx context.Context, sel ast.Selection
 
 var metricValueImplementors = []string{"MetricValue"}
 
-func (ec *executionContext) _MetricValue(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricValue) graphql.Marshaler {
+func _MetricValue(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *metrics.MetricValue) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, metricValueImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -440,12 +439,12 @@ func (ec *executionContext) _MetricValue(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MetricValue")
 		case "timestamp":
-			out.Values[i] = ec._MetricValue_timestamp(ctx, field, obj)
+			out.Values[i] = _MetricValue_timestamp(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._MetricValue_value(ctx, field, obj)
+			out.Values[i] = _MetricValue_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -474,7 +473,7 @@ func (ec *executionContext) _MetricValue(ctx context.Context, sel ast.SelectionS
 
 var metricsQueryResultImplementors = []string{"MetricsQueryResult"}
 
-func (ec *executionContext) _MetricsQueryResult(ctx context.Context, sel ast.SelectionSet, obj *metrics.MetricsQueryResult) graphql.Marshaler {
+func _MetricsQueryResult(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *metrics.MetricsQueryResult) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, metricsQueryResultImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -484,12 +483,12 @@ func (ec *executionContext) _MetricsQueryResult(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MetricsQueryResult")
 		case "series":
-			out.Values[i] = ec._MetricsQueryResult_series(ctx, field, obj)
+			out.Values[i] = _MetricsQueryResult_series(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "warnings":
-			out.Values[i] = ec._MetricsQueryResult_warnings(ctx, field, obj)
+			out.Values[i] = _MetricsQueryResult_warnings(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -520,11 +519,11 @@ func (ec *executionContext) _MetricsQueryResult(ctx context.Context, sel ast.Sel
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*metrics.MetricLabel) graphql.Marshaler {
+func marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabelᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*metrics.MetricLabel) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNMetricLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabel(ctx, sel, v[i])
+		return marshalNMetricLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabel(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -536,21 +535,21 @@ func (ec *executionContext) marshalNMetricLabel2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNMetricLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabel(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricLabel) graphql.Marshaler {
+func marshalNMetricLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricLabel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *metrics.MetricLabel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._MetricLabel(ctx, sel, v)
+	return _MetricLabel(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*metrics.MetricSeries) graphql.Marshaler {
+func marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeriesᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*metrics.MetricSeries) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNMetricSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeries(ctx, sel, v[i])
+		return marshalNMetricSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeries(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -562,21 +561,21 @@ func (ec *executionContext) marshalNMetricSeries2ᚕᚖgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
-func (ec *executionContext) marshalNMetricSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeries(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricSeries) graphql.Marshaler {
+func marshalNMetricSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricSeries(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *metrics.MetricSeries) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._MetricSeries(ctx, sel, v)
+	return _MetricSeries(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*metrics.MetricValue) graphql.Marshaler {
+func marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValueᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*metrics.MetricValue) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNMetricValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValue(ctx, sel, v[i])
+		return marshalNMetricValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValue(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -588,40 +587,40 @@ func (ec *executionContext) marshalNMetricValue2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNMetricValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValue(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricValue) graphql.Marshaler {
+func marshalNMetricValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricValue(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *metrics.MetricValue) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._MetricValue(ctx, sel, v)
+	return _MetricValue(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput(ctx context.Context, v any) (metrics.MetricsQueryInput, error) {
-	res, err := ec.unmarshalInputMetricsQueryInput(ctx, v)
+func unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput(ctx context.Context, ec *executionContext, v any) (metrics.MetricsQueryInput, error) {
+	res, err := unmarshalInputMetricsQueryInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNMetricsQueryResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx context.Context, sel ast.SelectionSet, v metrics.MetricsQueryResult) graphql.Marshaler {
-	return ec._MetricsQueryResult(ctx, sel, &v)
+func marshalNMetricsQueryResult2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v metrics.MetricsQueryResult) graphql.Marshaler {
+	return _MetricsQueryResult(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx context.Context, sel ast.SelectionSet, v *metrics.MetricsQueryResult) graphql.Marshaler {
+func marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *metrics.MetricsQueryResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._MetricsQueryResult(ctx, sel, v)
+	return _MetricsQueryResult(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOMetricsRangeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsRangeInput(ctx context.Context, v any) (*metrics.MetricsRangeInput, error) {
+func unmarshalOMetricsRangeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsRangeInput(ctx context.Context, ec *executionContext, v any) (*metrics.MetricsRangeInput, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputMetricsRangeInput(ctx, v)
+	res, err := unmarshalInputMetricsRangeInput(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

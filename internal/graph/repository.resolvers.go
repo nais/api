@@ -60,6 +60,6 @@ func (r *teamResolver) Repositories(ctx context.Context, obj *team.Team, first *
 	return repository.ListForTeam(ctx, obj.Slug, page, orderBy, filter)
 }
 
-func (r *Resolver) Repository() gengql.RepositoryResolver { return &repositoryResolver{r} }
+func (r *Resolver) Repository() gengql.RepositoryResolver { return &repositoryResolver{r.resolver} }
 
-type repositoryResolver struct{ *Resolver }
+type repositoryResolver struct{ *resolver }

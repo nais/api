@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/grafana/loki/v3/pkg/loghttp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -133,13 +133,13 @@ func streamLogLines(ctx context.Context, conn *websocket.Conn, logLines chan *Lo
 			return nil
 		}
 
-		var resp loghttp.TailResponse
+		var resp tailResponse
 		if err := json.NewDecoder(bytes.NewReader(message)).Decode(&resp); err != nil {
 			return fmt.Errorf("parse log message from loki: %w", err)
 		}
 
 		for _, stream := range resp.Streams {
-			labels := make([]*LogLineLabel, 0)
+			labels := make([]*LogLineLabel, 0, len(stream.Labels))
 			for k, v := range stream.Labels {
 				labels = append(labels, &LogLineLabel{
 					Key:   k,
@@ -157,5 +157,45 @@ func streamLogLines(ctx context.Context, conn *websocket.Conn, logLines chan *Lo
 		}
 	}
 
+	return nil
+}
+
+type tailResponse struct {
+	Streams []struct {
+		Labels  map[string]string `json:"stream"`
+		Entries []tailEntry       `json:"values"`
+	} `json:"streams"`
+}
+
+type tailEntry struct {
+	Timestamp time.Time
+	Line      string
+}
+
+func (e *tailEntry) UnmarshalJSON(data []byte) error {
+	var raw []json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	if len(raw) < 2 {
+		return fmt.Errorf("expected at least 2 elements in log entry, got %d", len(raw))
+	}
+
+	var tsStr string
+	if err := json.Unmarshal(raw[0], &tsStr); err != nil {
+		return err
+	}
+	ns, err := strconv.ParseInt(tsStr, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	var line string
+	if err := json.Unmarshal(raw[1], &line); err != nil {
+		return err
+	}
+
+	e.Timestamp = time.Unix(0, ns)
+	e.Line = line
 	return nil
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/sirupsen/logrus"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -20,10 +21,14 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
-type Resolver struct {
+type resolver struct {
 	tenantName  string
 	pubsubTopic PubsubTopic
 	log         logrus.FieldLogger
+}
+
+type Resolver struct {
+	*resolver
 }
 
 type ResolverOption func(*Resolver)
@@ -35,20 +40,22 @@ func WithLogger(log logrus.FieldLogger) ResolverOption {
 }
 
 func NewResolver(tenantName string, topic PubsubTopic, opts ...ResolverOption) *Resolver {
-	resolver := &Resolver{
-		tenantName:  tenantName,
-		pubsubTopic: topic,
+	r := &Resolver{
+		resolver: &resolver{
+			tenantName:  tenantName,
+			pubsubTopic: topic,
+		},
 	}
 
 	for _, opt := range opts {
-		opt(resolver)
+		opt(r)
 	}
 
-	if resolver.log == nil {
-		resolver.log = logrus.StandardLogger()
+	if r.log == nil {
+		r.log = logrus.StandardLogger()
 	}
 
-	return resolver
+	return r
 }
 
 func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, error) {
@@ -62,7 +69,7 @@ func NewHandler(config gengql.Config, log logrus.FieldLogger) (*handler.Server, 
 		return nil, fmt.Errorf("create deprecation tracer: %w", err)
 	}
 
-	schema := gengql.NewExecutableSchema(config)
+	schema := newExecutableSchemaWithComplexity(gengql.NewExecutableSchema(config))
 	graphHandler := handler.New(schema)
 	graphHandler.Use(metricsMiddleware)
 	graphHandler.AddTransport(SSE{KeepAlivePingInterval: 10 * time.Second})
@@ -154,4 +161,57 @@ func (t deprecationTracer) Validate(schema graphql.ExecutableSchema) error {
 		}
 	}
 	return nil
+}
+
+type executableSchemaWithComplexity struct {
+	graphql.ExecutableSchema
+	paginatedFields map[string]struct{}
+}
+
+func newExecutableSchemaWithComplexity(schema graphql.ExecutableSchema) graphql.ExecutableSchema {
+	paginated := make(map[string]struct{})
+	for _, typeDef := range schema.Schema().Types {
+		if typeDef.BuiltIn || typeDef.Kind != ast.Object {
+			continue
+		}
+		for _, field := range typeDef.Fields {
+			if field.Arguments.ForName("first") != nil && field.Arguments.ForName("last") != nil {
+				paginated[typeDef.Name+"."+field.Name] = struct{}{}
+			}
+		}
+	}
+	return &executableSchemaWithComplexity{
+		ExecutableSchema: schema,
+		paginatedFields:  paginated,
+	}
+}
+
+func (e *executableSchemaWithComplexity) Complexity(ctx context.Context, typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
+	if _, ok := e.paginatedFields[typeName+"."+field]; !ok {
+		return 0, false
+	}
+
+	var first, last *int
+	if v, ok := rawArgs["first"]; ok && v != nil {
+		val, err := graphql.UnmarshalInt(v)
+		if err != nil {
+			return 0, false
+		}
+		first = &val
+	}
+	if v, ok := rawArgs["last"]; ok && v != nil {
+		val, err := graphql.UnmarshalInt(v)
+		if err != nil {
+			return 0, false
+		}
+		last = &val
+	}
+
+	if first != nil {
+		return *first * childComplexity, true
+	}
+	if last != nil {
+		return *last * childComplexity, true
+	}
+	return pagination.DefaultPageSize * childComplexity, true
 }

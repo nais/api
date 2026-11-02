@@ -5,13 +5,12 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -28,164 +27,164 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _BooleanFacetItem_value(ctx context.Context, field graphql.CollectedField, obj *model.BooleanFacetItem) (ret graphql.Marshaler) {
+func _BooleanFacetItem_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.BooleanFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BooleanFacetItem_value(ctx, field)
+			return fieldContext_BooleanFacetItem_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BooleanFacetItem_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BooleanFacetItem_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("BooleanFacetItem", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _BooleanFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *model.BooleanFacetItem) (ret graphql.Marshaler) {
+func _BooleanFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.BooleanFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BooleanFacetItem_count(ctx, field)
+			return fieldContext_BooleanFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BooleanFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BooleanFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("BooleanFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _LabelFacetItem_key(ctx context.Context, field graphql.CollectedField, obj *model.LabelFacetItem) (ret graphql.Marshaler) {
+func _LabelFacetItem_key(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.LabelFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LabelFacetItem_key(ctx, field)
+			return fieldContext_LabelFacetItem_key(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LabelFacetItem_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LabelFacetItem_key(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LabelFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _LabelFacetItem_value(ctx context.Context, field graphql.CollectedField, obj *model.LabelFacetItem) (ret graphql.Marshaler) {
+func _LabelFacetItem_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.LabelFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LabelFacetItem_value(ctx, field)
+			return fieldContext_LabelFacetItem_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LabelFacetItem_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LabelFacetItem_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LabelFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _LabelFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *model.LabelFacetItem) (ret graphql.Marshaler) {
+func _LabelFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.LabelFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LabelFacetItem_count(ctx, field)
+			return fieldContext_LabelFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LabelFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LabelFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LabelFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _StringFacetItem_value(ctx context.Context, field graphql.CollectedField, obj *model.StringFacetItem) (ret graphql.Marshaler) {
+func _StringFacetItem_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.StringFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_StringFacetItem_value(ctx, field)
+			return fieldContext_StringFacetItem_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_StringFacetItem_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_StringFacetItem_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("StringFacetItem", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _StringFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *model.StringFacetItem) (ret graphql.Marshaler) {
+func _StringFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.StringFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_StringFacetItem_count(ctx, field)
+			return fieldContext_StringFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_StringFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_StringFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("StringFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
@@ -203,7 +202,7 @@ func (ec *executionContext) fieldContext_StringFacetItem_count(_ context.Context
 
 var booleanFacetItemImplementors = []string{"BooleanFacetItem"}
 
-func (ec *executionContext) _BooleanFacetItem(ctx context.Context, sel ast.SelectionSet, obj *model.BooleanFacetItem) graphql.Marshaler {
+func _BooleanFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *model.BooleanFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, booleanFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -213,12 +212,12 @@ func (ec *executionContext) _BooleanFacetItem(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("BooleanFacetItem")
 		case "value":
-			out.Values[i] = ec._BooleanFacetItem_value(ctx, field, obj)
+			out.Values[i] = _BooleanFacetItem_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._BooleanFacetItem_count(ctx, field, obj)
+			out.Values[i] = _BooleanFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -247,7 +246,7 @@ func (ec *executionContext) _BooleanFacetItem(ctx context.Context, sel ast.Selec
 
 var labelFacetItemImplementors = []string{"LabelFacetItem"}
 
-func (ec *executionContext) _LabelFacetItem(ctx context.Context, sel ast.SelectionSet, obj *model.LabelFacetItem) graphql.Marshaler {
+func _LabelFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *model.LabelFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, labelFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -257,17 +256,17 @@ func (ec *executionContext) _LabelFacetItem(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LabelFacetItem")
 		case "key":
-			out.Values[i] = ec._LabelFacetItem_key(ctx, field, obj)
+			out.Values[i] = _LabelFacetItem_key(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._LabelFacetItem_value(ctx, field, obj)
+			out.Values[i] = _LabelFacetItem_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._LabelFacetItem_count(ctx, field, obj)
+			out.Values[i] = _LabelFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -296,7 +295,7 @@ func (ec *executionContext) _LabelFacetItem(ctx context.Context, sel ast.Selecti
 
 var stringFacetItemImplementors = []string{"StringFacetItem"}
 
-func (ec *executionContext) _StringFacetItem(ctx context.Context, sel ast.SelectionSet, obj *model.StringFacetItem) graphql.Marshaler {
+func _StringFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *model.StringFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, stringFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -306,12 +305,12 @@ func (ec *executionContext) _StringFacetItem(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("StringFacetItem")
 		case "value":
-			out.Values[i] = ec._StringFacetItem_value(ctx, field, obj)
+			out.Values[i] = _StringFacetItem_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._StringFacetItem_count(ctx, field, obj)
+			out.Values[i] = _StringFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -342,15 +341,15 @@ func (ec *executionContext) _StringFacetItem(ctx context.Context, sel ast.Select
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBooleanFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx context.Context, sel ast.SelectionSet, v model.BooleanFacetItem) graphql.Marshaler {
-	return ec._BooleanFacetItem(ctx, sel, &v)
+func marshalNBooleanFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v model.BooleanFacetItem) graphql.Marshaler {
+	return _BooleanFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
+func marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNBooleanFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx, sel, v[i])
+		return marshalNBooleanFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -362,15 +361,15 @@ func (ec *executionContext) marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋap
 	return ret
 }
 
-func (ec *executionContext) marshalNLabelFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx context.Context, sel ast.SelectionSet, v model.LabelFacetItem) graphql.Marshaler {
-	return ec._LabelFacetItem(ctx, sel, &v)
+func marshalNLabelFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v model.LabelFacetItem) graphql.Marshaler {
+	return _LabelFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
+func marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNLabelFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx, sel, v[i])
+		return marshalNLabelFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -382,15 +381,15 @@ func (ec *executionContext) marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx context.Context, sel ast.SelectionSet, v model.StringFacetItem) graphql.Marshaler {
-	return ec._StringFacetItem(ctx, sel, &v)
+func marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v model.StringFacetItem) graphql.Marshaler {
+	return _StringFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
+func marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx, sel, v[i])
+		return marshalNStringFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {

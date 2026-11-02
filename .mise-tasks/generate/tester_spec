@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 #MISE description="Generate Tester lua spec"
+#MISE wait_for=["generate:sql", "generate:graphql", "generate:proto", "generate:mocks", "fmt:go"]
+#MISE depends_post=["fmt:lua"]
 
 set -e
 
 go run --tags integration_test ./cmd/tester_spec
-
-mise run fmt:lua

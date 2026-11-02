@@ -5,14 +5,13 @@ package gengql
 import (
 	"context"
 	"errors"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/loki"
+	"github.com/vektah/gqlparser/v2/ast"
 	"math"
 	"strconv"
 	"sync/atomic"
 	"time"
-
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/loki"
-	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -29,127 +28,127 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _LogLine_time(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
+func _LogLine_time(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogLine_time(ctx, field)
+			return fieldContext_LogLine_time(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Time, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogLine_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogLine_time(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogLine", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _LogLine_message(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
+func _LogLine_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogLine_message(ctx, field)
+			return fieldContext_LogLine_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogLine_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogLine_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogLine", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _LogLine_labels(ctx context.Context, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
+func _LogLine_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *loki.LogLine) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogLine_labels(ctx, field)
+			return fieldContext_LogLine_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*loki.LogLineLabel) graphql.Marshaler {
-			return ec.marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx, selections, v)
+			return marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogLine_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogLine_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LogLine",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LogLineLabel(ctx, field)
+			return childFields_LogLineLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _LogLineLabel_key(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
+func _LogLineLabel_key(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogLineLabel_key(ctx, field)
+			return fieldContext_LogLineLabel_key(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogLineLabel_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogLineLabel_key(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogLineLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _LogLineLabel_value(ctx context.Context, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
+func _LogLineLabel_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *loki.LogLineLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_LogLineLabel_value(ctx, field)
+			return fieldContext_LogLineLabel_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_LogLineLabel_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_LogLineLabel_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("LogLineLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -157,7 +156,7 @@ func (ec *executionContext) fieldContext_LogLineLabel_value(_ context.Context, f
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Context, obj any) (loki.LogSubscriptionFilter, error) {
+func unmarshalInputLogSubscriptionFilter(ctx context.Context, ec *executionContext, obj any) (loki.LogSubscriptionFilter, error) {
 	var it loki.LogSubscriptionFilter
 	if obj == nil {
 		return it, nil
@@ -181,21 +180,21 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 		switch k {
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "query":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Query = data
 		case "initialBatch":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("initialBatch"))
-			data, err := ec.unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx, v)
+			data, err := unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -205,7 +204,7 @@ func (ec *executionContext) unmarshalInputLogSubscriptionFilter(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx context.Context, obj any) (loki.LogSubscriptionInitialBatch, error) {
+func unmarshalInputLogSubscriptionInitialBatch(ctx context.Context, ec *executionContext, obj any) (loki.LogSubscriptionInitialBatch, error) {
 	var it loki.LogSubscriptionInitialBatch
 	if obj == nil {
 		return it, nil
@@ -229,14 +228,14 @@ func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx contex
 		switch k {
 		case "start":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := unmarshalOTime2ᚖtimeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Start = data
 		case "limit":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-			data, err := ec.unmarshalOInt2int(ctx, v)
+			data, err := unmarshalOInt2int(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -256,7 +255,7 @@ func (ec *executionContext) unmarshalInputLogSubscriptionInitialBatch(ctx contex
 
 var logLineImplementors = []string{"LogLine"}
 
-func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, obj *loki.LogLine) graphql.Marshaler {
+func _LogLine(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *loki.LogLine) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logLineImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -266,17 +265,17 @@ func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LogLine")
 		case "time":
-			out.Values[i] = ec._LogLine_time(ctx, field, obj)
+			out.Values[i] = _LogLine_time(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._LogLine_message(ctx, field, obj)
+			out.Values[i] = _LogLine_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "labels":
-			out.Values[i] = ec._LogLine_labels(ctx, field, obj)
+			out.Values[i] = _LogLine_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -305,7 +304,7 @@ func (ec *executionContext) _LogLine(ctx context.Context, sel ast.SelectionSet, 
 
 var logLineLabelImplementors = []string{"LogLineLabel"}
 
-func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.SelectionSet, obj *loki.LogLineLabel) graphql.Marshaler {
+func _LogLineLabel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *loki.LogLineLabel) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, logLineLabelImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -315,12 +314,12 @@ func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("LogLineLabel")
 		case "key":
-			out.Values[i] = ec._LogLineLabel_key(ctx, field, obj)
+			out.Values[i] = _LogLineLabel_key(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._LogLineLabel_value(ctx, field, obj)
+			out.Values[i] = _LogLineLabel_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -351,25 +350,25 @@ func (ec *executionContext) _LogLineLabel(ctx context.Context, sel ast.Selection
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v loki.LogLine) graphql.Marshaler {
-	return ec._LogLine(ctx, sel, &v)
+func marshalNLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v loki.LogLine) graphql.Marshaler {
+	return _LogLine(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, sel ast.SelectionSet, v *loki.LogLine) graphql.Marshaler {
+func marshalNLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLine(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *loki.LogLine) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._LogLine(ctx, sel, v)
+	return _LogLine(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*loki.LogLineLabel) graphql.Marshaler {
+func marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabelᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*loki.LogLineLabel) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx, sel, v[i])
+		return marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -381,23 +380,23 @@ func (ec *executionContext) marshalNLogLineLabel2ᚕᚖgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
-func (ec *executionContext) marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx context.Context, sel ast.SelectionSet, v *loki.LogLineLabel) graphql.Marshaler {
+func marshalNLogLineLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogLineLabel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *loki.LogLineLabel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._LogLineLabel(ctx, sel, v)
+	return _LogLineLabel(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionFilter(ctx context.Context, v any) (loki.LogSubscriptionFilter, error) {
-	res, err := ec.unmarshalInputLogSubscriptionFilter(ctx, v)
+func unmarshalNLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionFilter(ctx context.Context, ec *executionContext, v any) (loki.LogSubscriptionFilter, error) {
+	res, err := unmarshalInputLogSubscriptionFilter(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx context.Context, v any) (loki.LogSubscriptionInitialBatch, error) {
-	res, err := ec.unmarshalInputLogSubscriptionInitialBatch(ctx, v)
+func unmarshalOLogSubscriptionInitialBatch2githubᚗcomᚋnaisᚋapiᚋinternalᚋlokiᚐLogSubscriptionInitialBatch(ctx context.Context, ec *executionContext, v any) (loki.LogSubscriptionInitialBatch, error) {
+	res, err := unmarshalInputLogSubscriptionInitialBatch(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

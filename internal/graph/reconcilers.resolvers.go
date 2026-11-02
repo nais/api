@@ -100,13 +100,13 @@ func (r *reconcilerErrorResolver) Team(ctx context.Context, obj *reconciler.Reco
 	return team.Get(ctx, obj.TeamSlug)
 }
 
-func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r} }
+func (r *Resolver) Reconciler() gengql.ReconcilerResolver { return &reconcilerResolver{r.resolver} }
 
 func (r *Resolver) ReconcilerError() gengql.ReconcilerErrorResolver {
-	return &reconcilerErrorResolver{r}
+	return &reconcilerErrorResolver{r.resolver}
 }
 
 type (
-	reconcilerResolver      struct{ *Resolver }
-	reconcilerErrorResolver struct{ *Resolver }
+	reconcilerResolver      struct{ *resolver }
+	reconcilerErrorResolver struct{ *resolver }
 )

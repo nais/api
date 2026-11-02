@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #MISE description="Run vulncheck"
+#MISE wait_for=["generate", "fmt:go"]
 
 set -e
 

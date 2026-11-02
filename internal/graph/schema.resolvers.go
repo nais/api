@@ -12,14 +12,16 @@ func (r *queryResolver) Node(ctx context.Context, id ident.Ident) (model.Node, e
 	return ident.GetByIdent(ctx, id)
 }
 
-func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r} }
+func (r *Resolver) Mutation() gengql.MutationResolver { return &mutationResolver{r.resolver} }
 
-func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r} }
+func (r *Resolver) Query() gengql.QueryResolver { return &queryResolver{r.resolver} }
 
-func (r *Resolver) Subscription() gengql.SubscriptionResolver { return &subscriptionResolver{r} }
+func (r *Resolver) Subscription() gengql.SubscriptionResolver {
+	return &subscriptionResolver{r.resolver}
+}
 
 type (
-	mutationResolver     struct{ *Resolver }
-	queryResolver        struct{ *Resolver }
-	subscriptionResolver struct{ *Resolver }
+	mutationResolver     struct{ *resolver }
+	queryResolver        struct{ *resolver }
+	subscriptionResolver struct{ *resolver }
 )

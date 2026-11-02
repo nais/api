@@ -1,6 +1,3 @@
 #!/usr/bin/env sh
 #MISE description="Build all binaries"
-
-set -e
-
-mise run build:api ::: build:setup_local
+#MISE depends=["build:api", "build:setup_local"]

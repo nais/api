@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #MISE description="Run deadcode"
+#MISE wait_for=["generate", "fmt:go"]
 
 set -e
 

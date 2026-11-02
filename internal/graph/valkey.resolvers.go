@@ -128,16 +128,18 @@ func (r *valkeyConnectionResolver) Facets(ctx context.Context, obj *pagination.F
 	}, nil
 }
 
-func (r *Resolver) Valkey() gengql.ValkeyResolver { return &valkeyResolver{r} }
+func (r *Resolver) Valkey() gengql.ValkeyResolver { return &valkeyResolver{r.resolver} }
 
-func (r *Resolver) ValkeyAccess() gengql.ValkeyAccessResolver { return &valkeyAccessResolver{r} }
+func (r *Resolver) ValkeyAccess() gengql.ValkeyAccessResolver {
+	return &valkeyAccessResolver{r.resolver}
+}
 
 func (r *Resolver) ValkeyConnection() gengql.ValkeyConnectionResolver {
-	return &valkeyConnectionResolver{r}
+	return &valkeyConnectionResolver{r.resolver}
 }
 
 type (
-	valkeyResolver           struct{ *Resolver }
-	valkeyAccessResolver     struct{ *Resolver }
-	valkeyConnectionResolver struct{ *Resolver }
+	valkeyResolver           struct{ *resolver }
+	valkeyAccessResolver     struct{ *resolver }
+	valkeyConnectionResolver struct{ *resolver }
 )

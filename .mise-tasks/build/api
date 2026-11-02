@@ -3,4 +3,4 @@
 
 set -e
 
-go build -o bin/api ./cmd/api
+go build -ldflags="-s -w" -o bin/api ./cmd/api

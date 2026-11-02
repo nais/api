@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -17,6 +12,10 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/tunnel"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -33,862 +32,862 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CreateTunnelPayload_tunnel(ctx context.Context, field graphql.CollectedField, obj *tunnel.CreateTunnelPayload) (ret graphql.Marshaler) {
+func _CreateTunnelPayload_tunnel(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.CreateTunnelPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CreateTunnelPayload_tunnel(ctx, field)
+			return fieldContext_CreateTunnelPayload_tunnel(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Tunnel, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
-			return ec.marshalNTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx, selections, v)
+			return marshalNTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_CreateTunnelPayload_tunnel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CreateTunnelPayload_tunnel(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateTunnelPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Tunnel(ctx, field)
+			return childFields_Tunnel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteTunnelPayload_success(ctx context.Context, field graphql.CollectedField, obj *tunnel.DeleteTunnelPayload) (ret graphql.Marshaler) {
+func _DeleteTunnelPayload_success(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.DeleteTunnelPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteTunnelPayload_success(ctx, field)
+			return fieldContext_DeleteTunnelPayload_success(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Success, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteTunnelPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteTunnelPayload_success(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeleteTunnelPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_id(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_id(ctx, field)
+			return fieldContext_Tunnel_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_name(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_name(ctx, field)
+			return fieldContext_Tunnel_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_phase(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_phase(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_phase(ctx, field)
+			return fieldContext_Tunnel_phase(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Phase, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelPhase) graphql.Marshaler {
-			return ec.marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx, selections, v)
+			return marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_phase(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_phase(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type TunnelPhase does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_gatewayPublicKey(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_gatewayPublicKey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_gatewayPublicKey(ctx, field)
+			return fieldContext_Tunnel_gatewayPublicKey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GatewayPublicKey, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_gatewayPublicKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_gatewayPublicKey(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_forwarderEndpoint(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_forwarderEndpoint(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_forwarderEndpoint(ctx, field)
+			return fieldContext_Tunnel_forwarderEndpoint(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ForwarderEndpoint, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_forwarderEndpoint(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_forwarderEndpoint(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_target(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_target(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_target(ctx, field)
+			return fieldContext_Tunnel_target(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Target, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelTarget) graphql.Marshaler {
-			return ec.marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx, selections, v)
+			return marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_target(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Tunnel",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TunnelTarget(ctx, field)
+			return childFields_TunnelTarget(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Tunnel_message(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_message(ctx, field)
+			return fieldContext_Tunnel_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Tunnel_createdAt(ctx context.Context, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
+func _Tunnel_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.Tunnel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Tunnel_createdAt(ctx, field)
+			return fieldContext_Tunnel_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Tunnel_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Tunnel_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Tunnel", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_id(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TunnelCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_message(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntry_data(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelCreatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTunnelCreatedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelCreatedActivityLogEntryData(ctx, selections, v)
+			return marshalNTunnelCreatedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelCreatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TunnelCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TunnelCreatedActivityLogEntryData(ctx, field)
+			return childFields_TunnelCreatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntryData_tunnelName(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntryData_tunnelName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntryData_tunnelName(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntryData_tunnelName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TunnelName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntryData_tunnelName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntryData_tunnelName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntryData_targetHost(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TunnelCreatedActivityLogEntryData_targetHost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelCreatedActivityLogEntryData_targetHost(ctx, field)
+			return fieldContext_TunnelCreatedActivityLogEntryData_targetHost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TargetHost, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelCreatedActivityLogEntryData_targetHost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelCreatedActivityLogEntryData_targetHost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_id(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TunnelDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_message(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntry_data(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v tunnel.TunnelDeletedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTunnelDeletedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelDeletedActivityLogEntryData(ctx, selections, v)
+			return marshalNTunnelDeletedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelDeletedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TunnelDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TunnelDeletedActivityLogEntryData(ctx, field)
+			return childFields_TunnelDeletedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntryData_tunnelName(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TunnelDeletedActivityLogEntryData_tunnelName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelDeletedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelDeletedActivityLogEntryData_tunnelName(ctx, field)
+			return fieldContext_TunnelDeletedActivityLogEntryData_tunnelName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TunnelName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelDeletedActivityLogEntryData_tunnelName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelDeletedActivityLogEntryData_tunnelName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelDeletedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelTarget_host(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelTarget) (ret graphql.Marshaler) {
+func _TunnelTarget_host(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelTarget) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelTarget_host(ctx, field)
+			return fieldContext_TunnelTarget_host(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Host, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelTarget_host(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelTarget_host(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelTarget", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TunnelTarget_port(ctx context.Context, field graphql.CollectedField, obj *tunnel.TunnelTarget) (ret graphql.Marshaler) {
+func _TunnelTarget_port(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *tunnel.TunnelTarget) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TunnelTarget_port(ctx, field)
+			return fieldContext_TunnelTarget_port(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Port, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TunnelTarget_port(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TunnelTarget_port(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TunnelTarget", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
@@ -896,7 +895,7 @@ func (ec *executionContext) fieldContext_TunnelTarget_port(_ context.Context, fi
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateTunnelInput(ctx context.Context, obj any) (tunnel.CreateTunnelInput, error) {
+func unmarshalInputCreateTunnelInput(ctx context.Context, ec *executionContext, obj any) (tunnel.CreateTunnelInput, error) {
 	var it tunnel.CreateTunnelInput
 	if obj == nil {
 		return it, nil
@@ -916,35 +915,35 @@ func (ec *executionContext) unmarshalInputCreateTunnelInput(ctx context.Context,
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "targetHost":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetHost"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TargetHost = data
 		case "targetPort":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetPort"))
-			data, err := ec.unmarshalNInt2int32(ctx, v)
+			data, err := unmarshalNInt2int32(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TargetPort = data
 		case "clientPublicKey":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientPublicKey"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -954,7 +953,7 @@ func (ec *executionContext) unmarshalInputCreateTunnelInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteTunnelInput(ctx context.Context, obj any) (tunnel.DeleteTunnelInput, error) {
+func unmarshalInputDeleteTunnelInput(ctx context.Context, ec *executionContext, obj any) (tunnel.DeleteTunnelInput, error) {
 	var it tunnel.DeleteTunnelInput
 	if obj == nil {
 		return it, nil
@@ -974,21 +973,21 @@ func (ec *executionContext) unmarshalInputDeleteTunnelInput(ctx context.Context,
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "tunnelName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tunnelName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1008,7 +1007,7 @@ func (ec *executionContext) unmarshalInputDeleteTunnelInput(ctx context.Context,
 
 var createTunnelPayloadImplementors = []string{"CreateTunnelPayload"}
 
-func (ec *executionContext) _CreateTunnelPayload(ctx context.Context, sel ast.SelectionSet, obj *tunnel.CreateTunnelPayload) graphql.Marshaler {
+func _CreateTunnelPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.CreateTunnelPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createTunnelPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1018,7 +1017,7 @@ func (ec *executionContext) _CreateTunnelPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CreateTunnelPayload")
 		case "tunnel":
-			out.Values[i] = ec._CreateTunnelPayload_tunnel(ctx, field, obj)
+			out.Values[i] = _CreateTunnelPayload_tunnel(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1047,7 +1046,7 @@ func (ec *executionContext) _CreateTunnelPayload(ctx context.Context, sel ast.Se
 
 var deleteTunnelPayloadImplementors = []string{"DeleteTunnelPayload"}
 
-func (ec *executionContext) _DeleteTunnelPayload(ctx context.Context, sel ast.SelectionSet, obj *tunnel.DeleteTunnelPayload) graphql.Marshaler {
+func _DeleteTunnelPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.DeleteTunnelPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deleteTunnelPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1057,7 +1056,7 @@ func (ec *executionContext) _DeleteTunnelPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteTunnelPayload")
 		case "success":
-			out.Values[i] = ec._DeleteTunnelPayload_success(ctx, field, obj)
+			out.Values[i] = _DeleteTunnelPayload_success(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1086,7 +1085,7 @@ func (ec *executionContext) _DeleteTunnelPayload(ctx context.Context, sel ast.Se
 
 var tunnelImplementors = []string{"Tunnel", "Node"}
 
-func (ec *executionContext) _Tunnel(ctx context.Context, sel ast.SelectionSet, obj *tunnel.Tunnel) graphql.Marshaler {
+func _Tunnel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.Tunnel) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1096,42 +1095,42 @@ func (ec *executionContext) _Tunnel(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Tunnel")
 		case "id":
-			out.Values[i] = ec._Tunnel_id(ctx, field, obj)
+			out.Values[i] = _Tunnel_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._Tunnel_name(ctx, field, obj)
+			out.Values[i] = _Tunnel_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "phase":
-			out.Values[i] = ec._Tunnel_phase(ctx, field, obj)
+			out.Values[i] = _Tunnel_phase(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gatewayPublicKey":
-			out.Values[i] = ec._Tunnel_gatewayPublicKey(ctx, field, obj)
+			out.Values[i] = _Tunnel_gatewayPublicKey(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "forwarderEndpoint":
-			out.Values[i] = ec._Tunnel_forwarderEndpoint(ctx, field, obj)
+			out.Values[i] = _Tunnel_forwarderEndpoint(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "target":
-			out.Values[i] = ec._Tunnel_target(ctx, field, obj)
+			out.Values[i] = _Tunnel_target(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._Tunnel_message(ctx, field, obj)
+			out.Values[i] = _Tunnel_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._Tunnel_createdAt(ctx, field, obj)
+			out.Values[i] = _Tunnel_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1160,7 +1159,7 @@ func (ec *executionContext) _Tunnel(ctx context.Context, sel ast.SelectionSet, o
 
 var tunnelCreatedActivityLogEntryImplementors = []string{"TunnelCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *tunnel.TunnelCreatedActivityLogEntry) graphql.Marshaler {
+func _TunnelCreatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.TunnelCreatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1170,43 +1169,43 @@ func (ec *executionContext) _TunnelCreatedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TunnelCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 		case "environmentName":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1235,7 +1234,7 @@ func (ec *executionContext) _TunnelCreatedActivityLogEntry(ctx context.Context, 
 
 var tunnelCreatedActivityLogEntryDataImplementors = []string{"TunnelCreatedActivityLogEntryData"}
 
-func (ec *executionContext) _TunnelCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *tunnel.TunnelCreatedActivityLogEntryData) graphql.Marshaler {
+func _TunnelCreatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.TunnelCreatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelCreatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1245,12 +1244,12 @@ func (ec *executionContext) _TunnelCreatedActivityLogEntryData(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TunnelCreatedActivityLogEntryData")
 		case "tunnelName":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntryData_tunnelName(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntryData_tunnelName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "targetHost":
-			out.Values[i] = ec._TunnelCreatedActivityLogEntryData_targetHost(ctx, field, obj)
+			out.Values[i] = _TunnelCreatedActivityLogEntryData_targetHost(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1279,7 +1278,7 @@ func (ec *executionContext) _TunnelCreatedActivityLogEntryData(ctx context.Conte
 
 var tunnelDeletedActivityLogEntryImplementors = []string{"TunnelDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *tunnel.TunnelDeletedActivityLogEntry) graphql.Marshaler {
+func _TunnelDeletedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.TunnelDeletedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1289,43 +1288,43 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TunnelDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 		case "environmentName":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1354,7 +1353,7 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntry(ctx context.Context, 
 
 var tunnelDeletedActivityLogEntryDataImplementors = []string{"TunnelDeletedActivityLogEntryData"}
 
-func (ec *executionContext) _TunnelDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *tunnel.TunnelDeletedActivityLogEntryData) graphql.Marshaler {
+func _TunnelDeletedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.TunnelDeletedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelDeletedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1364,7 +1363,7 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntryData(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TunnelDeletedActivityLogEntryData")
 		case "tunnelName":
-			out.Values[i] = ec._TunnelDeletedActivityLogEntryData_tunnelName(ctx, field, obj)
+			out.Values[i] = _TunnelDeletedActivityLogEntryData_tunnelName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1393,7 +1392,7 @@ func (ec *executionContext) _TunnelDeletedActivityLogEntryData(ctx context.Conte
 
 var tunnelTargetImplementors = []string{"TunnelTarget"}
 
-func (ec *executionContext) _TunnelTarget(ctx context.Context, sel ast.SelectionSet, obj *tunnel.TunnelTarget) graphql.Marshaler {
+func _TunnelTarget(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *tunnel.TunnelTarget) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tunnelTargetImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1403,12 +1402,12 @@ func (ec *executionContext) _TunnelTarget(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TunnelTarget")
 		case "host":
-			out.Values[i] = ec._TunnelTarget_host(ctx, field, obj)
+			out.Values[i] = _TunnelTarget_host(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "port":
-			out.Values[i] = ec._TunnelTarget_port(ctx, field, obj)
+			out.Values[i] = _TunnelTarget_port(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1439,81 +1438,81 @@ func (ec *executionContext) _TunnelTarget(ctx context.Context, sel ast.Selection
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCreateTunnelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelInput(ctx context.Context, v any) (tunnel.CreateTunnelInput, error) {
-	res, err := ec.unmarshalInputCreateTunnelInput(ctx, v)
+func unmarshalNCreateTunnelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelInput(ctx context.Context, ec *executionContext, v any) (tunnel.CreateTunnelInput, error) {
+	res, err := unmarshalInputCreateTunnelInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateTunnelPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelPayload(ctx context.Context, sel ast.SelectionSet, v tunnel.CreateTunnelPayload) graphql.Marshaler {
-	return ec._CreateTunnelPayload(ctx, sel, &v)
+func marshalNCreateTunnelPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v tunnel.CreateTunnelPayload) graphql.Marshaler {
+	return _CreateTunnelPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateTunnelPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelPayload(ctx context.Context, sel ast.SelectionSet, v *tunnel.CreateTunnelPayload) graphql.Marshaler {
+func marshalNCreateTunnelPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐCreateTunnelPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *tunnel.CreateTunnelPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CreateTunnelPayload(ctx, sel, v)
+	return _CreateTunnelPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeleteTunnelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelInput(ctx context.Context, v any) (tunnel.DeleteTunnelInput, error) {
-	res, err := ec.unmarshalInputDeleteTunnelInput(ctx, v)
+func unmarshalNDeleteTunnelInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelInput(ctx context.Context, ec *executionContext, v any) (tunnel.DeleteTunnelInput, error) {
+	res, err := unmarshalInputDeleteTunnelInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeleteTunnelPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelPayload(ctx context.Context, sel ast.SelectionSet, v tunnel.DeleteTunnelPayload) graphql.Marshaler {
-	return ec._DeleteTunnelPayload(ctx, sel, &v)
+func marshalNDeleteTunnelPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v tunnel.DeleteTunnelPayload) graphql.Marshaler {
+	return _DeleteTunnelPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteTunnelPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelPayload(ctx context.Context, sel ast.SelectionSet, v *tunnel.DeleteTunnelPayload) graphql.Marshaler {
+func marshalNDeleteTunnelPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐDeleteTunnelPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *tunnel.DeleteTunnelPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeleteTunnelPayload(ctx, sel, v)
+	return _DeleteTunnelPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx context.Context, sel ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
+func marshalNTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Tunnel(ctx, sel, v)
+	return _Tunnel(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTunnelCreatedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelCreatedActivityLogEntryData) graphql.Marshaler {
-	return ec._TunnelCreatedActivityLogEntryData(ctx, sel, &v)
+func marshalNTunnelCreatedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelCreatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v tunnel.TunnelCreatedActivityLogEntryData) graphql.Marshaler {
+	return _TunnelCreatedActivityLogEntryData(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTunnelDeletedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelDeletedActivityLogEntryData) graphql.Marshaler {
-	return ec._TunnelDeletedActivityLogEntryData(ctx, sel, &v)
+func marshalNTunnelDeletedActivityLogEntryData2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelDeletedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v tunnel.TunnelDeletedActivityLogEntryData) graphql.Marshaler {
+	return _TunnelDeletedActivityLogEntryData(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx context.Context, v any) (tunnel.TunnelPhase, error) {
+func unmarshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx context.Context, ec *executionContext, v any) (tunnel.TunnelPhase, error) {
 	var res tunnel.TunnelPhase
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelPhase) graphql.Marshaler {
+func marshalNTunnelPhase2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelPhase(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v tunnel.TunnelPhase) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx context.Context, sel ast.SelectionSet, v tunnel.TunnelTarget) graphql.Marshaler {
-	return ec._TunnelTarget(ctx, sel, &v)
+func marshalNTunnelTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnelTarget(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v tunnel.TunnelTarget) graphql.Marshaler {
+	return _TunnelTarget(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx context.Context, sel ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
+func marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Tunnel(ctx, sel, v)
+	return _Tunnel(ctx, ec, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

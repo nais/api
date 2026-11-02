@@ -6,11 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/graph/ident"
@@ -18,6 +13,10 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -42,58 +41,58 @@ type PrometheusAlertResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AlertConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
+func _AlertConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertConnection_pageInfo(ctx, field)
+			return fieldContext_AlertConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
+func _AlertConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertConnection_nodes(ctx, field)
+			return fieldContext_AlertConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []alerts.Alert) graphql.Marshaler {
-			return ec.marshalNAlert2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertᚄ(ctx, selections, v)
+			return marshalNAlert2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertConnection",
 		Field:      field,
@@ -106,113 +105,113 @@ func (ec *executionContext) fieldContext_AlertConnection_nodes(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
+func _AlertConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertConnection_edges(ctx, field)
+			return fieldContext_AlertConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[alerts.Alert]) graphql.Marshaler {
-			return ec.marshalNAlertEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNAlertEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AlertEdge(ctx, field)
+			return childFields_AlertEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
+func _AlertConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertConnection_facets(ctx, field)
+			return fieldContext_AlertConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.AlertConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *alerts.AlertFacets) graphql.Marshaler {
-			return ec.marshalOAlertFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertFacets(ctx, selections, v)
+			return marshalOAlertFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_AlertConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AlertFacets(ctx, field)
+			return childFields_AlertFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[alerts.Alert]) (ret graphql.Marshaler) {
+func _AlertEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[alerts.Alert]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertEdge_cursor(ctx, field)
+			return fieldContext_AlertEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("AlertEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _AlertEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[alerts.Alert]) (ret graphql.Marshaler) {
+func _AlertEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[alerts.Alert]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertEdge_node(ctx, field)
+			return fieldContext_AlertEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v alerts.Alert) graphql.Marshaler {
-			return ec.marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx, selections, v)
+			return marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertEdge",
 		Field:      field,
@@ -225,483 +224,483 @@ func (ec *executionContext) fieldContext_AlertEdge_node(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertFacets_environments(ctx context.Context, field graphql.CollectedField, obj *alerts.AlertFacets) (ret graphql.Marshaler) {
+func _AlertFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.AlertFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertFacets_environments(ctx, field)
+			return fieldContext_AlertFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertFacets_states(ctx context.Context, field graphql.CollectedField, obj *alerts.AlertFacets) (ret graphql.Marshaler) {
+func _AlertFacets_states(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.AlertFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertFacets_states(ctx, field)
+			return fieldContext_AlertFacets_states(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.States(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []alerts.AlertStateFacetItem) graphql.Marshaler {
-			return ec.marshalNAlertStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItemᚄ(ctx, selections, v)
+			return marshalNAlertStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertFacets_states(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertFacets_states(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AlertFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AlertStateFacetItem(ctx, field)
+			return childFields_AlertStateFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AlertStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *alerts.AlertStateFacetItem) (ret graphql.Marshaler) {
+func _AlertStateFacetItem_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.AlertStateFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertStateFacetItem_state(ctx, field)
+			return fieldContext_AlertStateFacetItem_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.State, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v alerts.AlertState) graphql.Marshaler {
-			return ec.marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, selections, v)
+			return marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertStateFacetItem_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertStateFacetItem_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("AlertStateFacetItem", field, false, false, errors.New("field of type AlertState does not have child fields"))
 }
 
-func (ec *executionContext) _AlertStateFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *alerts.AlertStateFacetItem) (ret graphql.Marshaler) {
+func _AlertStateFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.AlertStateFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AlertStateFacetItem_count(ctx, field)
+			return fieldContext_AlertStateFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AlertStateFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AlertStateFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("AlertStateFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlarm_action(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
+func _PrometheusAlarm_action(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlarm_action(ctx, field)
+			return fieldContext_PrometheusAlarm_action(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Action, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlarm_action(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlarm_action(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlarm", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlarm_consequence(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
+func _PrometheusAlarm_consequence(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlarm_consequence(ctx, field)
+			return fieldContext_PrometheusAlarm_consequence(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Consequence, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlarm_consequence(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlarm_consequence(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlarm", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlarm_summary(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
+func _PrometheusAlarm_summary(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlarm_summary(ctx, field)
+			return fieldContext_PrometheusAlarm_summary(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Summary, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlarm_summary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlarm_summary(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlarm", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlarm_state(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
+func _PrometheusAlarm_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlarm_state(ctx, field)
+			return fieldContext_PrometheusAlarm_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.State, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v alerts.AlertState) graphql.Marshaler {
-			return ec.marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, selections, v)
+			return marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlarm_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlarm_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlarm", field, false, false, errors.New("field of type AlertState does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlarm_value(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
+func _PrometheusAlarm_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlarm_value(ctx, field)
+			return fieldContext_PrometheusAlarm_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlarm_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlarm_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlarm", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlarm_since(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
+func _PrometheusAlarm_since(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlarm) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlarm_since(ctx, field)
+			return fieldContext_PrometheusAlarm_since(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Since, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlarm_since(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlarm_since(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlarm", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_id(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_id(ctx, field)
+			return fieldContext_PrometheusAlert_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlert", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_name(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_name(ctx, field)
+			return fieldContext_PrometheusAlert_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlert", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_team(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_team(ctx, field)
+			return fieldContext_PrometheusAlert_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.PrometheusAlert().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PrometheusAlert",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PrometheusAlert_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_teamEnvironment(ctx, field)
+			return fieldContext_PrometheusAlert_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.PrometheusAlert().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PrometheusAlert",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PrometheusAlert_state(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_state(ctx, field)
+			return fieldContext_PrometheusAlert_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.State, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v alerts.AlertState) graphql.Marshaler {
-			return ec.marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, selections, v)
+			return marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlert", field, false, false, errors.New("field of type AlertState does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_query(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_query(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_query(ctx, field)
+			return fieldContext_PrometheusAlert_query(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Query, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_query(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_query(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlert", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_duration(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_duration(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_duration(ctx, field)
+			return fieldContext_PrometheusAlert_duration(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Duration, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_duration(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlert", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_ruleGroup(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_ruleGroup(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_ruleGroup(ctx, field)
+			return fieldContext_PrometheusAlert_ruleGroup(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RuleGroup, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_ruleGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_ruleGroup(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PrometheusAlert", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _PrometheusAlert_alarms(ctx context.Context, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
+func _PrometheusAlert_alarms(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *alerts.PrometheusAlert) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_PrometheusAlert_alarms(ctx, field)
+			return fieldContext_PrometheusAlert_alarms(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Alarms, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*alerts.PrometheusAlarm) graphql.Marshaler {
-			return ec.marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarmᚄ(ctx, selections, v)
+			return marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarmᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_PrometheusAlert_alarms(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_PrometheusAlert_alarms(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PrometheusAlert",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PrometheusAlarm(ctx, field)
+			return childFields_PrometheusAlarm(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -711,7 +710,7 @@ func (ec *executionContext) fieldContext_PrometheusAlert_alarms(_ context.Contex
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAlertOrder(ctx context.Context, obj any) (alerts.AlertOrder, error) {
+func unmarshalInputAlertOrder(ctx context.Context, ec *executionContext, obj any) (alerts.AlertOrder, error) {
 	var it alerts.AlertOrder
 	if obj == nil {
 		return it, nil
@@ -731,14 +730,14 @@ func (ec *executionContext) unmarshalInputAlertOrder(ctx context.Context, obj an
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNAlertOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrderField(ctx, v)
+			data, err := unmarshalNAlertOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -748,7 +747,7 @@ func (ec *executionContext) unmarshalInputAlertOrder(ctx context.Context, obj an
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamAlertsFilter(ctx context.Context, obj any) (alerts.TeamAlertsFilter, error) {
+func unmarshalInputTeamAlertsFilter(ctx context.Context, ec *executionContext, obj any) (alerts.TeamAlertsFilter, error) {
 	var it alerts.TeamAlertsFilter
 	if obj == nil {
 		return it, nil
@@ -768,21 +767,21 @@ func (ec *executionContext) unmarshalInputTeamAlertsFilter(ctx context.Context, 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2string(ctx, v)
+			data, err := unmarshalOString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "states":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("states"))
-			data, err := ec.unmarshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateᚄ(ctx, v)
+			data, err := unmarshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -796,17 +795,17 @@ func (ec *executionContext) unmarshalInputTeamAlertsFilter(ctx context.Context, 
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, obj alerts.Alert) graphql.Marshaler {
+func _Alert(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj alerts.Alert) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case alerts.PrometheusAlert:
-		return ec._PrometheusAlert(ctx, sel, &obj)
+		return _PrometheusAlert(ctx, ec, sel, &obj)
 	case *alerts.PrometheusAlert:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PrometheusAlert(ctx, sel, obj)
+		return _PrometheusAlert(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -822,7 +821,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 
 var alertConnectionImplementors = []string{"AlertConnection"}
 
-func (ec *executionContext) _AlertConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
+func _AlertConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, alertConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -832,17 +831,17 @@ func (ec *executionContext) _AlertConnection(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AlertConnection")
 		case "pageInfo":
-			out.Values[i] = ec._AlertConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _AlertConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._AlertConnection_nodes(ctx, field, obj)
+			out.Values[i] = _AlertConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._AlertConnection_edges(ctx, field, obj)
+			out.Values[i] = _AlertConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -855,7 +854,7 @@ func (ec *executionContext) _AlertConnection(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._AlertConnection_facets(ctx, field, obj)
+				res = _AlertConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -904,7 +903,7 @@ func (ec *executionContext) _AlertConnection(ctx context.Context, sel ast.Select
 
 var alertEdgeImplementors = []string{"AlertEdge"}
 
-func (ec *executionContext) _AlertEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[alerts.Alert]) graphql.Marshaler {
+func _AlertEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[alerts.Alert]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, alertEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -914,12 +913,12 @@ func (ec *executionContext) _AlertEdge(ctx context.Context, sel ast.SelectionSet
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AlertEdge")
 		case "cursor":
-			out.Values[i] = ec._AlertEdge_cursor(ctx, field, obj)
+			out.Values[i] = _AlertEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._AlertEdge_node(ctx, field, obj)
+			out.Values[i] = _AlertEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -948,7 +947,7 @@ func (ec *executionContext) _AlertEdge(ctx context.Context, sel ast.SelectionSet
 
 var alertFacetsImplementors = []string{"AlertFacets"}
 
-func (ec *executionContext) _AlertFacets(ctx context.Context, sel ast.SelectionSet, obj *alerts.AlertFacets) graphql.Marshaler {
+func _AlertFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *alerts.AlertFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, alertFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -966,7 +965,7 @@ func (ec *executionContext) _AlertFacets(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._AlertFacets_environments(ctx, field, obj)
+				res = _AlertFacets_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1002,7 +1001,7 @@ func (ec *executionContext) _AlertFacets(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._AlertFacets_states(ctx, field, obj)
+				res = _AlertFacets_states(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1054,7 +1053,7 @@ func (ec *executionContext) _AlertFacets(ctx context.Context, sel ast.SelectionS
 
 var alertStateFacetItemImplementors = []string{"AlertStateFacetItem"}
 
-func (ec *executionContext) _AlertStateFacetItem(ctx context.Context, sel ast.SelectionSet, obj *alerts.AlertStateFacetItem) graphql.Marshaler {
+func _AlertStateFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *alerts.AlertStateFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, alertStateFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1064,12 +1063,12 @@ func (ec *executionContext) _AlertStateFacetItem(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AlertStateFacetItem")
 		case "state":
-			out.Values[i] = ec._AlertStateFacetItem_state(ctx, field, obj)
+			out.Values[i] = _AlertStateFacetItem_state(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._AlertStateFacetItem_count(ctx, field, obj)
+			out.Values[i] = _AlertStateFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1098,7 +1097,7 @@ func (ec *executionContext) _AlertStateFacetItem(ctx context.Context, sel ast.Se
 
 var prometheusAlarmImplementors = []string{"PrometheusAlarm"}
 
-func (ec *executionContext) _PrometheusAlarm(ctx context.Context, sel ast.SelectionSet, obj *alerts.PrometheusAlarm) graphql.Marshaler {
+func _PrometheusAlarm(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *alerts.PrometheusAlarm) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, prometheusAlarmImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1108,32 +1107,32 @@ func (ec *executionContext) _PrometheusAlarm(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PrometheusAlarm")
 		case "action":
-			out.Values[i] = ec._PrometheusAlarm_action(ctx, field, obj)
+			out.Values[i] = _PrometheusAlarm_action(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "consequence":
-			out.Values[i] = ec._PrometheusAlarm_consequence(ctx, field, obj)
+			out.Values[i] = _PrometheusAlarm_consequence(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "summary":
-			out.Values[i] = ec._PrometheusAlarm_summary(ctx, field, obj)
+			out.Values[i] = _PrometheusAlarm_summary(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "state":
-			out.Values[i] = ec._PrometheusAlarm_state(ctx, field, obj)
+			out.Values[i] = _PrometheusAlarm_state(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._PrometheusAlarm_value(ctx, field, obj)
+			out.Values[i] = _PrometheusAlarm_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "since":
-			out.Values[i] = ec._PrometheusAlarm_since(ctx, field, obj)
+			out.Values[i] = _PrometheusAlarm_since(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1162,7 +1161,7 @@ func (ec *executionContext) _PrometheusAlarm(ctx context.Context, sel ast.Select
 
 var prometheusAlertImplementors = []string{"PrometheusAlert", "Node", "Alert"}
 
-func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.SelectionSet, obj *alerts.PrometheusAlert) graphql.Marshaler {
+func _PrometheusAlert(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *alerts.PrometheusAlert) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, prometheusAlertImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1172,12 +1171,12 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("PrometheusAlert")
 		case "id":
-			out.Values[i] = ec._PrometheusAlert_id(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._PrometheusAlert_name(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1190,7 +1189,7 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._PrometheusAlert_team(ctx, field, obj)
+				res = _PrometheusAlert_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1226,7 +1225,7 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._PrometheusAlert_teamEnvironment(ctx, field, obj)
+				res = _PrometheusAlert_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1254,27 +1253,27 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "state":
-			out.Values[i] = ec._PrometheusAlert_state(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_state(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "query":
-			out.Values[i] = ec._PrometheusAlert_query(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_query(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "duration":
-			out.Values[i] = ec._PrometheusAlert_duration(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_duration(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "ruleGroup":
-			out.Values[i] = ec._PrometheusAlert_ruleGroup(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_ruleGroup(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "alarms":
-			out.Values[i] = ec._PrometheusAlert_alarms(ctx, field, obj)
+			out.Values[i] = _PrometheusAlert_alarms(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1305,21 +1304,21 @@ func (ec *executionContext) _PrometheusAlert(ctx context.Context, sel ast.Select
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx context.Context, sel ast.SelectionSet, v alerts.Alert) graphql.Marshaler {
+func marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v alerts.Alert) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Alert(ctx, sel, v)
+	return _Alert(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNAlert2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertᚄ(ctx context.Context, sel ast.SelectionSet, v []alerts.Alert) graphql.Marshaler {
+func marshalNAlert2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []alerts.Alert) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx, sel, v[i])
+		return marshalNAlert2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlert(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1331,29 +1330,29 @@ func (ec *executionContext) marshalNAlert2ᚕgithubᚗcomᚋnaisᚋapiᚋinterna
 	return ret
 }
 
-func (ec *executionContext) marshalNAlertConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
-	return ec._AlertConnection(ctx, sel, &v)
+func marshalNAlertConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
+	return _AlertConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
+func marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AlertConnection(ctx, sel, v)
+	return _AlertConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[alerts.Alert]) graphql.Marshaler {
-	return ec._AlertEdge(ctx, sel, &v)
+func marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[alerts.Alert]) graphql.Marshaler {
+	return _AlertEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAlertEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[alerts.Alert]) graphql.Marshaler {
+func marshalNAlertEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[alerts.Alert]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNAlertEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1365,35 +1364,35 @@ func (ec *executionContext) marshalNAlertEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋint
 	return ret
 }
 
-func (ec *executionContext) unmarshalNAlertOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrderField(ctx context.Context, v any) (alerts.AlertOrderField, error) {
+func unmarshalNAlertOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrderField(ctx context.Context, ec *executionContext, v any) (alerts.AlertOrderField, error) {
 	var res alerts.AlertOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAlertOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrderField(ctx context.Context, sel ast.SelectionSet, v alerts.AlertOrderField) graphql.Marshaler {
+func marshalNAlertOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v alerts.AlertOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx context.Context, v any) (alerts.AlertState, error) {
+func unmarshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx context.Context, ec *executionContext, v any) (alerts.AlertState, error) {
 	var res alerts.AlertState
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx context.Context, sel ast.SelectionSet, v alerts.AlertState) graphql.Marshaler {
+func marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v alerts.AlertState) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNAlertStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItem(ctx context.Context, sel ast.SelectionSet, v alerts.AlertStateFacetItem) graphql.Marshaler {
-	return ec._AlertStateFacetItem(ctx, sel, &v)
+func marshalNAlertStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v alerts.AlertStateFacetItem) graphql.Marshaler {
+	return _AlertStateFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAlertStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []alerts.AlertStateFacetItem) graphql.Marshaler {
+func marshalNAlertStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []alerts.AlertStateFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNAlertStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItem(ctx, sel, v[i])
+		return marshalNAlertStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1405,11 +1404,11 @@ func (ec *executionContext) marshalNAlertStateFacetItem2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarmᚄ(ctx context.Context, sel ast.SelectionSet, v []*alerts.PrometheusAlarm) graphql.Marshaler {
+func marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarmᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*alerts.PrometheusAlarm) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx, sel, v[i])
+		return marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1421,32 +1420,32 @@ func (ec *executionContext) marshalNPrometheusAlarm2ᚕᚖgithubᚗcomᚋnaisᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx context.Context, sel ast.SelectionSet, v *alerts.PrometheusAlarm) graphql.Marshaler {
+func marshalNPrometheusAlarm2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐPrometheusAlarm(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *alerts.PrometheusAlarm) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PrometheusAlarm(ctx, sel, v)
+	return _PrometheusAlarm(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOAlertFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertFacets(ctx context.Context, sel ast.SelectionSet, v *alerts.AlertFacets) graphql.Marshaler {
+func marshalOAlertFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *alerts.AlertFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._AlertFacets(ctx, sel, v)
+	return _AlertFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOAlertOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrder(ctx context.Context, v any) (*alerts.AlertOrder, error) {
+func unmarshalOAlertOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrder(ctx context.Context, ec *executionContext, v any) (*alerts.AlertOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputAlertOrder(ctx, v)
+	res, err := unmarshalInputAlertOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateᚄ(ctx context.Context, v any) ([]alerts.AlertState, error) {
+func unmarshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateᚄ(ctx context.Context, ec *executionContext, v any) ([]alerts.AlertState, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1456,7 +1455,7 @@ func (ec *executionContext) unmarshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	res := make([]alerts.AlertState, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, vSlice[i])
+		res[i], err = unmarshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -1464,14 +1463,14 @@ func (ec *executionContext) unmarshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	return res, nil
 }
 
-func (ec *executionContext) marshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateᚄ(ctx context.Context, sel ast.SelectionSet, v []alerts.AlertState) graphql.Marshaler {
+func marshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertStateᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []alerts.AlertState) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, sel, v[i])
+		return marshalNAlertState2githubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertState(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1483,11 +1482,11 @@ func (ec *executionContext) marshalOAlertState2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) unmarshalOTeamAlertsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐTeamAlertsFilter(ctx context.Context, v any) (*alerts.TeamAlertsFilter, error) {
+func unmarshalOTeamAlertsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐTeamAlertsFilter(ctx context.Context, ec *executionContext, v any) (*alerts.TeamAlertsFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamAlertsFilter(ctx, v)
+	res, err := unmarshalInputTeamAlertsFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

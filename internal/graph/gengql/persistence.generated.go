@@ -5,7 +5,6 @@ package gengql
 import (
 	"context"
 	"fmt"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/persistence"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -40,66 +39,66 @@ import (
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _Persistence(ctx context.Context, sel ast.SelectionSet, obj persistence.Persistence) graphql.Marshaler {
+func _Persistence(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj persistence.Persistence) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case valkey.Valkey:
-		return ec._Valkey(ctx, sel, &obj)
+		return _Valkey(ctx, ec, sel, &obj)
 	case *valkey.Valkey:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Valkey(ctx, sel, obj)
+		return _Valkey(ctx, ec, sel, obj)
 	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
+		return _OpenSearch(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearch(ctx, sel, obj)
+		return _OpenSearch(ctx, ec, sel, obj)
 	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
+		return _SqlInstance(ctx, ec, sel, &obj)
 	case *sqlinstance.SQLInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
+		return _SqlInstance(ctx, ec, sel, obj)
 	case sqlinstance.SQLDatabase:
-		return ec._SqlDatabase(ctx, sel, &obj)
+		return _SqlDatabase(ctx, ec, sel, &obj)
 	case *sqlinstance.SQLDatabase:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlDatabase(ctx, sel, obj)
+		return _SqlDatabase(ctx, ec, sel, obj)
 	case postgres.PostgresBranch:
-		return ec._PostgresBranch(ctx, sel, &obj)
+		return _PostgresBranch(ctx, ec, sel, &obj)
 	case *postgres.PostgresBranch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresBranch(ctx, sel, obj)
+		return _PostgresBranch(ctx, ec, sel, obj)
 	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
+		return _KafkaTopic(ctx, ec, sel, &obj)
 	case *kafkatopic.KafkaTopic:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._KafkaTopic(ctx, sel, obj)
+		return _KafkaTopic(ctx, ec, sel, obj)
 	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
+		return _Bucket(ctx, ec, sel, &obj)
 	case *bucket.Bucket:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Bucket(ctx, sel, obj)
+		return _Bucket(ctx, ec, sel, obj)
 	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
+		return _BigQueryDataset(ctx, ec, sel, &obj)
 	case *bigquery.BigQueryDataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BigQueryDataset(ctx, sel, obj)
+		return _BigQueryDataset(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj

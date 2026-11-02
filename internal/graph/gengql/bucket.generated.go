@@ -5,10 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
@@ -17,6 +13,9 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -43,205 +42,205 @@ type BucketConnectionResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Bucket_id(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_id(ctx, field)
+			return fieldContext_Bucket_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Bucket", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Bucket_name(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_name(ctx, field)
+			return fieldContext_Bucket_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Bucket", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Bucket_team(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_team(ctx, field)
+			return fieldContext_Bucket_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Bucket().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Bucket",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Bucket_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_teamEnvironment(ctx, field)
+			return fieldContext_Bucket_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Bucket().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Bucket",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Bucket_cascadingDelete(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_cascadingDelete(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_cascadingDelete(ctx, field)
+			return fieldContext_Bucket_cascadingDelete(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CascadingDelete, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_cascadingDelete(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_cascadingDelete(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Bucket", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Bucket_publicAccessPrevention(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_publicAccessPrevention(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_publicAccessPrevention(ctx, field)
+			return fieldContext_Bucket_publicAccessPrevention(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PublicAccessPrevention, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_publicAccessPrevention(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_publicAccessPrevention(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Bucket", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Bucket_uniformBucketLevelAccess(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_uniformBucketLevelAccess(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_uniformBucketLevelAccess(ctx, field)
+			return fieldContext_Bucket_uniformBucketLevelAccess(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UniformBucketLevelAccess, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_uniformBucketLevelAccess(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_uniformBucketLevelAccess(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Bucket", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Bucket_workload(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_workload(ctx, field)
+			return fieldContext_Bucket_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Bucket().Workload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_workload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Bucket",
 		Field:      field,
@@ -254,305 +253,305 @@ func (ec *executionContext) fieldContext_Bucket_workload(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Bucket_labels(ctx context.Context, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
+func _Bucket_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.Bucket) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Bucket_labels(ctx, field)
+			return fieldContext_Bucket_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Bucket_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Bucket_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Bucket",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
+func _BucketConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketConnection_pageInfo(ctx, field)
+			return fieldContext_BucketConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
+func _BucketConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketConnection_nodes(ctx, field)
+			return fieldContext_BucketConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*bucket.Bucket) graphql.Marshaler {
-			return ec.marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketᚄ(ctx, selections, v)
+			return marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Bucket(ctx, field)
+			return childFields_Bucket(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
+func _BucketConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketConnection_edges(ctx, field)
+			return fieldContext_BucketConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
-			return ec.marshalNBucketEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNBucketEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BucketEdge(ctx, field)
+			return childFields_BucketEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
+func _BucketConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketConnection_facets(ctx, field)
+			return fieldContext_BucketConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.BucketConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bucket.BucketFacets) graphql.Marshaler {
-			return ec.marshalOBucketFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFacets(ctx, selections, v)
+			return marshalOBucketFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_BucketConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BucketFacets(ctx, field)
+			return childFields_BucketFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*bucket.Bucket]) (ret graphql.Marshaler) {
+func _BucketEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*bucket.Bucket]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketEdge_cursor(ctx, field)
+			return fieldContext_BucketEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("BucketEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _BucketEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*bucket.Bucket]) (ret graphql.Marshaler) {
+func _BucketEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*bucket.Bucket]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketEdge_node(ctx, field)
+			return fieldContext_BucketEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bucket.Bucket) graphql.Marshaler {
-			return ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx, selections, v)
+			return marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Bucket(ctx, field)
+			return childFields_Bucket(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketFacets_environments(ctx context.Context, field graphql.CollectedField, obj *bucket.BucketFacets) (ret graphql.Marshaler) {
+func _BucketFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.BucketFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketFacets_environments(ctx, field)
+			return fieldContext_BucketFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BucketFacets_labels(ctx context.Context, field graphql.CollectedField, obj *bucket.BucketFacets) (ret graphql.Marshaler) {
+func _BucketFacets_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.BucketFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BucketFacets_labels(ctx, field)
+			return fieldContext_BucketFacets_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+			return marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BucketFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BucketFacets_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BucketFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LabelFacetItem(ctx, field)
+			return childFields_LabelFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCountBuckets_total(ctx context.Context, field graphql.CollectedField, obj *bucket.TeamInventoryCountBuckets) (ret graphql.Marshaler) {
+func _TeamInventoryCountBuckets_total(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *bucket.TeamInventoryCountBuckets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountBuckets_total(ctx, field)
+			return fieldContext_TeamInventoryCountBuckets_total(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountBuckets_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountBuckets_total(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountBuckets", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
@@ -560,7 +559,7 @@ func (ec *executionContext) fieldContext_TeamInventoryCountBuckets_total(_ conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputBucketFilter(ctx context.Context, obj any) (bucket.BucketFilter, error) {
+func unmarshalInputBucketFilter(ctx context.Context, ec *executionContext, obj any) (bucket.BucketFilter, error) {
 	var it bucket.BucketFilter
 	if obj == nil {
 		return it, nil
@@ -580,21 +579,21 @@ func (ec *executionContext) unmarshalInputBucketFilter(ctx context.Context, obj 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2string(ctx, v)
+			data, err := unmarshalOString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -604,7 +603,7 @@ func (ec *executionContext) unmarshalInputBucketFilter(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBucketOrder(ctx context.Context, obj any) (bucket.BucketOrder, error) {
+func unmarshalInputBucketOrder(ctx context.Context, ec *executionContext, obj any) (bucket.BucketOrder, error) {
 	var it bucket.BucketOrder
 	if obj == nil {
 		return it, nil
@@ -624,14 +623,14 @@ func (ec *executionContext) unmarshalInputBucketOrder(ctx context.Context, obj a
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNBucketOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrderField(ctx, v)
+			data, err := unmarshalNBucketOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -651,7 +650,7 @@ func (ec *executionContext) unmarshalInputBucketOrder(ctx context.Context, obj a
 
 var bucketImplementors = []string{"Bucket", "Persistence", "Node", "SearchNode"}
 
-func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, obj *bucket.Bucket) graphql.Marshaler {
+func _Bucket(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *bucket.Bucket) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -661,12 +660,12 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Bucket")
 		case "id":
-			out.Values[i] = ec._Bucket_id(ctx, field, obj)
+			out.Values[i] = _Bucket_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._Bucket_name(ctx, field, obj)
+			out.Values[i] = _Bucket_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -679,7 +678,7 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Bucket_team(ctx, field, obj)
+				res = _Bucket_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -715,7 +714,7 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Bucket_teamEnvironment(ctx, field, obj)
+				res = _Bucket_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -743,17 +742,17 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "cascadingDelete":
-			out.Values[i] = ec._Bucket_cascadingDelete(ctx, field, obj)
+			out.Values[i] = _Bucket_cascadingDelete(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "publicAccessPrevention":
-			out.Values[i] = ec._Bucket_publicAccessPrevention(ctx, field, obj)
+			out.Values[i] = _Bucket_publicAccessPrevention(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "uniformBucketLevelAccess":
-			out.Values[i] = ec._Bucket_uniformBucketLevelAccess(ctx, field, obj)
+			out.Values[i] = _Bucket_uniformBucketLevelAccess(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -766,7 +765,7 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Bucket_workload(ctx, field, obj)
+				res = _Bucket_workload(ctx, ec, field, obj)
 				return res
 			}
 
@@ -791,7 +790,7 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "labels":
-			out.Values[i] = ec._Bucket_labels(ctx, field, obj)
+			out.Values[i] = _Bucket_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -820,7 +819,7 @@ func (ec *executionContext) _Bucket(ctx context.Context, sel ast.SelectionSet, o
 
 var bucketConnectionImplementors = []string{"BucketConnection"}
 
-func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
+func _BucketConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -830,17 +829,17 @@ func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("BucketConnection")
 		case "pageInfo":
-			out.Values[i] = ec._BucketConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _BucketConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._BucketConnection_nodes(ctx, field, obj)
+			out.Values[i] = _BucketConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._BucketConnection_edges(ctx, field, obj)
+			out.Values[i] = _BucketConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -853,7 +852,7 @@ func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BucketConnection_facets(ctx, field, obj)
+				res = _BucketConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -902,7 +901,7 @@ func (ec *executionContext) _BucketConnection(ctx context.Context, sel ast.Selec
 
 var bucketEdgeImplementors = []string{"BucketEdge"}
 
-func (ec *executionContext) _BucketEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
+func _BucketEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -912,12 +911,12 @@ func (ec *executionContext) _BucketEdge(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("BucketEdge")
 		case "cursor":
-			out.Values[i] = ec._BucketEdge_cursor(ctx, field, obj)
+			out.Values[i] = _BucketEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._BucketEdge_node(ctx, field, obj)
+			out.Values[i] = _BucketEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -946,7 +945,7 @@ func (ec *executionContext) _BucketEdge(ctx context.Context, sel ast.SelectionSe
 
 var bucketFacetsImplementors = []string{"BucketFacets"}
 
-func (ec *executionContext) _BucketFacets(ctx context.Context, sel ast.SelectionSet, obj *bucket.BucketFacets) graphql.Marshaler {
+func _BucketFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *bucket.BucketFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bucketFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -964,7 +963,7 @@ func (ec *executionContext) _BucketFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BucketFacets_environments(ctx, field, obj)
+				res = _BucketFacets_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1000,7 +999,7 @@ func (ec *executionContext) _BucketFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BucketFacets_labels(ctx, field, obj)
+				res = _BucketFacets_labels(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1052,7 +1051,7 @@ func (ec *executionContext) _BucketFacets(ctx context.Context, sel ast.Selection
 
 var teamInventoryCountBucketsImplementors = []string{"TeamInventoryCountBuckets"}
 
-func (ec *executionContext) _TeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, obj *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
+func _TeamInventoryCountBuckets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountBucketsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1062,7 +1061,7 @@ func (ec *executionContext) _TeamInventoryCountBuckets(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountBuckets")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountBuckets_total(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountBuckets_total(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1093,15 +1092,15 @@ func (ec *executionContext) _TeamInventoryCountBuckets(ctx context.Context, sel 
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBucket2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx context.Context, sel ast.SelectionSet, v bucket.Bucket) graphql.Marshaler {
-	return ec._Bucket(ctx, sel, &v)
+func marshalNBucket2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v bucket.Bucket) graphql.Marshaler {
+	return _Bucket(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketᚄ(ctx context.Context, sel ast.SelectionSet, v []*bucket.Bucket) graphql.Marshaler {
+func marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*bucket.Bucket) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx, sel, v[i])
+		return marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1113,39 +1112,39 @@ func (ec *executionContext) marshalNBucket2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return ret
 }
 
-func (ec *executionContext) marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx context.Context, sel ast.SelectionSet, v *bucket.Bucket) graphql.Marshaler {
+func marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *bucket.Bucket) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Bucket(ctx, sel, v)
+	return _Bucket(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNBucketConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
-	return ec._BucketConnection(ctx, sel, &v)
+func marshalNBucketConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
+	return _BucketConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
+func marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._BucketConnection(ctx, sel, v)
+	return _BucketConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNBucketEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
-	return ec._BucketEdge(ctx, sel, &v)
+func marshalNBucketEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
+	return _BucketEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNBucketEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
+func marshalNBucketEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*bucket.Bucket]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNBucketEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNBucketEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1157,50 +1156,50 @@ func (ec *executionContext) marshalNBucketEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) unmarshalNBucketOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrderField(ctx context.Context, v any) (bucket.BucketOrderField, error) {
+func unmarshalNBucketOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrderField(ctx context.Context, ec *executionContext, v any) (bucket.BucketOrderField, error) {
 	var res bucket.BucketOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNBucketOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrderField(ctx context.Context, sel ast.SelectionSet, v bucket.BucketOrderField) graphql.Marshaler {
+func marshalNBucketOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v bucket.BucketOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountBuckets2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, v bucket.TeamInventoryCountBuckets) graphql.Marshaler {
-	return ec._TeamInventoryCountBuckets(ctx, sel, &v)
+func marshalNTeamInventoryCountBuckets2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v bucket.TeamInventoryCountBuckets) graphql.Marshaler {
+	return _TeamInventoryCountBuckets(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, sel ast.SelectionSet, v *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
+func marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCountBuckets(ctx, sel, v)
+	return _TeamInventoryCountBuckets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOBucketFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFacets(ctx context.Context, sel ast.SelectionSet, v *bucket.BucketFacets) graphql.Marshaler {
+func marshalOBucketFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *bucket.BucketFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._BucketFacets(ctx, sel, v)
+	return _BucketFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOBucketFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFilter(ctx context.Context, v any) (*bucket.BucketFilter, error) {
+func unmarshalOBucketFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFilter(ctx context.Context, ec *executionContext, v any) (*bucket.BucketFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputBucketFilter(ctx, v)
+	res, err := unmarshalInputBucketFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOBucketOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrder(ctx context.Context, v any) (*bucket.BucketOrder, error) {
+func unmarshalOBucketOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrder(ctx context.Context, ec *executionContext, v any) (*bucket.BucketOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputBucketOrder(ctx, v)
+	res, err := unmarshalInputBucketOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

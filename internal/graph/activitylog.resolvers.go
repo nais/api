@@ -114,7 +114,7 @@ func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, fi
 }
 
 func (r *Resolver) ActivityLogEntryConnection() gengql.ActivityLogEntryConnectionResolver {
-	return &activityLogEntryConnectionResolver{r}
+	return &activityLogEntryConnectionResolver{r.resolver}
 }
 
-type activityLogEntryConnectionResolver struct{ *Resolver }
+type activityLogEntryConnectionResolver struct{ *resolver }

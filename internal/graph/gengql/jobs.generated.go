@@ -6,11 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -40,6 +35,10 @@ import (
 	"github.com/nais/api/internal/workload/netpol"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -98,12 +97,12 @@ type UpdateJobPayloadResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_JobRun_instances_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_JobRun_instances_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -111,7 +110,7 @@ func (ec *executionContext) field_JobRun_instances_args(ctx context.Context, raw
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -119,7 +118,7 @@ func (ec *executionContext) field_JobRun_instances_args(ctx context.Context, raw
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -127,7 +126,7 @@ func (ec *executionContext) field_JobRun_instances_args(ctx context.Context, raw
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -136,12 +135,12 @@ func (ec *executionContext) field_JobRun_instances_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_activityLog_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -149,7 +148,7 @@ func (ec *executionContext) field_Job_activityLog_args(ctx context.Context, rawA
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -157,7 +156,7 @@ func (ec *executionContext) field_Job_activityLog_args(ctx context.Context, rawA
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -165,7 +164,7 @@ func (ec *executionContext) field_Job_activityLog_args(ctx context.Context, rawA
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -173,7 +172,7 @@ func (ec *executionContext) field_Job_activityLog_args(ctx context.Context, rawA
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
-			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+			return unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -182,12 +181,12 @@ func (ec *executionContext) field_Job_activityLog_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_bigQueryDatasets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_bigQueryDatasets_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*bigquery.BigQueryDatasetOrder, error) {
-			return ec.unmarshalOBigQueryDatasetOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrder(ctx, v)
+			return unmarshalOBigQueryDatasetOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -196,12 +195,12 @@ func (ec *executionContext) field_Job_bigQueryDatasets_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_buckets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_buckets_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*bucket.BucketOrder, error) {
-			return ec.unmarshalOBucketOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrder(ctx, v)
+			return unmarshalOBucketOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -210,12 +209,12 @@ func (ec *executionContext) field_Job_buckets_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_configs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_configs_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -223,7 +222,7 @@ func (ec *executionContext) field_Job_configs_args(ctx context.Context, rawArgs 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -231,7 +230,7 @@ func (ec *executionContext) field_Job_configs_args(ctx context.Context, rawArgs 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -239,7 +238,7 @@ func (ec *executionContext) field_Job_configs_args(ctx context.Context, rawArgs 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -248,12 +247,12 @@ func (ec *executionContext) field_Job_configs_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_deployments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_deployments_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -261,7 +260,7 @@ func (ec *executionContext) field_Job_deployments_args(ctx context.Context, rawA
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -269,7 +268,7 @@ func (ec *executionContext) field_Job_deployments_args(ctx context.Context, rawA
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -277,7 +276,7 @@ func (ec *executionContext) field_Job_deployments_args(ctx context.Context, rawA
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -286,12 +285,12 @@ func (ec *executionContext) field_Job_deployments_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_events_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_events_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -299,7 +298,7 @@ func (ec *executionContext) field_Job_events_args(ctx context.Context, rawArgs m
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -307,7 +306,7 @@ func (ec *executionContext) field_Job_events_args(ctx context.Context, rawArgs m
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -315,7 +314,7 @@ func (ec *executionContext) field_Job_events_args(ctx context.Context, rawArgs m
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -323,7 +322,7 @@ func (ec *executionContext) field_Job_events_args(ctx context.Context, rawArgs m
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*event.WorkloadEventFilter, error) {
-			return ec.unmarshalOWorkloadEventFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventFilter(ctx, v)
+			return unmarshalOWorkloadEventFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -332,12 +331,12 @@ func (ec *executionContext) field_Job_events_args(ctx context.Context, rawArgs m
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_imageVulnerabilityHistory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_imageVulnerabilityHistory_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -346,12 +345,12 @@ func (ec *executionContext) field_Job_imageVulnerabilityHistory_args(ctx context
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_issues_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -359,7 +358,7 @@ func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs m
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -367,7 +366,7 @@ func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs m
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -375,7 +374,7 @@ func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs m
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -383,7 +382,7 @@ func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs m
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*issue.IssueOrder, error) {
-			return ec.unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, v)
+			return unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -391,7 +390,7 @@ func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs m
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*issue.ResourceIssueFilter, error) {
-			return ec.unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter(ctx, v)
+			return unmarshalOResourceIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐResourceIssueFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -400,12 +399,12 @@ func (ec *executionContext) field_Job_issues_args(ctx context.Context, rawArgs m
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_kafkaTopicAcls_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_kafkaTopicAcls_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLOrder, error) {
-			return ec.unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, v)
+			return unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -414,12 +413,12 @@ func (ec *executionContext) field_Job_kafkaTopicAcls_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_postgreses_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_postgreses_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -427,7 +426,7 @@ func (ec *executionContext) field_Job_postgreses_args(ctx context.Context, rawAr
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -435,7 +434,7 @@ func (ec *executionContext) field_Job_postgreses_args(ctx context.Context, rawAr
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -443,7 +442,7 @@ func (ec *executionContext) field_Job_postgreses_args(ctx context.Context, rawAr
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -452,12 +451,12 @@ func (ec *executionContext) field_Job_postgreses_args(ctx context.Context, rawAr
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_runs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_runs_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -465,7 +464,7 @@ func (ec *executionContext) field_Job_runs_args(ctx context.Context, rawArgs map
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -473,7 +472,7 @@ func (ec *executionContext) field_Job_runs_args(ctx context.Context, rawArgs map
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -481,7 +480,7 @@ func (ec *executionContext) field_Job_runs_args(ctx context.Context, rawArgs map
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -490,12 +489,12 @@ func (ec *executionContext) field_Job_runs_args(ctx context.Context, rawArgs map
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_secrets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_secrets_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -503,7 +502,7 @@ func (ec *executionContext) field_Job_secrets_args(ctx context.Context, rawArgs 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -511,7 +510,7 @@ func (ec *executionContext) field_Job_secrets_args(ctx context.Context, rawArgs 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -519,7 +518,7 @@ func (ec *executionContext) field_Job_secrets_args(ctx context.Context, rawArgs 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -528,12 +527,12 @@ func (ec *executionContext) field_Job_secrets_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_sqlInstances_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_sqlInstances_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*sqlinstance.SQLInstanceOrder, error) {
-			return ec.unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx, v)
+			return unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -542,12 +541,12 @@ func (ec *executionContext) field_Job_sqlInstances_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_valkeys_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_valkeys_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*valkey.ValkeyOrder, error) {
-			return ec.unmarshalOValkeyOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyOrder(ctx, v)
+			return unmarshalOValkeyOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -556,12 +555,12 @@ func (ec *executionContext) field_Job_valkeys_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Job_vulnerabilityFixHistory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Job_vulnerabilityFixHistory_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -578,384 +577,384 @@ func (ec *executionContext) field_Job_vulnerabilityFixHistory_args(ctx context.C
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _DeleteJobPayload_team(ctx context.Context, field graphql.CollectedField, obj *job.DeleteJobPayload) (ret graphql.Marshaler) {
+func _DeleteJobPayload_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.DeleteJobPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteJobPayload_team(ctx, field)
+			return fieldContext_DeleteJobPayload_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.DeleteJobPayload().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteJobPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteJobPayload_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteJobPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteJobPayload_success(ctx context.Context, field graphql.CollectedField, obj *job.DeleteJobPayload) (ret graphql.Marshaler) {
+func _DeleteJobPayload_success(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.DeleteJobPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteJobPayload_success(ctx, field)
+			return fieldContext_DeleteJobPayload_success(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Success, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalOBoolean2bool(ctx, selections, v)
+			return marshalOBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteJobPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteJobPayload_success(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeleteJobPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _DeleteJobRunPayload_job(ctx context.Context, field graphql.CollectedField, obj *job.DeleteJobRunPayload) (ret graphql.Marshaler) {
+func _DeleteJobRunPayload_job(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.DeleteJobRunPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteJobRunPayload_job(ctx, field)
+			return fieldContext_DeleteJobRunPayload_job(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.DeleteJobRunPayload().Job(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.Job) graphql.Marshaler {
-			return ec.marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, selections, v)
+			return marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteJobRunPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteJobRunPayload_job(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteJobRunPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Job(ctx, field)
+			return childFields_Job(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteJobRunPayload_success(ctx context.Context, field graphql.CollectedField, obj *job.DeleteJobRunPayload) (ret graphql.Marshaler) {
+func _DeleteJobRunPayload_success(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.DeleteJobRunPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteJobRunPayload_success(ctx, field)
+			return fieldContext_DeleteJobRunPayload_success(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Success, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteJobRunPayload_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteJobRunPayload_success(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeleteJobRunPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Job_id(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_id(ctx, field)
+			return fieldContext_Job_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Job", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Job_name(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_name(ctx, field)
+			return fieldContext_Job_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Job", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Job_team(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_team(ctx, field)
+			return fieldContext_Job_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_teamEnvironment(ctx, field)
+			return fieldContext_Job_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_image(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_image(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_image(ctx, field)
+			return fieldContext_Job_image(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Image(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
-			return ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx, selections, v)
+			return marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_image(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ContainerImage(ctx, field)
+			return childFields_ContainerImage(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_resources(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_resources(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_resources(ctx, field)
+			return fieldContext_Job_resources(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Resources(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobResources) graphql.Marshaler {
-			return ec.marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobResources(ctx, selections, v)
+			return marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobResources(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_resources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_resources(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobResources(ctx, field)
+			return childFields_JobResources(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_authIntegrations(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_authIntegrations(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_authIntegrations(ctx, field)
+			return fieldContext_Job_authIntegrations(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().AuthIntegrations(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []workload.JobAuthIntegrations) graphql.Marshaler {
-			return ec.marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrationsᚄ(ctx, selections, v)
+			return marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrationsᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_authIntegrations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_authIntegrations(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Job", field, true, true, errors.New("field of type JobAuthIntegrations does not have child fields"))
 }
 
-func (ec *executionContext) _Job_labels(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_labels(ctx, field)
+			return fieldContext_Job_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_schedule(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_schedule(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_schedule(ctx, field)
+			return fieldContext_Job_schedule(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Schedule(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobSchedule) graphql.Marshaler {
-			return ec.marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobSchedule(ctx, selections, v)
+			return marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobSchedule(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Job_schedule(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_schedule(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobSchedule(ctx, field)
+			return childFields_JobSchedule(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_runs(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_runs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_runs(ctx, field)
+			return fieldContext_Job_runs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -963,20 +962,20 @@ func (ec *executionContext) _Job_runs(ctx context.Context, field graphql.Collect
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*job.JobRun]) graphql.Marshaler {
-			return ec.marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_runs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_runs(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunConnection(ctx, field)
+			return childFields_JobRunConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -986,75 +985,75 @@ func (ec *executionContext) fieldContext_Job_runs(ctx context.Context, field gra
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_runs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_runs_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_manifest(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_manifest(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_manifest(ctx, field)
+			return fieldContext_Job_manifest(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().Manifest(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobManifest) graphql.Marshaler {
-			return ec.marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest(ctx, selections, v)
+			return marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_manifest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_manifest(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobManifest(ctx, field)
+			return childFields_JobManifest(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_deletionStartedAt(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_deletionStartedAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_deletionStartedAt(ctx, field)
+			return fieldContext_Job_deletionStartedAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DeletionStartedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Job_deletionStartedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_deletionStartedAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Job", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _Job_activityLog(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_activityLog(ctx, field)
+			return fieldContext_Job_activityLog(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1062,20 +1061,20 @@ func (ec *executionContext) _Job_activityLog(ctx context.Context, field graphql.
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, selections, v)
+			return marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEntryConnection(ctx, field)
+			return childFields_ActivityLogEntryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1085,43 +1084,43 @@ func (ec *executionContext) fieldContext_Job_activityLog(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_activityLog_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_state(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_state(ctx, field)
+			return fieldContext_Job_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().State(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v job.JobState) graphql.Marshaler {
-			return ec.marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, selections, v)
+			return marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Job", field, true, true, errors.New("field of type JobState does not have child fields"))
 }
 
-func (ec *executionContext) _Job_issues(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_issues(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_issues(ctx, field)
+			return fieldContext_Job_issues(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1129,20 +1128,20 @@ func (ec *executionContext) _Job_issues(ctx context.Context, field graphql.Colle
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *issue.IssueConnection) graphql.Marshaler {
-			return ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, selections, v)
+			return marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_issues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_issues(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_IssueConnection(ctx, field)
+			return childFields_IssueConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1152,20 +1151,20 @@ func (ec *executionContext) fieldContext_Job_issues(ctx context.Context, field g
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_issues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_issues_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_bigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_bigQueryDatasets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_bigQueryDatasets(ctx, field)
+			return fieldContext_Job_bigQueryDatasets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1173,20 +1172,20 @@ func (ec *executionContext) _Job_bigQueryDatasets(ctx context.Context, field gra
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
-			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_bigQueryDatasets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_bigQueryDatasets(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BigQueryDatasetConnection(ctx, field)
+			return childFields_BigQueryDatasetConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1196,20 +1195,20 @@ func (ec *executionContext) fieldContext_Job_bigQueryDatasets(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_bigQueryDatasets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_bigQueryDatasets_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_buckets(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_buckets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_buckets(ctx, field)
+			return fieldContext_Job_buckets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1217,20 +1216,20 @@ func (ec *executionContext) _Job_buckets(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
-			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_buckets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_buckets(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BucketConnection(ctx, field)
+			return childFields_BucketConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1240,20 +1239,20 @@ func (ec *executionContext) fieldContext_Job_buckets(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_buckets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_buckets_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_configs(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_configs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_configs(ctx, field)
+			return fieldContext_Job_configs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1261,20 +1260,20 @@ func (ec *executionContext) _Job_configs(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
-			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_configs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_configs(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigConnection(ctx, field)
+			return childFields_ConfigConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1284,52 +1283,52 @@ func (ec *executionContext) fieldContext_Job_configs(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_configs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_configs_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_cost(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_cost(ctx, field)
+			return fieldContext_Job_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().Cost(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.WorkloadCost) graphql.Marshaler {
-			return ec.marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx, selections, v)
+			return marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadCost(ctx, field)
+			return childFields_WorkloadCost(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_deployments(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_deployments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_deployments(ctx, field)
+			return fieldContext_Job_deployments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1337,20 +1336,20 @@ func (ec *executionContext) _Job_deployments(ctx context.Context, field graphql.
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
-			return ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_deployments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_deployments(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentConnection(ctx, field)
+			return childFields_DeploymentConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1360,20 +1359,20 @@ func (ec *executionContext) fieldContext_Job_deployments(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_deployments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_deployments_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_kafkaTopicAcls(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_kafkaTopicAcls(ctx, field)
+			return fieldContext_Job_kafkaTopicAcls(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1381,20 +1380,20 @@ func (ec *executionContext) _Job_kafkaTopicAcls(ctx context.Context, field graph
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
-			return ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_kafkaTopicAcls(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_kafkaTopicAcls(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicAclConnection(ctx, field)
+			return childFields_KafkaTopicAclConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1404,33 +1403,33 @@ func (ec *executionContext) fieldContext_Job_kafkaTopicAcls(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_kafkaTopicAcls_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_kafkaTopicAcls_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_logDestinations(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_logDestinations(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_logDestinations(ctx, field)
+			return fieldContext_Job_logDestinations(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().LogDestinations(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []logging.LogDestination) graphql.Marshaler {
-			return ec.marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx, selections, v)
+			return marshalNLogDestination2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋloggingᚐLogDestinationᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_logDestinations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_logDestinations(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
@@ -1443,77 +1442,77 @@ func (ec *executionContext) fieldContext_Job_logDestinations(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_networkPolicy(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_networkPolicy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_networkPolicy(ctx, field)
+			return fieldContext_Job_networkPolicy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().NetworkPolicy(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *netpol.NetworkPolicy) graphql.Marshaler {
-			return ec.marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx, selections, v)
+			return marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_networkPolicy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_networkPolicy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_NetworkPolicy(ctx, field)
+			return childFields_NetworkPolicy(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_openSearch(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_openSearch(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_openSearch(ctx, field)
+			return fieldContext_Job_openSearch(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().OpenSearch(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.OpenSearch) graphql.Marshaler {
-			return ec.marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx, selections, v)
+			return marshalOOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Job_openSearch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_openSearch(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_OpenSearch(ctx, field)
+			return childFields_OpenSearch(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_postgreses(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_postgreses(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_postgreses(ctx, field)
+			return fieldContext_Job_postgreses(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1521,20 +1520,20 @@ func (ec *executionContext) _Job_postgreses(ctx context.Context, field graphql.C
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*postgres.WorkloadPostgres]) graphql.Marshaler {
-			return ec.marshalNWorkloadPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_postgreses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_postgreses(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadPostgresConnection(ctx, field)
+			return childFields_WorkloadPostgresConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1544,20 +1543,20 @@ func (ec *executionContext) fieldContext_Job_postgreses(ctx context.Context, fie
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_postgreses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_postgreses_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_secrets(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_secrets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_secrets(ctx, field)
+			return fieldContext_Job_secrets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1565,20 +1564,20 @@ func (ec *executionContext) _Job_secrets(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
-			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_secrets(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretConnection(ctx, field)
+			return childFields_SecretConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1588,52 +1587,52 @@ func (ec *executionContext) fieldContext_Job_secrets(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_secrets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_secrets_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_serviceAccount(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_serviceAccount(ctx, field)
+			return fieldContext_Job_serviceAccount(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Job().ServiceAccount(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccount) graphql.Marshaler {
-			return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, selections, v)
+			return marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Job_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_serviceAccount(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccount(ctx, field)
+			return childFields_ServiceAccount(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_sqlInstances(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_sqlInstances(ctx, field)
+			return fieldContext_Job_sqlInstances(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1641,20 +1640,20 @@ func (ec *executionContext) _Job_sqlInstances(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_sqlInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_sqlInstances(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceConnection(ctx, field)
+			return childFields_SqlInstanceConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1664,20 +1663,20 @@ func (ec *executionContext) fieldContext_Job_sqlInstances(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_sqlInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_sqlInstances_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_valkeys(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_valkeys(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_valkeys(ctx, field)
+			return fieldContext_Job_valkeys(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1685,20 +1684,20 @@ func (ec *executionContext) _Job_valkeys(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
-			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_valkeys(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_valkeys(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ValkeyConnection(ctx, field)
+			return childFields_ValkeyConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1708,20 +1707,20 @@ func (ec *executionContext) fieldContext_Job_valkeys(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_valkeys_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_valkeys_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_imageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_imageVulnerabilityHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_imageVulnerabilityHistory(ctx, field)
+			return fieldContext_Job_imageVulnerabilityHistory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1729,20 +1728,20 @@ func (ec *executionContext) _Job_imageVulnerabilityHistory(ctx context.Context, 
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.ImageVulnerabilityHistory) graphql.Marshaler {
-			return ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx, selections, v)
+			return marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_imageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_imageVulnerabilityHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ImageVulnerabilityHistory(ctx, field)
+			return childFields_ImageVulnerabilityHistory(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1752,20 +1751,20 @@ func (ec *executionContext) fieldContext_Job_imageVulnerabilityHistory(ctx conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_imageVulnerabilityHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_imageVulnerabilityHistory_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_vulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_vulnerabilityFixHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_vulnerabilityFixHistory(ctx, field)
+			return fieldContext_Job_vulnerabilityFixHistory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1773,20 +1772,20 @@ func (ec *executionContext) _Job_vulnerabilityFixHistory(ctx context.Context, fi
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.VulnerabilityFixHistory) graphql.Marshaler {
-			return ec.marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory(ctx, selections, v)
+			return marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_vulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_vulnerabilityFixHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_VulnerabilityFixHistory(ctx, field)
+			return childFields_VulnerabilityFixHistory(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1796,20 +1795,20 @@ func (ec *executionContext) fieldContext_Job_vulnerabilityFixHistory(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_vulnerabilityFixHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_vulnerabilityFixHistory_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Job_events(ctx context.Context, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
+func _Job_events(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.Job) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Job_events(ctx, field)
+			return fieldContext_Job_events(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1817,20 +1816,20 @@ func (ec *executionContext) _Job_events(ctx context.Context, field graphql.Colle
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
-			return ec.marshalNWorkloadEventConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadEventConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Job_events(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Job_events(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Job",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadEventConnection(ctx, field)
+			return childFields_WorkloadEventConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1840,1029 +1839,1029 @@ func (ec *executionContext) fieldContext_Job_events(ctx context.Context, field g
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Job_events_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Job_events_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
+func _JobConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobConnection_pageInfo(ctx, field)
+			return fieldContext_JobConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
+func _JobConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobConnection_nodes(ctx, field)
+			return fieldContext_JobConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*job.Job) graphql.Marshaler {
-			return ec.marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobᚄ(ctx, selections, v)
+			return marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Job(ctx, field)
+			return childFields_Job(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
+func _JobConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobConnection_edges(ctx, field)
+			return fieldContext_JobConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*job.Job]) graphql.Marshaler {
-			return ec.marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobEdge(ctx, field)
+			return childFields_JobEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
+func _JobConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobConnection_facets(ctx, field)
+			return fieldContext_JobConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.JobConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobFacets) graphql.Marshaler {
-			return ec.marshalOJobFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobFacets(ctx, selections, v)
+			return marshalOJobFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobFacets(ctx, field)
+			return childFields_JobFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_id(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_message(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobCreatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobCreatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobCreatedActivityLogEntry_data(ctx, field)
+			return fieldContext_JobCreatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.GenericKubernetesResourceActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData(ctx, selections, v)
+			return marshalNGenericKubernetesResourceActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐGenericKubernetesResourceActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobCreatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobCreatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GenericKubernetesResourceActivityLogEntryData(ctx, field)
+			return childFields_GenericKubernetesResourceActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_id(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_actor(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_message(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _JobDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobDeletedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobDeletedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_JobDeletedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobDeletedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.Job]) (ret graphql.Marshaler) {
+func _JobEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*job.Job]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobEdge_cursor(ctx, field)
+			return fieldContext_JobEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _JobEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.Job]) (ret graphql.Marshaler) {
+func _JobEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*job.Job]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobEdge_node(ctx, field)
+			return fieldContext_JobEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.Job) graphql.Marshaler {
-			return ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, selections, v)
+			return marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Job(ctx, field)
+			return childFields_Job(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobFacets_environments(ctx context.Context, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
+func _JobFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobFacets_environments(ctx, field)
+			return fieldContext_JobFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobFacets_states(ctx context.Context, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
+func _JobFacets_states(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobFacets_states(ctx, field)
+			return fieldContext_JobFacets_states(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.States(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []job.JobStateFacetItem) graphql.Marshaler {
-			return ec.marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx, selections, v)
+			return marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobFacets_states(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobFacets_states(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobStateFacetItem(ctx, field)
+			return childFields_JobStateFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobFacets_labels(ctx context.Context, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
+func _JobFacets_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobFacets_labels(ctx, field)
+			return fieldContext_JobFacets_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+			return marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobFacets_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LabelFacetItem(ctx, field)
+			return childFields_LabelFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobManifest_content(ctx context.Context, field graphql.CollectedField, obj *job.JobManifest) (ret graphql.Marshaler) {
+func _JobManifest_content(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobManifest) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobManifest_content(ctx, field)
+			return fieldContext_JobManifest_content(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Content, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobManifest_content(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobManifest_content(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobManifest", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobResources_limits(ctx context.Context, field graphql.CollectedField, obj *job.JobResources) (ret graphql.Marshaler) {
+func _JobResources_limits(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobResources_limits(ctx, field)
+			return fieldContext_JobResources_limits(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Limits, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *workload.WorkloadResourceQuantity) graphql.Marshaler {
-			return ec.marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx, selections, v)
+			return marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobResources_limits(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobResources_limits(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobResources",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadResourceQuantity(ctx, field)
+			return childFields_WorkloadResourceQuantity(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobResources_requests(ctx context.Context, field graphql.CollectedField, obj *job.JobResources) (ret graphql.Marshaler) {
+func _JobResources_requests(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobResources_requests(ctx, field)
+			return fieldContext_JobResources_requests(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Requests, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *workload.WorkloadResourceQuantity) graphql.Marshaler {
-			return ec.marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx, selections, v)
+			return marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobResources_requests(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobResources_requests(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobResources",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadResourceQuantity(ctx, field)
+			return childFields_WorkloadResourceQuantity(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRun_id(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_id(ctx, field)
+			return fieldContext_JobRun_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRun", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobRun_name(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_name(ctx, field)
+			return fieldContext_JobRun_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRun", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRun_startTime(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_startTime(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_startTime(ctx, field)
+			return fieldContext_JobRun_startTime(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.StartTime, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_startTime(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRun", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobRun_completionTime(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_completionTime(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_completionTime(ctx, field)
+			return fieldContext_JobRun_completionTime(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CompletionTime(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_completionTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_completionTime(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRun", field, true, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobRun_status(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_status(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_status(ctx, field)
+			return fieldContext_JobRun_status(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Status(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRunStatus) graphql.Marshaler {
-			return ec.marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunStatus(ctx, selections, v)
+			return marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunStatus(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_status(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRun",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunStatus(ctx, field)
+			return childFields_JobRunStatus(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRun_image(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_image(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_image(ctx, field)
+			return fieldContext_JobRun_image(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Image(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
-			return ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx, selections, v)
+			return marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_image(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRun",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ContainerImage(ctx, field)
+			return childFields_ContainerImage(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRun_duration(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_duration(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_duration(ctx, field)
+			return fieldContext_JobRun_duration(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.JobRun().Duration(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_duration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_duration(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRun", field, true, true, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _JobRun_instances(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_instances(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_instances(ctx, field)
+			return fieldContext_JobRun_instances(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2870,20 +2869,20 @@ func (ec *executionContext) _JobRun_instances(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
-			return ec.marshalNJobRunInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNJobRunInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_instances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_instances(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRun",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunInstanceConnection(ctx, field)
+			return childFields_JobRunInstanceConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2893,1605 +2892,1605 @@ func (ec *executionContext) fieldContext_JobRun_instances(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_JobRun_instances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_JobRun_instances_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRun_trigger(ctx context.Context, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
+func _JobRun_trigger(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRun) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRun_trigger(ctx, field)
+			return fieldContext_JobRun_trigger(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Trigger, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRunTrigger) graphql.Marshaler {
-			return ec.marshalNJobRunTrigger2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTrigger(ctx, selections, v)
+			return marshalNJobRunTrigger2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTrigger(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRun_trigger(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRun_trigger(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRun",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunTrigger(ctx, field)
+			return childFields_JobRunTrigger(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
+func _JobRunConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunConnection_pageInfo(ctx, field)
+			return fieldContext_JobRunConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
+func _JobRunConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunConnection_nodes(ctx, field)
+			return fieldContext_JobRunConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*job.JobRun) graphql.Marshaler {
-			return ec.marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunᚄ(ctx, selections, v)
+			return marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRun(ctx, field)
+			return childFields_JobRun(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
+func _JobRunConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*job.JobRun]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunConnection_edges(ctx, field)
+			return fieldContext_JobRunConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*job.JobRun]) graphql.Marshaler {
-			return ec.marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunEdge(ctx, field)
+			return childFields_JobRunEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_id(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_actor(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_message(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntry_data(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalOJobRunDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunDeletedActivityLogEntryData(ctx, selections, v)
+			return marshalOJobRunDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunDeletedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunDeletedActivityLogEntryData(ctx, field)
+			return childFields_JobRunDeletedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntryData_runName(ctx context.Context, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntryData) (ret graphql.Marshaler) {
+func _JobRunDeletedActivityLogEntryData_runName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunDeletedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunDeletedActivityLogEntryData_runName(ctx, field)
+			return fieldContext_JobRunDeletedActivityLogEntryData_runName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RunName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunDeletedActivityLogEntryData_runName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunDeletedActivityLogEntryData_runName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunDeletedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
+func _JobRunEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunEdge_cursor(ctx, field)
+			return fieldContext_JobRunEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
+func _JobRunEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*job.JobRun]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunEdge_node(ctx, field)
+			return fieldContext_JobRunEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
-			return ec.marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, selections, v)
+			return marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRun(ctx, field)
+			return childFields_JobRun(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunInstance_id(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
+func _JobRunInstance_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstance_id(ctx, field)
+			return fieldContext_JobRunInstance_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstance_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstance_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunInstance", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunInstance_name(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
+func _JobRunInstance_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstance_name(ctx, field)
+			return fieldContext_JobRunInstance_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstance_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstance_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
+func _JobRunInstanceConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstanceConnection_pageInfo(ctx, field)
+			return fieldContext_JobRunInstanceConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstanceConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstanceConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunInstanceConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunInstanceConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
+func _JobRunInstanceConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstanceConnection_nodes(ctx, field)
+			return fieldContext_JobRunInstanceConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*job.JobRunInstance) graphql.Marshaler {
-			return ec.marshalNJobRunInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceᚄ(ctx, selections, v)
+			return marshalNJobRunInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstanceConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstanceConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunInstanceConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunInstance(ctx, field)
+			return childFields_JobRunInstance(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunInstanceConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
+func _JobRunInstanceConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstanceConnection_edges(ctx, field)
+			return fieldContext_JobRunInstanceConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
-			return ec.marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstanceConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstanceConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunInstanceConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunInstanceEdge(ctx, field)
+			return childFields_JobRunInstanceEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunInstanceEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRunInstance]) (ret graphql.Marshaler) {
+func _JobRunInstanceEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*job.JobRunInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstanceEdge_cursor(ctx, field)
+			return fieldContext_JobRunInstanceEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstanceEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstanceEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunInstanceEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunInstanceEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*job.JobRunInstance]) (ret graphql.Marshaler) {
+func _JobRunInstanceEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*job.JobRunInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunInstanceEdge_node(ctx, field)
+			return fieldContext_JobRunInstanceEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRunInstance) graphql.Marshaler {
-			return ec.marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx, selections, v)
+			return marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunInstanceEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunInstanceEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobRunInstanceEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRunInstance(ctx, field)
+			return childFields_JobRunInstance(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobRunStatus_state(ctx context.Context, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
+func _JobRunStatus_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunStatus_state(ctx, field)
+			return fieldContext_JobRunStatus_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.State, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v job.JobRunState) graphql.Marshaler {
-			return ec.marshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx, selections, v)
+			return marshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunStatus_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunStatus", field, false, false, errors.New("field of type JobRunState does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunStatus_message(ctx context.Context, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
+func _JobRunStatus_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunStatus_message(ctx, field)
+			return fieldContext_JobRunStatus_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunStatus_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunStatus", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunTrigger_type(ctx context.Context, field graphql.CollectedField, obj *job.JobRunTrigger) (ret graphql.Marshaler) {
+func _JobRunTrigger_type(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunTrigger) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunTrigger_type(ctx, field)
+			return fieldContext_JobRunTrigger_type(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Type, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v job.JobRunTriggerType) graphql.Marshaler {
-			return ec.marshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx, selections, v)
+			return marshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunTrigger_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunTrigger_type(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunTrigger", field, false, false, errors.New("field of type JobRunTriggerType does not have child fields"))
 }
 
-func (ec *executionContext) _JobRunTrigger_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobRunTrigger) (ret graphql.Marshaler) {
+func _JobRunTrigger_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobRunTrigger) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobRunTrigger_actor(ctx, field)
+			return fieldContext_JobRunTrigger_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobRunTrigger_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobRunTrigger_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobRunTrigger", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobSchedule_expression(ctx context.Context, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
+func _JobSchedule_expression(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobSchedule_expression(ctx, field)
+			return fieldContext_JobSchedule_expression(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Expression, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobSchedule_expression(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobSchedule_expression(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobSchedule", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobSchedule_timeZone(ctx context.Context, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
+func _JobSchedule_timeZone(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobSchedule_timeZone(ctx, field)
+			return fieldContext_JobSchedule_timeZone(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TimeZone, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobSchedule_timeZone(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobSchedule_timeZone(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobSchedule", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobSchedule_nextRun(ctx context.Context, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
+func _JobSchedule_nextRun(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobSchedule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobSchedule_nextRun(ctx, field)
+			return fieldContext_JobSchedule_nextRun(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.NextRun, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobSchedule_nextRun(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobSchedule_nextRun(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobSchedule", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *job.JobStateFacetItem) (ret graphql.Marshaler) {
+func _JobStateFacetItem_state(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobStateFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobStateFacetItem_state(ctx, field)
+			return fieldContext_JobStateFacetItem_state(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.State, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v job.JobState) graphql.Marshaler {
-			return ec.marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, selections, v)
+			return marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobStateFacetItem_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobStateFacetItem_state(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobStateFacetItem", field, false, false, errors.New("field of type JobState does not have child fields"))
 }
 
-func (ec *executionContext) _JobStateFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *job.JobStateFacetItem) (ret graphql.Marshaler) {
+func _JobStateFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobStateFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobStateFacetItem_count(ctx, field)
+			return fieldContext_JobStateFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobStateFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobStateFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobStateFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_id(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_actor(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobTriggeredActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_message(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
+func _JobTriggeredActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobTriggeredActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobTriggeredActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_JobTriggeredActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobTriggeredActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobTriggeredActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobTriggeredActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("JobUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobUpdatedActivityLogEntryData(ctx, field)
+			return childFields_JobUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntryData_changedFields(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntryData_changedFields(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntryData_changedFields(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntryData_changedFields(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ChangedFields, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*activitylog.ResourceChangedField) graphql.Marshaler {
-			return ec.marshalNResourceChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ(ctx, selections, v)
+			return marshalNResourceChangedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐResourceChangedFieldᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntryData_changedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntryData_changedFields(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceChangedField(ctx, field)
+			return childFields_ResourceChangedField(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.JobUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field)
+			return fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_JobUpdatedActivityLogEntryData_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "JobUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCountJobs_total(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+func _TeamInventoryCountJobs_total(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountJobs_total(ctx, field)
+			return fieldContext_TeamInventoryCountJobs_total(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountJobs_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountJobs_total(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountJobs", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCountJobs_running(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+func _TeamInventoryCountJobs_running(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountJobs_running(ctx, field)
+			return fieldContext_TeamInventoryCountJobs_running(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Running, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountJobs_running(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountJobs_running(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountJobs", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCountJobs_completed(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+func _TeamInventoryCountJobs_completed(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountJobs_completed(ctx, field)
+			return fieldContext_TeamInventoryCountJobs_completed(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Completed, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountJobs_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountJobs_completed(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountJobs", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCountJobs_failed(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+func _TeamInventoryCountJobs_failed(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountJobs_failed(ctx, field)
+			return fieldContext_TeamInventoryCountJobs_failed(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Failed, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountJobs_failed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountJobs_failed(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountJobs", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCountJobs_unknown(ctx context.Context, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
+func _TeamInventoryCountJobs_unknown(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TeamInventoryCountJobs) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountJobs_unknown(ctx, field)
+			return fieldContext_TeamInventoryCountJobs_unknown(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Unknown, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountJobs_unknown(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountJobs_unknown(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountJobs", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _TriggerJobPayload_job(ctx context.Context, field graphql.CollectedField, obj *job.TriggerJobPayload) (ret graphql.Marshaler) {
+func _TriggerJobPayload_job(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TriggerJobPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TriggerJobPayload_job(ctx, field)
+			return fieldContext_TriggerJobPayload_job(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TriggerJobPayload().Job(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.Job) graphql.Marshaler {
-			return ec.marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, selections, v)
+			return marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TriggerJobPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TriggerJobPayload_job(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TriggerJobPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Job(ctx, field)
+			return childFields_Job(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TriggerJobPayload_jobRun(ctx context.Context, field graphql.CollectedField, obj *job.TriggerJobPayload) (ret graphql.Marshaler) {
+func _TriggerJobPayload_jobRun(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.TriggerJobPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TriggerJobPayload_jobRun(ctx, field)
+			return fieldContext_TriggerJobPayload_jobRun(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.JobRun, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
-			return ec.marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, selections, v)
+			return marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TriggerJobPayload_jobRun(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TriggerJobPayload_jobRun(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TriggerJobPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobRun(ctx, field)
+			return childFields_JobRun(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UpdateJobPayload_job(ctx context.Context, field graphql.CollectedField, obj *job.UpdateJobPayload) (ret graphql.Marshaler) {
+func _UpdateJobPayload_job(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *job.UpdateJobPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateJobPayload_job(ctx, field)
+			return fieldContext_UpdateJobPayload_job(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.UpdateJobPayload().Job(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.Job) graphql.Marshaler {
-			return ec.marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, selections, v)
+			return marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateJobPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateJobPayload_job(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateJobPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Job(ctx, field)
+			return childFields_Job(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -4501,7 +4500,7 @@ func (ec *executionContext) fieldContext_UpdateJobPayload_job(_ context.Context,
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputDeleteJobInput(ctx context.Context, obj any) (job.DeleteJobInput, error) {
+func unmarshalInputDeleteJobInput(ctx context.Context, ec *executionContext, obj any) (job.DeleteJobInput, error) {
 	var it job.DeleteJobInput
 	if obj == nil {
 		return it, nil
@@ -4521,21 +4520,21 @@ func (ec *executionContext) unmarshalInputDeleteJobInput(ctx context.Context, ob
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -4545,7 +4544,7 @@ func (ec *executionContext) unmarshalInputDeleteJobInput(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteJobRunInput(ctx context.Context, obj any) (job.DeleteJobRunInput, error) {
+func unmarshalInputDeleteJobRunInput(ctx context.Context, ec *executionContext, obj any) (job.DeleteJobRunInput, error) {
 	var it job.DeleteJobRunInput
 	if obj == nil {
 		return it, nil
@@ -4565,21 +4564,21 @@ func (ec *executionContext) unmarshalInputDeleteJobRunInput(ctx context.Context,
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "runName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -4589,7 +4588,7 @@ func (ec *executionContext) unmarshalInputDeleteJobRunInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj any) (job.JobOrder, error) {
+func unmarshalInputJobOrder(ctx context.Context, ec *executionContext, obj any) (job.JobOrder, error) {
 	var it job.JobOrder
 	if obj == nil {
 		return it, nil
@@ -4609,14 +4608,14 @@ func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj any)
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx, v)
+			data, err := unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -4626,7 +4625,7 @@ func (ec *executionContext) unmarshalInputJobOrder(ctx context.Context, obj any)
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, obj any) (job.TeamJobsFilter, error) {
+func unmarshalInputTeamJobsFilter(ctx context.Context, ec *executionContext, obj any) (job.TeamJobsFilter, error) {
 	var it job.TeamJobsFilter
 	if obj == nil {
 		return it, nil
@@ -4646,28 +4645,28 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "states":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("states"))
-			data, err := ec.unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx, v)
+			data, err := unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.States = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -4677,7 +4676,7 @@ func (ec *executionContext) unmarshalInputTeamJobsFilter(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, obj any) (job.TriggerJobInput, error) {
+func unmarshalInputTriggerJobInput(ctx context.Context, ec *executionContext, obj any) (job.TriggerJobInput, error) {
 	var it job.TriggerJobInput
 	if obj == nil {
 		return it, nil
@@ -4697,28 +4696,28 @@ func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, o
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "runName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("runName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -4728,7 +4727,7 @@ func (ec *executionContext) unmarshalInputTriggerJobInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, obj any) (job.UpdateJobInput, error) {
+func unmarshalInputUpdateJobInput(ctx context.Context, ec *executionContext, obj any) (job.UpdateJobInput, error) {
 	var it job.UpdateJobInput
 	if obj == nil {
 		return it, nil
@@ -4748,28 +4747,28 @@ func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, ob
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "environmentVariables":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentVariables"))
-			data, err := ec.unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx, v)
+			data, err := unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -4783,24 +4782,24 @@ func (ec *executionContext) unmarshalInputUpdateJobInput(ctx context.Context, ob
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _JobAuthIntegrations(ctx context.Context, sel ast.SelectionSet, obj workload.JobAuthIntegrations) graphql.Marshaler {
+func _JobAuthIntegrations(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj workload.JobAuthIntegrations) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case workload.MaskinportenAuthIntegration:
-		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
+		return _MaskinportenAuthIntegration(ctx, ec, sel, &obj)
 	case *workload.MaskinportenAuthIntegration:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
+		return _MaskinportenAuthIntegration(ctx, ec, sel, obj)
 	case workload.EntraIDAuthIntegration:
-		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
+		return _EntraIDAuthIntegration(ctx, ec, sel, &obj)
 	case *workload.EntraIDAuthIntegration:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._EntraIDAuthIntegration(ctx, sel, obj)
+		return _EntraIDAuthIntegration(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -4816,7 +4815,7 @@ func (ec *executionContext) _JobAuthIntegrations(ctx context.Context, sel ast.Se
 
 var deleteJobPayloadImplementors = []string{"DeleteJobPayload"}
 
-func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.SelectionSet, obj *job.DeleteJobPayload) graphql.Marshaler {
+func _DeleteJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.DeleteJobPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deleteJobPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4834,7 +4833,7 @@ func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._DeleteJobPayload_team(ctx, field, obj)
+				res = _DeleteJobPayload_team(ctx, ec, field, obj)
 				return res
 			}
 
@@ -4859,7 +4858,7 @@ func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.Selec
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "success":
-			out.Values[i] = ec._DeleteJobPayload_success(ctx, field, obj)
+			out.Values[i] = _DeleteJobPayload_success(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4885,7 +4884,7 @@ func (ec *executionContext) _DeleteJobPayload(ctx context.Context, sel ast.Selec
 
 var deleteJobRunPayloadImplementors = []string{"DeleteJobRunPayload"}
 
-func (ec *executionContext) _DeleteJobRunPayload(ctx context.Context, sel ast.SelectionSet, obj *job.DeleteJobRunPayload) graphql.Marshaler {
+func _DeleteJobRunPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.DeleteJobRunPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deleteJobRunPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4903,7 +4902,7 @@ func (ec *executionContext) _DeleteJobRunPayload(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._DeleteJobRunPayload_job(ctx, field, obj)
+				res = _DeleteJobRunPayload_job(ctx, ec, field, obj)
 				return res
 			}
 
@@ -4928,7 +4927,7 @@ func (ec *executionContext) _DeleteJobRunPayload(ctx context.Context, sel ast.Se
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "success":
-			out.Values[i] = ec._DeleteJobRunPayload_success(ctx, field, obj)
+			out.Values[i] = _DeleteJobRunPayload_success(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -4957,7 +4956,7 @@ func (ec *executionContext) _DeleteJobRunPayload(ctx context.Context, sel ast.Se
 
 var jobImplementors = []string{"Job", "Node", "Workload", "ActivityLogger", "SearchNode"}
 
-func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj *job.Job) graphql.Marshaler {
+func _Job(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.Job) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4967,12 +4966,12 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Job")
 		case "id":
-			out.Values[i] = ec._Job_id(ctx, field, obj)
+			out.Values[i] = _Job_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._Job_name(ctx, field, obj)
+			out.Values[i] = _Job_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -4985,7 +4984,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_team(ctx, field, obj)
+				res = _Job_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5021,7 +5020,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_teamEnvironment(ctx, field, obj)
+				res = _Job_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5049,12 +5048,12 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "image":
-			out.Values[i] = ec._Job_image(ctx, field, obj)
+			out.Values[i] = _Job_image(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "resources":
-			out.Values[i] = ec._Job_resources(ctx, field, obj)
+			out.Values[i] = _Job_resources(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -5067,7 +5066,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_authIntegrations(ctx, field, obj)
+				res = _Job_authIntegrations(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5095,12 +5094,12 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "labels":
-			out.Values[i] = ec._Job_labels(ctx, field, obj)
+			out.Values[i] = _Job_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "schedule":
-			out.Values[i] = ec._Job_schedule(ctx, field, obj)
+			out.Values[i] = _Job_schedule(ctx, ec, field, obj)
 		case "runs":
 			field := field
 
@@ -5110,7 +5109,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_runs(ctx, field, obj)
+				res = _Job_runs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5146,7 +5145,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_manifest(ctx, field, obj)
+				res = _Job_manifest(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5174,7 +5173,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "deletionStartedAt":
-			out.Values[i] = ec._Job_deletionStartedAt(ctx, field, obj)
+			out.Values[i] = _Job_deletionStartedAt(ctx, ec, field, obj)
 		case "activityLog":
 			field := field
 
@@ -5184,7 +5183,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_activityLog(ctx, field, obj)
+				res = _Job_activityLog(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5220,7 +5219,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_state(ctx, field, obj)
+				res = _Job_state(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5256,7 +5255,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_issues(ctx, field, obj)
+				res = _Job_issues(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5292,7 +5291,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_bigQueryDatasets(ctx, field, obj)
+				res = _Job_bigQueryDatasets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5328,7 +5327,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_buckets(ctx, field, obj)
+				res = _Job_buckets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5364,7 +5363,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_configs(ctx, field, obj)
+				res = _Job_configs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5400,7 +5399,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_cost(ctx, field, obj)
+				res = _Job_cost(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5436,7 +5435,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_deployments(ctx, field, obj)
+				res = _Job_deployments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5472,7 +5471,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_kafkaTopicAcls(ctx, field, obj)
+				res = _Job_kafkaTopicAcls(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5508,7 +5507,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_logDestinations(ctx, field, obj)
+				res = _Job_logDestinations(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5544,7 +5543,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_networkPolicy(ctx, field, obj)
+				res = _Job_networkPolicy(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5580,7 +5579,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_openSearch(ctx, field, obj)
+				res = _Job_openSearch(ctx, ec, field, obj)
 				return res
 			}
 
@@ -5613,7 +5612,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_postgreses(ctx, field, obj)
+				res = _Job_postgreses(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5649,7 +5648,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_secrets(ctx, field, obj)
+				res = _Job_secrets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5685,7 +5684,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_serviceAccount(ctx, field, obj)
+				res = _Job_serviceAccount(ctx, ec, field, obj)
 				return res
 			}
 
@@ -5718,7 +5717,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_sqlInstances(ctx, field, obj)
+				res = _Job_sqlInstances(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5754,7 +5753,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_valkeys(ctx, field, obj)
+				res = _Job_valkeys(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5790,7 +5789,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_imageVulnerabilityHistory(ctx, field, obj)
+				res = _Job_imageVulnerabilityHistory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5826,7 +5825,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_vulnerabilityFixHistory(ctx, field, obj)
+				res = _Job_vulnerabilityFixHistory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5862,7 +5861,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Job_events(ctx, field, obj)
+				res = _Job_events(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5914,7 +5913,7 @@ func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj 
 
 var jobConnectionImplementors = []string{"JobConnection"}
 
-func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+func _JobConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5924,17 +5923,17 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobConnection")
 		case "pageInfo":
-			out.Values[i] = ec._JobConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _JobConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._JobConnection_nodes(ctx, field, obj)
+			out.Values[i] = _JobConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._JobConnection_edges(ctx, field, obj)
+			out.Values[i] = _JobConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -5947,7 +5946,7 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._JobConnection_facets(ctx, field, obj)
+				res = _JobConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -5996,7 +5995,7 @@ func (ec *executionContext) _JobConnection(ctx context.Context, sel ast.Selectio
 
 var jobCreatedActivityLogEntryImplementors = []string{"JobCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobCreatedActivityLogEntry) graphql.Marshaler {
+func _JobCreatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobCreatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6006,46 +6005,46 @@ func (ec *executionContext) _JobCreatedActivityLogEntry(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._JobCreatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _JobCreatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6074,7 +6073,7 @@ func (ec *executionContext) _JobCreatedActivityLogEntry(ctx context.Context, sel
 
 var jobDeletedActivityLogEntryImplementors = []string{"JobDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobDeletedActivityLogEntry) graphql.Marshaler {
+func _JobDeletedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobDeletedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6084,44 +6083,44 @@ func (ec *executionContext) _JobDeletedActivityLogEntry(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobDeletedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _JobDeletedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6147,7 +6146,7 @@ func (ec *executionContext) _JobDeletedActivityLogEntry(ctx context.Context, sel
 
 var jobEdgeImplementors = []string{"JobEdge"}
 
-func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*job.Job]) graphql.Marshaler {
+func _JobEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*job.Job]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6157,12 +6156,12 @@ func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobEdge")
 		case "cursor":
-			out.Values[i] = ec._JobEdge_cursor(ctx, field, obj)
+			out.Values[i] = _JobEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._JobEdge_node(ctx, field, obj)
+			out.Values[i] = _JobEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6191,7 +6190,7 @@ func (ec *executionContext) _JobEdge(ctx context.Context, sel ast.SelectionSet, 
 
 var jobFacetsImplementors = []string{"JobFacets"}
 
-func (ec *executionContext) _JobFacets(ctx context.Context, sel ast.SelectionSet, obj *job.JobFacets) graphql.Marshaler {
+func _JobFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6209,7 +6208,7 @@ func (ec *executionContext) _JobFacets(ctx context.Context, sel ast.SelectionSet
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._JobFacets_environments(ctx, field, obj)
+				res = _JobFacets_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6245,7 +6244,7 @@ func (ec *executionContext) _JobFacets(ctx context.Context, sel ast.SelectionSet
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._JobFacets_states(ctx, field, obj)
+				res = _JobFacets_states(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6281,7 +6280,7 @@ func (ec *executionContext) _JobFacets(ctx context.Context, sel ast.SelectionSet
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._JobFacets_labels(ctx, field, obj)
+				res = _JobFacets_labels(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6333,7 +6332,7 @@ func (ec *executionContext) _JobFacets(ctx context.Context, sel ast.SelectionSet
 
 var jobManifestImplementors = []string{"JobManifest", "WorkloadManifest"}
 
-func (ec *executionContext) _JobManifest(ctx context.Context, sel ast.SelectionSet, obj *job.JobManifest) graphql.Marshaler {
+func _JobManifest(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobManifest) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobManifestImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6343,7 +6342,7 @@ func (ec *executionContext) _JobManifest(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobManifest")
 		case "content":
-			out.Values[i] = ec._JobManifest_content(ctx, field, obj)
+			out.Values[i] = _JobManifest_content(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6372,7 +6371,7 @@ func (ec *executionContext) _JobManifest(ctx context.Context, sel ast.SelectionS
 
 var jobResourcesImplementors = []string{"JobResources", "WorkloadResources"}
 
-func (ec *executionContext) _JobResources(ctx context.Context, sel ast.SelectionSet, obj *job.JobResources) graphql.Marshaler {
+func _JobResources(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobResources) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobResourcesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6382,12 +6381,12 @@ func (ec *executionContext) _JobResources(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobResources")
 		case "limits":
-			out.Values[i] = ec._JobResources_limits(ctx, field, obj)
+			out.Values[i] = _JobResources_limits(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "requests":
-			out.Values[i] = ec._JobResources_requests(ctx, field, obj)
+			out.Values[i] = _JobResources_requests(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6416,7 +6415,7 @@ func (ec *executionContext) _JobResources(ctx context.Context, sel ast.Selection
 
 var jobRunImplementors = []string{"JobRun", "Node"}
 
-func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, obj *job.JobRun) graphql.Marshaler {
+func _JobRun(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobRun) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6426,26 +6425,26 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRun")
 		case "id":
-			out.Values[i] = ec._JobRun_id(ctx, field, obj)
+			out.Values[i] = _JobRun_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._JobRun_name(ctx, field, obj)
+			out.Values[i] = _JobRun_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "startTime":
-			out.Values[i] = ec._JobRun_startTime(ctx, field, obj)
+			out.Values[i] = _JobRun_startTime(ctx, ec, field, obj)
 		case "completionTime":
-			out.Values[i] = ec._JobRun_completionTime(ctx, field, obj)
+			out.Values[i] = _JobRun_completionTime(ctx, ec, field, obj)
 		case "status":
-			out.Values[i] = ec._JobRun_status(ctx, field, obj)
+			out.Values[i] = _JobRun_status(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "image":
-			out.Values[i] = ec._JobRun_image(ctx, field, obj)
+			out.Values[i] = _JobRun_image(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -6458,7 +6457,7 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._JobRun_duration(ctx, field, obj)
+				res = _JobRun_duration(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6494,7 +6493,7 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._JobRun_instances(ctx, field, obj)
+				res = _JobRun_instances(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -6522,7 +6521,7 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "trigger":
-			out.Values[i] = ec._JobRun_trigger(ctx, field, obj)
+			out.Values[i] = _JobRun_trigger(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -6551,7 +6550,7 @@ func (ec *executionContext) _JobRun(ctx context.Context, sel ast.SelectionSet, o
 
 var jobRunConnectionImplementors = []string{"JobRunConnection"}
 
-func (ec *executionContext) _JobRunConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*job.JobRun]) graphql.Marshaler {
+func _JobRunConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*job.JobRun]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6561,17 +6560,17 @@ func (ec *executionContext) _JobRunConnection(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunConnection")
 		case "pageInfo":
-			out.Values[i] = ec._JobRunConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _JobRunConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._JobRunConnection_nodes(ctx, field, obj)
+			out.Values[i] = _JobRunConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._JobRunConnection_edges(ctx, field, obj)
+			out.Values[i] = _JobRunConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6600,7 +6599,7 @@ func (ec *executionContext) _JobRunConnection(ctx context.Context, sel ast.Selec
 
 var jobRunDeletedActivityLogEntryImplementors = []string{"JobRunDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunDeletedActivityLogEntry) graphql.Marshaler {
+func _JobRunDeletedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobRunDeletedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6610,46 +6609,46 @@ func (ec *executionContext) _JobRunDeletedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntry_data(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6675,7 +6674,7 @@ func (ec *executionContext) _JobRunDeletedActivityLogEntry(ctx context.Context, 
 
 var jobRunDeletedActivityLogEntryDataImplementors = []string{"JobRunDeletedActivityLogEntryData"}
 
-func (ec *executionContext) _JobRunDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
+func _JobRunDeletedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunDeletedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6685,7 +6684,7 @@ func (ec *executionContext) _JobRunDeletedActivityLogEntryData(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunDeletedActivityLogEntryData")
 		case "runName":
-			out.Values[i] = ec._JobRunDeletedActivityLogEntryData_runName(ctx, field, obj)
+			out.Values[i] = _JobRunDeletedActivityLogEntryData_runName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6714,7 +6713,7 @@ func (ec *executionContext) _JobRunDeletedActivityLogEntryData(ctx context.Conte
 
 var jobRunEdgeImplementors = []string{"JobRunEdge"}
 
-func (ec *executionContext) _JobRunEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*job.JobRun]) graphql.Marshaler {
+func _JobRunEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*job.JobRun]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6724,12 +6723,12 @@ func (ec *executionContext) _JobRunEdge(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunEdge")
 		case "cursor":
-			out.Values[i] = ec._JobRunEdge_cursor(ctx, field, obj)
+			out.Values[i] = _JobRunEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._JobRunEdge_node(ctx, field, obj)
+			out.Values[i] = _JobRunEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6758,7 +6757,7 @@ func (ec *executionContext) _JobRunEdge(ctx context.Context, sel ast.SelectionSe
 
 var jobRunInstanceImplementors = []string{"JobRunInstance", "Node"}
 
-func (ec *executionContext) _JobRunInstance(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunInstance) graphql.Marshaler {
+func _JobRunInstance(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobRunInstance) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunInstanceImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6768,12 +6767,12 @@ func (ec *executionContext) _JobRunInstance(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunInstance")
 		case "id":
-			out.Values[i] = ec._JobRunInstance_id(ctx, field, obj)
+			out.Values[i] = _JobRunInstance_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._JobRunInstance_name(ctx, field, obj)
+			out.Values[i] = _JobRunInstance_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6802,7 +6801,7 @@ func (ec *executionContext) _JobRunInstance(ctx context.Context, sel ast.Selecti
 
 var jobRunInstanceConnectionImplementors = []string{"JobRunInstanceConnection"}
 
-func (ec *executionContext) _JobRunInstanceConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
+func _JobRunInstanceConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunInstanceConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6812,17 +6811,17 @@ func (ec *executionContext) _JobRunInstanceConnection(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunInstanceConnection")
 		case "pageInfo":
-			out.Values[i] = ec._JobRunInstanceConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _JobRunInstanceConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._JobRunInstanceConnection_nodes(ctx, field, obj)
+			out.Values[i] = _JobRunInstanceConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._JobRunInstanceConnection_edges(ctx, field, obj)
+			out.Values[i] = _JobRunInstanceConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6851,7 +6850,7 @@ func (ec *executionContext) _JobRunInstanceConnection(ctx context.Context, sel a
 
 var jobRunInstanceEdgeImplementors = []string{"JobRunInstanceEdge"}
 
-func (ec *executionContext) _JobRunInstanceEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
+func _JobRunInstanceEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunInstanceEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6861,12 +6860,12 @@ func (ec *executionContext) _JobRunInstanceEdge(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunInstanceEdge")
 		case "cursor":
-			out.Values[i] = ec._JobRunInstanceEdge_cursor(ctx, field, obj)
+			out.Values[i] = _JobRunInstanceEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._JobRunInstanceEdge_node(ctx, field, obj)
+			out.Values[i] = _JobRunInstanceEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6895,7 +6894,7 @@ func (ec *executionContext) _JobRunInstanceEdge(ctx context.Context, sel ast.Sel
 
 var jobRunStatusImplementors = []string{"JobRunStatus"}
 
-func (ec *executionContext) _JobRunStatus(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunStatus) graphql.Marshaler {
+func _JobRunStatus(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobRunStatus) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunStatusImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6905,12 +6904,12 @@ func (ec *executionContext) _JobRunStatus(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunStatus")
 		case "state":
-			out.Values[i] = ec._JobRunStatus_state(ctx, field, obj)
+			out.Values[i] = _JobRunStatus_state(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobRunStatus_message(ctx, field, obj)
+			out.Values[i] = _JobRunStatus_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -6939,7 +6938,7 @@ func (ec *executionContext) _JobRunStatus(ctx context.Context, sel ast.Selection
 
 var jobRunTriggerImplementors = []string{"JobRunTrigger"}
 
-func (ec *executionContext) _JobRunTrigger(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunTrigger) graphql.Marshaler {
+func _JobRunTrigger(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobRunTrigger) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunTriggerImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6949,12 +6948,12 @@ func (ec *executionContext) _JobRunTrigger(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobRunTrigger")
 		case "type":
-			out.Values[i] = ec._JobRunTrigger_type(ctx, field, obj)
+			out.Values[i] = _JobRunTrigger_type(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobRunTrigger_actor(ctx, field, obj)
+			out.Values[i] = _JobRunTrigger_actor(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6980,7 +6979,7 @@ func (ec *executionContext) _JobRunTrigger(ctx context.Context, sel ast.Selectio
 
 var jobScheduleImplementors = []string{"JobSchedule"}
 
-func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionSet, obj *job.JobSchedule) graphql.Marshaler {
+func _JobSchedule(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobSchedule) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobScheduleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -6990,17 +6989,17 @@ func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobSchedule")
 		case "expression":
-			out.Values[i] = ec._JobSchedule_expression(ctx, field, obj)
+			out.Values[i] = _JobSchedule_expression(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "timeZone":
-			out.Values[i] = ec._JobSchedule_timeZone(ctx, field, obj)
+			out.Values[i] = _JobSchedule_timeZone(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nextRun":
-			out.Values[i] = ec._JobSchedule_nextRun(ctx, field, obj)
+			out.Values[i] = _JobSchedule_nextRun(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7026,7 +7025,7 @@ func (ec *executionContext) _JobSchedule(ctx context.Context, sel ast.SelectionS
 
 var jobStateFacetItemImplementors = []string{"JobStateFacetItem"}
 
-func (ec *executionContext) _JobStateFacetItem(ctx context.Context, sel ast.SelectionSet, obj *job.JobStateFacetItem) graphql.Marshaler {
+func _JobStateFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobStateFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobStateFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7036,12 +7035,12 @@ func (ec *executionContext) _JobStateFacetItem(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobStateFacetItem")
 		case "state":
-			out.Values[i] = ec._JobStateFacetItem_state(ctx, field, obj)
+			out.Values[i] = _JobStateFacetItem_state(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._JobStateFacetItem_count(ctx, field, obj)
+			out.Values[i] = _JobStateFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7070,7 +7069,7 @@ func (ec *executionContext) _JobStateFacetItem(ctx context.Context, sel ast.Sele
 
 var jobTriggeredActivityLogEntryImplementors = []string{"JobTriggeredActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobTriggeredActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobTriggeredActivityLogEntry) graphql.Marshaler {
+func _JobTriggeredActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobTriggeredActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobTriggeredActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7080,44 +7079,44 @@ func (ec *executionContext) _JobTriggeredActivityLogEntry(ctx context.Context, s
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobTriggeredActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobTriggeredActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _JobTriggeredActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7143,7 +7142,7 @@ func (ec *executionContext) _JobTriggeredActivityLogEntry(ctx context.Context, s
 
 var jobUpdatedActivityLogEntryImplementors = []string{"JobUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _JobUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *job.JobUpdatedActivityLogEntry) graphql.Marshaler {
+func _JobUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7153,46 +7152,46 @@ func (ec *executionContext) _JobUpdatedActivityLogEntry(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._JobUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7221,7 +7220,7 @@ func (ec *executionContext) _JobUpdatedActivityLogEntry(ctx context.Context, sel
 
 var jobUpdatedActivityLogEntryDataImplementors = []string{"JobUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _JobUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
+func _JobUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, jobUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7231,12 +7230,12 @@ func (ec *executionContext) _JobUpdatedActivityLogEntryData(ctx context.Context,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("JobUpdatedActivityLogEntryData")
 		case "changedFields":
-			out.Values[i] = ec._JobUpdatedActivityLogEntryData_changedFields(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntryData_changedFields(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _JobUpdatedActivityLogEntryData_gitHubActorClaims(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7262,7 +7261,7 @@ func (ec *executionContext) _JobUpdatedActivityLogEntryData(ctx context.Context,
 
 var teamInventoryCountJobsImplementors = []string{"TeamInventoryCountJobs"}
 
-func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, obj *job.TeamInventoryCountJobs) graphql.Marshaler {
+func _TeamInventoryCountJobs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.TeamInventoryCountJobs) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountJobsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7272,27 +7271,27 @@ func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountJobs")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountJobs_total(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountJobs_total(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "running":
-			out.Values[i] = ec._TeamInventoryCountJobs_running(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountJobs_running(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "completed":
-			out.Values[i] = ec._TeamInventoryCountJobs_completed(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountJobs_completed(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "failed":
-			out.Values[i] = ec._TeamInventoryCountJobs_failed(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountJobs_failed(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unknown":
-			out.Values[i] = ec._TeamInventoryCountJobs_unknown(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountJobs_unknown(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7321,7 +7320,7 @@ func (ec *executionContext) _TeamInventoryCountJobs(ctx context.Context, sel ast
 
 var triggerJobPayloadImplementors = []string{"TriggerJobPayload"}
 
-func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.SelectionSet, obj *job.TriggerJobPayload) graphql.Marshaler {
+func _TriggerJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.TriggerJobPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, triggerJobPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7339,7 +7338,7 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TriggerJobPayload_job(ctx, field, obj)
+				res = _TriggerJobPayload_job(ctx, ec, field, obj)
 				return res
 			}
 
@@ -7364,7 +7363,7 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "jobRun":
-			out.Values[i] = ec._TriggerJobPayload_jobRun(ctx, field, obj)
+			out.Values[i] = _TriggerJobPayload_jobRun(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7390,7 +7389,7 @@ func (ec *executionContext) _TriggerJobPayload(ctx context.Context, sel ast.Sele
 
 var updateJobPayloadImplementors = []string{"UpdateJobPayload"}
 
-func (ec *executionContext) _UpdateJobPayload(ctx context.Context, sel ast.SelectionSet, obj *job.UpdateJobPayload) graphql.Marshaler {
+func _UpdateJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *job.UpdateJobPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateJobPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -7408,7 +7407,7 @@ func (ec *executionContext) _UpdateJobPayload(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._UpdateJobPayload_job(ctx, field, obj)
+				res = _UpdateJobPayload_job(ctx, ec, field, obj)
 				return res
 			}
 
@@ -7459,53 +7458,53 @@ func (ec *executionContext) _UpdateJobPayload(ctx context.Context, sel ast.Selec
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNDeleteJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobInput(ctx context.Context, v any) (job.DeleteJobInput, error) {
-	res, err := ec.unmarshalInputDeleteJobInput(ctx, v)
+func unmarshalNDeleteJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobInput(ctx context.Context, ec *executionContext, v any) (job.DeleteJobInput, error) {
+	res, err := unmarshalInputDeleteJobInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeleteJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobPayload(ctx context.Context, sel ast.SelectionSet, v job.DeleteJobPayload) graphql.Marshaler {
-	return ec._DeleteJobPayload(ctx, sel, &v)
+func marshalNDeleteJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.DeleteJobPayload) graphql.Marshaler {
+	return _DeleteJobPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobPayload(ctx context.Context, sel ast.SelectionSet, v *job.DeleteJobPayload) graphql.Marshaler {
+func marshalNDeleteJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.DeleteJobPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeleteJobPayload(ctx, sel, v)
+	return _DeleteJobPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeleteJobRunInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobRunInput(ctx context.Context, v any) (job.DeleteJobRunInput, error) {
-	res, err := ec.unmarshalInputDeleteJobRunInput(ctx, v)
+func unmarshalNDeleteJobRunInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobRunInput(ctx context.Context, ec *executionContext, v any) (job.DeleteJobRunInput, error) {
+	res, err := unmarshalInputDeleteJobRunInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeleteJobRunPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobRunPayload(ctx context.Context, sel ast.SelectionSet, v job.DeleteJobRunPayload) graphql.Marshaler {
-	return ec._DeleteJobRunPayload(ctx, sel, &v)
+func marshalNDeleteJobRunPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobRunPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.DeleteJobRunPayload) graphql.Marshaler {
+	return _DeleteJobRunPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteJobRunPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobRunPayload(ctx context.Context, sel ast.SelectionSet, v *job.DeleteJobRunPayload) graphql.Marshaler {
+func marshalNDeleteJobRunPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐDeleteJobRunPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.DeleteJobRunPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeleteJobRunPayload(ctx, sel, v)
+	return _DeleteJobRunPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJob2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, sel ast.SelectionSet, v job.Job) graphql.Marshaler {
-	return ec._Job(ctx, sel, &v)
+func marshalNJob2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.Job) graphql.Marshaler {
+	return _Job(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.Job) graphql.Marshaler {
+func marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*job.Job) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, sel, v[i])
+		return marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7517,31 +7516,31 @@ func (ec *executionContext) marshalNJob2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return ret
 }
 
-func (ec *executionContext) marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {
+func marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Job(ctx, sel, v)
+	return _Job(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrations(ctx context.Context, sel ast.SelectionSet, v workload.JobAuthIntegrations) graphql.Marshaler {
+func marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrations(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v workload.JobAuthIntegrations) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobAuthIntegrations(ctx, sel, v)
+	return _JobAuthIntegrations(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrationsᚄ(ctx context.Context, sel ast.SelectionSet, v []workload.JobAuthIntegrations) graphql.Marshaler {
+func marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrationsᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []workload.JobAuthIntegrations) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrations(ctx, sel, v[i])
+		return marshalNJobAuthIntegrations2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐJobAuthIntegrations(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7553,29 +7552,29 @@ func (ec *executionContext) marshalNJobAuthIntegrations2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNJobConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
-	return ec._JobConnection(ctx, sel, &v)
+func marshalNJobConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+	return _JobConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
+func marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobConnection(ctx, sel, v)
+	return _JobConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*job.Job]) graphql.Marshaler {
-	return ec._JobEdge(ctx, sel, &v)
+func marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*job.Job]) graphql.Marshaler {
+	return _JobEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.Job]) graphql.Marshaler {
+func marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*job.Job]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNJobEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7587,45 +7586,45 @@ func (ec *executionContext) marshalNJobEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinter
 	return ret
 }
 
-func (ec *executionContext) marshalNJobManifest2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest(ctx context.Context, sel ast.SelectionSet, v job.JobManifest) graphql.Marshaler {
-	return ec._JobManifest(ctx, sel, &v)
+func marshalNJobManifest2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.JobManifest) graphql.Marshaler {
+	return _JobManifest(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest(ctx context.Context, sel ast.SelectionSet, v *job.JobManifest) graphql.Marshaler {
+func marshalNJobManifest2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobManifest(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobManifest) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobManifest(ctx, sel, v)
+	return _JobManifest(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx context.Context, v any) (job.JobOrderField, error) {
+func unmarshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx context.Context, ec *executionContext, v any) (job.JobOrderField, error) {
 	var res job.JobOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx context.Context, sel ast.SelectionSet, v job.JobOrderField) graphql.Marshaler {
+func marshalNJobOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.JobOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobResources(ctx context.Context, sel ast.SelectionSet, v *job.JobResources) graphql.Marshaler {
+func marshalNJobResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobResources(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobResources) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobResources(ctx, sel, v)
+	return _JobResources(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.JobRun) graphql.Marshaler {
+func marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*job.JobRun) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, sel, v[i])
+		return marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7637,39 +7636,39 @@ func (ec *executionContext) marshalNJobRun2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return ret
 }
 
-func (ec *executionContext) marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx context.Context, sel ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
+func marshalNJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobRun(ctx, sel, v)
+	return _JobRun(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobRunConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*job.JobRun]) graphql.Marshaler {
-	return ec._JobRunConnection(ctx, sel, &v)
+func marshalNJobRunConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*job.JobRun]) graphql.Marshaler {
+	return _JobRunConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*job.JobRun]) graphql.Marshaler {
+func marshalNJobRunConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*job.JobRun]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobRunConnection(ctx, sel, v)
+	return _JobRunConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*job.JobRun]) graphql.Marshaler {
-	return ec._JobRunEdge(ctx, sel, &v)
+func marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*job.JobRun]) graphql.Marshaler {
+	return _JobRunEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.JobRun]) graphql.Marshaler {
+func marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*job.JobRun]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNJobRunEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7681,11 +7680,11 @@ func (ec *executionContext) marshalNJobRunEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) marshalNJobRunInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceᚄ(ctx context.Context, sel ast.SelectionSet, v []*job.JobRunInstance) graphql.Marshaler {
+func marshalNJobRunInstance2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*job.JobRunInstance) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx, sel, v[i])
+		return marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7697,39 +7696,39 @@ func (ec *executionContext) marshalNJobRunInstance2ᚕᚖgithubᚗcomᚋnaisᚋa
 	return ret
 }
 
-func (ec *executionContext) marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx context.Context, sel ast.SelectionSet, v *job.JobRunInstance) graphql.Marshaler {
+func marshalNJobRunInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstance(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobRunInstance) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobRunInstance(ctx, sel, v)
+	return _JobRunInstance(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobRunInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
-	return ec._JobRunInstanceConnection(ctx, sel, &v)
+func marshalNJobRunInstanceConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
+	return _JobRunInstanceConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobRunInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
+func marshalNJobRunInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*job.JobRunInstance]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobRunInstanceConnection(ctx, sel, v)
+	return _JobRunInstanceConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
-	return ec._JobRunInstanceEdge(ctx, sel, &v)
+func marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
+	return _JobRunInstanceEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
+func marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*job.JobRunInstance]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNJobRunInstanceEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7741,65 +7740,65 @@ func (ec *executionContext) marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋ
 	return ret
 }
 
-func (ec *executionContext) unmarshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx context.Context, v any) (job.JobRunState, error) {
+func unmarshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx context.Context, ec *executionContext, v any) (job.JobRunState, error) {
 	var res job.JobRunState
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx context.Context, sel ast.SelectionSet, v job.JobRunState) graphql.Marshaler {
+func marshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.JobRunState) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunStatus(ctx context.Context, sel ast.SelectionSet, v *job.JobRunStatus) graphql.Marshaler {
+func marshalNJobRunStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunStatus(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobRunStatus) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobRunStatus(ctx, sel, v)
+	return _JobRunStatus(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNJobRunTrigger2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTrigger(ctx context.Context, sel ast.SelectionSet, v *job.JobRunTrigger) graphql.Marshaler {
+func marshalNJobRunTrigger2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTrigger(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobRunTrigger) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobRunTrigger(ctx, sel, v)
+	return _JobRunTrigger(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx context.Context, v any) (job.JobRunTriggerType, error) {
+func unmarshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx context.Context, ec *executionContext, v any) (job.JobRunTriggerType, error) {
 	var res job.JobRunTriggerType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx context.Context, sel ast.SelectionSet, v job.JobRunTriggerType) graphql.Marshaler {
+func marshalNJobRunTriggerType2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunTriggerType(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.JobRunTriggerType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx context.Context, v any) (job.JobState, error) {
+func unmarshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx context.Context, ec *executionContext, v any) (job.JobState, error) {
 	var res job.JobState
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx context.Context, sel ast.SelectionSet, v job.JobState) graphql.Marshaler {
+func marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.JobState) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNJobStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx context.Context, sel ast.SelectionSet, v job.JobStateFacetItem) graphql.Marshaler {
-	return ec._JobStateFacetItem(ctx, sel, &v)
+func marshalNJobStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.JobStateFacetItem) graphql.Marshaler {
+	return _JobStateFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []job.JobStateFacetItem) graphql.Marshaler {
+func marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []job.JobStateFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx, sel, v[i])
+		return marshalNJobStateFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7811,112 +7810,112 @@ func (ec *executionContext) marshalNJobStateFacetItem2ᚕgithubᚗcomᚋnaisᚋa
 	return ret
 }
 
-func (ec *executionContext) marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNJobUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._JobUpdatedActivityLogEntryData(ctx, sel, v)
+	return _JobUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountJobs2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, v job.TeamInventoryCountJobs) graphql.Marshaler {
-	return ec._TeamInventoryCountJobs(ctx, sel, &v)
+func marshalNTeamInventoryCountJobs2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.TeamInventoryCountJobs) graphql.Marshaler {
+	return _TeamInventoryCountJobs(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, sel ast.SelectionSet, v *job.TeamInventoryCountJobs) graphql.Marshaler {
+func marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.TeamInventoryCountJobs) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCountJobs(ctx, sel, v)
+	return _TeamInventoryCountJobs(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTriggerJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobInput(ctx context.Context, v any) (job.TriggerJobInput, error) {
-	res, err := ec.unmarshalInputTriggerJobInput(ctx, v)
+func unmarshalNTriggerJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobInput(ctx context.Context, ec *executionContext, v any) (job.TriggerJobInput, error) {
+	res, err := unmarshalInputTriggerJobInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTriggerJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobPayload(ctx context.Context, sel ast.SelectionSet, v job.TriggerJobPayload) graphql.Marshaler {
-	return ec._TriggerJobPayload(ctx, sel, &v)
+func marshalNTriggerJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.TriggerJobPayload) graphql.Marshaler {
+	return _TriggerJobPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobPayload(ctx context.Context, sel ast.SelectionSet, v *job.TriggerJobPayload) graphql.Marshaler {
+func marshalNTriggerJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTriggerJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.TriggerJobPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TriggerJobPayload(ctx, sel, v)
+	return _TriggerJobPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobInput(ctx context.Context, v any) (job.UpdateJobInput, error) {
-	res, err := ec.unmarshalInputUpdateJobInput(ctx, v)
+func unmarshalNUpdateJobInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobInput(ctx context.Context, ec *executionContext, v any) (job.UpdateJobInput, error) {
+	res, err := unmarshalInputUpdateJobInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx context.Context, sel ast.SelectionSet, v job.UpdateJobPayload) graphql.Marshaler {
-	return ec._UpdateJobPayload(ctx, sel, &v)
+func marshalNUpdateJobPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v job.UpdateJobPayload) graphql.Marshaler {
+	return _UpdateJobPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx context.Context, sel ast.SelectionSet, v *job.UpdateJobPayload) graphql.Marshaler {
+func marshalNUpdateJobPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐUpdateJobPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.UpdateJobPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateJobPayload(ctx, sel, v)
+	return _UpdateJobPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {
+func marshalOJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.Job) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Job(ctx, sel, v)
+	return _Job(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOJobFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobFacets(ctx context.Context, sel ast.SelectionSet, v *job.JobFacets) graphql.Marshaler {
+func marshalOJobFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._JobFacets(ctx, sel, v)
+	return _JobFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOJobOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrder(ctx context.Context, v any) (*job.JobOrder, error) {
+func unmarshalOJobOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrder(ctx context.Context, ec *executionContext, v any) (*job.JobOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputJobOrder(ctx, v)
+	res, err := unmarshalInputJobOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx context.Context, sel ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
+func marshalOJobRun2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRun(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobRun) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._JobRun(ctx, sel, v)
+	return _JobRun(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOJobRunDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunDeletedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
+func marshalOJobRunDeletedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunDeletedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobRunDeletedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._JobRunDeletedActivityLogEntryData(ctx, sel, v)
+	return _JobRunDeletedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobSchedule(ctx context.Context, sel ast.SelectionSet, v *job.JobSchedule) graphql.Marshaler {
+func marshalOJobSchedule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobSchedule(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *job.JobSchedule) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._JobSchedule(ctx, sel, v)
+	return _JobSchedule(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx context.Context, v any) ([]job.JobState, error) {
+func unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx context.Context, ec *executionContext, v any) ([]job.JobState, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -7926,7 +7925,7 @@ func (ec *executionContext) unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	res := make([]job.JobState, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, vSlice[i])
+		res[i], err = unmarshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -7934,14 +7933,14 @@ func (ec *executionContext) unmarshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return res, nil
 }
 
-func (ec *executionContext) marshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx context.Context, sel ast.SelectionSet, v []job.JobState) graphql.Marshaler {
+func marshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobStateᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []job.JobState) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, sel, v[i])
+		return marshalNJobState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobState(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -7953,11 +7952,11 @@ func (ec *executionContext) marshalOJobState2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	return ret
 }
 
-func (ec *executionContext) unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamJobsFilter(ctx context.Context, v any) (*job.TeamJobsFilter, error) {
+func unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamJobsFilter(ctx context.Context, ec *executionContext, v any) (*job.TeamJobsFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamJobsFilter(ctx, v)
+	res, err := unmarshalInputTeamJobsFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
