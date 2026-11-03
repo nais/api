@@ -88,13 +88,9 @@ spec:
             - name: REPLACE_ENVIRONMENT_NAMES
               value: {{ .Values.replaceEnvironmentNames | quote }}
             {{- end }}
-            {{- if .Values.logging.loki }}
-            - name: LOGGING_LOKI_CLUSTER_DEFAULT
-              value: "true"
-            {{- end }}
-            {{- if .Values.logging.secure_logs }}
-            - name: LOGGING_LOKI_CLUSTER_DEFAULT
-              value: "true"
+            {{- if .Values.logging.destinations }}
+            - name: LOGGING_DESTINATIONS
+              value: {{ .Values.logging.destinations | quote }}
             {{- end }}
             - name: ZITADEL_IDP_ID
               value: {{ .Values.zitadel.idpID | quote }}
