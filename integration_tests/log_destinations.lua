@@ -3,6 +3,51 @@ Helper.readK8sResources("k8s_resources/log_destinations")
 local user = User.new("name", "email@email.com", "externalID")
 Team.new("logteam", "purpose", "#slack_channel")
 
+for _, environment in ipairs({ "dev", "staging" }) do
+	Test.gql("Environment default log destinations in " .. environment, function(t)
+		t.addHeader("x-user-email", user:email())
+
+		t.query([[
+			query {
+				team(slug: "logteam") {
+					environment(name: "]] .. environment .. [[") {
+						defaultApplication: application(name: "app-environment-logs") {
+							logDestinations { __typename ... on LogDestinationGeneric { name } }
+						}
+						enabledApplication: application(name: "app-enabled-logs") {
+							logDestinations { __typename ... on LogDestinationGeneric { name } }
+						}
+						defaultJob: job(name: "job-environment-logs") {
+							logDestinations { __typename ... on LogDestinationGeneric { name } }
+						}
+						enabledJob: job(name: "job-enabled-logs") {
+							logDestinations { __typename ... on LogDestinationGeneric { name } }
+						}
+					}
+				}
+			}
+		]])
+
+		local destination = { __typename = "LogDestinationLoki" }
+		if environment == "staging" then
+			destination = { __typename = "LogDestinationSecureLogs" }
+		end
+		local expected = { logDestinations = { destination } }
+		t.check {
+			data = {
+				team = {
+					environment = {
+						defaultApplication = expected,
+						enabledApplication = expected,
+						defaultJob = expected,
+						enabledJob = expected,
+					},
+				},
+			},
+		}
+	end)
+end
+
 Test.gql("Application with all log destination types (loki, secure_logs, generic)", function(t)
 	t.addHeader("x-user-email", user:email())
 

@@ -289,7 +289,7 @@ func newGQLRunner(
 			BifrostAPIKey: "", // bifrost API key: the harness uses the fake client, which needs none
 		},
 		[]string{"dev", "staging", "dev-fss", "dev-gcp"},
-		[]logging.SupportedLogDestination{logging.Loki},
+		logging.EnvironmentDestinations{"dev": logging.Loki, "staging": logging.SecureLogs},
 		notifier,
 		lokiClient,
 		"test-audit-project", // auditLogProjectID for testing
@@ -308,6 +308,7 @@ func newGQLRunner(
 		Resolvers: resolver,
 	}, hlog)
 	if err != nil {
+		notifyCancel()
 		return nil, nil, nil, fmt.Errorf("failed to create graph handler: %w", err)
 	}
 

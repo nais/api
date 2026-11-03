@@ -329,7 +329,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		hookdClient,
 		cfg.Unleash,
 		cfg.K8s.AllClusterNames(),
-		cfg.Logging.DefaultLogDestinations(),
+		cfg.Logging.Destinations,
 		notifier,
 		lokiClient,
 		cfg.AuditLog.ProjectID,
