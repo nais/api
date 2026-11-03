@@ -5,14 +5,13 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -29,336 +28,336 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _FeatureKafka_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureKafka) (ret graphql.Marshaler) {
+func _FeatureKafka_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureKafka) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureKafka_id(ctx, field)
+			return fieldContext_FeatureKafka_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureKafka_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureKafka_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureKafka", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureKafka_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureKafka) (ret graphql.Marshaler) {
+func _FeatureKafka_enabled(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureKafka) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureKafka_enabled(ctx, field)
+			return fieldContext_FeatureKafka_enabled(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Enabled, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureKafka_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureKafka_enabled(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureKafka", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureOpenSearch_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureOpenSearch) (ret graphql.Marshaler) {
+func _FeatureOpenSearch_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureOpenSearch) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureOpenSearch_id(ctx, field)
+			return fieldContext_FeatureOpenSearch_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureOpenSearch_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureOpenSearch_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureOpenSearch", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureOpenSearch_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureOpenSearch) (ret graphql.Marshaler) {
+func _FeatureOpenSearch_enabled(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureOpenSearch) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureOpenSearch_enabled(ctx, field)
+			return fieldContext_FeatureOpenSearch_enabled(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Enabled, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureOpenSearch_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureOpenSearch_enabled(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureOpenSearch", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureUnleash_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureUnleash) (ret graphql.Marshaler) {
+func _FeatureUnleash_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureUnleash) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureUnleash_id(ctx, field)
+			return fieldContext_FeatureUnleash_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureUnleash_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureUnleash_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureUnleash", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureUnleash_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureUnleash) (ret graphql.Marshaler) {
+func _FeatureUnleash_enabled(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureUnleash) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureUnleash_enabled(ctx, field)
+			return fieldContext_FeatureUnleash_enabled(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Enabled, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureUnleash_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureUnleash_enabled(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureUnleash", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureValkey_id(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureValkey) (ret graphql.Marshaler) {
+func _FeatureValkey_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureValkey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureValkey_id(ctx, field)
+			return fieldContext_FeatureValkey_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureValkey_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureValkey_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureValkey", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _FeatureValkey_enabled(ctx context.Context, field graphql.CollectedField, obj *feature.FeatureValkey) (ret graphql.Marshaler) {
+func _FeatureValkey_enabled(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.FeatureValkey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_FeatureValkey_enabled(ctx, field)
+			return fieldContext_FeatureValkey_enabled(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Enabled, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_FeatureValkey_enabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_FeatureValkey_enabled(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("FeatureValkey", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Features_id(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+func _Features_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Features_id(ctx, field)
+			return fieldContext_Features_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Features_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Features_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Features", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Features_unleash(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+func _Features_unleash(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Features_unleash(ctx, field)
+			return fieldContext_Features_unleash(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Unleash, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v feature.FeatureUnleash) graphql.Marshaler {
-			return ec.marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx, selections, v)
+			return marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Features_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Features_unleash(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Features",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_FeatureUnleash(ctx, field)
+			return childFields_FeatureUnleash(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Features_valkey(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+func _Features_valkey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Features_valkey(ctx, field)
+			return fieldContext_Features_valkey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Valkey, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v feature.FeatureValkey) graphql.Marshaler {
-			return ec.marshalNFeatureValkey2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureValkey(ctx, selections, v)
+			return marshalNFeatureValkey2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureValkey(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Features_valkey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Features_valkey(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Features",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_FeatureValkey(ctx, field)
+			return childFields_FeatureValkey(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Features_kafka(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+func _Features_kafka(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Features_kafka(ctx, field)
+			return fieldContext_Features_kafka(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Kafka, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v feature.FeatureKafka) graphql.Marshaler {
-			return ec.marshalNFeatureKafka2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureKafka(ctx, selections, v)
+			return marshalNFeatureKafka2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureKafka(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Features_kafka(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Features_kafka(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Features",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_FeatureKafka(ctx, field)
+			return childFields_FeatureKafka(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Features_openSearch(ctx context.Context, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
+func _Features_openSearch(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *feature.Features) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Features_openSearch(ctx, field)
+			return fieldContext_Features_openSearch(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.OpenSearch, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v feature.FeatureOpenSearch) graphql.Marshaler {
-			return ec.marshalNFeatureOpenSearch2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureOpenSearch(ctx, selections, v)
+			return marshalNFeatureOpenSearch2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureOpenSearch(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Features_openSearch(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Features_openSearch(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Features",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_FeatureOpenSearch(ctx, field)
+			return childFields_FeatureOpenSearch(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -378,7 +377,7 @@ func (ec *executionContext) fieldContext_Features_openSearch(_ context.Context, 
 
 var featureKafkaImplementors = []string{"FeatureKafka", "Node"}
 
-func (ec *executionContext) _FeatureKafka(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureKafka) graphql.Marshaler {
+func _FeatureKafka(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *feature.FeatureKafka) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featureKafkaImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -388,12 +387,12 @@ func (ec *executionContext) _FeatureKafka(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FeatureKafka")
 		case "id":
-			out.Values[i] = ec._FeatureKafka_id(ctx, field, obj)
+			out.Values[i] = _FeatureKafka_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "enabled":
-			out.Values[i] = ec._FeatureKafka_enabled(ctx, field, obj)
+			out.Values[i] = _FeatureKafka_enabled(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -422,7 +421,7 @@ func (ec *executionContext) _FeatureKafka(ctx context.Context, sel ast.Selection
 
 var featureOpenSearchImplementors = []string{"FeatureOpenSearch", "Node"}
 
-func (ec *executionContext) _FeatureOpenSearch(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureOpenSearch) graphql.Marshaler {
+func _FeatureOpenSearch(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *feature.FeatureOpenSearch) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featureOpenSearchImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -432,12 +431,12 @@ func (ec *executionContext) _FeatureOpenSearch(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FeatureOpenSearch")
 		case "id":
-			out.Values[i] = ec._FeatureOpenSearch_id(ctx, field, obj)
+			out.Values[i] = _FeatureOpenSearch_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "enabled":
-			out.Values[i] = ec._FeatureOpenSearch_enabled(ctx, field, obj)
+			out.Values[i] = _FeatureOpenSearch_enabled(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -466,7 +465,7 @@ func (ec *executionContext) _FeatureOpenSearch(ctx context.Context, sel ast.Sele
 
 var featureUnleashImplementors = []string{"FeatureUnleash", "Node"}
 
-func (ec *executionContext) _FeatureUnleash(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureUnleash) graphql.Marshaler {
+func _FeatureUnleash(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *feature.FeatureUnleash) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featureUnleashImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -476,12 +475,12 @@ func (ec *executionContext) _FeatureUnleash(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FeatureUnleash")
 		case "id":
-			out.Values[i] = ec._FeatureUnleash_id(ctx, field, obj)
+			out.Values[i] = _FeatureUnleash_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "enabled":
-			out.Values[i] = ec._FeatureUnleash_enabled(ctx, field, obj)
+			out.Values[i] = _FeatureUnleash_enabled(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -510,7 +509,7 @@ func (ec *executionContext) _FeatureUnleash(ctx context.Context, sel ast.Selecti
 
 var featureValkeyImplementors = []string{"FeatureValkey", "Node"}
 
-func (ec *executionContext) _FeatureValkey(ctx context.Context, sel ast.SelectionSet, obj *feature.FeatureValkey) graphql.Marshaler {
+func _FeatureValkey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *feature.FeatureValkey) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featureValkeyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -520,12 +519,12 @@ func (ec *executionContext) _FeatureValkey(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("FeatureValkey")
 		case "id":
-			out.Values[i] = ec._FeatureValkey_id(ctx, field, obj)
+			out.Values[i] = _FeatureValkey_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "enabled":
-			out.Values[i] = ec._FeatureValkey_enabled(ctx, field, obj)
+			out.Values[i] = _FeatureValkey_enabled(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -554,7 +553,7 @@ func (ec *executionContext) _FeatureValkey(ctx context.Context, sel ast.Selectio
 
 var featuresImplementors = []string{"Features", "Node"}
 
-func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet, obj *feature.Features) graphql.Marshaler {
+func _Features(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *feature.Features) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, featuresImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -564,27 +563,27 @@ func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Features")
 		case "id":
-			out.Values[i] = ec._Features_id(ctx, field, obj)
+			out.Values[i] = _Features_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "unleash":
-			out.Values[i] = ec._Features_unleash(ctx, field, obj)
+			out.Values[i] = _Features_unleash(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "valkey":
-			out.Values[i] = ec._Features_valkey(ctx, field, obj)
+			out.Values[i] = _Features_valkey(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "kafka":
-			out.Values[i] = ec._Features_kafka(ctx, field, obj)
+			out.Values[i] = _Features_kafka(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "openSearch":
-			out.Values[i] = ec._Features_openSearch(ctx, field, obj)
+			out.Values[i] = _Features_openSearch(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -615,34 +614,34 @@ func (ec *executionContext) _Features(ctx context.Context, sel ast.SelectionSet,
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNFeatureKafka2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureKafka(ctx context.Context, sel ast.SelectionSet, v feature.FeatureKafka) graphql.Marshaler {
-	return ec._FeatureKafka(ctx, sel, &v)
+func marshalNFeatureKafka2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureKafka(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v feature.FeatureKafka) graphql.Marshaler {
+	return _FeatureKafka(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeatureOpenSearch2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureOpenSearch(ctx context.Context, sel ast.SelectionSet, v feature.FeatureOpenSearch) graphql.Marshaler {
-	return ec._FeatureOpenSearch(ctx, sel, &v)
+func marshalNFeatureOpenSearch2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureOpenSearch(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v feature.FeatureOpenSearch) graphql.Marshaler {
+	return _FeatureOpenSearch(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx context.Context, sel ast.SelectionSet, v feature.FeatureUnleash) graphql.Marshaler {
-	return ec._FeatureUnleash(ctx, sel, &v)
+func marshalNFeatureUnleash2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureUnleash(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v feature.FeatureUnleash) graphql.Marshaler {
+	return _FeatureUnleash(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeatureValkey2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureValkey(ctx context.Context, sel ast.SelectionSet, v feature.FeatureValkey) graphql.Marshaler {
-	return ec._FeatureValkey(ctx, sel, &v)
+func marshalNFeatureValkey2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatureValkey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v feature.FeatureValkey) graphql.Marshaler {
+	return _FeatureValkey(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeatures2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, sel ast.SelectionSet, v feature.Features) graphql.Marshaler {
-	return ec._Features(ctx, sel, &v)
+func marshalNFeatures2githubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v feature.Features) graphql.Marshaler {
+	return _Features(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNFeatures2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, sel ast.SelectionSet, v *feature.Features) graphql.Marshaler {
+func marshalNFeatures2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋfeatureᚐFeatures(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *feature.Features) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Features(ctx, sel, v)
+	return _Features(ctx, ec, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

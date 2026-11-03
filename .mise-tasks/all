@@ -1,7 +1,3 @@
 #!/usr/bin/env bash
 #MISE description="Run all required generators, tests etc."
-
-set -e
-
-mise run generate
-mise run fmt ::: test ::: check
+#MISE depends=["generate", "fmt", "test", "check"]

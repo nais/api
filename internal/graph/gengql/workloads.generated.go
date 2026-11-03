@@ -6,10 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
@@ -20,6 +16,9 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -41,12 +40,12 @@ type TeamWorkloadsFilterResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_ContainerImage_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_ContainerImage_activityLog_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -54,7 +53,7 @@ func (ec *executionContext) field_ContainerImage_activityLog_args(ctx context.Co
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -62,7 +61,7 @@ func (ec *executionContext) field_ContainerImage_activityLog_args(ctx context.Co
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -70,7 +69,7 @@ func (ec *executionContext) field_ContainerImage_activityLog_args(ctx context.Co
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -78,7 +77,7 @@ func (ec *executionContext) field_ContainerImage_activityLog_args(ctx context.Co
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
-			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+			return unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -87,12 +86,12 @@ func (ec *executionContext) field_ContainerImage_activityLog_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_ContainerImage_vulnerabilities_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -100,7 +99,7 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx contex
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -108,7 +107,7 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx contex
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -116,7 +115,7 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx contex
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -124,7 +123,7 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx contex
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*vulnerability.ImageVulnerabilityFilter, error) {
-			return ec.unmarshalOImageVulnerabilityFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityFilter(ctx, v)
+			return unmarshalOImageVulnerabilityFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -132,7 +131,7 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx contex
 	args["filter"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*vulnerability.ImageVulnerabilityOrder, error) {
-			return ec.unmarshalOImageVulnerabilityOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityOrder(ctx, v)
+			return unmarshalOImageVulnerabilityOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -141,12 +140,12 @@ func (ec *executionContext) field_ContainerImage_vulnerabilities_args(ctx contex
 	return args, nil
 }
 
-func (ec *executionContext) field_ContainerImage_workloadReferences_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_ContainerImage_workloadReferences_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -154,7 +153,7 @@ func (ec *executionContext) field_ContainerImage_workloadReferences_args(ctx con
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -162,7 +161,7 @@ func (ec *executionContext) field_ContainerImage_workloadReferences_args(ctx con
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -170,7 +169,7 @@ func (ec *executionContext) field_ContainerImage_workloadReferences_args(ctx con
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -187,105 +186,105 @@ func (ec *executionContext) field_ContainerImage_workloadReferences_args(ctx con
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ContainerImage_id(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_id(ctx, field)
+			return fieldContext_ContainerImage_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ContainerImage", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ContainerImage_name(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_name(ctx, field)
+			return fieldContext_ContainerImage_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ContainerImage", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ContainerImage_tag(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_tag(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_tag(ctx, field)
+			return fieldContext_ContainerImage_tag(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Tag, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_tag(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_tag(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ContainerImage", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ContainerImage_digest(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_digest(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_digest(ctx, field)
+			return fieldContext_ContainerImage_digest(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Digest, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_digest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_digest(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ContainerImage", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ContainerImage_activityLog(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_activityLog(ctx, field)
+			return fieldContext_ContainerImage_activityLog(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -293,20 +292,20 @@ func (ec *executionContext) _ContainerImage_activityLog(ctx context.Context, fie
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, selections, v)
+			return marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContainerImage",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEntryConnection(ctx, field)
+			return childFields_ActivityLogEntryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -316,75 +315,75 @@ func (ec *executionContext) fieldContext_ContainerImage_activityLog(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_ContainerImage_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_ContainerImage_activityLog_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ContainerImage_sbom(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_sbom(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_sbom(ctx, field)
+			return fieldContext_ContainerImage_sbom(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ContainerImage().Sbom(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.ContainerImageSBOM) graphql.Marshaler {
-			return ec.marshalNContainerImageSBOM2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐContainerImageSBOM(ctx, selections, v)
+			return marshalNContainerImageSBOM2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐContainerImageSBOM(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_sbom(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_sbom(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContainerImage",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ContainerImageSBOM(ctx, field)
+			return childFields_ContainerImageSBOM(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ContainerImage_hasSBOM(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_hasSBOM(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_hasSBOM(ctx, field)
+			return fieldContext_ContainerImage_hasSBOM(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ContainerImage().HasSbom(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_hasSBOM(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_hasSBOM(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ContainerImage", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _ContainerImage_vulnerabilities(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_vulnerabilities(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_vulnerabilities(ctx, field)
+			return fieldContext_ContainerImage_vulnerabilities(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -392,20 +391,20 @@ func (ec *executionContext) _ContainerImage_vulnerabilities(ctx context.Context,
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.ImageVulnerability]) graphql.Marshaler {
-			return ec.marshalNImageVulnerabilityConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNImageVulnerabilityConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_vulnerabilities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_vulnerabilities(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContainerImage",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ImageVulnerabilityConnection(ctx, field)
+			return childFields_ImageVulnerabilityConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -415,52 +414,52 @@ func (ec *executionContext) fieldContext_ContainerImage_vulnerabilities(ctx cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_ContainerImage_vulnerabilities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_ContainerImage_vulnerabilities_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ContainerImage_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_vulnerabilitySummary(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_vulnerabilitySummary(ctx, field)
+			return fieldContext_ContainerImage_vulnerabilitySummary(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ContainerImage().VulnerabilitySummary(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.ImageVulnerabilitySummary) graphql.Marshaler {
-			return ec.marshalOImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilitySummary(ctx, selections, v)
+			return marshalOImageVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilitySummary(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_vulnerabilitySummary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_vulnerabilitySummary(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContainerImage",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ImageVulnerabilitySummary(ctx, field)
+			return childFields_ImageVulnerabilitySummary(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ContainerImage_workloadReferences(ctx context.Context, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
+func _ContainerImage_workloadReferences(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.ContainerImage) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ContainerImage_workloadReferences(ctx, field)
+			return fieldContext_ContainerImage_workloadReferences(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -468,20 +467,20 @@ func (ec *executionContext) _ContainerImage_workloadReferences(ctx context.Conte
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.ContainerImageWorkloadReference]) graphql.Marshaler {
-			return ec.marshalNContainerImageWorkloadReferenceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNContainerImageWorkloadReferenceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ContainerImage_workloadReferences(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ContainerImage_workloadReferences(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ContainerImage",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ContainerImageWorkloadReferenceConnection(ctx, field)
+			return childFields_ContainerImageWorkloadReferenceConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -491,157 +490,157 @@ func (ec *executionContext) fieldContext_ContainerImage_workloadReferences(ctx c
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_ContainerImage_workloadReferences_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_ContainerImage_workloadReferences_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _EntraIDAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.EntraIDAuthIntegration) (ret graphql.Marshaler) {
+func _EntraIDAuthIntegration_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.EntraIDAuthIntegration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EntraIDAuthIntegration_name(ctx, field)
+			return fieldContext_EntraIDAuthIntegration_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EntraIDAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_EntraIDAuthIntegration_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("EntraIDAuthIntegration", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _IDPortenAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.IDPortenAuthIntegration) (ret graphql.Marshaler) {
+func _IDPortenAuthIntegration_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.IDPortenAuthIntegration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_IDPortenAuthIntegration_name(ctx, field)
+			return fieldContext_IDPortenAuthIntegration_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_IDPortenAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_IDPortenAuthIntegration_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("IDPortenAuthIntegration", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _MaskinportenAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.MaskinportenAuthIntegration) (ret graphql.Marshaler) {
+func _MaskinportenAuthIntegration_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.MaskinportenAuthIntegration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_MaskinportenAuthIntegration_name(ctx, field)
+			return fieldContext_MaskinportenAuthIntegration_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_MaskinportenAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_MaskinportenAuthIntegration_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("MaskinportenAuthIntegration", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TokenXAuthIntegration_name(ctx context.Context, field graphql.CollectedField, obj *workload.TokenXAuthIntegration) (ret graphql.Marshaler) {
+func _TokenXAuthIntegration_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.TokenXAuthIntegration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TokenXAuthIntegration_name(ctx, field)
+			return fieldContext_TokenXAuthIntegration_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TokenXAuthIntegration_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TokenXAuthIntegration_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TokenXAuthIntegration", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
+func _WorkloadConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadConnection_pageInfo(ctx, field)
+			return fieldContext_WorkloadConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
+func _WorkloadConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
+			return fieldContext_WorkloadConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []workload.Workload) graphql.Marshaler {
-			return ec.marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ(ctx, selections, v)
+			return marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadConnection",
 		Field:      field,
@@ -654,81 +653,81 @@ func (ec *executionContext) fieldContext_WorkloadConnection_nodes(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
+func _WorkloadConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadConnection_edges(ctx, field)
+			return fieldContext_WorkloadConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadEdge(ctx, field)
+			return childFields_WorkloadEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[workload.Workload]) (ret graphql.Marshaler) {
+func _WorkloadEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[workload.Workload]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEdge_cursor(ctx, field)
+			return fieldContext_WorkloadEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[workload.Workload]) (ret graphql.Marshaler) {
+func _WorkloadEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[workload.Workload]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEdge_node(ctx, field)
+			return fieldContext_WorkloadEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadEdge",
 		Field:      field,
@@ -741,49 +740,49 @@ func (ec *executionContext) fieldContext_WorkloadEdge_node(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadResourceQuantity_cpu(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadResourceQuantity) (ret graphql.Marshaler) {
+func _WorkloadResourceQuantity_cpu(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.WorkloadResourceQuantity) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadResourceQuantity_cpu(ctx, field)
+			return fieldContext_WorkloadResourceQuantity_cpu(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CPU, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *float64) graphql.Marshaler {
-			return ec.marshalOFloat2ᚖfloat64(ctx, selections, v)
+			return marshalOFloat2ᚖfloat64(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadResourceQuantity_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadResourceQuantity_cpu(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadResourceQuantity", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadResourceQuantity_memory(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadResourceQuantity) (ret graphql.Marshaler) {
+func _WorkloadResourceQuantity_memory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *workload.WorkloadResourceQuantity) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadResourceQuantity_memory(ctx, field)
+			return fieldContext_WorkloadResourceQuantity_memory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Memory, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int64) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint64(ctx, selections, v)
+			return marshalOInt2ᚖint64(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadResourceQuantity_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadResourceQuantity_memory(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadResourceQuantity", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
@@ -791,7 +790,7 @@ func (ec *executionContext) fieldContext_WorkloadResourceQuantity_memory(_ conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputEnvironmentWorkloadOrder(ctx context.Context, obj any) (workload.EnvironmentWorkloadOrder, error) {
+func unmarshalInputEnvironmentWorkloadOrder(ctx context.Context, ec *executionContext, obj any) (workload.EnvironmentWorkloadOrder, error) {
 	var it workload.EnvironmentWorkloadOrder
 	if obj == nil {
 		return it, nil
@@ -811,14 +810,14 @@ func (ec *executionContext) unmarshalInputEnvironmentWorkloadOrder(ctx context.C
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx, v)
+			data, err := unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -828,7 +827,7 @@ func (ec *executionContext) unmarshalInputEnvironmentWorkloadOrder(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Context, obj any) (workload.TeamWorkloadsFilter, error) {
+func unmarshalInputTeamWorkloadsFilter(ctx context.Context, ec *executionContext, obj any) (workload.TeamWorkloadsFilter, error) {
 	var it workload.TeamWorkloadsFilter
 	if obj == nil {
 		return it, nil
@@ -848,21 +847,21 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 		switch k {
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Labels = data
 		case "sbomStatus":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sbomStatus"))
-			data, err := ec.unmarshalOSBOMStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐSBOMStatus(ctx, v)
+			data, err := unmarshalOSBOMStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐSBOMStatus(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -874,7 +873,7 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateWorkloadEnvironmentVariableInput(ctx context.Context, obj any) (workload.UpdateWorkloadEnvironmentVariableInput, error) {
+func unmarshalInputUpdateWorkloadEnvironmentVariableInput(ctx context.Context, ec *executionContext, obj any) (workload.UpdateWorkloadEnvironmentVariableInput, error) {
 	var it workload.UpdateWorkloadEnvironmentVariableInput
 	if obj == nil {
 		return it, nil
@@ -894,14 +893,14 @@ func (ec *executionContext) unmarshalInputUpdateWorkloadEnvironmentVariableInput
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -911,7 +910,7 @@ func (ec *executionContext) unmarshalInputUpdateWorkloadEnvironmentVariableInput
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputWorkloadOrder(ctx context.Context, obj any) (workload.WorkloadOrder, error) {
+func unmarshalInputWorkloadOrder(ctx context.Context, ec *executionContext, obj any) (workload.WorkloadOrder, error) {
 	var it workload.WorkloadOrder
 	if obj == nil {
 		return it, nil
@@ -931,14 +930,14 @@ func (ec *executionContext) unmarshalInputWorkloadOrder(ctx context.Context, obj
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx, v)
+			data, err := unmarshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -952,38 +951,38 @@ func (ec *executionContext) unmarshalInputWorkloadOrder(ctx context.Context, obj
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.SelectionSet, obj workload.AuthIntegration) graphql.Marshaler {
+func _AuthIntegration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj workload.AuthIntegration) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case workload.TokenXAuthIntegration:
-		return ec._TokenXAuthIntegration(ctx, sel, &obj)
+		return _TokenXAuthIntegration(ctx, ec, sel, &obj)
 	case *workload.TokenXAuthIntegration:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TokenXAuthIntegration(ctx, sel, obj)
+		return _TokenXAuthIntegration(ctx, ec, sel, obj)
 	case workload.MaskinportenAuthIntegration:
-		return ec._MaskinportenAuthIntegration(ctx, sel, &obj)
+		return _MaskinportenAuthIntegration(ctx, ec, sel, &obj)
 	case *workload.MaskinportenAuthIntegration:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._MaskinportenAuthIntegration(ctx, sel, obj)
+		return _MaskinportenAuthIntegration(ctx, ec, sel, obj)
 	case workload.IDPortenAuthIntegration:
-		return ec._IDPortenAuthIntegration(ctx, sel, &obj)
+		return _IDPortenAuthIntegration(ctx, ec, sel, &obj)
 	case *workload.IDPortenAuthIntegration:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._IDPortenAuthIntegration(ctx, sel, obj)
+		return _IDPortenAuthIntegration(ctx, ec, sel, obj)
 	case workload.EntraIDAuthIntegration:
-		return ec._EntraIDAuthIntegration(ctx, sel, &obj)
+		return _EntraIDAuthIntegration(ctx, ec, sel, &obj)
 	case *workload.EntraIDAuthIntegration:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._EntraIDAuthIntegration(ctx, sel, obj)
+		return _EntraIDAuthIntegration(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -993,7 +992,7 @@ func (ec *executionContext) _AuthIntegration(ctx context.Context, sel ast.Select
 	}
 }
 
-func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet, obj workload.Workload) graphql.Marshaler {
+func _Workload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj workload.Workload) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
@@ -1001,12 +1000,12 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
+		return _Job(ctx, ec, sel, obj)
 	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
+		return _Application(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -1016,24 +1015,24 @@ func (ec *executionContext) _Workload(ctx context.Context, sel ast.SelectionSet,
 	}
 }
 
-func (ec *executionContext) _WorkloadManifest(ctx context.Context, sel ast.SelectionSet, obj workload.WorkloadManifest) graphql.Marshaler {
+func _WorkloadManifest(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj workload.WorkloadManifest) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case job.JobManifest:
-		return ec._JobManifest(ctx, sel, &obj)
+		return _JobManifest(ctx, ec, sel, &obj)
 	case *job.JobManifest:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobManifest(ctx, sel, obj)
+		return _JobManifest(ctx, ec, sel, obj)
 	case application.ApplicationManifest:
-		return ec._ApplicationManifest(ctx, sel, &obj)
+		return _ApplicationManifest(ctx, ec, sel, &obj)
 	case *application.ApplicationManifest:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationManifest(ctx, sel, obj)
+		return _ApplicationManifest(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -1043,24 +1042,24 @@ func (ec *executionContext) _WorkloadManifest(ctx context.Context, sel ast.Selec
 	}
 }
 
-func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.SelectionSet, obj workload.WorkloadResources) graphql.Marshaler {
+func _WorkloadResources(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj workload.WorkloadResources) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case job.JobResources:
-		return ec._JobResources(ctx, sel, &obj)
+		return _JobResources(ctx, ec, sel, &obj)
 	case *job.JobResources:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobResources(ctx, sel, obj)
+		return _JobResources(ctx, ec, sel, obj)
 	case application.ApplicationResources:
-		return ec._ApplicationResources(ctx, sel, &obj)
+		return _ApplicationResources(ctx, ec, sel, &obj)
 	case *application.ApplicationResources:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationResources(ctx, sel, obj)
+		return _ApplicationResources(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -1076,7 +1075,7 @@ func (ec *executionContext) _WorkloadResources(ctx context.Context, sel ast.Sele
 
 var containerImageImplementors = []string{"ContainerImage", "Node", "ActivityLogger"}
 
-func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.SelectionSet, obj *workload.ContainerImage) graphql.Marshaler {
+func _ContainerImage(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *workload.ContainerImage) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, containerImageImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1086,22 +1085,22 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ContainerImage")
 		case "id":
-			out.Values[i] = ec._ContainerImage_id(ctx, field, obj)
+			out.Values[i] = _ContainerImage_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._ContainerImage_name(ctx, field, obj)
+			out.Values[i] = _ContainerImage_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "tag":
-			out.Values[i] = ec._ContainerImage_tag(ctx, field, obj)
+			out.Values[i] = _ContainerImage_tag(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "digest":
-			out.Values[i] = ec._ContainerImage_digest(ctx, field, obj)
+			out.Values[i] = _ContainerImage_digest(ctx, ec, field, obj)
 		case "activityLog":
 			field := field
 
@@ -1111,7 +1110,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_activityLog(ctx, field, obj)
+				res = _ContainerImage_activityLog(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1147,7 +1146,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_sbom(ctx, field, obj)
+				res = _ContainerImage_sbom(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1183,7 +1182,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_hasSBOM(ctx, field, obj)
+				res = _ContainerImage_hasSBOM(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1219,7 +1218,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_vulnerabilities(ctx, field, obj)
+				res = _ContainerImage_vulnerabilities(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1255,7 +1254,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_vulnerabilitySummary(ctx, field, obj)
+				res = _ContainerImage_vulnerabilitySummary(ctx, ec, field, obj)
 				return res
 			}
 
@@ -1288,7 +1287,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ContainerImage_workloadReferences(ctx, field, obj)
+				res = _ContainerImage_workloadReferences(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1340,7 +1339,7 @@ func (ec *executionContext) _ContainerImage(ctx context.Context, sel ast.Selecti
 
 var entraIDAuthIntegrationImplementors = []string{"EntraIDAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations", "AuthIntegration"}
 
-func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.EntraIDAuthIntegration) graphql.Marshaler {
+func _EntraIDAuthIntegration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *workload.EntraIDAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, entraIDAuthIntegrationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1350,7 +1349,7 @@ func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("EntraIDAuthIntegration")
 		case "name":
-			out.Values[i] = ec._EntraIDAuthIntegration_name(ctx, field, obj)
+			out.Values[i] = _EntraIDAuthIntegration_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1379,7 +1378,7 @@ func (ec *executionContext) _EntraIDAuthIntegration(ctx context.Context, sel ast
 
 var iDPortenAuthIntegrationImplementors = []string{"IDPortenAuthIntegration", "ApplicationAuthIntegrations", "AuthIntegration"}
 
-func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.IDPortenAuthIntegration) graphql.Marshaler {
+func _IDPortenAuthIntegration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *workload.IDPortenAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, iDPortenAuthIntegrationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1389,7 +1388,7 @@ func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel as
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("IDPortenAuthIntegration")
 		case "name":
-			out.Values[i] = ec._IDPortenAuthIntegration_name(ctx, field, obj)
+			out.Values[i] = _IDPortenAuthIntegration_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1418,7 +1417,7 @@ func (ec *executionContext) _IDPortenAuthIntegration(ctx context.Context, sel as
 
 var maskinportenAuthIntegrationImplementors = []string{"MaskinportenAuthIntegration", "ApplicationAuthIntegrations", "JobAuthIntegrations", "AuthIntegration"}
 
-func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.MaskinportenAuthIntegration) graphql.Marshaler {
+func _MaskinportenAuthIntegration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *workload.MaskinportenAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, maskinportenAuthIntegrationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1428,7 +1427,7 @@ func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MaskinportenAuthIntegration")
 		case "name":
-			out.Values[i] = ec._MaskinportenAuthIntegration_name(ctx, field, obj)
+			out.Values[i] = _MaskinportenAuthIntegration_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1457,7 +1456,7 @@ func (ec *executionContext) _MaskinportenAuthIntegration(ctx context.Context, se
 
 var tokenXAuthIntegrationImplementors = []string{"TokenXAuthIntegration", "ApplicationAuthIntegrations", "AuthIntegration"}
 
-func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.SelectionSet, obj *workload.TokenXAuthIntegration) graphql.Marshaler {
+func _TokenXAuthIntegration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *workload.TokenXAuthIntegration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, tokenXAuthIntegrationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1467,7 +1466,7 @@ func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TokenXAuthIntegration")
 		case "name":
-			out.Values[i] = ec._TokenXAuthIntegration_name(ctx, field, obj)
+			out.Values[i] = _TokenXAuthIntegration_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1496,7 +1495,7 @@ func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.
 
 var workloadConnectionImplementors = []string{"WorkloadConnection"}
 
-func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[workload.Workload]) graphql.Marshaler {
+func _WorkloadConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[workload.Workload]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1506,17 +1505,17 @@ func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadConnection")
 		case "pageInfo":
-			out.Values[i] = ec._WorkloadConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _WorkloadConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._WorkloadConnection_nodes(ctx, field, obj)
+			out.Values[i] = _WorkloadConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._WorkloadConnection_edges(ctx, field, obj)
+			out.Values[i] = _WorkloadConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1545,7 +1544,7 @@ func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.Sel
 
 var workloadEdgeImplementors = []string{"WorkloadEdge"}
 
-func (ec *executionContext) _WorkloadEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[workload.Workload]) graphql.Marshaler {
+func _WorkloadEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[workload.Workload]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1555,12 +1554,12 @@ func (ec *executionContext) _WorkloadEdge(ctx context.Context, sel ast.Selection
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadEdge")
 		case "cursor":
-			out.Values[i] = ec._WorkloadEdge_cursor(ctx, field, obj)
+			out.Values[i] = _WorkloadEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._WorkloadEdge_node(ctx, field, obj)
+			out.Values[i] = _WorkloadEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1589,7 +1588,7 @@ func (ec *executionContext) _WorkloadEdge(ctx context.Context, sel ast.Selection
 
 var workloadResourceQuantityImplementors = []string{"WorkloadResourceQuantity"}
 
-func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel ast.SelectionSet, obj *workload.WorkloadResourceQuantity) graphql.Marshaler {
+func _WorkloadResourceQuantity(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *workload.WorkloadResourceQuantity) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadResourceQuantityImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1599,9 +1598,9 @@ func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadResourceQuantity")
 		case "cpu":
-			out.Values[i] = ec._WorkloadResourceQuantity_cpu(ctx, field, obj)
+			out.Values[i] = _WorkloadResourceQuantity_cpu(ctx, ec, field, obj)
 		case "memory":
-			out.Values[i] = ec._WorkloadResourceQuantity_memory(ctx, field, obj)
+			out.Values[i] = _WorkloadResourceQuantity_memory(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1629,56 +1628,56 @@ func (ec *executionContext) _WorkloadResourceQuantity(ctx context.Context, sel a
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx context.Context, sel ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
+func marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ContainerImage(ctx, sel, v)
+	return _ContainerImage(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, v any) (workload.EnvironmentWorkloadOrderField, error) {
+func unmarshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, ec *executionContext, v any) (workload.EnvironmentWorkloadOrderField, error) {
 	var res workload.EnvironmentWorkloadOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, sel ast.SelectionSet, v workload.EnvironmentWorkloadOrderField) graphql.Marshaler {
+func marshalNEnvironmentWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v workload.EnvironmentWorkloadOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNUpdateWorkloadEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInput(ctx context.Context, v any) (*workload.UpdateWorkloadEnvironmentVariableInput, error) {
-	res, err := ec.unmarshalInputUpdateWorkloadEnvironmentVariableInput(ctx, v)
+func unmarshalNUpdateWorkloadEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInput(ctx context.Context, ec *executionContext, v any) (*workload.UpdateWorkloadEnvironmentVariableInput, error) {
+	res, err := unmarshalInputUpdateWorkloadEnvironmentVariableInput(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, v any) (secret.ValueEncoding, error) {
+func unmarshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, ec *executionContext, v any) (secret.ValueEncoding, error) {
 	var res secret.ValueEncoding
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, sel ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
+func marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+func marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Workload(ctx, sel, v)
+	return _Workload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ(ctx context.Context, sel ast.SelectionSet, v []workload.Workload) graphql.Marshaler {
+func marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []workload.Workload) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, sel, v[i])
+		return marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1690,29 +1689,29 @@ func (ec *executionContext) marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[workload.Workload]) graphql.Marshaler {
-	return ec._WorkloadConnection(ctx, sel, &v)
+func marshalNWorkloadConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[workload.Workload]) graphql.Marshaler {
+	return _WorkloadConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
+func marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadConnection(ctx, sel, v)
+	return _WorkloadConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[workload.Workload]) graphql.Marshaler {
-	return ec._WorkloadEdge(ctx, sel, &v)
+func marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[workload.Workload]) graphql.Marshaler {
+	return _WorkloadEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[workload.Workload]) graphql.Marshaler {
+func marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[workload.Workload]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNWorkloadEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1724,43 +1723,43 @@ func (ec *executionContext) marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	return ret
 }
 
-func (ec *executionContext) unmarshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx context.Context, v any) (workload.WorkloadOrderField, error) {
+func unmarshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx context.Context, ec *executionContext, v any) (workload.WorkloadOrderField, error) {
 	var res workload.WorkloadOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx context.Context, sel ast.SelectionSet, v workload.WorkloadOrderField) graphql.Marshaler {
+func marshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v workload.WorkloadOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx context.Context, sel ast.SelectionSet, v *workload.WorkloadResourceQuantity) graphql.Marshaler {
+func marshalNWorkloadResourceQuantity2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadResourceQuantity(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *workload.WorkloadResourceQuantity) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadResourceQuantity(ctx, sel, v)
+	return _WorkloadResourceQuantity(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx context.Context, v any) (*workload.EnvironmentWorkloadOrder, error) {
+func unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx context.Context, ec *executionContext, v any) (*workload.EnvironmentWorkloadOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputEnvironmentWorkloadOrder(ctx, v)
+	res, err := unmarshalInputEnvironmentWorkloadOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐTeamWorkloadsFilter(ctx context.Context, v any) (*workload.TeamWorkloadsFilter, error) {
+func unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐTeamWorkloadsFilter(ctx context.Context, ec *executionContext, v any) (*workload.TeamWorkloadsFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamWorkloadsFilter(ctx, v)
+	res, err := unmarshalInputTeamWorkloadsFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx context.Context, v any) ([]*workload.UpdateWorkloadEnvironmentVariableInput, error) {
+func unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInputᚄ(ctx context.Context, ec *executionContext, v any) ([]*workload.UpdateWorkloadEnvironmentVariableInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1770,7 +1769,7 @@ func (ec *executionContext) unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕ
 	res := make([]*workload.UpdateWorkloadEnvironmentVariableInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNUpdateWorkloadEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInput(ctx, vSlice[i])
+		res[i], err = unmarshalNUpdateWorkloadEnvironmentVariableInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐUpdateWorkloadEnvironmentVariableInput(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -1778,7 +1777,7 @@ func (ec *executionContext) unmarshalOUpdateWorkloadEnvironmentVariableInput2ᚕ
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, v any) (*secret.ValueEncoding, error) {
+func unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, ec *executionContext, v any) (*secret.ValueEncoding, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1787,29 +1786,29 @@ func (ec *executionContext) unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapi
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, sel ast.SelectionSet, v *secret.ValueEncoding) graphql.Marshaler {
+func marshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.ValueEncoding) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return v
 }
 
-func (ec *executionContext) marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+func marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v workload.Workload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Workload(ctx, sel, v)
+	return _Workload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrder(ctx context.Context, v any) (*workload.WorkloadOrder, error) {
+func unmarshalOWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrder(ctx context.Context, ec *executionContext, v any) (*workload.WorkloadOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputWorkloadOrder(ctx, v)
+	res, err := unmarshalInputWorkloadOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx context.Context, v any) (*workload.Type, error) {
+func unmarshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx context.Context, ec *executionContext, v any) (*workload.Type, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1818,7 +1817,7 @@ func (ec *executionContext) unmarshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapi�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx context.Context, sel ast.SelectionSet, v *workload.Type) graphql.Marshaler {
+func marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *workload.Type) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

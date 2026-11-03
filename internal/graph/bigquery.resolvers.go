@@ -96,14 +96,14 @@ func (r *teamInventoryCountsResolver) BigQueryDatasets(ctx context.Context, obj 
 }
 
 func (r *Resolver) BigQueryDataset() gengql.BigQueryDatasetResolver {
-	return &bigQueryDatasetResolver{r}
+	return &bigQueryDatasetResolver{r.resolver}
 }
 
 func (r *Resolver) BigQueryDatasetConnection() gengql.BigQueryDatasetConnectionResolver {
-	return &bigQueryDatasetConnectionResolver{r}
+	return &bigQueryDatasetConnectionResolver{r.resolver}
 }
 
 type (
-	bigQueryDatasetResolver           struct{ *Resolver }
-	bigQueryDatasetConnectionResolver struct{ *Resolver }
+	bigQueryDatasetResolver           struct{ *resolver }
+	bigQueryDatasetConnectionResolver struct{ *resolver }
 )

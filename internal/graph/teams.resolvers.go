@@ -345,33 +345,35 @@ func (r *updateTeamEnvironmentPayloadResolver) Environment(ctx context.Context, 
 }
 
 func (r *Resolver) RemoveTeamMemberPayload() gengql.RemoveTeamMemberPayloadResolver {
-	return &removeTeamMemberPayloadResolver{r}
+	return &removeTeamMemberPayloadResolver{r.resolver}
 }
 
-func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r} }
+func (r *Resolver) Team() gengql.TeamResolver { return &teamResolver{r.resolver} }
 
-func (r *Resolver) TeamDeleteKey() gengql.TeamDeleteKeyResolver { return &teamDeleteKeyResolver{r} }
+func (r *Resolver) TeamDeleteKey() gengql.TeamDeleteKeyResolver {
+	return &teamDeleteKeyResolver{r.resolver}
+}
 
 func (r *Resolver) TeamEnvironment() gengql.TeamEnvironmentResolver {
-	return &teamEnvironmentResolver{r}
+	return &teamEnvironmentResolver{r.resolver}
 }
 
 func (r *Resolver) TeamInventoryCounts() gengql.TeamInventoryCountsResolver {
-	return &teamInventoryCountsResolver{r}
+	return &teamInventoryCountsResolver{r.resolver}
 }
 
-func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r} }
+func (r *Resolver) TeamMember() gengql.TeamMemberResolver { return &teamMemberResolver{r.resolver} }
 
 func (r *Resolver) UpdateTeamEnvironmentPayload() gengql.UpdateTeamEnvironmentPayloadResolver {
-	return &updateTeamEnvironmentPayloadResolver{r}
+	return &updateTeamEnvironmentPayloadResolver{r.resolver}
 }
 
 type (
-	removeTeamMemberPayloadResolver      struct{ *Resolver }
-	teamResolver                         struct{ *Resolver }
-	teamDeleteKeyResolver                struct{ *Resolver }
-	teamEnvironmentResolver              struct{ *Resolver }
-	teamInventoryCountsResolver          struct{ *Resolver }
-	teamMemberResolver                   struct{ *Resolver }
-	updateTeamEnvironmentPayloadResolver struct{ *Resolver }
+	removeTeamMemberPayloadResolver      struct{ *resolver }
+	teamResolver                         struct{ *resolver }
+	teamDeleteKeyResolver                struct{ *resolver }
+	teamEnvironmentResolver              struct{ *resolver }
+	teamInventoryCountsResolver          struct{ *resolver }
+	teamMemberResolver                   struct{ *resolver }
+	updateTeamEnvironmentPayloadResolver struct{ *resolver }
 )

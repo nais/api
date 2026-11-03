@@ -6,10 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/persistence/bigquery"
@@ -24,6 +20,9 @@ import (
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -40,136 +39,136 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _SearchNodeConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[search.SearchNode]) (ret graphql.Marshaler) {
+func _SearchNodeConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[search.SearchNode]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SearchNodeConnection_pageInfo(ctx, field)
+			return fieldContext_SearchNodeConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SearchNodeConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SearchNodeConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchNodeConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SearchNodeConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[search.SearchNode]) (ret graphql.Marshaler) {
+func _SearchNodeConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[search.SearchNode]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SearchNodeConnection_nodes(ctx, field)
+			return fieldContext_SearchNodeConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []search.SearchNode) graphql.Marshaler {
-			return ec.marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNodeᚄ(ctx, selections, v)
+			return marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNodeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SearchNodeConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SearchNodeConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SearchNodeConnection", field, true, false, errors.New("field of type SearchNode does not have child fields"))
 }
 
-func (ec *executionContext) _SearchNodeConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[search.SearchNode]) (ret graphql.Marshaler) {
+func _SearchNodeConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[search.SearchNode]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SearchNodeConnection_edges(ctx, field)
+			return fieldContext_SearchNodeConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[search.SearchNode]) graphql.Marshaler {
-			return ec.marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SearchNodeConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SearchNodeConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SearchNodeConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SearchNodeEdge(ctx, field)
+			return childFields_SearchNodeEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SearchNodeEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[search.SearchNode]) (ret graphql.Marshaler) {
+func _SearchNodeEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[search.SearchNode]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SearchNodeEdge_cursor(ctx, field)
+			return fieldContext_SearchNodeEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SearchNodeEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SearchNodeEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SearchNodeEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _SearchNodeEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[search.SearchNode]) (ret graphql.Marshaler) {
+func _SearchNodeEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[search.SearchNode]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SearchNodeEdge_node(ctx, field)
+			return fieldContext_SearchNodeEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v search.SearchNode) graphql.Marshaler {
-			return ec.marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx, selections, v)
+			return marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SearchNodeEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SearchNodeEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SearchNodeEdge", field, false, false, errors.New("field of type SearchNode does not have child fields"))
 }
 
@@ -177,7 +176,7 @@ func (ec *executionContext) fieldContext_SearchNodeEdge_node(_ context.Context, 
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj any) (search.SearchFilter, error) {
+func unmarshalInputSearchFilter(ctx context.Context, ec *executionContext, obj any) (search.SearchFilter, error) {
 	var it search.SearchFilter
 	if obj == nil {
 		return it, nil
@@ -197,21 +196,21 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 		switch k {
 		case "query":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Query = data
 		case "types":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("types"))
-			data, err := ec.unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx, v)
+			data, err := unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Types = data
 		case "teams":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teams"))
-			data, err := ec.unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx, v)
+			data, err := unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -225,78 +224,78 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSet, obj search.SearchNode) graphql.Marshaler {
+func _SearchNode(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj search.SearchNode) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case valkey.Valkey:
-		return ec._Valkey(ctx, sel, &obj)
+		return _Valkey(ctx, ec, sel, &obj)
 	case *valkey.Valkey:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Valkey(ctx, sel, obj)
+		return _Valkey(ctx, ec, sel, obj)
 	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
+		return _OpenSearch(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearch(ctx, sel, obj)
+		return _OpenSearch(ctx, ec, sel, obj)
 	case job.Job:
-		return ec._Job(ctx, sel, &obj)
+		return _Job(ctx, ec, sel, &obj)
 	case *job.Job:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
+		return _Job(ctx, ec, sel, obj)
 	case application.Application:
-		return ec._Application(ctx, sel, &obj)
+		return _Application(ctx, ec, sel, &obj)
 	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
+		return _Application(ctx, ec, sel, obj)
 	case team.Team:
-		return ec._Team(ctx, sel, &obj)
+		return _Team(ctx, ec, sel, &obj)
 	case *team.Team:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Team(ctx, sel, obj)
+		return _Team(ctx, ec, sel, obj)
 	case sqlinstance.SQLInstance:
-		return ec._SqlInstance(ctx, sel, &obj)
+		return _SqlInstance(ctx, ec, sel, &obj)
 	case *sqlinstance.SQLInstance:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SqlInstance(ctx, sel, obj)
+		return _SqlInstance(ctx, ec, sel, obj)
 	case *postgres.Postgres:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Postgres(ctx, sel, obj)
+		return _Postgres(ctx, ec, sel, obj)
 	case kafkatopic.KafkaTopic:
-		return ec._KafkaTopic(ctx, sel, &obj)
+		return _KafkaTopic(ctx, ec, sel, &obj)
 	case *kafkatopic.KafkaTopic:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._KafkaTopic(ctx, sel, obj)
+		return _KafkaTopic(ctx, ec, sel, obj)
 	case bucket.Bucket:
-		return ec._Bucket(ctx, sel, &obj)
+		return _Bucket(ctx, ec, sel, &obj)
 	case *bucket.Bucket:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Bucket(ctx, sel, obj)
+		return _Bucket(ctx, ec, sel, obj)
 	case bigquery.BigQueryDataset:
-		return ec._BigQueryDataset(ctx, sel, &obj)
+		return _BigQueryDataset(ctx, ec, sel, &obj)
 	case *bigquery.BigQueryDataset:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._BigQueryDataset(ctx, sel, obj)
+		return _BigQueryDataset(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -312,7 +311,7 @@ func (ec *executionContext) _SearchNode(ctx context.Context, sel ast.SelectionSe
 
 var searchNodeConnectionImplementors = []string{"SearchNodeConnection"}
 
-func (ec *executionContext) _SearchNodeConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[search.SearchNode]) graphql.Marshaler {
+func _SearchNodeConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[search.SearchNode]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, searchNodeConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -322,17 +321,17 @@ func (ec *executionContext) _SearchNodeConnection(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SearchNodeConnection")
 		case "pageInfo":
-			out.Values[i] = ec._SearchNodeConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _SearchNodeConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._SearchNodeConnection_nodes(ctx, field, obj)
+			out.Values[i] = _SearchNodeConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._SearchNodeConnection_edges(ctx, field, obj)
+			out.Values[i] = _SearchNodeConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -361,7 +360,7 @@ func (ec *executionContext) _SearchNodeConnection(ctx context.Context, sel ast.S
 
 var searchNodeEdgeImplementors = []string{"SearchNodeEdge"}
 
-func (ec *executionContext) _SearchNodeEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[search.SearchNode]) graphql.Marshaler {
+func _SearchNodeEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[search.SearchNode]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, searchNodeEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -371,12 +370,12 @@ func (ec *executionContext) _SearchNodeEdge(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SearchNodeEdge")
 		case "cursor":
-			out.Values[i] = ec._SearchNodeEdge_cursor(ctx, field, obj)
+			out.Values[i] = _SearchNodeEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._SearchNodeEdge_node(ctx, field, obj)
+			out.Values[i] = _SearchNodeEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -407,26 +406,26 @@ func (ec *executionContext) _SearchNodeEdge(ctx context.Context, sel ast.Selecti
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNSearchFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchFilter(ctx context.Context, v any) (search.SearchFilter, error) {
-	res, err := ec.unmarshalInputSearchFilter(ctx, v)
+func unmarshalNSearchFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchFilter(ctx context.Context, ec *executionContext, v any) (search.SearchFilter, error) {
+	res, err := unmarshalInputSearchFilter(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx context.Context, sel ast.SelectionSet, v search.SearchNode) graphql.Marshaler {
+func marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v search.SearchNode) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SearchNode(ctx, sel, v)
+	return _SearchNode(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNodeᚄ(ctx context.Context, sel ast.SelectionSet, v []search.SearchNode) graphql.Marshaler {
+func marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNodeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []search.SearchNode) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx, sel, v[i])
+		return marshalNSearchNode2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchNode(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -438,29 +437,29 @@ func (ec *executionContext) marshalNSearchNode2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) marshalNSearchNodeConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[search.SearchNode]) graphql.Marshaler {
-	return ec._SearchNodeConnection(ctx, sel, &v)
+func marshalNSearchNodeConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[search.SearchNode]) graphql.Marshaler {
+	return _SearchNodeConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSearchNodeConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[search.SearchNode]) graphql.Marshaler {
+func marshalNSearchNodeConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[search.SearchNode]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SearchNodeConnection(ctx, sel, v)
+	return _SearchNodeConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSearchNodeEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[search.SearchNode]) graphql.Marshaler {
-	return ec._SearchNodeEdge(ctx, sel, &v)
+func marshalNSearchNodeEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[search.SearchNode]) graphql.Marshaler {
+	return _SearchNodeEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[search.SearchNode]) graphql.Marshaler {
+func marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[search.SearchNode]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSearchNodeEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNSearchNodeEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -472,17 +471,17 @@ func (ec *executionContext) marshalNSearchNodeEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, v any) (search.SearchType, error) {
+func unmarshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, ec *executionContext, v any) (search.SearchType, error) {
 	var res search.SearchType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, sel ast.SelectionSet, v search.SearchType) graphql.Marshaler {
+func marshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v search.SearchType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx context.Context, v any) ([]search.SearchType, error) {
+func unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx context.Context, ec *executionContext, v any) ([]search.SearchType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -492,7 +491,7 @@ func (ec *executionContext) unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	res := make([]search.SearchType, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, vSlice[i])
+		res[i], err = unmarshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -500,14 +499,14 @@ func (ec *executionContext) unmarshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	return res, nil
 }
 
-func (ec *executionContext) marshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []search.SearchType) graphql.Marshaler {
+func marshalOSearchType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchTypeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []search.SearchType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, sel, v[i])
+		return marshalNSearchType2githubᚗcomᚋnaisᚋapiᚋinternalᚋsearchᚐSearchType(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {

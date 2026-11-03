@@ -3,7 +3,7 @@
 
 set -e
 
-run="go run ./cmd/api"
+run="go run -ldflags=-s -ldflags=-w ./cmd/api"
 if [[ "$WITH_LOG_PROXY" == "true" ]]; then
 	kubectl --context "${CONTEXT:-dev}" --namespace nais-system port-forward svc/loki-query-frontend 3100 &
 	proxy_pid="$!"

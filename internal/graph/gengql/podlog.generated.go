@@ -5,14 +5,13 @@ package gengql
 import (
 	"context"
 	"errors"
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/nais/api/internal/workload/podlog"
+	"github.com/vektah/gqlparser/v2/ast"
 	"math"
 	"strconv"
 	"sync/atomic"
 	"time"
-
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/nais/api/internal/workload/podlog"
-	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -29,72 +28,72 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _WorkloadLogLine_time(ctx context.Context, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
+func _WorkloadLogLine_time(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadLogLine_time(ctx, field)
+			return fieldContext_WorkloadLogLine_time(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Time, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadLogLine_time(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadLogLine_time(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadLogLine", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadLogLine_message(ctx context.Context, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
+func _WorkloadLogLine_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadLogLine_message(ctx, field)
+			return fieldContext_WorkloadLogLine_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadLogLine_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadLogLine_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadLogLine", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadLogLine_instance(ctx context.Context, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
+func _WorkloadLogLine_instance(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *podlog.WorkloadLogLine) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadLogLine_instance(ctx, field)
+			return fieldContext_WorkloadLogLine_instance(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Instance, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadLogLine_instance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadLogLine_instance(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadLogLine", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -102,7 +101,7 @@ func (ec *executionContext) fieldContext_WorkloadLogLine_instance(_ context.Cont
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputWorkloadLogSubscriptionFilter(ctx context.Context, obj any) (podlog.WorkloadLogSubscriptionFilter, error) {
+func unmarshalInputWorkloadLogSubscriptionFilter(ctx context.Context, ec *executionContext, obj any) (podlog.WorkloadLogSubscriptionFilter, error) {
 	var it podlog.WorkloadLogSubscriptionFilter
 	if obj == nil {
 		return it, nil
@@ -122,35 +121,35 @@ func (ec *executionContext) unmarshalInputWorkloadLogSubscriptionFilter(ctx cont
 		switch k {
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Team = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "application":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("application"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Application = data
 		case "job":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("job"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Job = data
 		case "instances":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("instances"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -170,7 +169,7 @@ func (ec *executionContext) unmarshalInputWorkloadLogSubscriptionFilter(ctx cont
 
 var workloadLogLineImplementors = []string{"WorkloadLogLine"}
 
-func (ec *executionContext) _WorkloadLogLine(ctx context.Context, sel ast.SelectionSet, obj *podlog.WorkloadLogLine) graphql.Marshaler {
+func _WorkloadLogLine(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *podlog.WorkloadLogLine) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadLogLineImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -180,17 +179,17 @@ func (ec *executionContext) _WorkloadLogLine(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadLogLine")
 		case "time":
-			out.Values[i] = ec._WorkloadLogLine_time(ctx, field, obj)
+			out.Values[i] = _WorkloadLogLine_time(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._WorkloadLogLine_message(ctx, field, obj)
+			out.Values[i] = _WorkloadLogLine_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "instance":
-			out.Values[i] = ec._WorkloadLogLine_instance(ctx, field, obj)
+			out.Values[i] = _WorkloadLogLine_instance(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -221,22 +220,22 @@ func (ec *executionContext) _WorkloadLogLine(ctx context.Context, sel ast.Select
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNWorkloadLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogLine(ctx context.Context, sel ast.SelectionSet, v podlog.WorkloadLogLine) graphql.Marshaler {
-	return ec._WorkloadLogLine(ctx, sel, &v)
+func marshalNWorkloadLogLine2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogLine(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v podlog.WorkloadLogLine) graphql.Marshaler {
+	return _WorkloadLogLine(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogLine(ctx context.Context, sel ast.SelectionSet, v *podlog.WorkloadLogLine) graphql.Marshaler {
+func marshalNWorkloadLogLine2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogLine(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *podlog.WorkloadLogLine) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadLogLine(ctx, sel, v)
+	return _WorkloadLogLine(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNWorkloadLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogSubscriptionFilter(ctx context.Context, v any) (podlog.WorkloadLogSubscriptionFilter, error) {
-	res, err := ec.unmarshalInputWorkloadLogSubscriptionFilter(ctx, v)
+func unmarshalNWorkloadLogSubscriptionFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋpodlogᚐWorkloadLogSubscriptionFilter(ctx context.Context, ec *executionContext, v any) (podlog.WorkloadLogSubscriptionFilter, error) {
+	res, err := unmarshalInputWorkloadLogSubscriptionFilter(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

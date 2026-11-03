@@ -135,16 +135,18 @@ func (r *teamInventoryCountsResolver) KafkaTopics(ctx context.Context, obj *team
 	}, nil
 }
 
-func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicResolver{r} }
+func (r *Resolver) KafkaTopic() gengql.KafkaTopicResolver { return &kafkaTopicResolver{r.resolver} }
 
-func (r *Resolver) KafkaTopicAcl() gengql.KafkaTopicAclResolver { return &kafkaTopicAclResolver{r} }
+func (r *Resolver) KafkaTopicAcl() gengql.KafkaTopicAclResolver {
+	return &kafkaTopicAclResolver{r.resolver}
+}
 
 func (r *Resolver) KafkaTopicConnection() gengql.KafkaTopicConnectionResolver {
-	return &kafkaTopicConnectionResolver{r}
+	return &kafkaTopicConnectionResolver{r.resolver}
 }
 
 type (
-	kafkaTopicResolver           struct{ *Resolver }
-	kafkaTopicAclResolver        struct{ *Resolver }
-	kafkaTopicConnectionResolver struct{ *Resolver }
+	kafkaTopicResolver           struct{ *resolver }
+	kafkaTopicAclResolver        struct{ *resolver }
+	kafkaTopicConnectionResolver struct{ *resolver }
 )

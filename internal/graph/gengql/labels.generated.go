@@ -5,13 +5,12 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -28,49 +27,49 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ResourceLabel_key(ctx context.Context, field graphql.CollectedField, obj *model.ResourceLabel) (ret graphql.Marshaler) {
+func _ResourceLabel_key(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.ResourceLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ResourceLabel_key(ctx, field)
+			return fieldContext_ResourceLabel_key(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ResourceLabel_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ResourceLabel_key(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ResourceLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ResourceLabel_value(ctx context.Context, field graphql.CollectedField, obj *model.ResourceLabel) (ret graphql.Marshaler) {
+func _ResourceLabel_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *model.ResourceLabel) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ResourceLabel_value(ctx, field)
+			return fieldContext_ResourceLabel_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ResourceLabel_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ResourceLabel_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ResourceLabel", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
@@ -78,7 +77,7 @@ func (ec *executionContext) fieldContext_ResourceLabel_value(_ context.Context, 
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputLabelFilter(ctx context.Context, obj any) (model.LabelFilter, error) {
+func unmarshalInputLabelFilter(ctx context.Context, ec *executionContext, obj any) (model.LabelFilter, error) {
 	var it model.LabelFilter
 	if obj == nil {
 		return it, nil
@@ -98,14 +97,14 @@ func (ec *executionContext) unmarshalInputLabelFilter(ctx context.Context, obj a
 		switch k {
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Key = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -115,7 +114,7 @@ func (ec *executionContext) unmarshalInputLabelFilter(ctx context.Context, obj a
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputResourceLabelInput(ctx context.Context, obj any) (model.ResourceLabel, error) {
+func unmarshalInputResourceLabelInput(ctx context.Context, ec *executionContext, obj any) (model.ResourceLabel, error) {
 	var it model.ResourceLabel
 	if obj == nil {
 		return it, nil
@@ -135,14 +134,14 @@ func (ec *executionContext) unmarshalInputResourceLabelInput(ctx context.Context
 		switch k {
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Key = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -162,7 +161,7 @@ func (ec *executionContext) unmarshalInputResourceLabelInput(ctx context.Context
 
 var resourceLabelImplementors = []string{"ResourceLabel"}
 
-func (ec *executionContext) _ResourceLabel(ctx context.Context, sel ast.SelectionSet, obj *model.ResourceLabel) graphql.Marshaler {
+func _ResourceLabel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *model.ResourceLabel) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, resourceLabelImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -172,12 +171,12 @@ func (ec *executionContext) _ResourceLabel(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ResourceLabel")
 		case "key":
-			out.Values[i] = ec._ResourceLabel_key(ctx, field, obj)
+			out.Values[i] = _ResourceLabel_key(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._ResourceLabel_value(ctx, field, obj)
+			out.Values[i] = _ResourceLabel_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -208,16 +207,16 @@ func (ec *executionContext) _ResourceLabel(ctx context.Context, sel ast.Selectio
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNLabelFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilter(ctx context.Context, v any) (*model.LabelFilter, error) {
-	res, err := ec.unmarshalInputLabelFilter(ctx, v)
+func unmarshalNLabelFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilter(ctx context.Context, ec *executionContext, v any) (*model.LabelFilter, error) {
+	res, err := unmarshalInputLabelFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
+func marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNResourceLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx, sel, v[i])
+		return marshalNResourceLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -229,24 +228,24 @@ func (ec *executionContext) marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋap
 	return ret
 }
 
-func (ec *executionContext) marshalNResourceLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx context.Context, sel ast.SelectionSet, v *model.ResourceLabel) graphql.Marshaler {
+func marshalNResourceLabel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *model.ResourceLabel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ResourceLabel(ctx, sel, v)
+	return _ResourceLabel(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx context.Context, v any) ([]*model.ResourceLabel, error) {
+func unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx context.Context, ec *executionContext, v any) ([]*model.ResourceLabel, error) {
 	var vSlice []any
 	vSlice = graphql.CoerceList(v)
 	var err error
 	res := make([]*model.ResourceLabel, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx, vSlice[i])
+		res[i], err = unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -254,12 +253,12 @@ func (ec *executionContext) unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋna
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx context.Context, v any) (*model.ResourceLabel, error) {
-	res, err := ec.unmarshalInputResourceLabelInput(ctx, v)
+func unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx context.Context, ec *executionContext, v any) (*model.ResourceLabel, error) {
+	res, err := unmarshalInputResourceLabelInput(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx context.Context, v any) (model.LabelFilters, error) {
+func unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx context.Context, ec *executionContext, v any) (model.LabelFilters, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -268,7 +267,7 @@ func (ec *executionContext) unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋin
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx context.Context, v any) ([]*model.LabelFilter, error) {
+func unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx context.Context, ec *executionContext, v any) ([]*model.LabelFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -278,7 +277,7 @@ func (ec *executionContext) unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋap
 	res := make([]*model.LabelFilter, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNLabelFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilter(ctx, vSlice[i])
+		res[i], err = unmarshalNLabelFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilter(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -286,7 +285,7 @@ func (ec *executionContext) unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋap
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx context.Context, v any) ([]*model.ResourceLabel, error) {
+func unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx context.Context, ec *executionContext, v any) ([]*model.ResourceLabel, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -296,7 +295,7 @@ func (ec *executionContext) unmarshalOResourceLabelInput2ᚕᚖgithubᚗcomᚋna
 	res := make([]*model.ResourceLabel, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx, vSlice[i])
+		res[i], err = unmarshalNResourceLabelInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabel(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}

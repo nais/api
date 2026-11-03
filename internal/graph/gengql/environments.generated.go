@@ -5,10 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph/ident"
@@ -16,6 +12,9 @@ import (
 	"github.com/nais/api/internal/metrics"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -30,12 +29,12 @@ type EnvironmentResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Environment_metrics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Environment_metrics_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (metrics.MetricsQueryInput, error) {
-			return ec.unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput(ctx, v)
+			return unmarshalNMetricsQueryInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryInput(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -44,12 +43,12 @@ func (ec *executionContext) field_Environment_metrics_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Environment_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Environment_workloads_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -57,7 +56,7 @@ func (ec *executionContext) field_Environment_workloads_args(ctx context.Context
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -65,7 +64,7 @@ func (ec *executionContext) field_Environment_workloads_args(ctx context.Context
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -73,7 +72,7 @@ func (ec *executionContext) field_Environment_workloads_args(ctx context.Context
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -81,7 +80,7 @@ func (ec *executionContext) field_Environment_workloads_args(ctx context.Context
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*workload.EnvironmentWorkloadOrder, error) {
-			return ec.unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx, v)
+			return unmarshalOEnvironmentWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐEnvironmentWorkloadOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -98,114 +97,114 @@ func (ec *executionContext) field_Environment_workloads_args(ctx context.Context
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Environment_id(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+func _Environment_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Environment_id(ctx, field)
+			return fieldContext_Environment_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Environment_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Environment_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Environment", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Environment_name(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+func _Environment_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Environment_name(ctx, field)
+			return fieldContext_Environment_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Environment_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Environment_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Environment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Environment_oidcIssuerURL(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+func _Environment_oidcIssuerURL(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
+			return fieldContext_Environment_oidcIssuerURL(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.OIDCIssuerURL, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Environment_oidcIssuerURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Environment_oidcIssuerURL(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Environment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Environment_availableValues(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+func _Environment_availableValues(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Environment_availableValues(ctx, field)
+			return fieldContext_Environment_availableValues(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Environment().AvailableValues(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *environment.AvailableValues) graphql.Marshaler {
-			return ec.marshalNAvailableValues2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValues(ctx, selections, v)
+			return marshalNAvailableValues2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValues(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Environment_availableValues(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Environment_availableValues(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Environment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AvailableValues(ctx, field)
+			return childFields_AvailableValues(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Environment_metrics(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+func _Environment_metrics(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Environment_metrics(ctx, field)
+			return fieldContext_Environment_metrics(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -213,20 +212,20 @@ func (ec *executionContext) _Environment_metrics(ctx context.Context, field grap
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *metrics.MetricsQueryResult) graphql.Marshaler {
-			return ec.marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx, selections, v)
+			return marshalNMetricsQueryResult2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋmetricsᚐMetricsQueryResult(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Environment_metrics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Environment_metrics(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Environment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_MetricsQueryResult(ctx, field)
+			return childFields_MetricsQueryResult(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -236,20 +235,20 @@ func (ec *executionContext) fieldContext_Environment_metrics(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Environment_metrics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Environment_metrics_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Environment_workloads(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+func _Environment_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Environment_workloads(ctx, field)
+			return fieldContext_Environment_workloads(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -257,20 +256,20 @@ func (ec *executionContext) _Environment_workloads(ctx context.Context, field gr
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Environment_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Environment_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Environment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadConnection(ctx, field)
+			return childFields_WorkloadConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -280,159 +279,159 @@ func (ec *executionContext) fieldContext_Environment_workloads(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Environment_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Environment_workloads_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _EnvironmentConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*environment.Environment]) (ret graphql.Marshaler) {
+func _EnvironmentConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*environment.Environment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentConnection_pageInfo(ctx, field)
+			return fieldContext_EnvironmentConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_EnvironmentConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _EnvironmentConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*environment.Environment]) (ret graphql.Marshaler) {
+func _EnvironmentConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*environment.Environment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentConnection_nodes(ctx, field)
+			return fieldContext_EnvironmentConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*environment.Environment) graphql.Marshaler {
-			return ec.marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ(ctx, selections, v)
+			return marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_EnvironmentConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Environment(ctx, field)
+			return childFields_Environment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _EnvironmentConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*environment.Environment]) (ret graphql.Marshaler) {
+func _EnvironmentConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*environment.Environment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentConnection_edges(ctx, field)
+			return fieldContext_EnvironmentConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*environment.Environment]) graphql.Marshaler {
-			return ec.marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_EnvironmentConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_EnvironmentEdge(ctx, field)
+			return childFields_EnvironmentEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _EnvironmentEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*environment.Environment]) (ret graphql.Marshaler) {
+func _EnvironmentEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*environment.Environment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentEdge_cursor(ctx, field)
+			return fieldContext_EnvironmentEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_EnvironmentEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("EnvironmentEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _EnvironmentEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*environment.Environment]) (ret graphql.Marshaler) {
+func _EnvironmentEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*environment.Environment]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_EnvironmentEdge_node(ctx, field)
+			return fieldContext_EnvironmentEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *environment.Environment) graphql.Marshaler {
-			return ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, selections, v)
+			return marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_EnvironmentEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "EnvironmentEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Environment(ctx, field)
+			return childFields_Environment(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -442,7 +441,7 @@ func (ec *executionContext) fieldContext_EnvironmentEdge_node(_ context.Context,
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputEnvironmentOrder(ctx context.Context, obj any) (environment.EnvironmentOrder, error) {
+func unmarshalInputEnvironmentOrder(ctx context.Context, ec *executionContext, obj any) (environment.EnvironmentOrder, error) {
 	var it environment.EnvironmentOrder
 	if obj == nil {
 		return it, nil
@@ -462,14 +461,14 @@ func (ec *executionContext) unmarshalInputEnvironmentOrder(ctx context.Context, 
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx, v)
+			data, err := unmarshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -489,7 +488,7 @@ func (ec *executionContext) unmarshalInputEnvironmentOrder(ctx context.Context, 
 
 var environmentImplementors = []string{"Environment", "Node"}
 
-func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionSet, obj *environment.Environment) graphql.Marshaler {
+func _Environment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *environment.Environment) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, environmentImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -499,17 +498,17 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Environment")
 		case "id":
-			out.Values[i] = ec._Environment_id(ctx, field, obj)
+			out.Values[i] = _Environment_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._Environment_name(ctx, field, obj)
+			out.Values[i] = _Environment_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "oidcIssuerURL":
-			out.Values[i] = ec._Environment_oidcIssuerURL(ctx, field, obj)
+			out.Values[i] = _Environment_oidcIssuerURL(ctx, ec, field, obj)
 		case "availableValues":
 			field := field
 
@@ -519,7 +518,7 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Environment_availableValues(ctx, field, obj)
+				res = _Environment_availableValues(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -555,7 +554,7 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Environment_metrics(ctx, field, obj)
+				res = _Environment_metrics(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -591,7 +590,7 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Environment_workloads(ctx, field, obj)
+				res = _Environment_workloads(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -643,7 +642,7 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 
 var environmentConnectionImplementors = []string{"EnvironmentConnection"}
 
-func (ec *executionContext) _EnvironmentConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*environment.Environment]) graphql.Marshaler {
+func _EnvironmentConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*environment.Environment]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, environmentConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -653,17 +652,17 @@ func (ec *executionContext) _EnvironmentConnection(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("EnvironmentConnection")
 		case "pageInfo":
-			out.Values[i] = ec._EnvironmentConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _EnvironmentConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._EnvironmentConnection_nodes(ctx, field, obj)
+			out.Values[i] = _EnvironmentConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._EnvironmentConnection_edges(ctx, field, obj)
+			out.Values[i] = _EnvironmentConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -692,7 +691,7 @@ func (ec *executionContext) _EnvironmentConnection(ctx context.Context, sel ast.
 
 var environmentEdgeImplementors = []string{"EnvironmentEdge"}
 
-func (ec *executionContext) _EnvironmentEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*environment.Environment]) graphql.Marshaler {
+func _EnvironmentEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*environment.Environment]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, environmentEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -702,12 +701,12 @@ func (ec *executionContext) _EnvironmentEdge(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("EnvironmentEdge")
 		case "cursor":
-			out.Values[i] = ec._EnvironmentEdge_cursor(ctx, field, obj)
+			out.Values[i] = _EnvironmentEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._EnvironmentEdge_node(ctx, field, obj)
+			out.Values[i] = _EnvironmentEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -738,15 +737,15 @@ func (ec *executionContext) _EnvironmentEdge(ctx context.Context, sel ast.Select
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNEnvironment2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx context.Context, sel ast.SelectionSet, v environment.Environment) graphql.Marshaler {
-	return ec._Environment(ctx, sel, &v)
+func marshalNEnvironment2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v environment.Environment) graphql.Marshaler {
+	return _Environment(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ(ctx context.Context, sel ast.SelectionSet, v []*environment.Environment) graphql.Marshaler {
+func marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*environment.Environment) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, sel, v[i])
+		return marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -758,39 +757,39 @@ func (ec *executionContext) marshalNEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx context.Context, sel ast.SelectionSet, v *environment.Environment) graphql.Marshaler {
+func marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *environment.Environment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Environment(ctx, sel, v)
+	return _Environment(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNEnvironmentConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*environment.Environment]) graphql.Marshaler {
-	return ec._EnvironmentConnection(ctx, sel, &v)
+func marshalNEnvironmentConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*environment.Environment]) graphql.Marshaler {
+	return _EnvironmentConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNEnvironmentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*environment.Environment]) graphql.Marshaler {
+func marshalNEnvironmentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*environment.Environment]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._EnvironmentConnection(ctx, sel, v)
+	return _EnvironmentConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNEnvironmentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*environment.Environment]) graphql.Marshaler {
-	return ec._EnvironmentEdge(ctx, sel, &v)
+func marshalNEnvironmentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*environment.Environment]) graphql.Marshaler {
+	return _EnvironmentEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*environment.Environment]) graphql.Marshaler {
+func marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*environment.Environment]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNEnvironmentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNEnvironmentEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -802,21 +801,21 @@ func (ec *executionContext) marshalNEnvironmentEdge2ᚕgithubᚗcomᚋnaisᚋapi
 	return ret
 }
 
-func (ec *executionContext) unmarshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx context.Context, v any) (environment.EnvironmentOrderField, error) {
+func unmarshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx context.Context, ec *executionContext, v any) (environment.EnvironmentOrderField, error) {
 	var res environment.EnvironmentOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx context.Context, sel ast.SelectionSet, v environment.EnvironmentOrderField) graphql.Marshaler {
+func marshalNEnvironmentOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v environment.EnvironmentOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalOEnvironmentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrder(ctx context.Context, v any) (*environment.EnvironmentOrder, error) {
+func unmarshalOEnvironmentOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironmentOrder(ctx context.Context, ec *executionContext, v any) (*environment.EnvironmentOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputEnvironmentOrder(ctx, v)
+	res, err := unmarshalInputEnvironmentOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

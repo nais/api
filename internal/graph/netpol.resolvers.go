@@ -44,7 +44,7 @@ func (r *networkPolicyRuleResolver) Mutual(ctx context.Context, obj *netpol.Netw
 }
 
 func (r *Resolver) NetworkPolicyRule() gengql.NetworkPolicyRuleResolver {
-	return &networkPolicyRuleResolver{r}
+	return &networkPolicyRuleResolver{r.resolver}
 }
 
-type networkPolicyRuleResolver struct{ *Resolver }
+type networkPolicyRuleResolver struct{ *resolver }

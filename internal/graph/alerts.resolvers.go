@@ -76,14 +76,14 @@ func (r *teamEnvironmentResolver) Alerts(ctx context.Context, obj *team.TeamEnvi
 }
 
 func (r *Resolver) AlertConnection() gengql.AlertConnectionResolver {
-	return &alertConnectionResolver{r}
+	return &alertConnectionResolver{r.resolver}
 }
 
 func (r *Resolver) PrometheusAlert() gengql.PrometheusAlertResolver {
-	return &prometheusAlertResolver{r}
+	return &prometheusAlertResolver{r.resolver}
 }
 
 type (
-	alertConnectionResolver struct{ *Resolver }
-	prometheusAlertResolver struct{ *Resolver }
+	alertConnectionResolver struct{ *resolver }
+	prometheusAlertResolver struct{ *resolver }
 )

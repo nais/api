@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/alerts"
@@ -43,6 +38,10 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -138,12 +137,12 @@ type UpdateTeamEnvironmentPayloadResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_alerts_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -151,7 +150,7 @@ func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Contex
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -159,7 +158,7 @@ func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Contex
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -167,7 +166,7 @@ func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Contex
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -175,7 +174,7 @@ func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Contex
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*alerts.AlertOrder, error) {
-			return ec.unmarshalOAlertOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrder(ctx, v)
+			return unmarshalOAlertOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -183,7 +182,7 @@ func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Contex
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*alerts.TeamAlertsFilter, error) {
-			return ec.unmarshalOTeamAlertsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐTeamAlertsFilter(ctx, v)
+			return unmarshalOTeamAlertsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐTeamAlertsFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -192,12 +191,12 @@ func (ec *executionContext) field_TeamEnvironment_alerts_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_application_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_application_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -206,12 +205,12 @@ func (ec *executionContext) field_TeamEnvironment_application_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_bigQueryDataset_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_bigQueryDataset_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -220,12 +219,12 @@ func (ec *executionContext) field_TeamEnvironment_bigQueryDataset_args(ctx conte
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_bucket_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_bucket_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -234,12 +233,12 @@ func (ec *executionContext) field_TeamEnvironment_bucket_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_config_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_config_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -248,12 +247,12 @@ func (ec *executionContext) field_TeamEnvironment_config_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_job_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_job_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -262,12 +261,12 @@ func (ec *executionContext) field_TeamEnvironment_job_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_kafkaTopic_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_kafkaTopic_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -276,12 +275,12 @@ func (ec *executionContext) field_TeamEnvironment_kafkaTopic_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_openSearch_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_openSearch_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -290,12 +289,12 @@ func (ec *executionContext) field_TeamEnvironment_openSearch_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_postgresAccess_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_postgresAccess_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -304,12 +303,12 @@ func (ec *executionContext) field_TeamEnvironment_postgresAccess_args(ctx contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_postgres_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_postgres_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -318,12 +317,12 @@ func (ec *executionContext) field_TeamEnvironment_postgres_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_secret_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_secret_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -332,12 +331,12 @@ func (ec *executionContext) field_TeamEnvironment_secret_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_sqlInstance_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_sqlInstance_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -346,12 +345,12 @@ func (ec *executionContext) field_TeamEnvironment_sqlInstance_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_tunnel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_tunnel_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -360,12 +359,12 @@ func (ec *executionContext) field_TeamEnvironment_tunnel_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_valkey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_valkey_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -374,12 +373,12 @@ func (ec *executionContext) field_TeamEnvironment_valkey_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironment_workload_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironment_workload_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -388,12 +387,12 @@ func (ec *executionContext) field_TeamEnvironment_workload_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_activityLog_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -401,7 +400,7 @@ func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, raw
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -409,7 +408,7 @@ func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, raw
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -417,7 +416,7 @@ func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, raw
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -425,7 +424,7 @@ func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, raw
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
-			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+			return unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -434,12 +433,12 @@ func (ec *executionContext) field_Team_activityLog_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_alerts_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -447,7 +446,7 @@ func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -455,7 +454,7 @@ func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -463,7 +462,7 @@ func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -471,7 +470,7 @@ func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs 
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*alerts.AlertOrder, error) {
-			return ec.unmarshalOAlertOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrder(ctx, v)
+			return unmarshalOAlertOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐAlertOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -479,7 +478,7 @@ func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs 
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*alerts.TeamAlertsFilter, error) {
-			return ec.unmarshalOTeamAlertsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐTeamAlertsFilter(ctx, v)
+			return unmarshalOTeamAlertsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋalertsᚐTeamAlertsFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -488,12 +487,12 @@ func (ec *executionContext) field_Team_alerts_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_applications_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_applications_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -501,7 +500,7 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -509,7 +508,7 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -517,7 +516,7 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -525,7 +524,7 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*application.ApplicationOrder, error) {
-			return ec.unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationOrder(ctx, v)
+			return unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -533,7 +532,7 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*application.TeamApplicationsFilter, error) {
-			return ec.unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐTeamApplicationsFilter(ctx, v)
+			return unmarshalOTeamApplicationsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐTeamApplicationsFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -542,12 +541,12 @@ func (ec *executionContext) field_Team_applications_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_bigQueryDatasets_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -555,7 +554,7 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -563,7 +562,7 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -571,7 +570,7 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -579,7 +578,7 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*bigquery.BigQueryDatasetOrder, error) {
-			return ec.unmarshalOBigQueryDatasetOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrder(ctx, v)
+			return unmarshalOBigQueryDatasetOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -587,7 +586,7 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*bigquery.BigQueryDatasetFilter, error) {
-			return ec.unmarshalOBigQueryDatasetFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetFilter(ctx, v)
+			return unmarshalOBigQueryDatasetFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDatasetFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -596,12 +595,12 @@ func (ec *executionContext) field_Team_bigQueryDatasets_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_buckets_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -609,7 +608,7 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -617,7 +616,7 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -625,7 +624,7 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -633,7 +632,7 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*bucket.BucketOrder, error) {
-			return ec.unmarshalOBucketOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrder(ctx, v)
+			return unmarshalOBucketOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -641,7 +640,7 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*bucket.BucketFilter, error) {
-			return ec.unmarshalOBucketFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFilter(ctx, v)
+			return unmarshalOBucketFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucketFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -650,12 +649,12 @@ func (ec *executionContext) field_Team_buckets_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_configs_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -663,7 +662,7 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -671,7 +670,7 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -679,7 +678,7 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -687,7 +686,7 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*config.ConfigOrder, error) {
-			return ec.unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrder(ctx, v)
+			return unmarshalOConfigOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -695,7 +694,7 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*config.ConfigFilter, error) {
-			return ec.unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFilter(ctx, v)
+			return unmarshalOConfigFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfigFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -704,12 +703,12 @@ func (ec *executionContext) field_Team_configs_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_deleteKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_deleteKey_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "key",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -718,12 +717,12 @@ func (ec *executionContext) field_Team_deleteKey_args(ctx context.Context, rawAr
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_deployments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_deployments_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -731,7 +730,7 @@ func (ec *executionContext) field_Team_deployments_args(ctx context.Context, raw
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -739,7 +738,7 @@ func (ec *executionContext) field_Team_deployments_args(ctx context.Context, raw
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -747,7 +746,7 @@ func (ec *executionContext) field_Team_deployments_args(ctx context.Context, raw
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -756,12 +755,12 @@ func (ec *executionContext) field_Team_deployments_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_environment_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_environment_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "name",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -770,12 +769,12 @@ func (ec *executionContext) field_Team_environment_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_imageVulnerabilityHistory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_imageVulnerabilityHistory_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -784,12 +783,12 @@ func (ec *executionContext) field_Team_imageVulnerabilityHistory_args(ctx contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_issues_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -797,7 +796,7 @@ func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -805,7 +804,7 @@ func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -813,7 +812,7 @@ func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -821,7 +820,7 @@ func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs 
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*issue.IssueOrder, error) {
-			return ec.unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, v)
+			return unmarshalOIssueOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -829,7 +828,7 @@ func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs 
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*issue.IssueFilter, error) {
-			return ec.unmarshalOIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueFilter(ctx, v)
+			return unmarshalOIssueFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -838,12 +837,12 @@ func (ec *executionContext) field_Team_issues_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_jobs_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -851,7 +850,7 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -859,7 +858,7 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -867,7 +866,7 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -875,7 +874,7 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*job.JobOrder, error) {
-			return ec.unmarshalOJobOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrder(ctx, v)
+			return unmarshalOJobOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -883,7 +882,7 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*job.TeamJobsFilter, error) {
-			return ec.unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamJobsFilter(ctx, v)
+			return unmarshalOTeamJobsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamJobsFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -892,12 +891,12 @@ func (ec *executionContext) field_Team_jobs_args(ctx context.Context, rawArgs ma
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_kafkaTopics_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -905,7 +904,7 @@ func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, raw
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -913,7 +912,7 @@ func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, raw
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -921,7 +920,7 @@ func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, raw
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -929,7 +928,7 @@ func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, raw
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicOrder, error) {
-			return ec.unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx, v)
+			return unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -937,7 +936,7 @@ func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, raw
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicFilter, error) {
-			return ec.unmarshalOKafkaTopicFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFilter(ctx, v)
+			return unmarshalOKafkaTopicFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -946,12 +945,12 @@ func (ec *executionContext) field_Team_kafkaTopics_args(ctx context.Context, raw
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_member_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_member_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "email",
 		func(ctx context.Context, v any) (string, error) {
-			return ec.unmarshalNString2string(ctx, v)
+			return unmarshalNString2string(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -960,12 +959,12 @@ func (ec *executionContext) field_Team_member_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_members_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -973,7 +972,7 @@ func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -981,7 +980,7 @@ func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -989,7 +988,7 @@ func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -997,7 +996,7 @@ func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*team.TeamMemberOrder, error) {
-			return ec.unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrder(ctx, v)
+			return unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1006,12 +1005,12 @@ func (ec *executionContext) field_Team_members_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_openSearches_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1019,7 +1018,7 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1027,7 +1026,7 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1035,7 +1034,7 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1043,7 +1042,7 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*opensearch.OpenSearchOrder, error) {
-			return ec.unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchOrder(ctx, v)
+			return unmarshalOOpenSearchOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1051,7 +1050,7 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*opensearch.OpenSearchFilter, error) {
-			return ec.unmarshalOOpenSearchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchFilter(ctx, v)
+			return unmarshalOOpenSearchFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearchFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1060,12 +1059,12 @@ func (ec *executionContext) field_Team_openSearches_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_postgreses_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1073,7 +1072,7 @@ func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawA
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1081,7 +1080,7 @@ func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawA
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1089,7 +1088,7 @@ func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawA
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1097,7 +1096,7 @@ func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawA
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*postgres.TeamPostgresFilter, error) {
-			return ec.unmarshalOTeamPostgresFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamPostgresFilter(ctx, v)
+			return unmarshalOTeamPostgresFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamPostgresFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1106,12 +1105,12 @@ func (ec *executionContext) field_Team_postgreses_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_repositories_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_repositories_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1119,7 +1118,7 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1127,7 +1126,7 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1135,7 +1134,7 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1143,7 +1142,7 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*repository.RepositoryOrder, error) {
-			return ec.unmarshalORepositoryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐRepositoryOrder(ctx, v)
+			return unmarshalORepositoryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐRepositoryOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1151,7 +1150,7 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*repository.TeamRepositoryFilter, error) {
-			return ec.unmarshalOTeamRepositoryFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐTeamRepositoryFilter(ctx, v)
+			return unmarshalOTeamRepositoryFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgithubᚋrepositoryᚐTeamRepositoryFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1160,12 +1159,12 @@ func (ec *executionContext) field_Team_repositories_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_secrets_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1173,7 +1172,7 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1181,7 +1180,7 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1189,7 +1188,7 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1197,7 +1196,7 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*secret.SecretOrder, error) {
-			return ec.unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrder(ctx, v)
+			return unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1205,7 +1204,7 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*secret.SecretFilter, error) {
-			return ec.unmarshalOSecretFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFilter(ctx, v)
+			return unmarshalOSecretFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1214,12 +1213,12 @@ func (ec *executionContext) field_Team_secrets_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_serviceAccounts_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_serviceAccounts_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1227,7 +1226,7 @@ func (ec *executionContext) field_Team_serviceAccounts_args(ctx context.Context,
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1235,7 +1234,7 @@ func (ec *executionContext) field_Team_serviceAccounts_args(ctx context.Context,
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1243,7 +1242,7 @@ func (ec *executionContext) field_Team_serviceAccounts_args(ctx context.Context,
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1252,12 +1251,12 @@ func (ec *executionContext) field_Team_serviceAccounts_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_sqlInstances_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1265,7 +1264,7 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1273,7 +1272,7 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1281,7 +1280,7 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1289,7 +1288,7 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*sqlinstance.SQLInstanceOrder, error) {
-			return ec.unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx, v)
+			return unmarshalOSqlInstanceOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1297,7 +1296,7 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*sqlinstance.SQLInstanceFilter, error) {
-			return ec.unmarshalOSqlInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFilter(ctx, v)
+			return unmarshalOSqlInstanceFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstanceFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1306,12 +1305,12 @@ func (ec *executionContext) field_Team_sqlInstances_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_valkeys_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1319,7 +1318,7 @@ func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1327,7 +1326,7 @@ func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1335,7 +1334,7 @@ func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1343,7 +1342,7 @@ func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*valkey.ValkeyOrder, error) {
-			return ec.unmarshalOValkeyOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyOrder(ctx, v)
+			return unmarshalOValkeyOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1351,7 +1350,7 @@ func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*valkey.ValkeyFilter, error) {
-			return ec.unmarshalOValkeyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyFilter(ctx, v)
+			return unmarshalOValkeyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkeyFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1360,12 +1359,12 @@ func (ec *executionContext) field_Team_valkeys_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_vulnerabilityFixHistory_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_vulnerabilityFixHistory_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1374,12 +1373,12 @@ func (ec *executionContext) field_Team_vulnerabilityFixHistory_args(ctx context.
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_vulnerabilitySummaries_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*vulnerability.TeamVulnerabilitySummaryFilter, error) {
-			return ec.unmarshalOTeamVulnerabilitySummaryFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummaryFilter(ctx, v)
+			return unmarshalOTeamVulnerabilitySummaryFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummaryFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1387,7 +1386,7 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 	args["filter"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1395,7 +1394,7 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 	args["first"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1403,7 +1402,7 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 	args["after"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1411,7 +1410,7 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 	args["last"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1419,7 +1418,7 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 	args["before"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*vulnerability.VulnerabilitySummaryOrder, error) {
-			return ec.unmarshalOVulnerabilitySummaryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilitySummaryOrder(ctx, v)
+			return unmarshalOVulnerabilitySummaryOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilitySummaryOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1428,12 +1427,12 @@ func (ec *executionContext) field_Team_vulnerabilitySummaries_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_vulnerabilitySummary_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_vulnerabilitySummary_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*vulnerability.TeamVulnerabilitySummaryFilter, error) {
-			return ec.unmarshalOTeamVulnerabilitySummaryFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummaryFilter(ctx, v)
+			return unmarshalOTeamVulnerabilitySummaryFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummaryFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1442,12 +1441,12 @@ func (ec *executionContext) field_Team_vulnerabilitySummary_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_workloadUtilization_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_workloadUtilization_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "resourceType",
 		func(ctx context.Context, v any) (utilization.UtilizationResourceType, error) {
-			return ec.unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, v)
+			return unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1456,12 +1455,12 @@ func (ec *executionContext) field_Team_workloadUtilization_args(ctx context.Cont
 	return args, nil
 }
 
-func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Team_workloads_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1469,7 +1468,7 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1477,7 +1476,7 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1485,7 +1484,7 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1493,7 +1492,7 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*workload.WorkloadOrder, error) {
-			return ec.unmarshalOWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrder(ctx, v)
+			return unmarshalOWorkloadOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1501,7 +1500,7 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 	args["orderBy"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*workload.TeamWorkloadsFilter, error) {
-			return ec.unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐTeamWorkloadsFilter(ctx, v)
+			return unmarshalOTeamWorkloadsFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐTeamWorkloadsFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1518,352 +1517,352 @@ func (ec *executionContext) field_Team_workloads_args(ctx context.Context, rawAr
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AddTeamMemberPayload_member(ctx context.Context, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
+func _AddTeamMemberPayload_member(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.AddTeamMemberPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AddTeamMemberPayload_member(ctx, field)
+			return fieldContext_AddTeamMemberPayload_member(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Member, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
-			return ec.marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, selections, v)
+			return marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_AddTeamMemberPayload_member(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AddTeamMemberPayload_member(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddTeamMemberPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMember(ctx, field)
+			return childFields_TeamMember(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ConfirmTeamDeletionPayload_deletionStarted(ctx context.Context, field graphql.CollectedField, obj *team.ConfirmTeamDeletionPayload) (ret graphql.Marshaler) {
+func _ConfirmTeamDeletionPayload_deletionStarted(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.ConfirmTeamDeletionPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ConfirmTeamDeletionPayload_deletionStarted(ctx, field)
+			return fieldContext_ConfirmTeamDeletionPayload_deletionStarted(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DeletionStarted, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalOBoolean2bool(ctx, selections, v)
+			return marshalOBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ConfirmTeamDeletionPayload_deletionStarted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ConfirmTeamDeletionPayload_deletionStarted(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ConfirmTeamDeletionPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _CreateTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.CreateTeamPayload) (ret graphql.Marshaler) {
+func _CreateTeamPayload_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.CreateTeamPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CreateTeamPayload_team(ctx, field)
+			return fieldContext_CreateTeamPayload_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Team, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_CreateTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CreateTeamPayload_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateTeamPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RemoveTeamMemberPayload_user(ctx context.Context, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
+func _RemoveTeamMemberPayload_user(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RemoveTeamMemberPayload_user(ctx, field)
+			return fieldContext_RemoveTeamMemberPayload_user(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.RemoveTeamMemberPayload().User(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *user.User) graphql.Marshaler {
-			return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, selections, v)
+			return marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RemoveTeamMemberPayload_user(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveTeamMemberPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_User(ctx, field)
+			return childFields_User(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RemoveTeamMemberPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
+func _RemoveTeamMemberPayload_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.RemoveTeamMemberPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RemoveTeamMemberPayload_team(ctx, field)
+			return fieldContext_RemoveTeamMemberPayload_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.RemoveTeamMemberPayload().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RemoveTeamMemberPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RemoveTeamMemberPayload_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveTeamMemberPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RequestTeamDeletionPayload_key(ctx context.Context, field graphql.CollectedField, obj *team.RequestTeamDeletionPayload) (ret graphql.Marshaler) {
+func _RequestTeamDeletionPayload_key(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.RequestTeamDeletionPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RequestTeamDeletionPayload_key(ctx, field)
+			return fieldContext_RequestTeamDeletionPayload_key(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
-			return ec.marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx, selections, v)
+			return marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RequestTeamDeletionPayload_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RequestTeamDeletionPayload_key(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RequestTeamDeletionPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamDeleteKey(ctx, field)
+			return childFields_TeamDeleteKey(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SetTeamMemberRolePayload_member(ctx context.Context, field graphql.CollectedField, obj *team.SetTeamMemberRolePayload) (ret graphql.Marshaler) {
+func _SetTeamMemberRolePayload_member(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.SetTeamMemberRolePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SetTeamMemberRolePayload_member(ctx, field)
+			return fieldContext_SetTeamMemberRolePayload_member(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Member, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
-			return ec.marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, selections, v)
+			return marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SetTeamMemberRolePayload_member(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SetTeamMemberRolePayload_member(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SetTeamMemberRolePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMember(ctx, field)
+			return childFields_TeamMember(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_id(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_id(ctx, field)
+			return fieldContext_Team_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Team_slug(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_slug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_slug(ctx, field)
+			return fieldContext_Team_slug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Slug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_slug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_slug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _Team_slackChannel(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_slackChannel(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_slackChannel(ctx, field)
+			return fieldContext_Team_slackChannel(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.SlackChannel, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_slackChannel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_slackChannel(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Team_purpose(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_purpose(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_purpose(ctx, field)
+			return fieldContext_Team_purpose(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Purpose, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_purpose(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_purpose(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Team_externalResources(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_externalResources(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_externalResources(ctx, field)
+			return fieldContext_Team_externalResources(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ExternalResources(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
-			return ec.marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx, selections, v)
+			return marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_externalResources(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_externalResources(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamExternalResources(ctx, field)
+			return childFields_TeamExternalResources(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_member(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_member(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_member(ctx, field)
+			return fieldContext_Team_member(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1871,20 +1870,20 @@ func (ec *executionContext) _Team_member(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
-			return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, selections, v)
+			return marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_member(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_member(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMember(ctx, field)
+			return childFields_TeamMember(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1894,20 +1893,20 @@ func (ec *executionContext) fieldContext_Team_member(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_member_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_member_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_members(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_members(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_members(ctx, field)
+			return fieldContext_Team_members(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -1915,20 +1914,20 @@ func (ec *executionContext) _Team_members(ctx context.Context, field graphql.Col
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*team.TeamMember]) graphql.Marshaler {
-			return ec.marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_members(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_members(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMemberConnection(ctx, field)
+			return childFields_TeamMemberConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -1938,144 +1937,144 @@ func (ec *executionContext) fieldContext_Team_members(ctx context.Context, field
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_members_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_members_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_lastSuccessfulSync(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_lastSuccessfulSync(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_lastSuccessfulSync(ctx, field)
+			return fieldContext_Team_lastSuccessfulSync(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.LastSuccessfulSync, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Team_lastSuccessfulSync(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_lastSuccessfulSync(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _Team_deletionInProgress(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_deletionInProgress(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_deletionInProgress(ctx, field)
+			return fieldContext_Team_deletionInProgress(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.DeletionInProgress(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_deletionInProgress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_deletionInProgress(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, true, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Team_viewerIsOwner(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_viewerIsOwner(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_viewerIsOwner(ctx, field)
+			return fieldContext_Team_viewerIsOwner(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().ViewerIsOwner(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_viewerIsOwner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_viewerIsOwner(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Team_viewerIsMember(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_viewerIsMember(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_viewerIsMember(ctx, field)
+			return fieldContext_Team_viewerIsMember(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().ViewerIsMember(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_viewerIsMember(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_viewerIsMember(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Team", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Team_environments(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_environments(ctx, field)
+			return fieldContext_Team_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().Environments(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentᚄ(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_environment(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_environment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_environment(ctx, field)
+			return fieldContext_Team_environment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2083,20 +2082,20 @@ func (ec *executionContext) _Team_environment(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_environment(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2106,20 +2105,20 @@ func (ec *executionContext) fieldContext_Team_environment(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_environment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_environment_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_deleteKey(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_deleteKey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_deleteKey(ctx, field)
+			return fieldContext_Team_deleteKey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2127,20 +2126,20 @@ func (ec *executionContext) _Team_deleteKey(ctx context.Context, field graphql.C
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
-			return ec.marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx, selections, v)
+			return marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_deleteKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_deleteKey(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamDeleteKey(ctx, field)
+			return childFields_TeamDeleteKey(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2150,52 +2149,52 @@ func (ec *executionContext) fieldContext_Team_deleteKey(ctx context.Context, fie
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_deleteKey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_deleteKey_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_inventoryCounts(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_inventoryCounts(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_inventoryCounts(ctx, field)
+			return fieldContext_Team_inventoryCounts(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().InventoryCounts(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamInventoryCounts) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx, selections, v)
+			return marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_inventoryCounts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_inventoryCounts(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCounts(ctx, field)
+			return childFields_TeamInventoryCounts(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_activityLog(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_activityLog(ctx, field)
+			return fieldContext_Team_activityLog(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2203,20 +2202,20 @@ func (ec *executionContext) _Team_activityLog(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, selections, v)
+			return marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEntryConnection(ctx, field)
+			return childFields_ActivityLogEntryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2226,20 +2225,20 @@ func (ec *executionContext) fieldContext_Team_activityLog(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_activityLog_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_alerts(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_alerts(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_alerts(ctx, field)
+			return fieldContext_Team_alerts(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2247,20 +2246,20 @@ func (ec *executionContext) _Team_alerts(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
-			return ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_alerts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_alerts(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AlertConnection(ctx, field)
+			return childFields_AlertConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2270,20 +2269,20 @@ func (ec *executionContext) fieldContext_Team_alerts(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_alerts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_alerts_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_applications(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_applications(ctx, field)
+			return fieldContext_Team_applications(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2291,20 +2290,20 @@ func (ec *executionContext) _Team_applications(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_applications(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ApplicationConnection(ctx, field)
+			return childFields_ApplicationConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2314,20 +2313,20 @@ func (ec *executionContext) fieldContext_Team_applications(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_applications_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_applications_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_bigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_bigQueryDatasets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_bigQueryDatasets(ctx, field)
+			return fieldContext_Team_bigQueryDatasets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2335,20 +2334,20 @@ func (ec *executionContext) _Team_bigQueryDatasets(ctx context.Context, field gr
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bigquery.BigQueryDataset, *bigquery.BigQueryDatasetFilter]) graphql.Marshaler {
-			return ec.marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNBigQueryDatasetConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_bigQueryDatasets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_bigQueryDatasets(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BigQueryDatasetConnection(ctx, field)
+			return childFields_BigQueryDatasetConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2358,20 +2357,20 @@ func (ec *executionContext) fieldContext_Team_bigQueryDatasets(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_bigQueryDatasets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_bigQueryDatasets_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_buckets(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_buckets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_buckets(ctx, field)
+			return fieldContext_Team_buckets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2379,20 +2378,20 @@ func (ec *executionContext) _Team_buckets(ctx context.Context, field graphql.Col
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*bucket.Bucket, *bucket.BucketFilter]) graphql.Marshaler {
-			return ec.marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNBucketConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_buckets(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BucketConnection(ctx, field)
+			return childFields_BucketConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2402,20 +2401,20 @@ func (ec *executionContext) fieldContext_Team_buckets(ctx context.Context, field
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_buckets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_buckets_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_configs(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_configs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_configs(ctx, field)
+			return fieldContext_Team_configs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2423,20 +2422,20 @@ func (ec *executionContext) _Team_configs(ctx context.Context, field graphql.Col
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*config.Config, *config.ConfigFilter]) graphql.Marshaler {
-			return ec.marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNConfigConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_configs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_configs(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ConfigConnection(ctx, field)
+			return childFields_ConfigConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2446,84 +2445,84 @@ func (ec *executionContext) fieldContext_Team_configs(ctx context.Context, field
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_configs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_configs_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_cost(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_cost(ctx, field)
+			return fieldContext_Team_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().Cost(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamCost) graphql.Marshaler {
-			return ec.marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx, selections, v)
+			return marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamCost(ctx, field)
+			return childFields_TeamCost(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_deploymentKey(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_deploymentKey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_deploymentKey(ctx, field)
+			return fieldContext_Team_deploymentKey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().DeploymentKey(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *deployment.DeploymentKey) graphql.Marshaler {
-			return ec.marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx, selections, v)
+			return marshalODeploymentKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋdeploymentᚐDeploymentKey(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Team_deploymentKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_deploymentKey(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentKey(ctx, field)
+			return childFields_DeploymentKey(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_deployments(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_deployments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_deployments(ctx, field)
+			return fieldContext_Team_deployments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2531,20 +2530,20 @@ func (ec *executionContext) _Team_deployments(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*deployment.Deployment]) graphql.Marshaler {
-			return ec.marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNDeploymentConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_deployments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_deployments(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_DeploymentConnection(ctx, field)
+			return childFields_DeploymentConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2554,20 +2553,20 @@ func (ec *executionContext) fieldContext_Team_deployments(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_deployments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_deployments_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_issues(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_issues(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_issues(ctx, field)
+			return fieldContext_Team_issues(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2575,20 +2574,20 @@ func (ec *executionContext) _Team_issues(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *issue.IssueConnection) graphql.Marshaler {
-			return ec.marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, selections, v)
+			return marshalNIssueConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssueConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_issues(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_issues(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_IssueConnection(ctx, field)
+			return childFields_IssueConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2598,20 +2597,20 @@ func (ec *executionContext) fieldContext_Team_issues(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_issues_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_issues_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_jobs(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_jobs(ctx, field)
+			return fieldContext_Team_jobs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2619,20 +2618,20 @@ func (ec *executionContext) _Team_jobs(ctx context.Context, field graphql.Collec
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_jobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobConnection(ctx, field)
+			return childFields_JobConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2642,20 +2641,20 @@ func (ec *executionContext) fieldContext_Team_jobs(ctx context.Context, field gr
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_jobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_jobs_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_kafkaTopics(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_kafkaTopics(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_kafkaTopics(ctx, field)
+			return fieldContext_Team_kafkaTopics(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2663,20 +2662,20 @@ func (ec *executionContext) _Team_kafkaTopics(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
-			return ec.marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_kafkaTopics(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_kafkaTopics(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicConnection(ctx, field)
+			return childFields_KafkaTopicConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2686,20 +2685,20 @@ func (ec *executionContext) fieldContext_Team_kafkaTopics(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_kafkaTopics_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_kafkaTopics_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_openSearches(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_openSearches(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_openSearches(ctx, field)
+			return fieldContext_Team_openSearches(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2707,20 +2706,20 @@ func (ec *executionContext) _Team_openSearches(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*opensearch.OpenSearch, *opensearch.OpenSearchFilter]) graphql.Marshaler {
-			return ec.marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNOpenSearchConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_openSearches(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_openSearches(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_OpenSearchConnection(ctx, field)
+			return childFields_OpenSearchConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2730,20 +2729,20 @@ func (ec *executionContext) fieldContext_Team_openSearches(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_openSearches_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_openSearches_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_postgreses(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_postgreses(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_postgreses(ctx, field)
+			return fieldContext_Team_postgreses(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2751,20 +2750,20 @@ func (ec *executionContext) _Team_postgreses(ctx context.Context, field graphql.
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter]) graphql.Marshaler {
-			return ec.marshalNPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNPostgresConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_postgreses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_postgreses(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresConnection(ctx, field)
+			return childFields_PostgresConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2774,20 +2773,20 @@ func (ec *executionContext) fieldContext_Team_postgreses(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_postgreses_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_postgreses_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_repositories(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_repositories(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_repositories(ctx, field)
+			return fieldContext_Team_repositories(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2795,20 +2794,20 @@ func (ec *executionContext) _Team_repositories(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*repository.Repository]) graphql.Marshaler {
-			return ec.marshalNRepositoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNRepositoryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_repositories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_repositories(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_RepositoryConnection(ctx, field)
+			return childFields_RepositoryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2818,20 +2817,20 @@ func (ec *executionContext) fieldContext_Team_repositories(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_repositories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_repositories_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_secrets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_secrets(ctx, field)
+			return fieldContext_Team_secrets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2839,20 +2838,20 @@ func (ec *executionContext) _Team_secrets(ctx context.Context, field graphql.Col
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
-			return ec.marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_secrets(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_secrets(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretConnection(ctx, field)
+			return childFields_SecretConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2862,20 +2861,20 @@ func (ec *executionContext) fieldContext_Team_secrets(ctx context.Context, field
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_secrets_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_secrets_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_serviceAccounts(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_serviceAccounts(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_serviceAccounts(ctx, field)
+			return fieldContext_Team_serviceAccounts(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2883,20 +2882,20 @@ func (ec *executionContext) _Team_serviceAccounts(ctx context.Context, field gra
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*serviceaccount.ServiceAccount]) graphql.Marshaler {
-			return ec.marshalNServiceAccountConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNServiceAccountConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_serviceAccounts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_serviceAccounts(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountConnection(ctx, field)
+			return childFields_ServiceAccountConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2906,20 +2905,20 @@ func (ec *executionContext) fieldContext_Team_serviceAccounts(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_serviceAccounts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_serviceAccounts_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_sqlInstances(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_sqlInstances(ctx, field)
+			return fieldContext_Team_sqlInstances(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -2927,20 +2926,20 @@ func (ec *executionContext) _Team_sqlInstances(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*sqlinstance.SQLInstance]) graphql.Marshaler {
-			return ec.marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNSqlInstanceConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_sqlInstances(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_sqlInstances(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstanceConnection(ctx, field)
+			return childFields_SqlInstanceConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -2950,52 +2949,52 @@ func (ec *executionContext) fieldContext_Team_sqlInstances(ctx context.Context, 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_sqlInstances_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_sqlInstances_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_unleash(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_unleash(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_unleash(ctx, field)
+			return fieldContext_Team_unleash(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().Unleash(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *unleash.UnleashInstance) graphql.Marshaler {
-			return ec.marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx, selections, v)
+			return marshalOUnleashInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋunleashᚐUnleashInstance(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Team_unleash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_unleash(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_UnleashInstance(ctx, field)
+			return childFields_UnleashInstance(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_workloadUtilization(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_workloadUtilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_workloadUtilization(ctx, field)
+			return fieldContext_Team_workloadUtilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3003,20 +3002,20 @@ func (ec *executionContext) _Team_workloadUtilization(ctx context.Context, field
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*utilization.WorkloadUtilizationData) graphql.Marshaler {
-			return ec.marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx, selections, v)
+			return marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_workloadUtilization(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_workloadUtilization(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadUtilizationData(ctx, field)
+			return childFields_WorkloadUtilizationData(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3026,52 +3025,52 @@ func (ec *executionContext) fieldContext_Team_workloadUtilization(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_workloadUtilization_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_workloadUtilization_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_serviceUtilization(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_serviceUtilization(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_serviceUtilization(ctx, field)
+			return fieldContext_Team_serviceUtilization(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Team().ServiceUtilization(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *utilization.TeamServiceUtilization) graphql.Marshaler {
-			return ec.marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx, selections, v)
+			return marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_serviceUtilization(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_serviceUtilization(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamServiceUtilization(ctx, field)
+			return childFields_TeamServiceUtilization(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_valkeys(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_valkeys(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_valkeys(ctx, field)
+			return fieldContext_Team_valkeys(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3079,20 +3078,20 @@ func (ec *executionContext) _Team_valkeys(ctx context.Context, field graphql.Col
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter]) graphql.Marshaler {
-			return ec.marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNValkeyConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_valkeys(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_valkeys(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ValkeyConnection(ctx, field)
+			return childFields_ValkeyConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3102,20 +3101,20 @@ func (ec *executionContext) fieldContext_Team_valkeys(ctx context.Context, field
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_valkeys_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_valkeys_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_imageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_imageVulnerabilityHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_imageVulnerabilityHistory(ctx, field)
+			return fieldContext_Team_imageVulnerabilityHistory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3123,20 +3122,20 @@ func (ec *executionContext) _Team_imageVulnerabilityHistory(ctx context.Context,
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.ImageVulnerabilityHistory) graphql.Marshaler {
-			return ec.marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx, selections, v)
+			return marshalNImageVulnerabilityHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityHistory(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_imageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_imageVulnerabilityHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ImageVulnerabilityHistory(ctx, field)
+			return childFields_ImageVulnerabilityHistory(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3146,20 +3145,20 @@ func (ec *executionContext) fieldContext_Team_imageVulnerabilityHistory(ctx cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_imageVulnerabilityHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_imageVulnerabilityHistory_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_vulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_vulnerabilityFixHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_vulnerabilityFixHistory(ctx, field)
+			return fieldContext_Team_vulnerabilityFixHistory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3167,20 +3166,20 @@ func (ec *executionContext) _Team_vulnerabilityFixHistory(ctx context.Context, f
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.VulnerabilityFixHistory) graphql.Marshaler {
-			return ec.marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory(ctx, selections, v)
+			return marshalNVulnerabilityFixHistory2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐVulnerabilityFixHistory(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_vulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_vulnerabilityFixHistory(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_VulnerabilityFixHistory(ctx, field)
+			return childFields_VulnerabilityFixHistory(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3190,20 +3189,20 @@ func (ec *executionContext) fieldContext_Team_vulnerabilityFixHistory(ctx contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_vulnerabilityFixHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_vulnerabilityFixHistory_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_vulnerabilitySummary(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
+			return fieldContext_Team_vulnerabilitySummary(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3211,20 +3210,20 @@ func (ec *executionContext) _Team_vulnerabilitySummary(ctx context.Context, fiel
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.TeamVulnerabilitySummary) graphql.Marshaler {
-			return ec.marshalNTeamVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummary(ctx, selections, v)
+			return marshalNTeamVulnerabilitySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐTeamVulnerabilitySummary(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_vulnerabilitySummary(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_vulnerabilitySummary(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamVulnerabilitySummary(ctx, field)
+			return childFields_TeamVulnerabilitySummary(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3234,20 +3233,20 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitySummary(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_vulnerabilitySummary_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_vulnerabilitySummary_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_vulnerabilitySummaries(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_vulnerabilitySummaries(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
+			return fieldContext_Team_vulnerabilitySummaries(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3255,20 +3254,20 @@ func (ec *executionContext) _Team_vulnerabilitySummaries(ctx context.Context, fi
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary]) graphql.Marshaler {
-			return ec.marshalNWorkloadVulnerabilitySummaryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadVulnerabilitySummaryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_vulnerabilitySummaries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_vulnerabilitySummaries(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadVulnerabilitySummaryConnection(ctx, field)
+			return childFields_WorkloadVulnerabilitySummaryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3278,20 +3277,20 @@ func (ec *executionContext) fieldContext_Team_vulnerabilitySummaries(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_vulnerabilitySummaries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_vulnerabilitySummaries_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Team_workloads(ctx context.Context, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
+func _Team_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.Team) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Team_workloads(ctx, field)
+			return fieldContext_Team_workloads(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -3299,20 +3298,20 @@ func (ec *executionContext) _Team_workloads(ctx context.Context, field graphql.C
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Team_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Team_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Team",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadConnection(ctx, field)
+			return childFields_WorkloadConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -3322,1122 +3321,1122 @@ func (ec *executionContext) fieldContext_Team_workloads(ctx context.Context, fie
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Team_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Team_workloads_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCDN_bucket(ctx context.Context, field graphql.CollectedField, obj *team.TeamCDN) (ret graphql.Marshaler) {
+func _TeamCDN_bucket(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCDN) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCDN_bucket(ctx, field)
+			return fieldContext_TeamCDN_bucket(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Bucket, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCDN_bucket(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCDN_bucket(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCDN", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamConfirmDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamConfirmDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConfirmDeleteKeyActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConfirmDeleteKeyActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamConfirmDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
+func _TeamConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConnection_pageInfo(ctx, field)
+			return fieldContext_TeamConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
+func _TeamConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConnection_nodes(ctx, field)
+			return fieldContext_TeamConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamᚄ(ctx, selections, v)
+			return marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
+func _TeamConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*team.Team]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamConnection_edges(ctx, field)
+			return fieldContext_TeamConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*team.Team]) graphql.Marshaler {
-			return ec.marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEdge(ctx, field)
+			return childFields_TeamEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCreateDeleteKeyActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreateDeleteKeyActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreateDeleteKeyActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreateDeleteKeyActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreateDeleteKeyActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamCreatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCreatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamCreatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCreatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeleteKey_key(ctx context.Context, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
+func _TeamDeleteKey_key(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeleteKey_key(ctx, field)
+			return fieldContext_TeamDeleteKey_key(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Key(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeleteKey_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeleteKey_key(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeleteKey", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeleteKey_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
+func _TeamDeleteKey_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeleteKey_createdAt(ctx, field)
+			return fieldContext_TeamDeleteKey_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeleteKey_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeleteKey_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeleteKey", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeleteKey_expires(ctx context.Context, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
+func _TeamDeleteKey_expires(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeleteKey_expires(ctx, field)
+			return fieldContext_TeamDeleteKey_expires(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Expires(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeleteKey_expires(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeleteKey_expires(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamDeleteKey", field, true, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamDeleteKey_createdBy(ctx context.Context, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
+func _TeamDeleteKey_createdBy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeleteKey_createdBy(ctx, field)
+			return fieldContext_TeamDeleteKey_createdBy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamDeleteKey().CreatedBy(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *user.User) graphql.Marshaler {
-			return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, selections, v)
+			return marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeleteKey_createdBy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeleteKey_createdBy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamDeleteKey",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_User(ctx, field)
+			return childFields_User(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamDeleteKey_team(ctx context.Context, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
+func _TeamDeleteKey_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamDeleteKey) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamDeleteKey_team(ctx, field)
+			return fieldContext_TeamDeleteKey_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamDeleteKey().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamDeleteKey_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamDeleteKey_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamDeleteKey",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
+func _TeamEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEdge_cursor(ctx, field)
+			return fieldContext_TeamEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
+func _TeamEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*team.Team]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEdge_node(ctx, field)
+			return fieldContext_TeamEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEntraIDGroup_groupID(ctx context.Context, field graphql.CollectedField, obj *team.TeamEntraIDGroup) (ret graphql.Marshaler) {
+func _TeamEntraIDGroup_groupID(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEntraIDGroup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEntraIDGroup_groupID(ctx, field)
+			return fieldContext_TeamEntraIDGroup_groupID(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GroupID, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEntraIDGroup_groupID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEntraIDGroup_groupID(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEntraIDGroup", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironment_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_id(ctx, field)
+			return fieldContext_TeamEnvironment_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironment", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironment_name(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_name(ctx, field)
+			return fieldContext_TeamEnvironment_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironment", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironment_gcpProjectID(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_gcpProjectID(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_gcpProjectID(ctx, field)
+			return fieldContext_TeamEnvironment_gcpProjectID(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GCPProjectID, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_gcpProjectID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_gcpProjectID(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironment_slackAlertsChannel(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_slackAlertsChannel(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_slackAlertsChannel(ctx, field)
+			return fieldContext_TeamEnvironment_slackAlertsChannel(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.SlackAlertsChannel, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_slackAlertsChannel(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_slackAlertsChannel(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironment", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironment_team(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_team(ctx, field)
+			return fieldContext_TeamEnvironment_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamEnvironment().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_alerts(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_alerts(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_alerts(ctx, field)
+			return fieldContext_TeamEnvironment_alerts(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4445,20 +4444,20 @@ func (ec *executionContext) _TeamEnvironment_alerts(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[alerts.Alert, *alerts.TeamAlertsFilter]) graphql.Marshaler {
-			return ec.marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNAlertConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_alerts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_alerts(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AlertConnection(ctx, field)
+			return childFields_AlertConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4468,20 +4467,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_alerts(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_alerts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_alerts_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_application(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_application(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_application(ctx, field)
+			return fieldContext_TeamEnvironment_application(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4489,20 +4488,20 @@ func (ec *executionContext) _TeamEnvironment_application(ctx context.Context, fi
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *application.Application) graphql.Marshaler {
-			return ec.marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication(ctx, selections, v)
+			return marshalNApplication2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplication(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_application(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Application(ctx, field)
+			return childFields_Application(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4512,20 +4511,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_application(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_application_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_application_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_bigQueryDataset(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_bigQueryDataset(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_bigQueryDataset(ctx, field)
+			return fieldContext_TeamEnvironment_bigQueryDataset(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4533,20 +4532,20 @@ func (ec *executionContext) _TeamEnvironment_bigQueryDataset(ctx context.Context
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.BigQueryDataset) graphql.Marshaler {
-			return ec.marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, selections, v)
+			return marshalNBigQueryDataset2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐBigQueryDataset(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_bigQueryDataset(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_bigQueryDataset(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BigQueryDataset(ctx, field)
+			return childFields_BigQueryDataset(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4556,20 +4555,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_bigQueryDataset(ctx con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_bigQueryDataset_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_bigQueryDataset_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_bucket(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_bucket(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_bucket(ctx, field)
+			return fieldContext_TeamEnvironment_bucket(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4577,20 +4576,20 @@ func (ec *executionContext) _TeamEnvironment_bucket(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bucket.Bucket) graphql.Marshaler {
-			return ec.marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx, selections, v)
+			return marshalNBucket2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐBucket(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_bucket(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_bucket(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Bucket(ctx, field)
+			return childFields_Bucket(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4600,20 +4599,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_bucket(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_bucket_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_bucket_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_config(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_config(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_config(ctx, field)
+			return fieldContext_TeamEnvironment_config(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4621,20 +4620,20 @@ func (ec *executionContext) _TeamEnvironment_config(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.Config) graphql.Marshaler {
-			return ec.marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, selections, v)
+			return marshalNConfig2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐConfig(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_config(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_config(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Config(ctx, field)
+			return childFields_Config(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4644,84 +4643,84 @@ func (ec *executionContext) fieldContext_TeamEnvironment_config(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_config_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_config_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_cost(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_cost(ctx, field)
+			return fieldContext_TeamEnvironment_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamEnvironment().Cost(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamEnvironmentCost) graphql.Marshaler {
-			return ec.marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx, selections, v)
+			return marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironmentCost(ctx, field)
+			return childFields_TeamEnvironmentCost(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_environment(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_environment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_environment(ctx, field)
+			return fieldContext_TeamEnvironment_environment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamEnvironment().Environment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *environment.Environment) graphql.Marshaler {
-			return ec.marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, selections, v)
+			return marshalNEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_environment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Environment(ctx, field)
+			return childFields_Environment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_job(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_job(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_job(ctx, field)
+			return fieldContext_TeamEnvironment_job(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4729,20 +4728,20 @@ func (ec *executionContext) _TeamEnvironment_job(ctx context.Context, field grap
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.Job) graphql.Marshaler {
-			return ec.marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, selections, v)
+			return marshalNJob2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJob(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_job(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Job(ctx, field)
+			return childFields_Job(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4752,20 +4751,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_job(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_job_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_job_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_kafkaTopic(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_kafkaTopic(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_kafkaTopic(ctx, field)
+			return fieldContext_TeamEnvironment_kafkaTopic(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4773,20 +4772,20 @@ func (ec *executionContext) _TeamEnvironment_kafkaTopic(ctx context.Context, fie
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
-			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+			return marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_kafkaTopic(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_kafkaTopic(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopic(ctx, field)
+			return childFields_KafkaTopic(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4796,20 +4795,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_kafkaTopic(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_kafkaTopic_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_kafkaTopic_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_openSearch(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_openSearch(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_openSearch(ctx, field)
+			return fieldContext_TeamEnvironment_openSearch(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4817,20 +4816,20 @@ func (ec *executionContext) _TeamEnvironment_openSearch(ctx context.Context, fie
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.OpenSearch) graphql.Marshaler {
-			return ec.marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx, selections, v)
+			return marshalNOpenSearch2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐOpenSearch(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_openSearch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_openSearch(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_OpenSearch(ctx, field)
+			return childFields_OpenSearch(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4840,20 +4839,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_openSearch(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_openSearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_openSearch_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_postgres(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_postgres(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_postgres(ctx, field)
+			return fieldContext_TeamEnvironment_postgres(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4861,20 +4860,20 @@ func (ec *executionContext) _TeamEnvironment_postgres(ctx context.Context, field
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
-			return ec.marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx, selections, v)
+			return marshalNPostgres2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgres(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_postgres(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_postgres(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Postgres(ctx, field)
+			return childFields_Postgres(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4884,20 +4883,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_postgres(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_postgres_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_postgres_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_postgresAccess(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_postgresAccess(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_postgresAccess(ctx, field)
+			return fieldContext_TeamEnvironment_postgresAccess(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4905,20 +4904,20 @@ func (ec *executionContext) _TeamEnvironment_postgresAccess(ctx context.Context,
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresAccess) graphql.Marshaler {
-			return ec.marshalNPostgresAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccess(ctx, selections, v)
+			return marshalNPostgresAccess2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresAccess(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_postgresAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_postgresAccess(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PostgresAccess(ctx, field)
+			return childFields_PostgresAccess(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4928,20 +4927,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_postgresAccess(ctx cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_postgresAccess_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_postgresAccess_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_secret(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_secret(ctx, field)
+			return fieldContext_TeamEnvironment_secret(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4949,20 +4948,20 @@ func (ec *executionContext) _TeamEnvironment_secret(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -4972,20 +4971,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_secret(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_secret_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_secret_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_sqlInstance(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_sqlInstance(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
+			return fieldContext_TeamEnvironment_sqlInstance(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -4993,20 +4992,20 @@ func (ec *executionContext) _TeamEnvironment_sqlInstance(ctx context.Context, fi
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.SQLInstance) graphql.Marshaler {
-			return ec.marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, selections, v)
+			return marshalNSqlInstance2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐSQLInstance(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_sqlInstance(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SqlInstance(ctx, field)
+			return childFields_SqlInstance(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -5016,20 +5015,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_sqlInstance(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_sqlInstance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_sqlInstance_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_tunnel(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_tunnel(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
+			return fieldContext_TeamEnvironment_tunnel(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -5037,20 +5036,20 @@ func (ec *executionContext) _TeamEnvironment_tunnel(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *tunnel.Tunnel) graphql.Marshaler {
-			return ec.marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx, selections, v)
+			return marshalOTunnel2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋtunnelᚐTunnel(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_tunnel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_tunnel(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Tunnel(ctx, field)
+			return childFields_Tunnel(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -5060,20 +5059,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_tunnel(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_tunnel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_tunnel_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_valkey(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_valkey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
+			return fieldContext_TeamEnvironment_valkey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -5081,20 +5080,20 @@ func (ec *executionContext) _TeamEnvironment_valkey(ctx context.Context, field g
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *valkey.Valkey) graphql.Marshaler {
-			return ec.marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey(ctx, selections, v)
+			return marshalNValkey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐValkey(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_valkey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_valkey(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Valkey(ctx, field)
+			return childFields_Valkey(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -5104,20 +5103,20 @@ func (ec *executionContext) fieldContext_TeamEnvironment_valkey(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_valkey_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_valkey_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironment_workload(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
+func _TeamEnvironment_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironment) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironment_workload(ctx, field)
+			return fieldContext_TeamEnvironment_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -5125,13 +5124,13 @@ func (ec *executionContext) _TeamEnvironment_workload(ctx context.Context, field
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironment_workload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironment_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironment",
 		Field:      field,
@@ -5148,2549 +5147,2549 @@ func (ec *executionContext) fieldContext_TeamEnvironment_workload(ctx context.Co
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironment_workload_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironment_workload_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironmentUpdatedActivityLogEntryData(ctx, field)
+			return childFields_TeamEnvironmentUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UpdatedFields, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-			return ec.marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, selections, v)
+			return marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, field)
+			return childFields_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Field, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+			return fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.NewValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamExternalResources_entraIDGroup(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+func _TeamExternalResources_entraIDGroup(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamExternalResources_entraIDGroup(ctx, field)
+			return fieldContext_TeamExternalResources_entraIDGroup(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EntraIDGroup(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEntraIDGroup) graphql.Marshaler {
-			return ec.marshalOTeamEntraIDGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEntraIDGroup(ctx, selections, v)
+			return marshalOTeamEntraIDGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEntraIDGroup(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamExternalResources_entraIDGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamExternalResources_entraIDGroup(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamExternalResources",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEntraIDGroup(ctx, field)
+			return childFields_TeamEntraIDGroup(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamExternalResources_gitHubTeam(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+func _TeamExternalResources_gitHubTeam(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamExternalResources_gitHubTeam(ctx, field)
+			return fieldContext_TeamExternalResources_gitHubTeam(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubTeam(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamGitHubTeam) graphql.Marshaler {
-			return ec.marshalOTeamGitHubTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGitHubTeam(ctx, selections, v)
+			return marshalOTeamGitHubTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGitHubTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamExternalResources_gitHubTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamExternalResources_gitHubTeam(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamExternalResources",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamGitHubTeam(ctx, field)
+			return childFields_TeamGitHubTeam(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamExternalResources_googleGroup(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+func _TeamExternalResources_googleGroup(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamExternalResources_googleGroup(ctx, field)
+			return fieldContext_TeamExternalResources_googleGroup(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GoogleGroup(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamGoogleGroup) graphql.Marshaler {
-			return ec.marshalOTeamGoogleGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleGroup(ctx, selections, v)
+			return marshalOTeamGoogleGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleGroup(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamExternalResources_googleGroup(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamExternalResources_googleGroup(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamExternalResources",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamGoogleGroup(ctx, field)
+			return childFields_TeamGoogleGroup(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamExternalResources_googleArtifactRegistry(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+func _TeamExternalResources_googleArtifactRegistry(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamExternalResources_googleArtifactRegistry(ctx, field)
+			return fieldContext_TeamExternalResources_googleArtifactRegistry(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GoogleArtifactRegistry(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
-			return ec.marshalOTeamGoogleArtifactRegistry2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleArtifactRegistry(ctx, selections, v)
+			return marshalOTeamGoogleArtifactRegistry2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleArtifactRegistry(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamExternalResources_googleArtifactRegistry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamExternalResources_googleArtifactRegistry(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamExternalResources",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamGoogleArtifactRegistry(ctx, field)
+			return childFields_TeamGoogleArtifactRegistry(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamExternalResources_cdn(ctx context.Context, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
+func _TeamExternalResources_cdn(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamExternalResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamExternalResources_cdn(ctx, field)
+			return fieldContext_TeamExternalResources_cdn(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CDN(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamCDN) graphql.Marshaler {
-			return ec.marshalOTeamCDN2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamCDN(ctx, selections, v)
+			return marshalOTeamCDN2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamCDN(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamExternalResources_cdn(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamExternalResources_cdn(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamExternalResources",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamCDN(ctx, field)
+			return childFields_TeamCDN(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamGitHubTeam_slug(ctx context.Context, field graphql.CollectedField, obj *team.TeamGitHubTeam) (ret graphql.Marshaler) {
+func _TeamGitHubTeam_slug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamGitHubTeam) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamGitHubTeam_slug(ctx, field)
+			return fieldContext_TeamGitHubTeam_slug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Slug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamGitHubTeam_slug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamGitHubTeam_slug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamGitHubTeam", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamGoogleArtifactRegistry_repository(ctx context.Context, field graphql.CollectedField, obj *team.TeamGoogleArtifactRegistry) (ret graphql.Marshaler) {
+func _TeamGoogleArtifactRegistry_repository(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamGoogleArtifactRegistry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamGoogleArtifactRegistry_repository(ctx, field)
+			return fieldContext_TeamGoogleArtifactRegistry_repository(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Repository, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamGoogleArtifactRegistry_repository(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamGoogleArtifactRegistry_repository(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamGoogleArtifactRegistry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamGoogleGroup_email(ctx context.Context, field graphql.CollectedField, obj *team.TeamGoogleGroup) (ret graphql.Marshaler) {
+func _TeamGoogleGroup_email(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamGoogleGroup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamGoogleGroup_email(ctx, field)
+			return fieldContext_TeamGoogleGroup_email(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Email, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamGoogleGroup_email(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamGoogleGroup_email(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamGoogleGroup", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCounts_applications(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_applications(ctx, field)
+			return fieldContext_TeamInventoryCounts_applications(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().Applications(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *application.TeamInventoryCountApplications) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountApplications2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐTeamInventoryCountApplications(ctx, selections, v)
+			return marshalNTeamInventoryCountApplications2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐTeamInventoryCountApplications(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_applications(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_applications(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountApplications(ctx, field)
+			return childFields_TeamInventoryCountApplications(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_bigQueryDatasets(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_bigQueryDatasets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_bigQueryDatasets(ctx, field)
+			return fieldContext_TeamInventoryCounts_bigQueryDatasets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().BigQueryDatasets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bigquery.TeamInventoryCountBigQueryDatasets) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountBigQueryDatasets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets(ctx, selections, v)
+			return marshalNTeamInventoryCountBigQueryDatasets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbigqueryᚐTeamInventoryCountBigQueryDatasets(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_bigQueryDatasets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_bigQueryDatasets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountBigQueryDatasets(ctx, field)
+			return childFields_TeamInventoryCountBigQueryDatasets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_buckets(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_buckets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_buckets(ctx, field)
+			return fieldContext_TeamInventoryCounts_buckets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().Buckets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bucket.TeamInventoryCountBuckets) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx, selections, v)
+			return marshalNTeamInventoryCountBuckets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋbucketᚐTeamInventoryCountBuckets(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_buckets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_buckets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountBuckets(ctx, field)
+			return childFields_TeamInventoryCountBuckets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_configs(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_configs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_configs(ctx, field)
+			return fieldContext_TeamInventoryCounts_configs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().Configs(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *config.TeamInventoryCountConfigs) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs(ctx, selections, v)
+			return marshalNTeamInventoryCountConfigs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋconfigᚐTeamInventoryCountConfigs(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_configs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_configs(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountConfigs(ctx, field)
+			return childFields_TeamInventoryCountConfigs(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_jobs(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_jobs(ctx, field)
+			return fieldContext_TeamInventoryCounts_jobs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().Jobs(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *job.TeamInventoryCountJobs) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx, selections, v)
+			return marshalNTeamInventoryCountJobs2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐTeamInventoryCountJobs(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_jobs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_jobs(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountJobs(ctx, field)
+			return childFields_TeamInventoryCountJobs(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_kafkaTopics(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_kafkaTopics(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_kafkaTopics(ctx, field)
+			return fieldContext_TeamInventoryCounts_kafkaTopics(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().KafkaTopics(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx, selections, v)
+			return marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_kafkaTopics(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_kafkaTopics(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountKafkaTopics(ctx, field)
+			return childFields_TeamInventoryCountKafkaTopics(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_openSearches(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_openSearches(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_openSearches(ctx, field)
+			return fieldContext_TeamInventoryCounts_openSearches(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().OpenSearches(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *opensearch.TeamInventoryCountOpenSearches) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountOpenSearches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearches(ctx, selections, v)
+			return marshalNTeamInventoryCountOpenSearches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐTeamInventoryCountOpenSearches(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_openSearches(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_openSearches(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountOpenSearches(ctx, field)
+			return childFields_TeamInventoryCountOpenSearches(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_postgresBranches(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_postgresBranches(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_postgresBranches(ctx, field)
+			return fieldContext_TeamInventoryCounts_postgresBranches(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().PostgresBranches(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *postgres.TeamInventoryCountPostgresBranches) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountPostgresBranches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresBranches(ctx, selections, v)
+			return marshalNTeamInventoryCountPostgresBranches2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamInventoryCountPostgresBranches(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_postgresBranches(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_postgresBranches(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountPostgresBranches(ctx, field)
+			return childFields_TeamInventoryCountPostgresBranches(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_secrets(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_secrets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_secrets(ctx, field)
+			return fieldContext_TeamInventoryCounts_secrets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().Secrets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.TeamInventoryCountSecrets) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountSecrets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx, selections, v)
+			return marshalNTeamInventoryCountSecrets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_secrets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_secrets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountSecrets(ctx, field)
+			return childFields_TeamInventoryCountSecrets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_sqlInstances(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_sqlInstances(ctx, field)
+			return fieldContext_TeamInventoryCounts_sqlInstances(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().SQLInstances(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.TeamInventoryCountSQLInstances) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx, selections, v)
+			return marshalNTeamInventoryCountSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamInventoryCountSQLInstances(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_sqlInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_sqlInstances(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountSqlInstances(ctx, field)
+			return childFields_TeamInventoryCountSqlInstances(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamInventoryCounts_valkeys(ctx context.Context, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
+func _TeamInventoryCounts_valkeys(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamInventoryCounts) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCounts_valkeys(ctx, field)
+			return fieldContext_TeamInventoryCounts_valkeys(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamInventoryCounts().Valkeys(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *valkey.TeamInventoryCountValkeys) graphql.Marshaler {
-			return ec.marshalNTeamInventoryCountValkeys2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeys(ctx, selections, v)
+			return marshalNTeamInventoryCountValkeys2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋvalkeyᚐTeamInventoryCountValkeys(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCounts_valkeys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCounts_valkeys(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamInventoryCounts",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamInventoryCountValkeys(ctx, field)
+			return childFields_TeamInventoryCountValkeys(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMember_team(ctx context.Context, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
+func _TeamMember_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMember_team(ctx, field)
+			return fieldContext_TeamMember_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamMember().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMember_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMember_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMember",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMember_user(ctx context.Context, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
+func _TeamMember_user(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMember_user(ctx, field)
+			return fieldContext_TeamMember_user(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamMember().User(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *user.User) graphql.Marshaler {
-			return ec.marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, selections, v)
+			return marshalNUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMember_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMember_user(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMember",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_User(ctx, field)
+			return childFields_User(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMember_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
+func _TeamMember_role(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMember) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMember_role(ctx, field)
+			return fieldContext_TeamMember_role(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Role, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v team.TeamMemberRole) graphql.Marshaler {
-			return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, selections, v)
+			return marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMember_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMember_role(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMember", field, false, false, errors.New("field of type TeamMemberRole does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntry_data(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx, selections, v)
+			return marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMemberAddedActivityLogEntryData(ctx, field)
+			return childFields_TeamMemberAddedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntryData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntryData_role(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntryData_role(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntryData_role(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Role, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v team.TeamMemberRole) graphql.Marshaler {
-			return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, selections, v)
+			return marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntryData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntryData_role(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntryData", field, false, false, errors.New("field of type TeamMemberRole does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntryData_userID(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntryData_userID(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntryData_userID(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntryData_userID(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntryData", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberAddedActivityLogEntryData_userEmail(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(ctx, field)
+			return fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberAddedActivityLogEntryData_userEmail(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberAddedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
+func _TeamMemberConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberConnection_pageInfo(ctx, field)
+			return fieldContext_TeamMemberConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
+func _TeamMemberConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberConnection_nodes(ctx, field)
+			return fieldContext_TeamMemberConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {
-			return ec.marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberᚄ(ctx, selections, v)
+			return marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMember(ctx, field)
+			return childFields_TeamMember(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
+func _TeamMemberConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*team.TeamMember]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberConnection_edges(ctx, field)
+			return fieldContext_TeamMemberConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*team.TeamMember]) graphql.Marshaler {
-			return ec.marshalNTeamMemberEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNTeamMemberEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMemberEdge(ctx, field)
+			return childFields_TeamMemberEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.TeamMember]) (ret graphql.Marshaler) {
+func _TeamMemberEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*team.TeamMember]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberEdge_cursor(ctx, field)
+			return fieldContext_TeamMemberEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*team.TeamMember]) (ret graphql.Marshaler) {
+func _TeamMemberEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*team.TeamMember]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberEdge_node(ctx, field)
+			return fieldContext_TeamMemberEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
-			return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, selections, v)
+			return marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMember(ctx, field)
+			return childFields_TeamMember(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntry_data(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx, selections, v)
+			return marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMemberRemovedActivityLogEntryData(ctx, field)
+			return childFields_TeamMemberRemovedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntryData_userID(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userID(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntryData_userID(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntryData_userID(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntryData", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberRemovedActivityLogEntryData_userEmail(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberRemovedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(ctx, field)
+			return fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberRemovedActivityLogEntryData_userEmail(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberRemovedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberSetRoleActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntry_data(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx, selections, v)
+			return marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamMemberSetRoleActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamMemberSetRoleActivityLogEntryData(ctx, field)
+			return childFields_TeamMemberSetRoleActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData_role(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntryData_role(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_role(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntryData_role(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Role, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v team.TeamMemberRole) graphql.Marshaler {
-			return ec.marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, selections, v)
+			return marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntryData_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntryData_role(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntryData", field, false, false, errors.New("field of type TeamMemberRole does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData_userID(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntryData_userID(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntryData_userID(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntryData", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData_userEmail(ctx context.Context, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamMemberSetRoleActivityLogEntryData_userEmail(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamMemberSetRoleActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, field)
+			return fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UserEmail, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamMemberSetRoleActivityLogEntryData_userEmail(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamMemberSetRoleActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamUpdatedActivityLogEntryData(ctx, field)
+			return childFields_TeamUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntryData_updatedFields(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UpdatedFields, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-			return ec.marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, selections, v)
+			return marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntryData_updatedFields(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamUpdatedActivityLogEntryDataUpdatedField(ctx, field)
+			return childFields_TeamUpdatedActivityLogEntryDataUpdatedField(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Field, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+			return fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.NewValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _UpdateTeamEnvironmentPayload_environment(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
+func _UpdateTeamEnvironmentPayload_environment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, field)
+			return fieldContext_UpdateTeamEnvironmentPayload_environment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.UpdateTeamEnvironmentPayload().Environment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateTeamEnvironmentPayload_environment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateTeamEnvironmentPayload",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UpdateTeamEnvironmentPayload_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
+func _UpdateTeamEnvironmentPayload_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.UpdateTeamEnvironmentPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(ctx, field)
+			return fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamEnvironment, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateTeamEnvironmentPayload_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateTeamEnvironmentPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UpdateTeamPayload_team(ctx context.Context, field graphql.CollectedField, obj *team.UpdateTeamPayload) (ret graphql.Marshaler) {
+func _UpdateTeamPayload_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *team.UpdateTeamPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateTeamPayload_team(ctx, field)
+			return fieldContext_UpdateTeamPayload_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Team, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateTeamPayload_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateTeamPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -7700,7 +7699,7 @@ func (ec *executionContext) fieldContext_UpdateTeamPayload_team(_ context.Contex
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddTeamMemberInput(ctx context.Context, obj any) (team.AddTeamMemberInput, error) {
+func unmarshalInputAddTeamMemberInput(ctx context.Context, ec *executionContext, obj any) (team.AddTeamMemberInput, error) {
 	var it team.AddTeamMemberInput
 	if obj == nil {
 		return it, nil
@@ -7720,21 +7719,21 @@ func (ec *executionContext) unmarshalInputAddTeamMemberInput(ctx context.Context
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "userEmail":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.UserEmail = data
 		case "role":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			data, err := ec.unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, v)
+			data, err := unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7744,7 +7743,7 @@ func (ec *executionContext) unmarshalInputAddTeamMemberInput(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.Context, obj any) (team.ConfirmTeamDeletionInput, error) {
+func unmarshalInputConfirmTeamDeletionInput(ctx context.Context, ec *executionContext, obj any) (team.ConfirmTeamDeletionInput, error) {
 	var it team.ConfirmTeamDeletionInput
 	if obj == nil {
 		return it, nil
@@ -7764,14 +7763,14 @@ func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.C
 		switch k {
 		case "slug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Slug = data
 		case "key":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("key"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7781,7 +7780,7 @@ func (ec *executionContext) unmarshalInputConfirmTeamDeletionInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, obj any) (team.CreateTeamInput, error) {
+func unmarshalInputCreateTeamInput(ctx context.Context, ec *executionContext, obj any) (team.CreateTeamInput, error) {
 	var it team.CreateTeamInput
 	if obj == nil {
 		return it, nil
@@ -7801,21 +7800,21 @@ func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, o
 		switch k {
 		case "slug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Slug = data
 		case "purpose":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Purpose = data
 		case "slackChannel":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7825,7 +7824,7 @@ func (ec *executionContext) unmarshalInputCreateTeamInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Context, obj any) (team.RemoveTeamMemberInput, error) {
+func unmarshalInputRemoveTeamMemberInput(ctx context.Context, ec *executionContext, obj any) (team.RemoveTeamMemberInput, error) {
 	var it team.RemoveTeamMemberInput
 	if obj == nil {
 		return it, nil
@@ -7845,14 +7844,14 @@ func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Cont
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "userEmail":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7862,7 +7861,7 @@ func (ec *executionContext) unmarshalInputRemoveTeamMemberInput(ctx context.Cont
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.Context, obj any) (team.RequestTeamDeletionInput, error) {
+func unmarshalInputRequestTeamDeletionInput(ctx context.Context, ec *executionContext, obj any) (team.RequestTeamDeletionInput, error) {
 	var it team.RequestTeamDeletionInput
 	if obj == nil {
 		return it, nil
@@ -7882,7 +7881,7 @@ func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.C
 		switch k {
 		case "slug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7892,7 +7891,7 @@ func (ec *executionContext) unmarshalInputRequestTeamDeletionInput(ctx context.C
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSetTeamMemberRoleInput(ctx context.Context, obj any) (team.SetTeamMemberRoleInput, error) {
+func unmarshalInputSetTeamMemberRoleInput(ctx context.Context, ec *executionContext, obj any) (team.SetTeamMemberRoleInput, error) {
 	var it team.SetTeamMemberRoleInput
 	if obj == nil {
 		return it, nil
@@ -7912,21 +7911,21 @@ func (ec *executionContext) unmarshalInputSetTeamMemberRoleInput(ctx context.Con
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "userEmail":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userEmail"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.UserEmail = data
 		case "role":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
-			data, err := ec.unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, v)
+			data, err := unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7936,7 +7935,7 @@ func (ec *executionContext) unmarshalInputSetTeamMemberRoleInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj any) (team.TeamFilter, error) {
+func unmarshalInputTeamFilter(ctx context.Context, ec *executionContext, obj any) (team.TeamFilter, error) {
 	var it team.TeamFilter
 	if obj == nil {
 		return it, nil
@@ -7956,14 +7955,14 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 		switch k {
 		case "hasWorkloads":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasWorkloads"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := unmarshalOBoolean2ᚖbool(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.HasWorkloads = data
 		case "vulnerabilityPriorityGroup":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityPriorityGroup"))
-			data, err := ec.unmarshalOTeamVulnerabilityPriorityGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamVulnerabilityPriorityGroup(ctx, v)
+			data, err := unmarshalOTeamVulnerabilityPriorityGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamVulnerabilityPriorityGroup(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -7973,7 +7972,7 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, obj any) (team.TeamMemberOrder, error) {
+func unmarshalInputTeamMemberOrder(ctx context.Context, ec *executionContext, obj any) (team.TeamMemberOrder, error) {
 	var it team.TeamMemberOrder
 	if obj == nil {
 		return it, nil
@@ -7993,14 +7992,14 @@ func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, o
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx, v)
+			data, err := unmarshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -8010,7 +8009,7 @@ func (ec *executionContext) unmarshalInputTeamMemberOrder(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj any) (team.TeamOrder, error) {
+func unmarshalInputTeamOrder(ctx context.Context, ec *executionContext, obj any) (team.TeamOrder, error) {
 	var it team.TeamOrder
 	if obj == nil {
 		return it, nil
@@ -8030,14 +8029,14 @@ func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj any
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx, v)
+			data, err := unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -8047,7 +8046,7 @@ func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj any
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateTeamEnvironmentInput(ctx context.Context, obj any) (team.UpdateTeamEnvironmentInput, error) {
+func unmarshalInputUpdateTeamEnvironmentInput(ctx context.Context, ec *executionContext, obj any) (team.UpdateTeamEnvironmentInput, error) {
 	var it team.UpdateTeamEnvironmentInput
 	if obj == nil {
 		return it, nil
@@ -8067,21 +8066,21 @@ func (ec *executionContext) unmarshalInputUpdateTeamEnvironmentInput(ctx context
 		switch k {
 		case "slug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Slug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "slackAlertsChannel":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackAlertsChannel"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -8091,7 +8090,7 @@ func (ec *executionContext) unmarshalInputUpdateTeamEnvironmentInput(ctx context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, obj any) (team.UpdateTeamInput, error) {
+func unmarshalInputUpdateTeamInput(ctx context.Context, ec *executionContext, obj any) (team.UpdateTeamInput, error) {
 	var it team.UpdateTeamInput
 	if obj == nil {
 		return it, nil
@@ -8111,21 +8110,21 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 		switch k {
 		case "slug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Slug = data
 		case "purpose":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("purpose"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Purpose = data
 		case "slackChannel":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slackChannel"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -8145,7 +8144,7 @@ func (ec *executionContext) unmarshalInputUpdateTeamInput(ctx context.Context, o
 
 var addTeamMemberPayloadImplementors = []string{"AddTeamMemberPayload"}
 
-func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, obj *team.AddTeamMemberPayload) graphql.Marshaler {
+func _AddTeamMemberPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.AddTeamMemberPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, addTeamMemberPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8155,7 +8154,7 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AddTeamMemberPayload")
 		case "member":
-			out.Values[i] = ec._AddTeamMemberPayload_member(ctx, field, obj)
+			out.Values[i] = _AddTeamMemberPayload_member(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8181,7 +8180,7 @@ func (ec *executionContext) _AddTeamMemberPayload(ctx context.Context, sel ast.S
 
 var confirmTeamDeletionPayloadImplementors = []string{"ConfirmTeamDeletionPayload"}
 
-func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, obj *team.ConfirmTeamDeletionPayload) graphql.Marshaler {
+func _ConfirmTeamDeletionPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.ConfirmTeamDeletionPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, confirmTeamDeletionPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8191,7 +8190,7 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ConfirmTeamDeletionPayload")
 		case "deletionStarted":
-			out.Values[i] = ec._ConfirmTeamDeletionPayload_deletionStarted(ctx, field, obj)
+			out.Values[i] = _ConfirmTeamDeletionPayload_deletionStarted(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8217,7 +8216,7 @@ func (ec *executionContext) _ConfirmTeamDeletionPayload(ctx context.Context, sel
 
 var createTeamPayloadImplementors = []string{"CreateTeamPayload"}
 
-func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *team.CreateTeamPayload) graphql.Marshaler {
+func _CreateTeamPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.CreateTeamPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createTeamPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8227,7 +8226,7 @@ func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CreateTeamPayload")
 		case "team":
-			out.Values[i] = ec._CreateTeamPayload_team(ctx, field, obj)
+			out.Values[i] = _CreateTeamPayload_team(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8253,7 +8252,7 @@ func (ec *executionContext) _CreateTeamPayload(ctx context.Context, sel ast.Sele
 
 var removeTeamMemberPayloadImplementors = []string{"RemoveTeamMemberPayload"}
 
-func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, obj *team.RemoveTeamMemberPayload) graphql.Marshaler {
+func _RemoveTeamMemberPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.RemoveTeamMemberPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, removeTeamMemberPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8271,7 +8270,7 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._RemoveTeamMemberPayload_user(ctx, field, obj)
+				res = _RemoveTeamMemberPayload_user(ctx, ec, field, obj)
 				return res
 			}
 
@@ -8304,7 +8303,7 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._RemoveTeamMemberPayload_team(ctx, field, obj)
+				res = _RemoveTeamMemberPayload_team(ctx, ec, field, obj)
 				return res
 			}
 
@@ -8353,7 +8352,7 @@ func (ec *executionContext) _RemoveTeamMemberPayload(ctx context.Context, sel as
 
 var requestTeamDeletionPayloadImplementors = []string{"RequestTeamDeletionPayload"}
 
-func (ec *executionContext) _RequestTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, obj *team.RequestTeamDeletionPayload) graphql.Marshaler {
+func _RequestTeamDeletionPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.RequestTeamDeletionPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, requestTeamDeletionPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8363,7 +8362,7 @@ func (ec *executionContext) _RequestTeamDeletionPayload(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RequestTeamDeletionPayload")
 		case "key":
-			out.Values[i] = ec._RequestTeamDeletionPayload_key(ctx, field, obj)
+			out.Values[i] = _RequestTeamDeletionPayload_key(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8389,7 +8388,7 @@ func (ec *executionContext) _RequestTeamDeletionPayload(ctx context.Context, sel
 
 var setTeamMemberRolePayloadImplementors = []string{"SetTeamMemberRolePayload"}
 
-func (ec *executionContext) _SetTeamMemberRolePayload(ctx context.Context, sel ast.SelectionSet, obj *team.SetTeamMemberRolePayload) graphql.Marshaler {
+func _SetTeamMemberRolePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.SetTeamMemberRolePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, setTeamMemberRolePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8399,7 +8398,7 @@ func (ec *executionContext) _SetTeamMemberRolePayload(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SetTeamMemberRolePayload")
 		case "member":
-			out.Values[i] = ec._SetTeamMemberRolePayload_member(ctx, field, obj)
+			out.Values[i] = _SetTeamMemberRolePayload_member(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8425,7 +8424,7 @@ func (ec *executionContext) _SetTeamMemberRolePayload(ctx context.Context, sel a
 
 var teamImplementors = []string{"Team", "SearchNode", "Node", "ActivityLogger"}
 
-func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj *team.Team) graphql.Marshaler {
+func _Team(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.Team) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -8435,27 +8434,27 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Team")
 		case "id":
-			out.Values[i] = ec._Team_id(ctx, field, obj)
+			out.Values[i] = _Team_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "slug":
-			out.Values[i] = ec._Team_slug(ctx, field, obj)
+			out.Values[i] = _Team_slug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "slackChannel":
-			out.Values[i] = ec._Team_slackChannel(ctx, field, obj)
+			out.Values[i] = _Team_slackChannel(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "purpose":
-			out.Values[i] = ec._Team_purpose(ctx, field, obj)
+			out.Values[i] = _Team_purpose(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "externalResources":
-			out.Values[i] = ec._Team_externalResources(ctx, field, obj)
+			out.Values[i] = _Team_externalResources(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -8468,7 +8467,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_member(ctx, field, obj)
+				res = _Team_member(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8504,7 +8503,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_members(ctx, field, obj)
+				res = _Team_members(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8532,9 +8531,9 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "lastSuccessfulSync":
-			out.Values[i] = ec._Team_lastSuccessfulSync(ctx, field, obj)
+			out.Values[i] = _Team_lastSuccessfulSync(ctx, ec, field, obj)
 		case "deletionInProgress":
-			out.Values[i] = ec._Team_deletionInProgress(ctx, field, obj)
+			out.Values[i] = _Team_deletionInProgress(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -8547,7 +8546,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_viewerIsOwner(ctx, field, obj)
+				res = _Team_viewerIsOwner(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8583,7 +8582,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_viewerIsMember(ctx, field, obj)
+				res = _Team_viewerIsMember(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8619,7 +8618,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_environments(ctx, field, obj)
+				res = _Team_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8655,7 +8654,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_environment(ctx, field, obj)
+				res = _Team_environment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8691,7 +8690,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_deleteKey(ctx, field, obj)
+				res = _Team_deleteKey(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8727,7 +8726,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_inventoryCounts(ctx, field, obj)
+				res = _Team_inventoryCounts(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8763,7 +8762,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_activityLog(ctx, field, obj)
+				res = _Team_activityLog(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8799,7 +8798,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_alerts(ctx, field, obj)
+				res = _Team_alerts(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8835,7 +8834,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_applications(ctx, field, obj)
+				res = _Team_applications(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8871,7 +8870,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_bigQueryDatasets(ctx, field, obj)
+				res = _Team_bigQueryDatasets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8907,7 +8906,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_buckets(ctx, field, obj)
+				res = _Team_buckets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8943,7 +8942,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_configs(ctx, field, obj)
+				res = _Team_configs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8979,7 +8978,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_cost(ctx, field, obj)
+				res = _Team_cost(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9015,7 +9014,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_deploymentKey(ctx, field, obj)
+				res = _Team_deploymentKey(ctx, ec, field, obj)
 				return res
 			}
 
@@ -9048,7 +9047,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_deployments(ctx, field, obj)
+				res = _Team_deployments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9084,7 +9083,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_issues(ctx, field, obj)
+				res = _Team_issues(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9120,7 +9119,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_jobs(ctx, field, obj)
+				res = _Team_jobs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9156,7 +9155,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_kafkaTopics(ctx, field, obj)
+				res = _Team_kafkaTopics(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9192,7 +9191,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_openSearches(ctx, field, obj)
+				res = _Team_openSearches(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9228,7 +9227,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_postgreses(ctx, field, obj)
+				res = _Team_postgreses(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9264,7 +9263,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_repositories(ctx, field, obj)
+				res = _Team_repositories(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9300,7 +9299,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_secrets(ctx, field, obj)
+				res = _Team_secrets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9336,7 +9335,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_serviceAccounts(ctx, field, obj)
+				res = _Team_serviceAccounts(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9372,7 +9371,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_sqlInstances(ctx, field, obj)
+				res = _Team_sqlInstances(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9408,7 +9407,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_unleash(ctx, field, obj)
+				res = _Team_unleash(ctx, ec, field, obj)
 				return res
 			}
 
@@ -9441,7 +9440,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_workloadUtilization(ctx, field, obj)
+				res = _Team_workloadUtilization(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9477,7 +9476,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_serviceUtilization(ctx, field, obj)
+				res = _Team_serviceUtilization(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9513,7 +9512,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_valkeys(ctx, field, obj)
+				res = _Team_valkeys(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9549,7 +9548,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_imageVulnerabilityHistory(ctx, field, obj)
+				res = _Team_imageVulnerabilityHistory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9585,7 +9584,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_vulnerabilityFixHistory(ctx, field, obj)
+				res = _Team_vulnerabilityFixHistory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9621,7 +9620,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_vulnerabilitySummary(ctx, field, obj)
+				res = _Team_vulnerabilitySummary(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9657,7 +9656,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_vulnerabilitySummaries(ctx, field, obj)
+				res = _Team_vulnerabilitySummaries(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9693,7 +9692,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Team_workloads(ctx, field, obj)
+				res = _Team_workloads(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -9745,7 +9744,7 @@ func (ec *executionContext) _Team(ctx context.Context, sel ast.SelectionSet, obj
 
 var teamCDNImplementors = []string{"TeamCDN"}
 
-func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCDN) graphql.Marshaler {
+func _TeamCDN(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamCDN) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCDNImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9755,7 +9754,7 @@ func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamCDN")
 		case "bucket":
-			out.Values[i] = ec._TeamCDN_bucket(ctx, field, obj)
+			out.Values[i] = _TeamCDN_bucket(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9784,7 +9783,7 @@ func (ec *executionContext) _TeamCDN(ctx context.Context, sel ast.SelectionSet, 
 
 var teamConfirmDeleteKeyActivityLogEntryImplementors = []string{"TeamConfirmDeleteKeyActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyActivityLogEntry) graphql.Marshaler {
+func _TeamConfirmDeleteKeyActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamConfirmDeleteKeyActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamConfirmDeleteKeyActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9794,44 +9793,44 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry(ctx context.Co
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamConfirmDeleteKeyActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamConfirmDeleteKeyActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9857,7 +9856,7 @@ func (ec *executionContext) _TeamConfirmDeleteKeyActivityLogEntry(ctx context.Co
 
 var teamConnectionImplementors = []string{"TeamConnection"}
 
-func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*team.Team]) graphql.Marshaler {
+func _TeamConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*team.Team]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9867,17 +9866,17 @@ func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamConnection")
 		case "pageInfo":
-			out.Values[i] = ec._TeamConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _TeamConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._TeamConnection_nodes(ctx, field, obj)
+			out.Values[i] = _TeamConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._TeamConnection_edges(ctx, field, obj)
+			out.Values[i] = _TeamConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9906,7 +9905,7 @@ func (ec *executionContext) _TeamConnection(ctx context.Context, sel ast.Selecti
 
 var teamCreateDeleteKeyActivityLogEntryImplementors = []string{"TeamCreateDeleteKeyActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyActivityLogEntry) graphql.Marshaler {
+func _TeamCreateDeleteKeyActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamCreateDeleteKeyActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreateDeleteKeyActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9916,44 +9915,44 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry(ctx context.Con
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamCreateDeleteKeyActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamCreateDeleteKeyActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9979,7 +9978,7 @@ func (ec *executionContext) _TeamCreateDeleteKeyActivityLogEntry(ctx context.Con
 
 var teamCreatedActivityLogEntryImplementors = []string{"TeamCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamCreatedActivityLogEntry) graphql.Marshaler {
+func _TeamCreatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamCreatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -9989,44 +9988,44 @@ func (ec *executionContext) _TeamCreatedActivityLogEntry(ctx context.Context, se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamCreatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamCreatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10052,7 +10051,7 @@ func (ec *executionContext) _TeamCreatedActivityLogEntry(ctx context.Context, se
 
 var teamDeleteKeyImplementors = []string{"TeamDeleteKey"}
 
-func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.SelectionSet, obj *team.TeamDeleteKey) graphql.Marshaler {
+func _TeamDeleteKey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamDeleteKey) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamDeleteKeyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10062,17 +10061,17 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamDeleteKey")
 		case "key":
-			out.Values[i] = ec._TeamDeleteKey_key(ctx, field, obj)
+			out.Values[i] = _TeamDeleteKey_key(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
-			out.Values[i] = ec._TeamDeleteKey_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamDeleteKey_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "expires":
-			out.Values[i] = ec._TeamDeleteKey_expires(ctx, field, obj)
+			out.Values[i] = _TeamDeleteKey_expires(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -10085,7 +10084,7 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamDeleteKey_createdBy(ctx, field, obj)
+				res = _TeamDeleteKey_createdBy(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10121,7 +10120,7 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamDeleteKey_team(ctx, field, obj)
+				res = _TeamDeleteKey_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10173,7 +10172,7 @@ func (ec *executionContext) _TeamDeleteKey(ctx context.Context, sel ast.Selectio
 
 var teamEdgeImplementors = []string{"TeamEdge"}
 
-func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*team.Team]) graphql.Marshaler {
+func _TeamEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*team.Team]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10183,12 +10182,12 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEdge")
 		case "cursor":
-			out.Values[i] = ec._TeamEdge_cursor(ctx, field, obj)
+			out.Values[i] = _TeamEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._TeamEdge_node(ctx, field, obj)
+			out.Values[i] = _TeamEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -10217,7 +10216,7 @@ func (ec *executionContext) _TeamEdge(ctx context.Context, sel ast.SelectionSet,
 
 var teamEntraIDGroupImplementors = []string{"TeamEntraIDGroup"}
 
-func (ec *executionContext) _TeamEntraIDGroup(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEntraIDGroup) graphql.Marshaler {
+func _TeamEntraIDGroup(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamEntraIDGroup) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEntraIDGroupImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10227,7 +10226,7 @@ func (ec *executionContext) _TeamEntraIDGroup(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEntraIDGroup")
 		case "groupID":
-			out.Values[i] = ec._TeamEntraIDGroup_groupID(ctx, field, obj)
+			out.Values[i] = _TeamEntraIDGroup_groupID(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -10256,7 +10255,7 @@ func (ec *executionContext) _TeamEntraIDGroup(ctx context.Context, sel ast.Selec
 
 var teamEnvironmentImplementors = []string{"TeamEnvironment", "Node"}
 
-func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironment) graphql.Marshaler {
+func _TeamEnvironment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamEnvironment) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10266,19 +10265,19 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEnvironment")
 		case "id":
-			out.Values[i] = ec._TeamEnvironment_id(ctx, field, obj)
+			out.Values[i] = _TeamEnvironment_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._TeamEnvironment_name(ctx, field, obj)
+			out.Values[i] = _TeamEnvironment_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "gcpProjectID":
-			out.Values[i] = ec._TeamEnvironment_gcpProjectID(ctx, field, obj)
+			out.Values[i] = _TeamEnvironment_gcpProjectID(ctx, ec, field, obj)
 		case "slackAlertsChannel":
-			out.Values[i] = ec._TeamEnvironment_slackAlertsChannel(ctx, field, obj)
+			out.Values[i] = _TeamEnvironment_slackAlertsChannel(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -10291,7 +10290,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_team(ctx, field, obj)
+				res = _TeamEnvironment_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10327,7 +10326,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_alerts(ctx, field, obj)
+				res = _TeamEnvironment_alerts(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10363,7 +10362,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_application(ctx, field, obj)
+				res = _TeamEnvironment_application(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10399,7 +10398,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_bigQueryDataset(ctx, field, obj)
+				res = _TeamEnvironment_bigQueryDataset(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10435,7 +10434,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_bucket(ctx, field, obj)
+				res = _TeamEnvironment_bucket(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10471,7 +10470,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_config(ctx, field, obj)
+				res = _TeamEnvironment_config(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10507,7 +10506,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_cost(ctx, field, obj)
+				res = _TeamEnvironment_cost(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10543,7 +10542,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_environment(ctx, field, obj)
+				res = _TeamEnvironment_environment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10579,7 +10578,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_job(ctx, field, obj)
+				res = _TeamEnvironment_job(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10615,7 +10614,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_kafkaTopic(ctx, field, obj)
+				res = _TeamEnvironment_kafkaTopic(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10651,7 +10650,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_openSearch(ctx, field, obj)
+				res = _TeamEnvironment_openSearch(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10687,7 +10686,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_postgres(ctx, field, obj)
+				res = _TeamEnvironment_postgres(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10723,7 +10722,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_postgresAccess(ctx, field, obj)
+				res = _TeamEnvironment_postgresAccess(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10759,7 +10758,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_secret(ctx, field, obj)
+				res = _TeamEnvironment_secret(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10795,7 +10794,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_sqlInstance(ctx, field, obj)
+				res = _TeamEnvironment_sqlInstance(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10831,7 +10830,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_tunnel(ctx, field, obj)
+				res = _TeamEnvironment_tunnel(ctx, ec, field, obj)
 				return res
 			}
 
@@ -10864,7 +10863,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_valkey(ctx, field, obj)
+				res = _TeamEnvironment_valkey(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10900,7 +10899,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironment_workload(ctx, field, obj)
+				res = _TeamEnvironment_workload(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -10952,7 +10951,7 @@ func (ec *executionContext) _TeamEnvironment(ctx context.Context, sel ast.Select
 
 var teamEnvironmentUpdatedActivityLogEntryImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntry) graphql.Marshaler {
+func _TeamEnvironmentUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -10962,46 +10961,46 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11030,7 +11029,7 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntry(ctx context.
 
 var teamEnvironmentUpdatedActivityLogEntryDataImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
+func _TeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11040,7 +11039,7 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData(ctx cont
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogEntryData")
 		case "updatedFields":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntryData_updatedFields(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11069,7 +11068,7 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryData(ctx cont
 
 var teamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField"}
 
-func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11079,14 +11078,14 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedFi
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField")
 		case "field":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field, obj)
 		case "newValue":
-			out.Values[i] = ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11112,7 +11111,7 @@ func (ec *executionContext) _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedFi
 
 var teamExternalResourcesImplementors = []string{"TeamExternalResources"}
 
-func (ec *executionContext) _TeamExternalResources(ctx context.Context, sel ast.SelectionSet, obj *team.TeamExternalResources) graphql.Marshaler {
+func _TeamExternalResources(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamExternalResources) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamExternalResourcesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11122,15 +11121,15 @@ func (ec *executionContext) _TeamExternalResources(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamExternalResources")
 		case "entraIDGroup":
-			out.Values[i] = ec._TeamExternalResources_entraIDGroup(ctx, field, obj)
+			out.Values[i] = _TeamExternalResources_entraIDGroup(ctx, ec, field, obj)
 		case "gitHubTeam":
-			out.Values[i] = ec._TeamExternalResources_gitHubTeam(ctx, field, obj)
+			out.Values[i] = _TeamExternalResources_gitHubTeam(ctx, ec, field, obj)
 		case "googleGroup":
-			out.Values[i] = ec._TeamExternalResources_googleGroup(ctx, field, obj)
+			out.Values[i] = _TeamExternalResources_googleGroup(ctx, ec, field, obj)
 		case "googleArtifactRegistry":
-			out.Values[i] = ec._TeamExternalResources_googleArtifactRegistry(ctx, field, obj)
+			out.Values[i] = _TeamExternalResources_googleArtifactRegistry(ctx, ec, field, obj)
 		case "cdn":
-			out.Values[i] = ec._TeamExternalResources_cdn(ctx, field, obj)
+			out.Values[i] = _TeamExternalResources_cdn(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11156,7 +11155,7 @@ func (ec *executionContext) _TeamExternalResources(ctx context.Context, sel ast.
 
 var teamGitHubTeamImplementors = []string{"TeamGitHubTeam"}
 
-func (ec *executionContext) _TeamGitHubTeam(ctx context.Context, sel ast.SelectionSet, obj *team.TeamGitHubTeam) graphql.Marshaler {
+func _TeamGitHubTeam(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamGitHubTeam) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamGitHubTeamImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11166,7 +11165,7 @@ func (ec *executionContext) _TeamGitHubTeam(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamGitHubTeam")
 		case "slug":
-			out.Values[i] = ec._TeamGitHubTeam_slug(ctx, field, obj)
+			out.Values[i] = _TeamGitHubTeam_slug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11195,7 +11194,7 @@ func (ec *executionContext) _TeamGitHubTeam(ctx context.Context, sel ast.Selecti
 
 var teamGoogleArtifactRegistryImplementors = []string{"TeamGoogleArtifactRegistry"}
 
-func (ec *executionContext) _TeamGoogleArtifactRegistry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
+func _TeamGoogleArtifactRegistry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamGoogleArtifactRegistryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11205,7 +11204,7 @@ func (ec *executionContext) _TeamGoogleArtifactRegistry(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamGoogleArtifactRegistry")
 		case "repository":
-			out.Values[i] = ec._TeamGoogleArtifactRegistry_repository(ctx, field, obj)
+			out.Values[i] = _TeamGoogleArtifactRegistry_repository(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11234,7 +11233,7 @@ func (ec *executionContext) _TeamGoogleArtifactRegistry(ctx context.Context, sel
 
 var teamGoogleGroupImplementors = []string{"TeamGoogleGroup"}
 
-func (ec *executionContext) _TeamGoogleGroup(ctx context.Context, sel ast.SelectionSet, obj *team.TeamGoogleGroup) graphql.Marshaler {
+func _TeamGoogleGroup(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamGoogleGroup) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamGoogleGroupImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11244,7 +11243,7 @@ func (ec *executionContext) _TeamGoogleGroup(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamGoogleGroup")
 		case "email":
-			out.Values[i] = ec._TeamGoogleGroup_email(ctx, field, obj)
+			out.Values[i] = _TeamGoogleGroup_email(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11273,7 +11272,7 @@ func (ec *executionContext) _TeamGoogleGroup(ctx context.Context, sel ast.Select
 
 var teamInventoryCountsImplementors = []string{"TeamInventoryCounts"}
 
-func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, obj *team.TeamInventoryCounts) graphql.Marshaler {
+func _TeamInventoryCounts(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamInventoryCounts) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11291,7 +11290,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_applications(ctx, field, obj)
+				res = _TeamInventoryCounts_applications(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11327,7 +11326,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_bigQueryDatasets(ctx, field, obj)
+				res = _TeamInventoryCounts_bigQueryDatasets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11363,7 +11362,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_buckets(ctx, field, obj)
+				res = _TeamInventoryCounts_buckets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11399,7 +11398,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_configs(ctx, field, obj)
+				res = _TeamInventoryCounts_configs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11435,7 +11434,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_jobs(ctx, field, obj)
+				res = _TeamInventoryCounts_jobs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11471,7 +11470,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_kafkaTopics(ctx, field, obj)
+				res = _TeamInventoryCounts_kafkaTopics(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11507,7 +11506,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_openSearches(ctx, field, obj)
+				res = _TeamInventoryCounts_openSearches(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11543,7 +11542,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_postgresBranches(ctx, field, obj)
+				res = _TeamInventoryCounts_postgresBranches(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11579,7 +11578,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_secrets(ctx, field, obj)
+				res = _TeamInventoryCounts_secrets(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11615,7 +11614,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_sqlInstances(ctx, field, obj)
+				res = _TeamInventoryCounts_sqlInstances(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11651,7 +11650,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamInventoryCounts_valkeys(ctx, field, obj)
+				res = _TeamInventoryCounts_valkeys(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11703,7 +11702,7 @@ func (ec *executionContext) _TeamInventoryCounts(ctx context.Context, sel ast.Se
 
 var teamMemberImplementors = []string{"TeamMember"}
 
-func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMember) graphql.Marshaler {
+func _TeamMember(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMember) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11721,7 +11720,7 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamMember_team(ctx, field, obj)
+				res = _TeamMember_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11757,7 +11756,7 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamMember_user(ctx, field, obj)
+				res = _TeamMember_user(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -11785,7 +11784,7 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "role":
-			out.Values[i] = ec._TeamMember_role(ctx, field, obj)
+			out.Values[i] = _TeamMember_role(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -11814,7 +11813,7 @@ func (ec *executionContext) _TeamMember(ctx context.Context, sel ast.SelectionSe
 
 var teamMemberAddedActivityLogEntryImplementors = []string{"TeamMemberAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntry) graphql.Marshaler {
+func _TeamMemberAddedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11824,46 +11823,46 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11892,7 +11891,7 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntry(ctx context.Context
 
 var teamMemberAddedActivityLogEntryDataImplementors = []string{"TeamMemberAddedActivityLogEntryData"}
 
-func (ec *executionContext) _TeamMemberAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
+func _TeamMemberAddedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberAddedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11902,17 +11901,17 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntryData(ctx context.Con
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberAddedActivityLogEntryData")
 		case "role":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntryData_role(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntryData_role(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userID":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntryData_userID(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntryData_userID(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberAddedActivityLogEntryData_userEmail(ctx, field, obj)
+			out.Values[i] = _TeamMemberAddedActivityLogEntryData_userEmail(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11941,7 +11940,7 @@ func (ec *executionContext) _TeamMemberAddedActivityLogEntryData(ctx context.Con
 
 var teamMemberConnectionImplementors = []string{"TeamMemberConnection"}
 
-func (ec *executionContext) _TeamMemberConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*team.TeamMember]) graphql.Marshaler {
+func _TeamMemberConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*team.TeamMember]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -11951,17 +11950,17 @@ func (ec *executionContext) _TeamMemberConnection(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberConnection")
 		case "pageInfo":
-			out.Values[i] = ec._TeamMemberConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _TeamMemberConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._TeamMemberConnection_nodes(ctx, field, obj)
+			out.Values[i] = _TeamMemberConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._TeamMemberConnection_edges(ctx, field, obj)
+			out.Values[i] = _TeamMemberConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11990,7 +11989,7 @@ func (ec *executionContext) _TeamMemberConnection(ctx context.Context, sel ast.S
 
 var teamMemberEdgeImplementors = []string{"TeamMemberEdge"}
 
-func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*team.TeamMember]) graphql.Marshaler {
+func _TeamMemberEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*team.TeamMember]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12000,12 +11999,12 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberEdge")
 		case "cursor":
-			out.Values[i] = ec._TeamMemberEdge_cursor(ctx, field, obj)
+			out.Values[i] = _TeamMemberEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._TeamMemberEdge_node(ctx, field, obj)
+			out.Values[i] = _TeamMemberEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12034,7 +12033,7 @@ func (ec *executionContext) _TeamMemberEdge(ctx context.Context, sel ast.Selecti
 
 var teamMemberRemovedActivityLogEntryImplementors = []string{"TeamMemberRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntry) graphql.Marshaler {
+func _TeamMemberRemovedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12044,46 +12043,46 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12112,7 +12111,7 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntry(ctx context.Conte
 
 var teamMemberRemovedActivityLogEntryDataImplementors = []string{"TeamMemberRemovedActivityLogEntryData"}
 
-func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
+func _TeamMemberRemovedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberRemovedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12122,12 +12121,12 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData(ctx context.C
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberRemovedActivityLogEntryData")
 		case "userID":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntryData_userID(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntryData_userID(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberRemovedActivityLogEntryData_userEmail(ctx, field, obj)
+			out.Values[i] = _TeamMemberRemovedActivityLogEntryData_userEmail(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12156,7 +12155,7 @@ func (ec *executionContext) _TeamMemberRemovedActivityLogEntryData(ctx context.C
 
 var teamMemberSetRoleActivityLogEntryImplementors = []string{"TeamMemberSetRoleActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogEntry) graphql.Marshaler {
+func _TeamMemberSetRoleActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12166,46 +12165,46 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12234,7 +12233,7 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntry(ctx context.Conte
 
 var teamMemberSetRoleActivityLogEntryDataImplementors = []string{"TeamMemberSetRoleActivityLogEntryData"}
 
-func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
+func _TeamMemberSetRoleActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamMemberSetRoleActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12244,17 +12243,17 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData(ctx context.C
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamMemberSetRoleActivityLogEntryData")
 		case "role":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntryData_role(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntryData_role(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userID":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntryData_userID(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntryData_userID(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "userEmail":
-			out.Values[i] = ec._TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, field, obj)
+			out.Values[i] = _TeamMemberSetRoleActivityLogEntryData_userEmail(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12283,7 +12282,7 @@ func (ec *executionContext) _TeamMemberSetRoleActivityLogEntryData(ctx context.C
 
 var teamUpdatedActivityLogEntryImplementors = []string{"TeamUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntry) graphql.Marshaler {
+func _TeamUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12293,46 +12292,46 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12361,7 +12360,7 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntry(ctx context.Context, se
 
 var teamUpdatedActivityLogEntryDataImplementors = []string{"TeamUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
+func _TeamUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12371,7 +12370,7 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntryData(ctx context.Context
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogEntryData")
 		case "updatedFields":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntryData_updatedFields(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -12400,7 +12399,7 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntryData(ctx context.Context
 
 var teamUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"TeamUpdatedActivityLogEntryDataUpdatedField"}
 
-func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func _TeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamUpdatedActivityLogEntryDataUpdatedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12410,14 +12409,14 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField(ctx con
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamUpdatedActivityLogEntryDataUpdatedField")
 		case "field":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field, obj)
 		case "newValue":
-			out.Values[i] = ec._TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
+			out.Values[i] = _TeamUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12443,7 +12442,7 @@ func (ec *executionContext) _TeamUpdatedActivityLogEntryDataUpdatedField(ctx con
 
 var updateTeamEnvironmentPayloadImplementors = []string{"UpdateTeamEnvironmentPayload"}
 
-func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, obj *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
+func _UpdateTeamEnvironmentPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateTeamEnvironmentPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12461,7 +12460,7 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, s
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._UpdateTeamEnvironmentPayload_environment(ctx, field, obj)
+				res = _UpdateTeamEnvironmentPayload_environment(ctx, ec, field, obj)
 				return res
 			}
 
@@ -12486,7 +12485,7 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, s
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "teamEnvironment":
-			out.Values[i] = ec._UpdateTeamEnvironmentPayload_teamEnvironment(ctx, field, obj)
+			out.Values[i] = _UpdateTeamEnvironmentPayload_teamEnvironment(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12512,7 +12511,7 @@ func (ec *executionContext) _UpdateTeamEnvironmentPayload(ctx context.Context, s
 
 var updateTeamPayloadImplementors = []string{"UpdateTeamPayload"}
 
-func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, obj *team.UpdateTeamPayload) graphql.Marshaler {
+func _UpdateTeamPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *team.UpdateTeamPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateTeamPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -12522,7 +12521,7 @@ func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateTeamPayload")
 		case "team":
-			out.Values[i] = ec._UpdateTeamPayload_team(ctx, field, obj)
+			out.Values[i] = _UpdateTeamPayload_team(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12550,129 +12549,129 @@ func (ec *executionContext) _UpdateTeamPayload(ctx context.Context, sel ast.Sele
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAddTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberInput(ctx context.Context, v any) (team.AddTeamMemberInput, error) {
-	res, err := ec.unmarshalInputAddTeamMemberInput(ctx, v)
+func unmarshalNAddTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberInput(ctx context.Context, ec *executionContext, v any) (team.AddTeamMemberInput, error) {
+	res, err := unmarshalInputAddTeamMemberInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAddTeamMemberPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v team.AddTeamMemberPayload) graphql.Marshaler {
-	return ec._AddTeamMemberPayload(ctx, sel, &v)
+func marshalNAddTeamMemberPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.AddTeamMemberPayload) graphql.Marshaler {
+	return _AddTeamMemberPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAddTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v *team.AddTeamMemberPayload) graphql.Marshaler {
+func marshalNAddTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐAddTeamMemberPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.AddTeamMemberPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AddTeamMemberPayload(ctx, sel, v)
+	return _AddTeamMemberPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNConfirmTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionInput(ctx context.Context, v any) (team.ConfirmTeamDeletionInput, error) {
-	res, err := ec.unmarshalInputConfirmTeamDeletionInput(ctx, v)
+func unmarshalNConfirmTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionInput(ctx context.Context, ec *executionContext, v any) (team.ConfirmTeamDeletionInput, error) {
+	res, err := unmarshalInputConfirmTeamDeletionInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNConfirmTeamDeletionPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, v team.ConfirmTeamDeletionPayload) graphql.Marshaler {
-	return ec._ConfirmTeamDeletionPayload(ctx, sel, &v)
+func marshalNConfirmTeamDeletionPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.ConfirmTeamDeletionPayload) graphql.Marshaler {
+	return _ConfirmTeamDeletionPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNConfirmTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, v *team.ConfirmTeamDeletionPayload) graphql.Marshaler {
+func marshalNConfirmTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐConfirmTeamDeletionPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.ConfirmTeamDeletionPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ConfirmTeamDeletionPayload(ctx, sel, v)
+	return _ConfirmTeamDeletionPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamInput(ctx context.Context, v any) (team.CreateTeamInput, error) {
-	res, err := ec.unmarshalInputCreateTeamInput(ctx, v)
+func unmarshalNCreateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamInput(ctx context.Context, ec *executionContext, v any) (team.CreateTeamInput, error) {
+	res, err := unmarshalInputCreateTeamInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamPayload(ctx context.Context, sel ast.SelectionSet, v team.CreateTeamPayload) graphql.Marshaler {
-	return ec._CreateTeamPayload(ctx, sel, &v)
+func marshalNCreateTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.CreateTeamPayload) graphql.Marshaler {
+	return _CreateTeamPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.CreateTeamPayload) graphql.Marshaler {
+func marshalNCreateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐCreateTeamPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.CreateTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CreateTeamPayload(ctx, sel, v)
+	return _CreateTeamPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRemoveTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberInput(ctx context.Context, v any) (team.RemoveTeamMemberInput, error) {
-	res, err := ec.unmarshalInputRemoveTeamMemberInput(ctx, v)
+func unmarshalNRemoveTeamMemberInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberInput(ctx context.Context, ec *executionContext, v any) (team.RemoveTeamMemberInput, error) {
+	res, err := unmarshalInputRemoveTeamMemberInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRemoveTeamMemberPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v team.RemoveTeamMemberPayload) graphql.Marshaler {
-	return ec._RemoveTeamMemberPayload(ctx, sel, &v)
+func marshalNRemoveTeamMemberPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.RemoveTeamMemberPayload) graphql.Marshaler {
+	return _RemoveTeamMemberPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, sel ast.SelectionSet, v *team.RemoveTeamMemberPayload) graphql.Marshaler {
+func marshalNRemoveTeamMemberPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRemoveTeamMemberPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.RemoveTeamMemberPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RemoveTeamMemberPayload(ctx, sel, v)
+	return _RemoveTeamMemberPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRequestTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionInput(ctx context.Context, v any) (team.RequestTeamDeletionInput, error) {
-	res, err := ec.unmarshalInputRequestTeamDeletionInput(ctx, v)
+func unmarshalNRequestTeamDeletionInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionInput(ctx context.Context, ec *executionContext, v any) (team.RequestTeamDeletionInput, error) {
+	res, err := unmarshalInputRequestTeamDeletionInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRequestTeamDeletionPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, v team.RequestTeamDeletionPayload) graphql.Marshaler {
-	return ec._RequestTeamDeletionPayload(ctx, sel, &v)
+func marshalNRequestTeamDeletionPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.RequestTeamDeletionPayload) graphql.Marshaler {
+	return _RequestTeamDeletionPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNRequestTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionPayload(ctx context.Context, sel ast.SelectionSet, v *team.RequestTeamDeletionPayload) graphql.Marshaler {
+func marshalNRequestTeamDeletionPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐRequestTeamDeletionPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.RequestTeamDeletionPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RequestTeamDeletionPayload(ctx, sel, v)
+	return _RequestTeamDeletionPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSetTeamMemberRoleInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRoleInput(ctx context.Context, v any) (team.SetTeamMemberRoleInput, error) {
-	res, err := ec.unmarshalInputSetTeamMemberRoleInput(ctx, v)
+func unmarshalNSetTeamMemberRoleInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRoleInput(ctx context.Context, ec *executionContext, v any) (team.SetTeamMemberRoleInput, error) {
+	res, err := unmarshalInputSetTeamMemberRoleInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSetTeamMemberRolePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRolePayload(ctx context.Context, sel ast.SelectionSet, v team.SetTeamMemberRolePayload) graphql.Marshaler {
-	return ec._SetTeamMemberRolePayload(ctx, sel, &v)
+func marshalNSetTeamMemberRolePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRolePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.SetTeamMemberRolePayload) graphql.Marshaler {
+	return _SetTeamMemberRolePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSetTeamMemberRolePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRolePayload(ctx context.Context, sel ast.SelectionSet, v *team.SetTeamMemberRolePayload) graphql.Marshaler {
+func marshalNSetTeamMemberRolePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐSetTeamMemberRolePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.SetTeamMemberRolePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SetTeamMemberRolePayload(ctx, sel, v)
+	return _SetTeamMemberRolePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v team.Team) graphql.Marshaler {
-	return ec._Team(ctx, sel, &v)
+func marshalNTeam2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.Team) graphql.Marshaler {
+	return _Team(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.Team) graphql.Marshaler {
+func marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*team.Team) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, sel, v[i])
+		return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12684,53 +12683,53 @@ func (ec *executionContext) marshalNTeam2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinter
 	return ret
 }
 
-func (ec *executionContext) marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
+func marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Team(ctx, sel, v)
+	return _Team(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*team.Team]) graphql.Marshaler {
-	return ec._TeamConnection(ctx, sel, &v)
+func marshalNTeamConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*team.Team]) graphql.Marshaler {
+	return _TeamConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*team.Team]) graphql.Marshaler {
+func marshalNTeamConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*team.Team]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamConnection(ctx, sel, v)
+	return _TeamConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamDeleteKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v team.TeamDeleteKey) graphql.Marshaler {
-	return ec._TeamDeleteKey(ctx, sel, &v)
+func marshalNTeamDeleteKey2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamDeleteKey) graphql.Marshaler {
+	return _TeamDeleteKey(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
+func marshalNTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamDeleteKey(ctx, sel, v)
+	return _TeamDeleteKey(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*team.Team]) graphql.Marshaler {
-	return ec._TeamEdge(ctx, sel, &v)
+func marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*team.Team]) graphql.Marshaler {
+	return _TeamEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*team.Team]) graphql.Marshaler {
+func marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*team.Team]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNTeamEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12742,15 +12741,15 @@ func (ec *executionContext) marshalNTeamEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamEnvironment2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v team.TeamEnvironment) graphql.Marshaler {
-	return ec._TeamEnvironment(ctx, sel, &v)
+func marshalNTeamEnvironment2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamEnvironment) graphql.Marshaler {
+	return _TeamEnvironment(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironment) graphql.Marshaler {
+func marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*team.TeamEnvironment) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, sel, v[i])
+		return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12762,31 +12761,31 @@ func (ec *executionContext) marshalNTeamEnvironment2ᚕᚖgithubᚗcomᚋnaisᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+func marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironment(ctx, sel, v)
+	return _TeamEnvironment(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNTeamEnvironmentUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentUpdatedActivityLogEntryData(ctx, sel, v)
+	return _TeamEnvironmentUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+		return marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12798,49 +12797,49 @@ func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUp
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
+	return _TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx context.Context, sel ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
+func marshalNTeamExternalResources2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamExternalResources(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamExternalResources) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamExternalResources(ctx, sel, v)
+	return _TeamExternalResources(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCounts2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, v team.TeamInventoryCounts) graphql.Marshaler {
-	return ec._TeamInventoryCounts(ctx, sel, &v)
+func marshalNTeamInventoryCounts2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamInventoryCounts) graphql.Marshaler {
+	return _TeamInventoryCounts(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx context.Context, sel ast.SelectionSet, v *team.TeamInventoryCounts) graphql.Marshaler {
+func marshalNTeamInventoryCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamInventoryCounts(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamInventoryCounts) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCounts(ctx, sel, v)
+	return _TeamInventoryCounts(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v team.TeamMember) graphql.Marshaler {
-	return ec._TeamMember(ctx, sel, &v)
+func marshalNTeamMember2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamMember) graphql.Marshaler {
+	return _TeamMember(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {
+func marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*team.TeamMember) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, sel, v[i])
+		return marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12852,49 +12851,49 @@ func (ec *executionContext) marshalNTeamMember2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
+func marshalNTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMember(ctx, sel, v)
+	return _TeamMember(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
+func marshalNTeamMemberAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberAddedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamMemberAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberAddedActivityLogEntryData(ctx, sel, v)
+	return _TeamMemberAddedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*team.TeamMember]) graphql.Marshaler {
-	return ec._TeamMemberConnection(ctx, sel, &v)
+func marshalNTeamMemberConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*team.TeamMember]) graphql.Marshaler {
+	return _TeamMemberConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*team.TeamMember]) graphql.Marshaler {
+func marshalNTeamMemberConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*team.TeamMember]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberConnection(ctx, sel, v)
+	return _TeamMemberConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*team.TeamMember]) graphql.Marshaler {
-	return ec._TeamMemberEdge(ctx, sel, &v)
+func marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*team.TeamMember]) graphql.Marshaler {
+	return _TeamMemberEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamMemberEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*team.TeamMember]) graphql.Marshaler {
+func marshalNTeamMemberEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*team.TeamMember]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNTeamMemberEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12906,71 +12905,71 @@ func (ec *executionContext) marshalNTeamMemberEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx context.Context, v any) (team.TeamMemberOrderField, error) {
+func unmarshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx context.Context, ec *executionContext, v any) (team.TeamMemberOrderField, error) {
 	var res team.TeamMemberOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamMemberOrderField) graphql.Marshaler {
+func marshalNTeamMemberOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamMemberOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
+func marshalNTeamMemberRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRemovedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamMemberRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberRemovedActivityLogEntryData(ctx, sel, v)
+	return _TeamMemberRemovedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx context.Context, v any) (team.TeamMemberRole, error) {
+func unmarshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx context.Context, ec *executionContext, v any) (team.TeamMemberRole, error) {
 	var res team.TeamMemberRole
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx context.Context, sel ast.SelectionSet, v team.TeamMemberRole) graphql.Marshaler {
+func marshalNTeamMemberRole2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberRole(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamMemberRole) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
+func marshalNTeamMemberSetRoleActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberSetRoleActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamMemberSetRoleActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamMemberSetRoleActivityLogEntryData(ctx, sel, v)
+	return _TeamMemberSetRoleActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, v any) (team.TeamOrderField, error) {
+func unmarshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, ec *executionContext, v any) (team.TeamOrderField, error) {
 	var res team.TeamOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, sel ast.SelectionSet, v team.TeamOrderField) graphql.Marshaler {
+func marshalNTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.TeamOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNTeamUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUpdatedActivityLogEntryData(ctx, sel, v)
+	return _TeamUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+		return marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -12982,138 +12981,138 @@ func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNTeamUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
+	return _TeamUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateTeamEnvironmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentInput(ctx context.Context, v any) (team.UpdateTeamEnvironmentInput, error) {
-	res, err := ec.unmarshalInputUpdateTeamEnvironmentInput(ctx, v)
+func unmarshalNUpdateTeamEnvironmentInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentInput(ctx context.Context, ec *executionContext, v any) (team.UpdateTeamEnvironmentInput, error) {
+	res, err := unmarshalInputUpdateTeamEnvironmentInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateTeamEnvironmentPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, v team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
-	return ec._UpdateTeamEnvironmentPayload(ctx, sel, &v)
+func marshalNUpdateTeamEnvironmentPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
+	return _UpdateTeamEnvironmentPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateTeamEnvironmentPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentPayload(ctx context.Context, sel ast.SelectionSet, v *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
+func marshalNUpdateTeamEnvironmentPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamEnvironmentPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.UpdateTeamEnvironmentPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateTeamEnvironmentPayload(ctx, sel, v)
+	return _UpdateTeamEnvironmentPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamInput(ctx context.Context, v any) (team.UpdateTeamInput, error) {
-	res, err := ec.unmarshalInputUpdateTeamInput(ctx, v)
+func unmarshalNUpdateTeamInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamInput(ctx context.Context, ec *executionContext, v any) (team.UpdateTeamInput, error) {
+	res, err := unmarshalInputUpdateTeamInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, v team.UpdateTeamPayload) graphql.Marshaler {
-	return ec._UpdateTeamPayload(ctx, sel, &v)
+func marshalNUpdateTeamPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v team.UpdateTeamPayload) graphql.Marshaler {
+	return _UpdateTeamPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamPayload(ctx context.Context, sel ast.SelectionSet, v *team.UpdateTeamPayload) graphql.Marshaler {
+func marshalNUpdateTeamPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUpdateTeamPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.UpdateTeamPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateTeamPayload(ctx, sel, v)
+	return _UpdateTeamPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
+func marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.Team) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Team(ctx, sel, v)
+	return _Team(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamCDN2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamCDN(ctx context.Context, sel ast.SelectionSet, v *team.TeamCDN) graphql.Marshaler {
+func marshalOTeamCDN2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamCDN(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamCDN) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamCDN(ctx, sel, v)
+	return _TeamCDN(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
+func marshalOTeamDeleteKey2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamDeleteKey(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamDeleteKey) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamDeleteKey(ctx, sel, v)
+	return _TeamDeleteKey(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamEntraIDGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEntraIDGroup(ctx context.Context, sel ast.SelectionSet, v *team.TeamEntraIDGroup) graphql.Marshaler {
+func marshalOTeamEntraIDGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEntraIDGroup(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamEntraIDGroup) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamEntraIDGroup(ctx, sel, v)
+	return _TeamEntraIDGroup(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+func marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamEnvironment(ctx, sel, v)
+	return _TeamEnvironment(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTeamFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamFilter(ctx context.Context, v any) (*team.TeamFilter, error) {
+func unmarshalOTeamFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamFilter(ctx context.Context, ec *executionContext, v any) (*team.TeamFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamFilter(ctx, v)
+	res, err := unmarshalInputTeamFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOTeamGitHubTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGitHubTeam(ctx context.Context, sel ast.SelectionSet, v *team.TeamGitHubTeam) graphql.Marshaler {
+func marshalOTeamGitHubTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGitHubTeam(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamGitHubTeam) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamGitHubTeam(ctx, sel, v)
+	return _TeamGitHubTeam(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamGoogleArtifactRegistry2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleArtifactRegistry(ctx context.Context, sel ast.SelectionSet, v *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
+func marshalOTeamGoogleArtifactRegistry2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleArtifactRegistry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamGoogleArtifactRegistry) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamGoogleArtifactRegistry(ctx, sel, v)
+	return _TeamGoogleArtifactRegistry(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamGoogleGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleGroup(ctx context.Context, sel ast.SelectionSet, v *team.TeamGoogleGroup) graphql.Marshaler {
+func marshalOTeamGoogleGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamGoogleGroup(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamGoogleGroup) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamGoogleGroup(ctx, sel, v)
+	return _TeamGoogleGroup(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
+func marshalOTeamMember2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMember(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *team.TeamMember) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._TeamMember(ctx, sel, v)
+	return _TeamMember(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrder(ctx context.Context, v any) (*team.TeamMemberOrder, error) {
+func unmarshalOTeamMemberOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamMemberOrder(ctx context.Context, ec *executionContext, v any) (*team.TeamMemberOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamMemberOrder(ctx, v)
+	res, err := unmarshalInputTeamMemberOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrder(ctx context.Context, v any) (*team.TeamOrder, error) {
+func unmarshalOTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamOrder(ctx context.Context, ec *executionContext, v any) (*team.TeamOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamOrder(ctx, v)
+	res, err := unmarshalInputTeamOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

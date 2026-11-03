@@ -247,8 +247,9 @@ func (r *secretConnectionResolver) Facets(ctx context.Context, obj *pagination.F
 }
 
 // Secrets returns all secrets for a team.
-// Secret metadata (names, keys) is visible to all authenticated users.
-// Secret values require team membership (use viewSecretValues mutation).
+//
+//	Secret metadata (names, keys) is visible to all authenticated users.
+//	Secret values require team membership (use viewSecretValues mutation).
 func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *secret.SecretOrder, filter *secret.SecretFilter) (*pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -259,8 +260,9 @@ func (r *teamResolver) Secrets(ctx context.Context, obj *team.Team, first *int, 
 }
 
 // Secret returns a single secret by name.
-// Secret metadata (name, keys) is visible to all authenticated users.
-// Secret values require team membership (use viewSecretValues mutation).
+//
+//	Secret metadata (name, keys) is visible to all authenticated users.
+//	Secret values require team membership (use viewSecretValues mutation).
 func (r *teamEnvironmentResolver) Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error) {
 	return secret.Get(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
@@ -271,13 +273,13 @@ func (r *teamInventoryCountsResolver) Secrets(ctx context.Context, obj *team.Tea
 	}, nil
 }
 
-func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r} }
+func (r *Resolver) Secret() gengql.SecretResolver { return &secretResolver{r.resolver} }
 
 func (r *Resolver) SecretConnection() gengql.SecretConnectionResolver {
-	return &secretConnectionResolver{r}
+	return &secretConnectionResolver{r.resolver}
 }
 
 type (
-	secretResolver           struct{ *Resolver }
-	secretConnectionResolver struct{ *Resolver }
+	secretResolver           struct{ *resolver }
+	secretConnectionResolver struct{ *resolver }
 )

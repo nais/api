@@ -5,15 +5,14 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/cost"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -37,12 +36,12 @@ type WorkloadCostSampleResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamCost_daily_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -50,7 +49,7 @@ func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawAr
 	args["from"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -58,7 +57,7 @@ func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawAr
 	args["to"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*cost.TeamCostDailyFilter, error) {
-			return ec.unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx, v)
+			return unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -67,12 +66,12 @@ func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawAr
 	return args, nil
 }
 
-func (ec *executionContext) field_TeamEnvironmentCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_TeamEnvironmentCost_daily_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -80,7 +79,7 @@ func (ec *executionContext) field_TeamEnvironmentCost_daily_args(ctx context.Con
 	args["from"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -89,12 +88,12 @@ func (ec *executionContext) field_TeamEnvironmentCost_daily_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_WorkloadCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadCost_daily_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -102,7 +101,7 @@ func (ec *executionContext) field_WorkloadCost_daily_args(ctx context.Context, r
 	args["from"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
 		func(ctx context.Context, v any) (scalar.Date, error) {
-			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+			return unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -119,238 +118,238 @@ func (ec *executionContext) field_WorkloadCost_daily_args(ctx context.Context, r
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _BigQueryDatasetCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.BigQueryDatasetCost) (ret graphql.Marshaler) {
+func _BigQueryDatasetCost_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.BigQueryDatasetCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_BigQueryDatasetCost_sum(ctx, field)
+			return fieldContext_BigQueryDatasetCost_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_BigQueryDatasetCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_BigQueryDatasetCost_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("BigQueryDatasetCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _CostMonthlySummary_series(ctx context.Context, field graphql.CollectedField, obj *cost.CostMonthlySummary) (ret graphql.Marshaler) {
+func _CostMonthlySummary_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.CostMonthlySummary) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CostMonthlySummary_series(ctx, field)
+			return fieldContext_CostMonthlySummary_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
-			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+			return marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_CostMonthlySummary_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CostMonthlySummary_series(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CostMonthlySummary",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceCostSeries(ctx, field)
+			return childFields_ServiceCostSeries(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _OpenSearchCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.OpenSearchCost) (ret graphql.Marshaler) {
+func _OpenSearchCost_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.OpenSearchCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OpenSearchCost_sum(ctx, field)
+			return fieldContext_OpenSearchCost_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OpenSearchCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_OpenSearchCost_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceCostSample_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
+func _ServiceCostSample_service(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceCostSample_service(ctx, field)
+			return fieldContext_ServiceCostSample_service(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Service, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceCostSample_service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceCostSample_service(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceCostSample", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceCostSample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
+func _ServiceCostSample_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceCostSample_cost(ctx, field)
+			return fieldContext_ServiceCostSample_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cost, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceCostSample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceCostSample_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceCostSample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceCostSeries_date(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
+func _ServiceCostSeries_date(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceCostSeries_date(ctx, field)
+			return fieldContext_ServiceCostSeries_date(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Date, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v scalar.Date) graphql.Marshaler {
-			return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+			return marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceCostSeries_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceCostSeries_date(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceCostSeries", field, false, false, errors.New("field of type Date does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceCostSeries_sum(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
+func _ServiceCostSeries_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceCostSeries_sum(ctx, field)
+			return fieldContext_ServiceCostSeries_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceCostSeries_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceCostSeries_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceCostSeries", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceCostSeries_services(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
+func _ServiceCostSeries_services(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.ServiceCostSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceCostSeries_services(ctx, field)
+			return fieldContext_ServiceCostSeries_services(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Services, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
-			return ec.marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx, selections, v)
+			return marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceCostSeries_services(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceCostSeries_services(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceCostSeries",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceCostSample(ctx, field)
+			return childFields_ServiceCostSample(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SqlInstanceCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.SQLInstanceCost) (ret graphql.Marshaler) {
+func _SqlInstanceCost_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.SQLInstanceCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SqlInstanceCost_sum(ctx, field)
+			return fieldContext_SqlInstanceCost_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SqlInstanceCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SqlInstanceCost_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SqlInstanceCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCost) (ret graphql.Marshaler) {
+func _TeamCost_daily(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCost_daily(ctx, field)
+			return fieldContext_TeamCost_daily(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -358,20 +357,20 @@ func (ec *executionContext) _TeamCost_daily(ctx context.Context, field graphql.C
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamCostPeriod) graphql.Marshaler {
-			return ec.marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx, selections, v)
+			return marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCost_daily(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCost",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamCostPeriod(ctx, field)
+			return childFields_TeamCostPeriod(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -381,208 +380,208 @@ func (ec *executionContext) fieldContext_TeamCost_daily(ctx context.Context, fie
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamCost_daily_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamCost_daily_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCost_monthlySummary(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCost) (ret graphql.Marshaler) {
+func _TeamCost_monthlySummary(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCost_monthlySummary(ctx, field)
+			return fieldContext_TeamCost_monthlySummary(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamCost().MonthlySummary(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamCostMonthlySummary) graphql.Marshaler {
-			return ec.marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx, selections, v)
+			return marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCost_monthlySummary(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCost_monthlySummary(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCost",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamCostMonthlySummary(ctx, field)
+			return childFields_TeamCostMonthlySummary(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCostMonthlySample_date(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySample) (ret graphql.Marshaler) {
+func _TeamCostMonthlySample_date(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCostMonthlySample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCostMonthlySample_date(ctx, field)
+			return fieldContext_TeamCostMonthlySample_date(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Date, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v scalar.Date) graphql.Marshaler {
-			return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+			return marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCostMonthlySample_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCostMonthlySample_date(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCostMonthlySample", field, false, false, errors.New("field of type Date does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCostMonthlySample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySample) (ret graphql.Marshaler) {
+func _TeamCostMonthlySample_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCostMonthlySample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCostMonthlySample_cost(ctx, field)
+			return fieldContext_TeamCostMonthlySample_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cost, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCostMonthlySample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCostMonthlySample_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCostMonthlySample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCostMonthlySummary_sum(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySummary) (ret graphql.Marshaler) {
+func _TeamCostMonthlySummary_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCostMonthlySummary) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCostMonthlySummary_sum(ctx, field)
+			return fieldContext_TeamCostMonthlySummary_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCostMonthlySummary_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCostMonthlySummary_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCostMonthlySummary", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCostMonthlySummary_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostMonthlySummary) (ret graphql.Marshaler) {
+func _TeamCostMonthlySummary_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCostMonthlySummary) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCostMonthlySummary_series(ctx, field)
+			return fieldContext_TeamCostMonthlySummary_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.TeamCostMonthlySample) graphql.Marshaler {
-			return ec.marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ(ctx, selections, v)
+			return marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCostMonthlySummary_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCostMonthlySummary_series(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCostMonthlySummary",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamCostMonthlySample(ctx, field)
+			return childFields_TeamCostMonthlySample(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamCostPeriod_sum(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostPeriod) (ret graphql.Marshaler) {
+func _TeamCostPeriod_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCostPeriod) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCostPeriod_sum(ctx, field)
+			return fieldContext_TeamCostPeriod_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCostPeriod_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamCostPeriod) (ret graphql.Marshaler) {
+func _TeamCostPeriod_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamCostPeriod) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamCostPeriod_series(ctx, field)
+			return fieldContext_TeamCostPeriod_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
-			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+			return marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamCostPeriod_series(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamCostPeriod",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceCostSeries(ctx, field)
+			return childFields_ServiceCostSeries(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCost) (ret graphql.Marshaler) {
+func _TeamEnvironmentCost_daily(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamEnvironmentCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentCost_daily(ctx, field)
+			return fieldContext_TeamEnvironmentCost_daily(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -590,20 +589,20 @@ func (ec *executionContext) _TeamEnvironmentCost_daily(ctx context.Context, fiel
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
-			return ec.marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx, selections, v)
+			return marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentCost_daily(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentCost",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironmentCostPeriod(ctx, field)
+			return childFields_TeamEnvironmentCostPeriod(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -613,98 +612,98 @@ func (ec *executionContext) fieldContext_TeamEnvironmentCost_daily(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_TeamEnvironmentCost_daily_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_TeamEnvironmentCost_daily_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamEnvironmentCostPeriod_sum(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
+func _TeamEnvironmentCostPeriod_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentCostPeriod_sum(ctx, field)
+			return fieldContext_TeamEnvironmentCostPeriod_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentCostPeriod_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamEnvironmentCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamEnvironmentCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
+func _TeamEnvironmentCostPeriod_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.TeamEnvironmentCostPeriod) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamEnvironmentCostPeriod_series(ctx, field)
+			return fieldContext_TeamEnvironmentCostPeriod_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
-			return ec.marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx, selections, v)
+			return marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamEnvironmentCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamEnvironmentCostPeriod_series(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamEnvironmentCostPeriod",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadCostSeries(ctx, field)
+			return childFields_WorkloadCostSeries(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ValkeyCost_sum(ctx context.Context, field graphql.CollectedField, obj *cost.ValkeyCost) (ret graphql.Marshaler) {
+func _ValkeyCost_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.ValkeyCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ValkeyCost_sum(ctx, field)
+			return fieldContext_ValkeyCost_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ValkeyCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ValkeyCost_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ValkeyCost", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCost) (ret graphql.Marshaler) {
+func _WorkloadCost_daily(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCost_daily(ctx, field)
+			return fieldContext_WorkloadCost_daily(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -712,20 +711,20 @@ func (ec *executionContext) _WorkloadCost_daily(ctx context.Context, field graph
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
-			return ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx, selections, v)
+			return marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCost_daily(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCost",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadCostPeriod(ctx, field)
+			return childFields_WorkloadCostPeriod(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -735,120 +734,120 @@ func (ec *executionContext) fieldContext_WorkloadCost_daily(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadCost_daily_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadCost_daily_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCost_monthly(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCost) (ret graphql.Marshaler) {
+func _WorkloadCost_monthly(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCost_monthly(ctx, field)
+			return fieldContext_WorkloadCost_monthly(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.WorkloadCost().Monthly(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
-			return ec.marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx, selections, v)
+			return marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCost_monthly(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCost_monthly(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCost",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadCostPeriod(ctx, field)
+			return childFields_WorkloadCostPeriod(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCostPeriod_sum(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPeriod) (ret graphql.Marshaler) {
+func _WorkloadCostPeriod_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostPeriod) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostPeriod_sum(ctx, field)
+			return fieldContext_WorkloadCostPeriod_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostPeriod_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostPeriod) (ret graphql.Marshaler) {
+func _WorkloadCostPeriod_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostPeriod) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostPeriod_series(ctx, field)
+			return fieldContext_WorkloadCostPeriod_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Series, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
-			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+			return marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostPeriod_series(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCostPeriod",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceCostSeries(ctx, field)
+			return childFields_ServiceCostSeries(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCostSample_workload(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
+func _WorkloadCostSample_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostSample_workload(ctx, field)
+			return fieldContext_WorkloadCostSample_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.WorkloadCostSample().Workload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostSample_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostSample_workload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCostSample",
 		Field:      field,
@@ -861,125 +860,125 @@ func (ec *executionContext) fieldContext_WorkloadCostSample_workload(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadCostSample_workloadName(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
+func _WorkloadCostSample_workloadName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostSample_workloadName(ctx, field)
+			return fieldContext_WorkloadCostSample_workloadName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostSample_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostSample_workloadName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadCostSample", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadCostSample_cost(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
+func _WorkloadCostSample_cost(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostSample_cost(ctx, field)
+			return fieldContext_WorkloadCostSample_cost(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cost, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostSample_cost(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostSample_cost(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadCostSample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadCostSeries_date(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
+func _WorkloadCostSeries_date(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostSeries_date(ctx, field)
+			return fieldContext_WorkloadCostSeries_date(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Date, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v scalar.Date) graphql.Marshaler {
-			return ec.marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, selections, v)
+			return marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostSeries_date(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostSeries_date(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadCostSeries", field, false, false, errors.New("field of type Date does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadCostSeries_sum(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
+func _WorkloadCostSeries_sum(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostSeries_sum(ctx, field)
+			return fieldContext_WorkloadCostSeries_sum(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Sum(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostSeries_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostSeries_sum(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadCostSeries", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadCostSeries_workloads(ctx context.Context, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
+func _WorkloadCostSeries_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *cost.WorkloadCostSeries) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadCostSeries_workloads(ctx, field)
+			return fieldContext_WorkloadCostSeries_workloads(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Workloads, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*cost.WorkloadCostSample) graphql.Marshaler {
-			return ec.marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx, selections, v)
+			return marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadCostSeries_workloads(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadCostSeries",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadCostSample(ctx, field)
+			return childFields_WorkloadCostSample(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -989,7 +988,7 @@ func (ec *executionContext) fieldContext_WorkloadCostSeries_workloads(_ context.
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Context, obj any) (cost.TeamCostDailyFilter, error) {
+func unmarshalInputTeamCostDailyFilter(ctx context.Context, ec *executionContext, obj any) (cost.TeamCostDailyFilter, error) {
 	var it cost.TeamCostDailyFilter
 	if obj == nil {
 		return it, nil
@@ -1009,7 +1008,7 @@ func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Contex
 		switch k {
 		case "services":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("services"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1029,7 +1028,7 @@ func (ec *executionContext) unmarshalInputTeamCostDailyFilter(ctx context.Contex
 
 var bigQueryDatasetCostImplementors = []string{"BigQueryDatasetCost"}
 
-func (ec *executionContext) _BigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, obj *cost.BigQueryDatasetCost) graphql.Marshaler {
+func _BigQueryDatasetCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.BigQueryDatasetCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, bigQueryDatasetCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1039,7 +1038,7 @@ func (ec *executionContext) _BigQueryDatasetCost(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("BigQueryDatasetCost")
 		case "sum":
-			out.Values[i] = ec._BigQueryDatasetCost_sum(ctx, field, obj)
+			out.Values[i] = _BigQueryDatasetCost_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1068,7 +1067,7 @@ func (ec *executionContext) _BigQueryDatasetCost(ctx context.Context, sel ast.Se
 
 var costMonthlySummaryImplementors = []string{"CostMonthlySummary"}
 
-func (ec *executionContext) _CostMonthlySummary(ctx context.Context, sel ast.SelectionSet, obj *cost.CostMonthlySummary) graphql.Marshaler {
+func _CostMonthlySummary(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.CostMonthlySummary) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, costMonthlySummaryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1078,7 +1077,7 @@ func (ec *executionContext) _CostMonthlySummary(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CostMonthlySummary")
 		case "series":
-			out.Values[i] = ec._CostMonthlySummary_series(ctx, field, obj)
+			out.Values[i] = _CostMonthlySummary_series(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1107,7 +1106,7 @@ func (ec *executionContext) _CostMonthlySummary(ctx context.Context, sel ast.Sel
 
 var openSearchCostImplementors = []string{"OpenSearchCost"}
 
-func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.SelectionSet, obj *cost.OpenSearchCost) graphql.Marshaler {
+func _OpenSearchCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.OpenSearchCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, openSearchCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1117,7 +1116,7 @@ func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OpenSearchCost")
 		case "sum":
-			out.Values[i] = ec._OpenSearchCost_sum(ctx, field, obj)
+			out.Values[i] = _OpenSearchCost_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1146,7 +1145,7 @@ func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.Selecti
 
 var serviceCostSampleImplementors = []string{"ServiceCostSample"}
 
-func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCostSample) graphql.Marshaler {
+func _ServiceCostSample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.ServiceCostSample) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceCostSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1156,12 +1155,12 @@ func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceCostSample")
 		case "service":
-			out.Values[i] = ec._ServiceCostSample_service(ctx, field, obj)
+			out.Values[i] = _ServiceCostSample_service(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cost":
-			out.Values[i] = ec._ServiceCostSample_cost(ctx, field, obj)
+			out.Values[i] = _ServiceCostSample_cost(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1190,7 +1189,7 @@ func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.Sele
 
 var serviceCostSeriesImplementors = []string{"ServiceCostSeries"}
 
-func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCostSeries) graphql.Marshaler {
+func _ServiceCostSeries(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.ServiceCostSeries) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceCostSeriesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1200,17 +1199,17 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceCostSeries")
 		case "date":
-			out.Values[i] = ec._ServiceCostSeries_date(ctx, field, obj)
+			out.Values[i] = _ServiceCostSeries_date(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "sum":
-			out.Values[i] = ec._ServiceCostSeries_sum(ctx, field, obj)
+			out.Values[i] = _ServiceCostSeries_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "services":
-			out.Values[i] = ec._ServiceCostSeries_services(ctx, field, obj)
+			out.Values[i] = _ServiceCostSeries_services(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1239,7 +1238,7 @@ func (ec *executionContext) _ServiceCostSeries(ctx context.Context, sel ast.Sele
 
 var sqlInstanceCostImplementors = []string{"SqlInstanceCost"}
 
-func (ec *executionContext) _SqlInstanceCost(ctx context.Context, sel ast.SelectionSet, obj *cost.SQLInstanceCost) graphql.Marshaler {
+func _SqlInstanceCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.SQLInstanceCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, sqlInstanceCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1249,7 +1248,7 @@ func (ec *executionContext) _SqlInstanceCost(ctx context.Context, sel ast.Select
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SqlInstanceCost")
 		case "sum":
-			out.Values[i] = ec._SqlInstanceCost_sum(ctx, field, obj)
+			out.Values[i] = _SqlInstanceCost_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1278,7 +1277,7 @@ func (ec *executionContext) _SqlInstanceCost(ctx context.Context, sel ast.Select
 
 var teamCostImplementors = []string{"TeamCost"}
 
-func (ec *executionContext) _TeamCost(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamCost) graphql.Marshaler {
+func _TeamCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.TeamCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1296,7 +1295,7 @@ func (ec *executionContext) _TeamCost(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamCost_daily(ctx, field, obj)
+				res = _TeamCost_daily(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1332,7 +1331,7 @@ func (ec *executionContext) _TeamCost(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamCost_monthlySummary(ctx, field, obj)
+				res = _TeamCost_monthlySummary(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1384,7 +1383,7 @@ func (ec *executionContext) _TeamCost(ctx context.Context, sel ast.SelectionSet,
 
 var teamCostMonthlySampleImplementors = []string{"TeamCostMonthlySample"}
 
-func (ec *executionContext) _TeamCostMonthlySample(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamCostMonthlySample) graphql.Marshaler {
+func _TeamCostMonthlySample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.TeamCostMonthlySample) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCostMonthlySampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1394,12 +1393,12 @@ func (ec *executionContext) _TeamCostMonthlySample(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamCostMonthlySample")
 		case "date":
-			out.Values[i] = ec._TeamCostMonthlySample_date(ctx, field, obj)
+			out.Values[i] = _TeamCostMonthlySample_date(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cost":
-			out.Values[i] = ec._TeamCostMonthlySample_cost(ctx, field, obj)
+			out.Values[i] = _TeamCostMonthlySample_cost(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1428,7 +1427,7 @@ func (ec *executionContext) _TeamCostMonthlySample(ctx context.Context, sel ast.
 
 var teamCostMonthlySummaryImplementors = []string{"TeamCostMonthlySummary"}
 
-func (ec *executionContext) _TeamCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamCostMonthlySummary) graphql.Marshaler {
+func _TeamCostMonthlySummary(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.TeamCostMonthlySummary) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCostMonthlySummaryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1438,12 +1437,12 @@ func (ec *executionContext) _TeamCostMonthlySummary(ctx context.Context, sel ast
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamCostMonthlySummary")
 		case "sum":
-			out.Values[i] = ec._TeamCostMonthlySummary_sum(ctx, field, obj)
+			out.Values[i] = _TeamCostMonthlySummary_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "series":
-			out.Values[i] = ec._TeamCostMonthlySummary_series(ctx, field, obj)
+			out.Values[i] = _TeamCostMonthlySummary_series(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1472,7 +1471,7 @@ func (ec *executionContext) _TeamCostMonthlySummary(ctx context.Context, sel ast
 
 var teamCostPeriodImplementors = []string{"TeamCostPeriod"}
 
-func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamCostPeriod) graphql.Marshaler {
+func _TeamCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.TeamCostPeriod) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamCostPeriodImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1482,12 +1481,12 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamCostPeriod")
 		case "sum":
-			out.Values[i] = ec._TeamCostPeriod_sum(ctx, field, obj)
+			out.Values[i] = _TeamCostPeriod_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "series":
-			out.Values[i] = ec._TeamCostPeriod_series(ctx, field, obj)
+			out.Values[i] = _TeamCostPeriod_series(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1516,7 +1515,7 @@ func (ec *executionContext) _TeamCostPeriod(ctx context.Context, sel ast.Selecti
 
 var teamEnvironmentCostImplementors = []string{"TeamEnvironmentCost"}
 
-func (ec *executionContext) _TeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamEnvironmentCost) graphql.Marshaler {
+func _TeamEnvironmentCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.TeamEnvironmentCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1534,7 +1533,7 @@ func (ec *executionContext) _TeamEnvironmentCost(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamEnvironmentCost_daily(ctx, field, obj)
+				res = _TeamEnvironmentCost_daily(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1586,7 +1585,7 @@ func (ec *executionContext) _TeamEnvironmentCost(ctx context.Context, sel ast.Se
 
 var teamEnvironmentCostPeriodImplementors = []string{"TeamEnvironmentCostPeriod"}
 
-func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, obj *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+func _TeamEnvironmentCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamEnvironmentCostPeriodImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1596,12 +1595,12 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamEnvironmentCostPeriod")
 		case "sum":
-			out.Values[i] = ec._TeamEnvironmentCostPeriod_sum(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentCostPeriod_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "series":
-			out.Values[i] = ec._TeamEnvironmentCostPeriod_series(ctx, field, obj)
+			out.Values[i] = _TeamEnvironmentCostPeriod_series(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1630,7 +1629,7 @@ func (ec *executionContext) _TeamEnvironmentCostPeriod(ctx context.Context, sel 
 
 var valkeyCostImplementors = []string{"ValkeyCost"}
 
-func (ec *executionContext) _ValkeyCost(ctx context.Context, sel ast.SelectionSet, obj *cost.ValkeyCost) graphql.Marshaler {
+func _ValkeyCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.ValkeyCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, valkeyCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1640,7 +1639,7 @@ func (ec *executionContext) _ValkeyCost(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ValkeyCost")
 		case "sum":
-			out.Values[i] = ec._ValkeyCost_sum(ctx, field, obj)
+			out.Values[i] = _ValkeyCost_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1669,7 +1668,7 @@ func (ec *executionContext) _ValkeyCost(ctx context.Context, sel ast.SelectionSe
 
 var workloadCostImplementors = []string{"WorkloadCost"}
 
-func (ec *executionContext) _WorkloadCost(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCost) graphql.Marshaler {
+func _WorkloadCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.WorkloadCost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1687,7 +1686,7 @@ func (ec *executionContext) _WorkloadCost(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadCost_daily(ctx, field, obj)
+				res = _WorkloadCost_daily(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1723,7 +1722,7 @@ func (ec *executionContext) _WorkloadCost(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadCost_monthly(ctx, field, obj)
+				res = _WorkloadCost_monthly(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1775,7 +1774,7 @@ func (ec *executionContext) _WorkloadCost(ctx context.Context, sel ast.Selection
 
 var workloadCostPeriodImplementors = []string{"WorkloadCostPeriod"}
 
-func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostPeriod) graphql.Marshaler {
+func _WorkloadCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.WorkloadCostPeriod) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostPeriodImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1785,12 +1784,12 @@ func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadCostPeriod")
 		case "sum":
-			out.Values[i] = ec._WorkloadCostPeriod_sum(ctx, field, obj)
+			out.Values[i] = _WorkloadCostPeriod_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "series":
-			out.Values[i] = ec._WorkloadCostPeriod_series(ctx, field, obj)
+			out.Values[i] = _WorkloadCostPeriod_series(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1819,7 +1818,7 @@ func (ec *executionContext) _WorkloadCostPeriod(ctx context.Context, sel ast.Sel
 
 var workloadCostSampleImplementors = []string{"WorkloadCostSample"}
 
-func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostSample) graphql.Marshaler {
+func _WorkloadCostSample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.WorkloadCostSample) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1837,7 +1836,7 @@ func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.Sel
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadCostSample_workload(ctx, field, obj)
+				res = _WorkloadCostSample_workload(ctx, ec, field, obj)
 				return res
 			}
 
@@ -1862,12 +1861,12 @@ func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.Sel
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workloadName":
-			out.Values[i] = ec._WorkloadCostSample_workloadName(ctx, field, obj)
+			out.Values[i] = _WorkloadCostSample_workloadName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "cost":
-			out.Values[i] = ec._WorkloadCostSample_cost(ctx, field, obj)
+			out.Values[i] = _WorkloadCostSample_cost(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1896,7 +1895,7 @@ func (ec *executionContext) _WorkloadCostSample(ctx context.Context, sel ast.Sel
 
 var workloadCostSeriesImplementors = []string{"WorkloadCostSeries"}
 
-func (ec *executionContext) _WorkloadCostSeries(ctx context.Context, sel ast.SelectionSet, obj *cost.WorkloadCostSeries) graphql.Marshaler {
+func _WorkloadCostSeries(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *cost.WorkloadCostSeries) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadCostSeriesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1906,17 +1905,17 @@ func (ec *executionContext) _WorkloadCostSeries(ctx context.Context, sel ast.Sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadCostSeries")
 		case "date":
-			out.Values[i] = ec._WorkloadCostSeries_date(ctx, field, obj)
+			out.Values[i] = _WorkloadCostSeries_date(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "sum":
-			out.Values[i] = ec._WorkloadCostSeries_sum(ctx, field, obj)
+			out.Values[i] = _WorkloadCostSeries_sum(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "workloads":
-			out.Values[i] = ec._WorkloadCostSeries_workloads(ctx, field, obj)
+			out.Values[i] = _WorkloadCostSeries_workloads(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1947,53 +1946,53 @@ func (ec *executionContext) _WorkloadCostSeries(ctx context.Context, sel ast.Sel
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBigQueryDatasetCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, v cost.BigQueryDatasetCost) graphql.Marshaler {
-	return ec._BigQueryDatasetCost(ctx, sel, &v)
+func marshalNBigQueryDatasetCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.BigQueryDatasetCost) graphql.Marshaler {
+	return _BigQueryDatasetCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost(ctx context.Context, sel ast.SelectionSet, v *cost.BigQueryDatasetCost) graphql.Marshaler {
+func marshalNBigQueryDatasetCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐBigQueryDatasetCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.BigQueryDatasetCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._BigQueryDatasetCost(ctx, sel, v)
+	return _BigQueryDatasetCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNCostMonthlySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v cost.CostMonthlySummary) graphql.Marshaler {
-	return ec._CostMonthlySummary(ctx, sel, &v)
+func marshalNCostMonthlySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐCostMonthlySummary(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.CostMonthlySummary) graphql.Marshaler {
+	return _CostMonthlySummary(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v *cost.CostMonthlySummary) graphql.Marshaler {
+func marshalNCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐCostMonthlySummary(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.CostMonthlySummary) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CostMonthlySummary(ctx, sel, v)
+	return _CostMonthlySummary(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNOpenSearchCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐOpenSearchCost(ctx context.Context, sel ast.SelectionSet, v cost.OpenSearchCost) graphql.Marshaler {
-	return ec._OpenSearchCost(ctx, sel, &v)
+func marshalNOpenSearchCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐOpenSearchCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.OpenSearchCost) graphql.Marshaler {
+	return _OpenSearchCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐOpenSearchCost(ctx context.Context, sel ast.SelectionSet, v *cost.OpenSearchCost) graphql.Marshaler {
+func marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐOpenSearchCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.OpenSearchCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._OpenSearchCost(ctx, sel, v)
+	return _OpenSearchCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
+func marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx, sel, v[i])
+		return marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2005,21 +2004,21 @@ func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostSample) graphql.Marshaler {
+func marshalNServiceCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.ServiceCostSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceCostSample(ctx, sel, v)
+	return _ServiceCostSample(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
+func marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx, sel, v[i])
+		return marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2031,49 +2030,49 @@ func (ec *executionContext) marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx context.Context, sel ast.SelectionSet, v *cost.ServiceCostSeries) graphql.Marshaler {
+func marshalNServiceCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeries(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.ServiceCostSeries) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceCostSeries(ctx, sel, v)
+	return _ServiceCostSeries(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx context.Context, sel ast.SelectionSet, v cost.SQLInstanceCost) graphql.Marshaler {
-	return ec._SqlInstanceCost(ctx, sel, &v)
+func marshalNSqlInstanceCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.SQLInstanceCost) graphql.Marshaler {
+	return _SqlInstanceCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSqlInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx context.Context, sel ast.SelectionSet, v *cost.SQLInstanceCost) graphql.Marshaler {
+func marshalNSqlInstanceCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐSQLInstanceCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.SQLInstanceCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SqlInstanceCost(ctx, sel, v)
+	return _SqlInstanceCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx context.Context, sel ast.SelectionSet, v cost.TeamCost) graphql.Marshaler {
-	return ec._TeamCost(ctx, sel, &v)
+func marshalNTeamCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.TeamCost) graphql.Marshaler {
+	return _TeamCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCost) graphql.Marshaler {
+func marshalNTeamCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.TeamCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamCost(ctx, sel, v)
+	return _TeamCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.TeamCostMonthlySample) graphql.Marshaler {
+func marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySampleᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*cost.TeamCostMonthlySample) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx, sel, v[i])
+		return marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2085,119 +2084,119 @@ func (ec *executionContext) marshalNTeamCostMonthlySample2ᚕᚖgithubᚗcomᚋn
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCostMonthlySample) graphql.Marshaler {
+func marshalNTeamCostMonthlySample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.TeamCostMonthlySample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamCostMonthlySample(ctx, sel, v)
+	return _TeamCostMonthlySample(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamCostMonthlySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v cost.TeamCostMonthlySummary) graphql.Marshaler {
-	return ec._TeamCostMonthlySummary(ctx, sel, &v)
+func marshalNTeamCostMonthlySummary2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.TeamCostMonthlySummary) graphql.Marshaler {
+	return _TeamCostMonthlySummary(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCostMonthlySummary) graphql.Marshaler {
+func marshalNTeamCostMonthlySummary2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostMonthlySummary(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.TeamCostMonthlySummary) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamCostMonthlySummary(ctx, sel, v)
+	return _TeamCostMonthlySummary(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx context.Context, sel ast.SelectionSet, v cost.TeamCostPeriod) graphql.Marshaler {
-	return ec._TeamCostPeriod(ctx, sel, &v)
+func marshalNTeamCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.TeamCostPeriod) graphql.Marshaler {
+	return _TeamCostPeriod(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.TeamCostPeriod) graphql.Marshaler {
+func marshalNTeamCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.TeamCostPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamCostPeriod(ctx, sel, v)
+	return _TeamCostPeriod(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, v cost.TeamEnvironmentCost) graphql.Marshaler {
-	return ec._TeamEnvironmentCost(ctx, sel, &v)
+func marshalNTeamEnvironmentCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.TeamEnvironmentCost) graphql.Marshaler {
+	return _TeamEnvironmentCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx context.Context, sel ast.SelectionSet, v *cost.TeamEnvironmentCost) graphql.Marshaler {
+func marshalNTeamEnvironmentCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.TeamEnvironmentCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentCost(ctx, sel, v)
+	return _TeamEnvironmentCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, v cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
-	return ec._TeamEnvironmentCostPeriod(ctx, sel, &v)
+func marshalNTeamEnvironmentCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+	return _TeamEnvironmentCostPeriod(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
+func marshalNTeamEnvironmentCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamEnvironmentCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.TeamEnvironmentCostPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamEnvironmentCostPeriod(ctx, sel, v)
+	return _TeamEnvironmentCostPeriod(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNValkeyCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost(ctx context.Context, sel ast.SelectionSet, v cost.ValkeyCost) graphql.Marshaler {
-	return ec._ValkeyCost(ctx, sel, &v)
+func marshalNValkeyCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.ValkeyCost) graphql.Marshaler {
+	return _ValkeyCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNValkeyCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost(ctx context.Context, sel ast.SelectionSet, v *cost.ValkeyCost) graphql.Marshaler {
+func marshalNValkeyCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐValkeyCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.ValkeyCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ValkeyCost(ctx, sel, v)
+	return _ValkeyCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx context.Context, sel ast.SelectionSet, v cost.WorkloadCost) graphql.Marshaler {
-	return ec._WorkloadCost(ctx, sel, &v)
+func marshalNWorkloadCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.WorkloadCost) graphql.Marshaler {
+	return _WorkloadCost(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCost) graphql.Marshaler {
+func marshalNWorkloadCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.WorkloadCost) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadCost(ctx, sel, v)
+	return _WorkloadCost(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx context.Context, sel ast.SelectionSet, v cost.WorkloadCostPeriod) graphql.Marshaler {
-	return ec._WorkloadCostPeriod(ctx, sel, &v)
+func marshalNWorkloadCostPeriod2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v cost.WorkloadCostPeriod) graphql.Marshaler {
+	return _WorkloadCostPeriod(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
+func marshalNWorkloadCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostPeriod(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.WorkloadCostPeriod) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadCostPeriod(ctx, sel, v)
+	return _WorkloadCostPeriod(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSample) graphql.Marshaler {
+func marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSampleᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*cost.WorkloadCostSample) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx, sel, v[i])
+		return marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2209,21 +2208,21 @@ func (ec *executionContext) marshalNWorkloadCostSample2ᚕᚖgithubᚗcomᚋnais
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostSample) graphql.Marshaler {
+func marshalNWorkloadCostSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.WorkloadCostSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadCostSample(ctx, sel, v)
+	return _WorkloadCostSample(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
+func marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeriesᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*cost.WorkloadCostSeries) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx, sel, v[i])
+		return marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -2235,21 +2234,21 @@ func (ec *executionContext) marshalNWorkloadCostSeries2ᚕᚖgithubᚗcomᚋnais
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx context.Context, sel ast.SelectionSet, v *cost.WorkloadCostSeries) graphql.Marshaler {
+func marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐWorkloadCostSeries(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *cost.WorkloadCostSeries) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadCostSeries(ctx, sel, v)
+	return _WorkloadCostSeries(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx context.Context, v any) (*cost.TeamCostDailyFilter, error) {
+func unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx context.Context, ec *executionContext, v any) (*cost.TeamCostDailyFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTeamCostDailyFilter(ctx, v)
+	res, err := unmarshalInputTeamCostDailyFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

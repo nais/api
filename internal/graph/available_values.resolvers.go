@@ -12,7 +12,7 @@ func (r *environmentResolver) AvailableValues(ctx context.Context, obj *environm
 }
 
 func (r *Resolver) AvailableValues() gengql.AvailableValuesResolver {
-	return &availableValuesResolver{r}
+	return &availableValuesResolver{r.resolver}
 }
 
-type availableValuesResolver struct{ *Resolver }
+type availableValuesResolver struct{ *resolver }

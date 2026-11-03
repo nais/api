@@ -169,14 +169,14 @@ func (r *unleashInstanceMetricsResolver) MemoryUtilization(ctx context.Context, 
 }
 
 func (r *Resolver) UnleashInstance() gengql.UnleashInstanceResolver {
-	return &unleashInstanceResolver{r}
+	return &unleashInstanceResolver{r.resolver}
 }
 
 func (r *Resolver) UnleashInstanceMetrics() gengql.UnleashInstanceMetricsResolver {
-	return &unleashInstanceMetricsResolver{r}
+	return &unleashInstanceMetricsResolver{r.resolver}
 }
 
 type (
-	unleashInstanceResolver        struct{ *Resolver }
-	unleashInstanceMetricsResolver struct{ *Resolver }
+	unleashInstanceResolver        struct{ *resolver }
+	unleashInstanceMetricsResolver struct{ *resolver }
 )

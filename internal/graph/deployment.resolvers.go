@@ -88,6 +88,6 @@ func (r *teamResolver) Deployments(ctx context.Context, obj *team.Team, first *i
 	return deployment.ListForTeam(ctx, obj.Slug, page)
 }
 
-func (r *Resolver) Deployment() gengql.DeploymentResolver { return &deploymentResolver{r} }
+func (r *Resolver) Deployment() gengql.DeploymentResolver { return &deploymentResolver{r.resolver} }
 
-type deploymentResolver struct{ *Resolver }
+type deploymentResolver struct{ *resolver }

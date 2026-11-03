@@ -5,17 +5,16 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -45,12 +44,12 @@ type WorkloadUtilizationDataResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_WorkloadUtilization_current_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadUtilization_current_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "resourceType",
 		func(ctx context.Context, v any) (utilization.UtilizationResourceType, error) {
-			return ec.unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, v)
+			return unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -59,12 +58,12 @@ func (ec *executionContext) field_WorkloadUtilization_current_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_WorkloadUtilization_limitSeries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadUtilization_limitSeries_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (utilization.WorkloadUtilizationSeriesInput, error) {
-			return ec.unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, v)
+			return unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -73,12 +72,12 @@ func (ec *executionContext) field_WorkloadUtilization_limitSeries_args(ctx conte
 	return args, nil
 }
 
-func (ec *executionContext) field_WorkloadUtilization_limit_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadUtilization_limit_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "resourceType",
 		func(ctx context.Context, v any) (utilization.UtilizationResourceType, error) {
-			return ec.unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, v)
+			return unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -87,12 +86,12 @@ func (ec *executionContext) field_WorkloadUtilization_limit_args(ctx context.Con
 	return args, nil
 }
 
-func (ec *executionContext) field_WorkloadUtilization_requestedSeries_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadUtilization_requestedSeries_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (utilization.WorkloadUtilizationSeriesInput, error) {
-			return ec.unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, v)
+			return unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -101,12 +100,12 @@ func (ec *executionContext) field_WorkloadUtilization_requestedSeries_args(ctx c
 	return args, nil
 }
 
-func (ec *executionContext) field_WorkloadUtilization_requested_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadUtilization_requested_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "resourceType",
 		func(ctx context.Context, v any) (utilization.UtilizationResourceType, error) {
-			return ec.unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, v)
+			return unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -115,12 +114,12 @@ func (ec *executionContext) field_WorkloadUtilization_requested_args(ctx context
 	return args, nil
 }
 
-func (ec *executionContext) field_WorkloadUtilization_series_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_WorkloadUtilization_series_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (utilization.WorkloadUtilizationSeriesInput, error) {
-			return ec.unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, v)
+			return unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -137,247 +136,247 @@ func (ec *executionContext) field_WorkloadUtilization_series_args(ctx context.Co
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ApplicationInstanceUtilization_current(ctx context.Context, field graphql.CollectedField, obj *utilization.ApplicationInstanceUtilization) (ret graphql.Marshaler) {
+func _ApplicationInstanceUtilization_current(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.ApplicationInstanceUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ApplicationInstanceUtilization_current(ctx, field)
+			return fieldContext_ApplicationInstanceUtilization_current(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Current, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ApplicationInstanceUtilization_current(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ApplicationInstanceUtilization_current(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationInstanceUtilization", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamServiceUtilization_sqlInstances(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamServiceUtilization) (ret graphql.Marshaler) {
+func _TeamServiceUtilization_sqlInstances(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.TeamServiceUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamServiceUtilization_sqlInstances(ctx, field)
+			return fieldContext_TeamServiceUtilization_sqlInstances(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamServiceUtilization().SQLInstances(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *sqlinstance.TeamServiceUtilizationSQLInstances) graphql.Marshaler {
-			return ec.marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx, selections, v)
+			return marshalNTeamServiceUtilizationSqlInstances2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋsqlinstanceᚐTeamServiceUtilizationSQLInstances(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamServiceUtilization_sqlInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamServiceUtilization_sqlInstances(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamServiceUtilization",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamServiceUtilizationSqlInstances(ctx, field)
+			return childFields_TeamServiceUtilizationSqlInstances(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUtilizationData_team(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+func _TeamUtilizationData_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUtilizationData_team(ctx, field)
+			return fieldContext_TeamUtilizationData_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamUtilizationData().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUtilizationData_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUtilizationData_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamUtilizationData",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _TeamUtilizationData_requested(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+func _TeamUtilizationData_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUtilizationData_requested(ctx, field)
+			return fieldContext_TeamUtilizationData_requested(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Requested, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUtilizationData_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUtilizationData_requested(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUtilizationData", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUtilizationData_used(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+func _TeamUtilizationData_used(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUtilizationData_used(ctx, field)
+			return fieldContext_TeamUtilizationData_used(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Used, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUtilizationData_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUtilizationData_used(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamUtilizationData", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _TeamUtilizationData_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
+func _TeamUtilizationData_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.TeamUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamUtilizationData_teamEnvironment(ctx, field)
+			return fieldContext_TeamUtilizationData_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.TeamUtilizationData().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamUtilizationData_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamUtilizationData_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TeamUtilizationData",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UtilizationSample_timestamp(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
+func _UtilizationSample_timestamp(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UtilizationSample_timestamp(ctx, field)
+			return fieldContext_UtilizationSample_timestamp(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Timestamp, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_UtilizationSample_timestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UtilizationSample_timestamp(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UtilizationSample", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _UtilizationSample_value(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
+func _UtilizationSample_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UtilizationSample_value(ctx, field)
+			return fieldContext_UtilizationSample_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_UtilizationSample_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UtilizationSample_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UtilizationSample", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _UtilizationSample_instance(ctx context.Context, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
+func _UtilizationSample_instance(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.UtilizationSample) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UtilizationSample_instance(ctx, field)
+			return fieldContext_UtilizationSample_instance(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Instance, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_UtilizationSample_instance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UtilizationSample_instance(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("UtilizationSample", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadUtilization_current(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_current(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_current(ctx, field)
+			return fieldContext_WorkloadUtilization_current(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -385,13 +384,13 @@ func (ec *executionContext) _WorkloadUtilization_current(ctx context.Context, fi
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_current(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_current(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
@@ -408,20 +407,20 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_current(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadUtilization_current_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadUtilization_current_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilization_requested(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_requested(ctx, field)
+			return fieldContext_WorkloadUtilization_requested(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -429,13 +428,13 @@ func (ec *executionContext) _WorkloadUtilization_requested(ctx context.Context, 
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_requested(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
@@ -452,20 +451,20 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_requested(ctx conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadUtilization_requested_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadUtilization_requested_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilization_requestedSeries(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_requestedSeries(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_requestedSeries(ctx, field)
+			return fieldContext_WorkloadUtilization_requestedSeries(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -473,20 +472,20 @@ func (ec *executionContext) _WorkloadUtilization_requestedSeries(ctx context.Con
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
-			return ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, selections, v)
+			return marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_requestedSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_requestedSeries(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_UtilizationSample(ctx, field)
+			return childFields_UtilizationSample(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -496,20 +495,20 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_requestedSeries(ctx
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadUtilization_requestedSeries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadUtilization_requestedSeries_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilization_limit(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_limit(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_limit(ctx, field)
+			return fieldContext_WorkloadUtilization_limit(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -517,13 +516,13 @@ func (ec *executionContext) _WorkloadUtilization_limit(ctx context.Context, fiel
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *float64) graphql.Marshaler {
-			return ec.marshalOFloat2ᚖfloat64(ctx, selections, v)
+			return marshalOFloat2ᚖfloat64(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_limit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_limit(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
@@ -540,20 +539,20 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_limit(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadUtilization_limit_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadUtilization_limit_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilization_limitSeries(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_limitSeries(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_limitSeries(ctx, field)
+			return fieldContext_WorkloadUtilization_limitSeries(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -561,20 +560,20 @@ func (ec *executionContext) _WorkloadUtilization_limitSeries(ctx context.Context
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
-			return ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, selections, v)
+			return marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_limitSeries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_limitSeries(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_UtilizationSample(ctx, field)
+			return childFields_UtilizationSample(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -584,20 +583,20 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_limitSeries(ctx con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadUtilization_limitSeries_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadUtilization_limitSeries_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilization_series(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_series(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_series(ctx, field)
+			return fieldContext_WorkloadUtilization_series(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -605,20 +604,20 @@ func (ec *executionContext) _WorkloadUtilization_series(ctx context.Context, fie
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
-			return ec.marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, selections, v)
+			return marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_series(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_series(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_UtilizationSample(ctx, field)
+			return childFields_UtilizationSample(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -628,65 +627,65 @@ func (ec *executionContext) fieldContext_WorkloadUtilization_series(ctx context.
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_WorkloadUtilization_series_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_WorkloadUtilization_series_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilization_recommendations(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
+func _WorkloadUtilization_recommendations(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilization) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilization_recommendations(ctx, field)
+			return fieldContext_WorkloadUtilization_recommendations(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.WorkloadUtilization().Recommendations(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
-			return ec.marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx, selections, v)
+			return marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilization_recommendations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilization_recommendations(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilization",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadUtilizationRecommendations(ctx, field)
+			return childFields_WorkloadUtilizationRecommendations(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilizationData_workload(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
+func _WorkloadUtilizationData_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilizationData_workload(ctx, field)
+			return fieldContext_WorkloadUtilizationData_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.WorkloadUtilizationData().Workload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilizationData_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilizationData_workload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadUtilizationData",
 		Field:      field,
@@ -699,118 +698,118 @@ func (ec *executionContext) fieldContext_WorkloadUtilizationData_workload(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadUtilizationData_requested(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
+func _WorkloadUtilizationData_requested(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilizationData_requested(ctx, field)
+			return fieldContext_WorkloadUtilizationData_requested(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Requested, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilizationData_requested(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilizationData_requested(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadUtilizationData", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadUtilizationData_used(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
+func _WorkloadUtilizationData_used(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilizationData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilizationData_used(ctx, field)
+			return fieldContext_WorkloadUtilizationData_used(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Used, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilizationData_used(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilizationData_used(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadUtilizationData", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadUtilizationRecommendations_cpuRequestCores(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
+func _WorkloadUtilizationRecommendations_cpuRequestCores(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(ctx, field)
+			return fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CPURequestCores(ctx)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilizationRecommendations_cpuRequestCores(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadUtilizationRecommendations", field, true, false, errors.New("field of type Float does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadUtilizationRecommendations_memoryRequestBytes(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
+func _WorkloadUtilizationRecommendations_memoryRequestBytes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, field)
+			return fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.MemoryRequestBytes(ctx)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
-			return ec.marshalNInt2int64(ctx, selections, v)
+			return marshalNInt2int64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilizationRecommendations_memoryRequestBytes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadUtilizationRecommendations", field, true, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadUtilizationRecommendations_memoryLimitBytes(ctx context.Context, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
+func _WorkloadUtilizationRecommendations_memoryLimitBytes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *utilization.WorkloadUtilizationRecommendations) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, field)
+			return fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.MemoryLimitBytes(ctx)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int64) graphql.Marshaler {
-			return ec.marshalNInt2int64(ctx, selections, v)
+			return marshalNInt2int64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadUtilizationRecommendations_memoryLimitBytes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadUtilizationRecommendations", field, true, false, errors.New("field of type Int does not have child fields"))
 }
 
@@ -818,7 +817,7 @@ func (ec *executionContext) fieldContext_WorkloadUtilizationRecommendations_memo
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputWorkloadUtilizationSeriesInput(ctx context.Context, obj any) (utilization.WorkloadUtilizationSeriesInput, error) {
+func unmarshalInputWorkloadUtilizationSeriesInput(ctx context.Context, ec *executionContext, obj any) (utilization.WorkloadUtilizationSeriesInput, error) {
 	var it utilization.WorkloadUtilizationSeriesInput
 	if obj == nil {
 		return it, nil
@@ -838,21 +837,21 @@ func (ec *executionContext) unmarshalInputWorkloadUtilizationSeriesInput(ctx con
 		switch k {
 		case "start":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			data, err := unmarshalNTime2timeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Start = data
 		case "end":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
-			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			data, err := unmarshalNTime2timeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.End = data
 		case "resourceType":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceType"))
-			data, err := ec.unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, v)
+			data, err := unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -872,7 +871,7 @@ func (ec *executionContext) unmarshalInputWorkloadUtilizationSeriesInput(ctx con
 
 var applicationInstanceUtilizationImplementors = []string{"ApplicationInstanceUtilization"}
 
-func (ec *executionContext) _ApplicationInstanceUtilization(ctx context.Context, sel ast.SelectionSet, obj *utilization.ApplicationInstanceUtilization) graphql.Marshaler {
+func _ApplicationInstanceUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.ApplicationInstanceUtilization) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, applicationInstanceUtilizationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -882,7 +881,7 @@ func (ec *executionContext) _ApplicationInstanceUtilization(ctx context.Context,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ApplicationInstanceUtilization")
 		case "current":
-			out.Values[i] = ec._ApplicationInstanceUtilization_current(ctx, field, obj)
+			out.Values[i] = _ApplicationInstanceUtilization_current(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -911,7 +910,7 @@ func (ec *executionContext) _ApplicationInstanceUtilization(ctx context.Context,
 
 var teamServiceUtilizationImplementors = []string{"TeamServiceUtilization"}
 
-func (ec *executionContext) _TeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamServiceUtilization) graphql.Marshaler {
+func _TeamServiceUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.TeamServiceUtilization) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamServiceUtilizationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -929,7 +928,7 @@ func (ec *executionContext) _TeamServiceUtilization(ctx context.Context, sel ast
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamServiceUtilization_sqlInstances(ctx, field, obj)
+				res = _TeamServiceUtilization_sqlInstances(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -981,7 +980,7 @@ func (ec *executionContext) _TeamServiceUtilization(ctx context.Context, sel ast
 
 var teamUtilizationDataImplementors = []string{"TeamUtilizationData"}
 
-func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.SelectionSet, obj *utilization.TeamUtilizationData) graphql.Marshaler {
+func _TeamUtilizationData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.TeamUtilizationData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamUtilizationDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -999,7 +998,7 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamUtilizationData_team(ctx, field, obj)
+				res = _TeamUtilizationData_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1027,12 +1026,12 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "requested":
-			out.Values[i] = ec._TeamUtilizationData_requested(ctx, field, obj)
+			out.Values[i] = _TeamUtilizationData_requested(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "used":
-			out.Values[i] = ec._TeamUtilizationData_used(ctx, field, obj)
+			out.Values[i] = _TeamUtilizationData_used(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1045,7 +1044,7 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._TeamUtilizationData_teamEnvironment(ctx, field, obj)
+				res = _TeamUtilizationData_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1097,7 +1096,7 @@ func (ec *executionContext) _TeamUtilizationData(ctx context.Context, sel ast.Se
 
 var utilizationSampleImplementors = []string{"UtilizationSample"}
 
-func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.SelectionSet, obj *utilization.UtilizationSample) graphql.Marshaler {
+func _UtilizationSample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.UtilizationSample) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, utilizationSampleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1107,17 +1106,17 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UtilizationSample")
 		case "timestamp":
-			out.Values[i] = ec._UtilizationSample_timestamp(ctx, field, obj)
+			out.Values[i] = _UtilizationSample_timestamp(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._UtilizationSample_value(ctx, field, obj)
+			out.Values[i] = _UtilizationSample_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "instance":
-			out.Values[i] = ec._UtilizationSample_instance(ctx, field, obj)
+			out.Values[i] = _UtilizationSample_instance(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1146,7 +1145,7 @@ func (ec *executionContext) _UtilizationSample(ctx context.Context, sel ast.Sele
 
 var workloadUtilizationImplementors = []string{"WorkloadUtilization"}
 
-func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.SelectionSet, obj *utilization.WorkloadUtilization) graphql.Marshaler {
+func _WorkloadUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.WorkloadUtilization) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadUtilizationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1164,7 +1163,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_current(ctx, field, obj)
+				res = _WorkloadUtilization_current(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1200,7 +1199,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_requested(ctx, field, obj)
+				res = _WorkloadUtilization_requested(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1236,7 +1235,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_requestedSeries(ctx, field, obj)
+				res = _WorkloadUtilization_requestedSeries(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1272,7 +1271,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_limit(ctx, field, obj)
+				res = _WorkloadUtilization_limit(ctx, ec, field, obj)
 				return res
 			}
 
@@ -1305,7 +1304,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_limitSeries(ctx, field, obj)
+				res = _WorkloadUtilization_limitSeries(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1341,7 +1340,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_series(ctx, field, obj)
+				res = _WorkloadUtilization_series(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1377,7 +1376,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilization_recommendations(ctx, field, obj)
+				res = _WorkloadUtilization_recommendations(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1429,7 +1428,7 @@ func (ec *executionContext) _WorkloadUtilization(ctx context.Context, sel ast.Se
 
 var workloadUtilizationDataImplementors = []string{"WorkloadUtilizationData"}
 
-func (ec *executionContext) _WorkloadUtilizationData(ctx context.Context, sel ast.SelectionSet, obj *utilization.WorkloadUtilizationData) graphql.Marshaler {
+func _WorkloadUtilizationData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.WorkloadUtilizationData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadUtilizationDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1447,7 +1446,7 @@ func (ec *executionContext) _WorkloadUtilizationData(ctx context.Context, sel as
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilizationData_workload(ctx, field, obj)
+				res = _WorkloadUtilizationData_workload(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1475,12 +1474,12 @@ func (ec *executionContext) _WorkloadUtilizationData(ctx context.Context, sel as
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "requested":
-			out.Values[i] = ec._WorkloadUtilizationData_requested(ctx, field, obj)
+			out.Values[i] = _WorkloadUtilizationData_requested(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "used":
-			out.Values[i] = ec._WorkloadUtilizationData_used(ctx, field, obj)
+			out.Values[i] = _WorkloadUtilizationData_used(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1509,7 +1508,7 @@ func (ec *executionContext) _WorkloadUtilizationData(ctx context.Context, sel as
 
 var workloadUtilizationRecommendationsImplementors = []string{"WorkloadUtilizationRecommendations"}
 
-func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, obj *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
+func _WorkloadUtilizationRecommendations(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadUtilizationRecommendationsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1527,7 +1526,7 @@ func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Cont
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilizationRecommendations_cpuRequestCores(ctx, field, obj)
+				res = _WorkloadUtilizationRecommendations_cpuRequestCores(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1563,7 +1562,7 @@ func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Cont
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, field, obj)
+				res = _WorkloadUtilizationRecommendations_memoryRequestBytes(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1599,7 +1598,7 @@ func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Cont
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, field, obj)
+				res = _WorkloadUtilizationRecommendations_memoryLimitBytes(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1653,39 +1652,39 @@ func (ec *executionContext) _WorkloadUtilizationRecommendations(ctx context.Cont
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNApplicationInstanceUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐApplicationInstanceUtilization(ctx context.Context, sel ast.SelectionSet, v utilization.ApplicationInstanceUtilization) graphql.Marshaler {
-	return ec._ApplicationInstanceUtilization(ctx, sel, &v)
+func marshalNApplicationInstanceUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐApplicationInstanceUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v utilization.ApplicationInstanceUtilization) graphql.Marshaler {
+	return _ApplicationInstanceUtilization(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNApplicationInstanceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐApplicationInstanceUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.ApplicationInstanceUtilization) graphql.Marshaler {
+func marshalNApplicationInstanceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐApplicationInstanceUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.ApplicationInstanceUtilization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ApplicationInstanceUtilization(ctx, sel, v)
+	return _ApplicationInstanceUtilization(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, v utilization.TeamServiceUtilization) graphql.Marshaler {
-	return ec._TeamServiceUtilization(ctx, sel, &v)
+func marshalNTeamServiceUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v utilization.TeamServiceUtilization) graphql.Marshaler {
+	return _TeamServiceUtilization(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.TeamServiceUtilization) graphql.Marshaler {
+func marshalNTeamServiceUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamServiceUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.TeamServiceUtilization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamServiceUtilization(ctx, sel, v)
+	return _TeamServiceUtilization(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationDataᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.TeamUtilizationData) graphql.Marshaler {
+func marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationDataᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*utilization.TeamUtilizationData) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx, sel, v[i])
+		return marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1697,31 +1696,31 @@ func (ec *executionContext) marshalNTeamUtilizationData2ᚕᚖgithubᚗcomᚋnai
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx context.Context, sel ast.SelectionSet, v *utilization.TeamUtilizationData) graphql.Marshaler {
+func marshalNTeamUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐTeamUtilizationData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.TeamUtilizationData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamUtilizationData(ctx, sel, v)
+	return _TeamUtilizationData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, v any) (utilization.UtilizationResourceType, error) {
+func unmarshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, ec *executionContext, v any) (utilization.UtilizationResourceType, error) {
 	var res utilization.UtilizationResourceType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, sel ast.SelectionSet, v utilization.UtilizationResourceType) graphql.Marshaler {
+func marshalNUtilizationResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationResourceType(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v utilization.UtilizationResourceType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
+func marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSampleᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*utilization.UtilizationSample) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx, sel, v[i])
+		return marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1733,64 +1732,64 @@ func (ec *executionContext) marshalNUtilizationSample2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx context.Context, sel ast.SelectionSet, v *utilization.UtilizationSample) graphql.Marshaler {
+func marshalNUtilizationSample2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐUtilizationSample(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.UtilizationSample) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UtilizationSample(ctx, sel, v)
+	return _UtilizationSample(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilization(ctx context.Context, sel ast.SelectionSet, v utilization.WorkloadUtilization) graphql.Marshaler {
-	return ec._WorkloadUtilization(ctx, sel, &v)
+func marshalNWorkloadUtilization2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v utilization.WorkloadUtilization) graphql.Marshaler {
+	return _WorkloadUtilization(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilization(ctx context.Context, sel ast.SelectionSet, v *utilization.WorkloadUtilization) graphql.Marshaler {
+func marshalNWorkloadUtilization2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilization(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.WorkloadUtilization) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadUtilization(ctx, sel, v)
+	return _WorkloadUtilization(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx context.Context, sel ast.SelectionSet, v []*utilization.WorkloadUtilizationData) graphql.Marshaler {
+func marshalNWorkloadUtilizationData2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*utilization.WorkloadUtilizationData) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalOWorkloadUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx, sel, v[i])
+		return marshalOWorkloadUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx, ec, sel, v[i])
 	})
 
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadUtilizationRecommendations2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, v utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
-	return ec._WorkloadUtilizationRecommendations(ctx, sel, &v)
+func marshalNWorkloadUtilizationRecommendations2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
+	return _WorkloadUtilizationRecommendations(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, sel ast.SelectionSet, v *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
+func marshalNWorkloadUtilizationRecommendations2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationRecommendations(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.WorkloadUtilizationRecommendations) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadUtilizationRecommendations(ctx, sel, v)
+	return _WorkloadUtilizationRecommendations(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx context.Context, v any) (utilization.WorkloadUtilizationSeriesInput, error) {
-	res, err := ec.unmarshalInputWorkloadUtilizationSeriesInput(ctx, v)
+func unmarshalNWorkloadUtilizationSeriesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationSeriesInput(ctx context.Context, ec *executionContext, v any) (utilization.WorkloadUtilizationSeriesInput, error) {
+	res, err := unmarshalInputWorkloadUtilizationSeriesInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOWorkloadUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx context.Context, sel ast.SelectionSet, v *utilization.WorkloadUtilizationData) graphql.Marshaler {
+func marshalOWorkloadUtilizationData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋutilizationᚐWorkloadUtilizationData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *utilization.WorkloadUtilizationData) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._WorkloadUtilizationData(ctx, sel, v)
+	return _WorkloadUtilizationData(ctx, ec, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

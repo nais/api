@@ -129,18 +129,18 @@ func (r *teamInventoryCountsResolver) OpenSearches(ctx context.Context, obj *tea
 	}, nil
 }
 
-func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r} }
+func (r *Resolver) OpenSearch() gengql.OpenSearchResolver { return &openSearchResolver{r.resolver} }
 
 func (r *Resolver) OpenSearchAccess() gengql.OpenSearchAccessResolver {
-	return &openSearchAccessResolver{r}
+	return &openSearchAccessResolver{r.resolver}
 }
 
 func (r *Resolver) OpenSearchConnection() gengql.OpenSearchConnectionResolver {
-	return &openSearchConnectionResolver{r}
+	return &openSearchConnectionResolver{r.resolver}
 }
 
 type (
-	openSearchResolver           struct{ *Resolver }
-	openSearchAccessResolver     struct{ *Resolver }
-	openSearchConnectionResolver struct{ *Resolver }
+	openSearchResolver           struct{ *resolver }
+	openSearchAccessResolver     struct{ *resolver }
+	openSearchConnectionResolver struct{ *resolver }
 )

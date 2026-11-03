@@ -6,10 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
@@ -34,6 +30,9 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -54,104 +53,104 @@ type ActivityLogEntryConnectionResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ActivityLogActivityTypeFacetItem_activityType(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogActivityTypeFacetItem) (ret graphql.Marshaler) {
+func _ActivityLogActivityTypeFacetItem_activityType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogActivityTypeFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogActivityTypeFacetItem_activityType(ctx, field)
+			return fieldContext_ActivityLogActivityTypeFacetItem_activityType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ActivityType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogActivityType) graphql.Marshaler {
-			return ec.marshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx, selections, v)
+			return marshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogActivityTypeFacetItem_activityType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogActivityTypeFacetItem_activityType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ActivityLogActivityTypeFacetItem", field, false, false, errors.New("field of type ActivityLogActivityType does not have child fields"))
 }
 
-func (ec *executionContext) _ActivityLogActivityTypeFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogActivityTypeFacetItem) (ret graphql.Marshaler) {
+func _ActivityLogActivityTypeFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogActivityTypeFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogActivityTypeFacetItem_count(ctx, field)
+			return fieldContext_ActivityLogActivityTypeFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogActivityTypeFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogActivityTypeFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ActivityLogActivityTypeFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _ActivityLogEntryConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
+func _ActivityLogEntryConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEntryConnection_pageInfo(ctx, field)
+			return fieldContext_ActivityLogEntryConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogEntryConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogEntryConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogEntryConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEntryConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
+func _ActivityLogEntryConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEntryConnection_nodes(ctx, field)
+			return fieldContext_ActivityLogEntryConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []activitylog.ActivityLogEntry) graphql.Marshaler {
-			return ec.marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx, selections, v)
+			return marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogEntryConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogEntryConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogEntryConnection",
 		Field:      field,
@@ -164,113 +163,113 @@ func (ec *executionContext) fieldContext_ActivityLogEntryConnection_nodes(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEntryConnection_edges(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
+func _ActivityLogEntryConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEntryConnection_edges(ctx, field)
+			return fieldContext_ActivityLogEntryConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogEntryConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogEntryConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogEntryConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEntryEdge(ctx, field)
+			return childFields_ActivityLogEntryEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEntryConnection_facets(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
+func _ActivityLogEntryConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogEntryConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEntryConnection_facets(ctx, field)
+			return fieldContext_ActivityLogEntryConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ActivityLogEntryConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogFacets) graphql.Marshaler {
-			return ec.marshalOActivityLogFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFacets(ctx, selections, v)
+			return marshalOActivityLogFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogEntryConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogEntryConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogEntryConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogFacets(ctx, field)
+			return childFields_ActivityLogFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogEntryEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+func _ActivityLogEntryEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEntryEdge_cursor(ctx, field)
+			return fieldContext_ActivityLogEntryEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogEntryEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogEntryEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ActivityLogEntryEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _ActivityLogEntryEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
+func _ActivityLogEntryEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[activitylog.ActivityLogEntry]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogEntryEdge_node(ctx, field)
+			return fieldContext_ActivityLogEntryEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntry) graphql.Marshaler {
-			return ec.marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, selections, v)
+			return marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogEntryEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogEntryEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogEntryEdge",
 		Field:      field,
@@ -283,145 +282,145 @@ func (ec *executionContext) fieldContext_ActivityLogEntryEdge_node(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogFacets_activityTypes(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
+func _ActivityLogFacets_activityTypes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogFacets_activityTypes(ctx, field)
+			return fieldContext_ActivityLogFacets_activityTypes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ActivityTypes, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
-			return ec.marshalNActivityLogActivityTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItemᚄ(ctx, selections, v)
+			return marshalNActivityLogActivityTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogFacets_activityTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogFacets_activityTypes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogFacets",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogActivityTypeFacetItem(ctx, field)
+			return childFields_ActivityLogActivityTypeFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogFacets_resourceTypes(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
+func _ActivityLogFacets_resourceTypes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogFacets_resourceTypes(ctx, field)
+			return fieldContext_ActivityLogFacets_resourceTypes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceTypes, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
-			return ec.marshalNActivityLogResourceTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItemᚄ(ctx, selections, v)
+			return marshalNActivityLogResourceTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogFacets_resourceTypes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogFacets_resourceTypes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogFacets",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogResourceTypeFacetItem(ctx, field)
+			return childFields_ActivityLogResourceTypeFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogFacets_environments(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
+func _ActivityLogFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogFacets_environments(ctx, field)
+			return fieldContext_ActivityLogFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ActivityLogFacets",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ActivityLogResourceTypeFacetItem_resourceType(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogResourceTypeFacetItem) (ret graphql.Marshaler) {
+func _ActivityLogResourceTypeFacetItem_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogResourceTypeFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogResourceTypeFacetItem_resourceType(ctx, field)
+			return fieldContext_ActivityLogResourceTypeFacetItem_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogResourceTypeFacetItem_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogResourceTypeFacetItem_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ActivityLogResourceTypeFacetItem", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _ActivityLogResourceTypeFacetItem_count(ctx context.Context, field graphql.CollectedField, obj *activitylog.ActivityLogResourceTypeFacetItem) (ret graphql.Marshaler) {
+func _ActivityLogResourceTypeFacetItem_count(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *activitylog.ActivityLogResourceTypeFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ActivityLogResourceTypeFacetItem_count(ctx, field)
+			return fieldContext_ActivityLogResourceTypeFacetItem_count(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Count, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ActivityLogResourceTypeFacetItem_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ActivityLogResourceTypeFacetItem_count(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ActivityLogResourceTypeFacetItem", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
@@ -429,7 +428,7 @@ func (ec *executionContext) fieldContext_ActivityLogResourceTypeFacetItem_count(
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context, obj any) (activitylog.ActivityLogFilter, error) {
+func unmarshalInputActivityLogFilter(ctx context.Context, ec *executionContext, obj any) (activitylog.ActivityLogFilter, error) {
 	var it activitylog.ActivityLogFilter
 	if obj == nil {
 		return it, nil
@@ -449,35 +448,35 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 		switch k {
 		case "activityTypes":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("activityTypes"))
-			data, err := ec.unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx, v)
+			data, err := unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.ActivityTypes = data
 		case "resourceTypes":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceTypes"))
-			data, err := ec.unmarshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx, v)
+			data, err := unmarshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.ResourceTypes = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "from":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := unmarshalOTime2ᚖtimeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.From = data
 		case "to":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := unmarshalOTime2ᚖtimeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -491,521 +490,521 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj activitylog.ActivityLogEntry) graphql.Marshaler {
+func _ActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj activitylog.ActivityLogEntry) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
-		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _VulnerabilityUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+		return _VulnerabilityUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case valkey.ValkeyUpdatedActivityLogEntry:
-		return ec._ValkeyUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _ValkeyUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *valkey.ValkeyUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ValkeyUpdatedActivityLogEntry(ctx, sel, obj)
+		return _ValkeyUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case valkey.ValkeyDeletedActivityLogEntry:
-		return ec._ValkeyDeletedActivityLogEntry(ctx, sel, &obj)
+		return _ValkeyDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *valkey.ValkeyDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ValkeyDeletedActivityLogEntry(ctx, sel, obj)
+		return _ValkeyDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case valkey.ValkeyCredentialsCreatedActivityLogEntry:
-		return ec._ValkeyCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+		return _ValkeyCredentialsCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *valkey.ValkeyCredentialsCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ValkeyCredentialsCreatedActivityLogEntry(ctx, sel, obj)
+		return _ValkeyCredentialsCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case valkey.ValkeyCreatedActivityLogEntry:
-		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, &obj)
+		return _ValkeyCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *valkey.ValkeyCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ValkeyCreatedActivityLogEntry(ctx, sel, obj)
+		return _ValkeyCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case unleash.UnleashInstanceUpdatedActivityLogEntry:
-		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _UnleashInstanceUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *unleash.UnleashInstanceUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceUpdatedActivityLogEntry(ctx, sel, obj)
+		return _UnleashInstanceUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case unleash.UnleashInstanceDeletedActivityLogEntry:
-		return ec._UnleashInstanceDeletedActivityLogEntry(ctx, sel, &obj)
+		return _UnleashInstanceDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *unleash.UnleashInstanceDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceDeletedActivityLogEntry(ctx, sel, obj)
+		return _UnleashInstanceDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case unleash.UnleashInstanceCreatedActivityLogEntry:
-		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, &obj)
+		return _UnleashInstanceCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *unleash.UnleashInstanceCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._UnleashInstanceCreatedActivityLogEntry(ctx, sel, obj)
+		return _UnleashInstanceCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case tunnel.TunnelDeletedActivityLogEntry:
-		return ec._TunnelDeletedActivityLogEntry(ctx, sel, &obj)
+		return _TunnelDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *tunnel.TunnelDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TunnelDeletedActivityLogEntry(ctx, sel, obj)
+		return _TunnelDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case tunnel.TunnelCreatedActivityLogEntry:
-		return ec._TunnelCreatedActivityLogEntry(ctx, sel, &obj)
+		return _TunnelCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *tunnel.TunnelCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TunnelCreatedActivityLogEntry(ctx, sel, obj)
+		return _TunnelCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamUpdatedActivityLogEntry:
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _TeamUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamUpdatedActivityLogEntry(ctx, sel, obj)
+		return _TeamUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamMemberSetRoleActivityLogEntry:
-		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, &obj)
+		return _TeamMemberSetRoleActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamMemberSetRoleActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberSetRoleActivityLogEntry(ctx, sel, obj)
+		return _TeamMemberSetRoleActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamMemberRemovedActivityLogEntry:
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, &obj)
+		return _TeamMemberRemovedActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamMemberRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberRemovedActivityLogEntry(ctx, sel, obj)
+		return _TeamMemberRemovedActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamMemberAddedActivityLogEntry:
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, &obj)
+		return _TeamMemberAddedActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamMemberAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamMemberAddedActivityLogEntry(ctx, sel, obj)
+		return _TeamMemberAddedActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamEnvironmentUpdatedActivityLogEntry:
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _TeamEnvironmentUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamEnvironmentUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamEnvironmentUpdatedActivityLogEntry(ctx, sel, obj)
+		return _TeamEnvironmentUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry:
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _TeamDeployKeyUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *deploymentactivity.TeamDeployKeyUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamDeployKeyUpdatedActivityLogEntry(ctx, sel, obj)
+		return _TeamDeployKeyUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamCreatedActivityLogEntry:
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, &obj)
+		return _TeamCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreatedActivityLogEntry(ctx, sel, obj)
+		return _TeamCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamCreateDeleteKeyActivityLogEntry:
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, &obj)
+		return _TeamCreateDeleteKeyActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamCreateDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamCreateDeleteKeyActivityLogEntry(ctx, sel, obj)
+		return _TeamCreateDeleteKeyActivityLogEntry(ctx, ec, sel, obj)
 	case team.TeamConfirmDeleteKeyActivityLogEntry:
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, &obj)
+		return _TeamConfirmDeleteKeyActivityLogEntry(ctx, ec, sel, &obj)
 	case *team.TeamConfirmDeleteKeyActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._TeamConfirmDeleteKeyActivityLogEntry(ctx, sel, obj)
+		return _TeamConfirmDeleteKeyActivityLogEntry(ctx, ec, sel, obj)
 	case activitylog1.ServiceMaintenanceActivityLogEntry:
-		return ec._ServiceMaintenanceActivityLogEntry(ctx, sel, &obj)
+		return _ServiceMaintenanceActivityLogEntry(ctx, ec, sel, &obj)
 	case *activitylog1.ServiceMaintenanceActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceMaintenanceActivityLogEntry(ctx, sel, obj)
+		return _ServiceMaintenanceActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry:
-		return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry:
-		return ec._ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountUpdatedActivityLogEntry:
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountUpdatedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
-		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountTokenUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountTokenUpdatedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountTokenUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountTokenDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountTokenDeletedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountTokenDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountTokenCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountTokenCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountTokenCreatedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountTokenCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountDeletedActivityLogEntry:
-		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountDeletedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccountCreatedActivityLogEntry:
-		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, &obj)
+		return _ServiceAccountCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccountCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccountCreatedActivityLogEntry(ctx, sel, obj)
+		return _ServiceAccountCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretValuesViewedActivityLogEntry:
-		return ec._SecretValuesViewedActivityLogEntry(ctx, sel, &obj)
+		return _SecretValuesViewedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretValuesViewedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValuesViewedActivityLogEntry(ctx, sel, obj)
+		return _SecretValuesViewedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretValueUpdatedActivityLogEntry:
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _SecretValueUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretValueUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueUpdatedActivityLogEntry(ctx, sel, obj)
+		return _SecretValueUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretValueRemovedActivityLogEntry:
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, &obj)
+		return _SecretValueRemovedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretValueRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueRemovedActivityLogEntry(ctx, sel, obj)
+		return _SecretValueRemovedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretValueAddedActivityLogEntry:
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, &obj)
+		return _SecretValueAddedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretValueAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretValueAddedActivityLogEntry(ctx, sel, obj)
+		return _SecretValueAddedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretUpdatedActivityLogEntry:
-		return ec._SecretUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _SecretUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretUpdatedActivityLogEntry(ctx, sel, obj)
+		return _SecretUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretDeletedActivityLogEntry:
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, &obj)
+		return _SecretDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretDeletedActivityLogEntry(ctx, sel, obj)
+		return _SecretDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case secret.SecretCreatedActivityLogEntry:
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, &obj)
+		return _SecretCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *secret.SecretCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._SecretCreatedActivityLogEntry(ctx, sel, obj)
+		return _SecretCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, &obj)
+		return _RoleRevokedFromServiceAccountActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.RoleRevokedFromServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleRevokedFromServiceAccountActivityLogEntry(ctx, sel, obj)
+		return _RoleRevokedFromServiceAccountActivityLogEntry(ctx, ec, sel, obj)
 	case serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
-		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, &obj)
+		return _RoleAssignedToServiceAccountActivityLogEntry(ctx, ec, sel, &obj)
 	case *serviceaccount.RoleAssignedToServiceAccountActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RoleAssignedToServiceAccountActivityLogEntry(ctx, sel, obj)
+		return _RoleAssignedToServiceAccountActivityLogEntry(ctx, ec, sel, obj)
 	case repository.RepositoryRemovedActivityLogEntry:
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, &obj)
+		return _RepositoryRemovedActivityLogEntry(ctx, ec, sel, &obj)
 	case *repository.RepositoryRemovedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryRemovedActivityLogEntry(ctx, sel, obj)
+		return _RepositoryRemovedActivityLogEntry(ctx, ec, sel, obj)
 	case repository.RepositoryAddedActivityLogEntry:
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, &obj)
+		return _RepositoryAddedActivityLogEntry(ctx, ec, sel, &obj)
 	case *repository.RepositoryAddedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._RepositoryAddedActivityLogEntry(ctx, sel, obj)
+		return _RepositoryAddedActivityLogEntry(ctx, ec, sel, obj)
 	case reconciler.ReconcilerEnabledActivityLogEntry:
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, &obj)
+		return _ReconcilerEnabledActivityLogEntry(ctx, ec, sel, &obj)
 	case *reconciler.ReconcilerEnabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerEnabledActivityLogEntry(ctx, sel, obj)
+		return _ReconcilerEnabledActivityLogEntry(ctx, ec, sel, obj)
 	case reconciler.ReconcilerDisabledActivityLogEntry:
-		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, &obj)
+		return _ReconcilerDisabledActivityLogEntry(ctx, ec, sel, &obj)
 	case *reconciler.ReconcilerDisabledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerDisabledActivityLogEntry(ctx, sel, obj)
+		return _ReconcilerDisabledActivityLogEntry(ctx, ec, sel, obj)
 	case reconciler.ReconcilerConfiguredActivityLogEntry:
-		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, &obj)
+		return _ReconcilerConfiguredActivityLogEntry(ctx, ec, sel, &obj)
 	case *reconciler.ReconcilerConfiguredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ReconcilerConfiguredActivityLogEntry(ctx, sel, obj)
+		return _ReconcilerConfiguredActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresUpdatedActivityLogEntry:
-		return ec._PostgresUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresUpdatedActivityLogEntry(ctx, sel, obj)
+		return _PostgresUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresPersonalAccessCreatedActivityLogEntry:
-		return ec._PostgresPersonalAccessCreatedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresPersonalAccessCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresPersonalAccessCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresPersonalAccessCreatedActivityLogEntry(ctx, sel, obj)
+		return _PostgresPersonalAccessCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresPersonalAccessConnectionActivityLogEntry:
-		return ec._PostgresPersonalAccessConnectionActivityLogEntry(ctx, sel, &obj)
+		return _PostgresPersonalAccessConnectionActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresPersonalAccessConnectionActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresPersonalAccessConnectionActivityLogEntry(ctx, sel, obj)
+		return _PostgresPersonalAccessConnectionActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresGrantAccessActivityLogEntry:
-		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
+		return _PostgresGrantAccessActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresGrantAccessActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, obj)
+		return _PostgresGrantAccessActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresDeletedActivityLogEntry:
-		return ec._PostgresDeletedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresDeletedActivityLogEntry(ctx, sel, obj)
+		return _PostgresDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresCreatedActivityLogEntry:
-		return ec._PostgresCreatedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
+		return _PostgresCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresBranchDeletedActivityLogEntry:
-		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresBranchDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresBranchDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, obj)
+		return _PostgresBranchDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresBranchCreatedActivityLogEntry:
-		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresBranchCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresBranchCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresBranchCreatedActivityLogEntry(ctx, sel, obj)
+		return _PostgresBranchCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case postgres.PostgresBranchActivatedActivityLogEntry:
-		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, &obj)
+		return _PostgresBranchActivatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *postgres.PostgresBranchActivatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, obj)
+		return _PostgresBranchActivatedActivityLogEntry(ctx, ec, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
-		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _OpenSearchUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, obj)
+		return _OpenSearchUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case opensearch.OpenSearchDeletedActivityLogEntry:
-		return ec._OpenSearchDeletedActivityLogEntry(ctx, sel, &obj)
+		return _OpenSearchDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearchDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearchDeletedActivityLogEntry(ctx, sel, obj)
+		return _OpenSearchDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case opensearch.OpenSearchCredentialsCreatedActivityLogEntry:
-		return ec._OpenSearchCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+		return _OpenSearchCredentialsCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearchCredentialsCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearchCredentialsCreatedActivityLogEntry(ctx, sel, obj)
+		return _OpenSearchCredentialsCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case opensearch.OpenSearchCreatedActivityLogEntry:
-		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, &obj)
+		return _OpenSearchCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearchCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearchCreatedActivityLogEntry(ctx, sel, obj)
+		return _OpenSearchCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case kafkatopic.KafkaTopicUpdatedActivityLogEntry:
-		return ec._KafkaTopicUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _KafkaTopicUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *kafkatopic.KafkaTopicUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._KafkaTopicUpdatedActivityLogEntry(ctx, sel, obj)
+		return _KafkaTopicUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
-		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, &obj)
+		return _KafkaCredentialsCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *kafkatopic.KafkaCredentialsCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._KafkaCredentialsCreatedActivityLogEntry(ctx, sel, obj)
+		return _KafkaCredentialsCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case job.JobUpdatedActivityLogEntry:
-		return ec._JobUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _JobUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *job.JobUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobUpdatedActivityLogEntry(ctx, sel, obj)
+		return _JobUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case job.JobTriggeredActivityLogEntry:
-		return ec._JobTriggeredActivityLogEntry(ctx, sel, &obj)
+		return _JobTriggeredActivityLogEntry(ctx, ec, sel, &obj)
 	case *job.JobTriggeredActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobTriggeredActivityLogEntry(ctx, sel, obj)
+		return _JobTriggeredActivityLogEntry(ctx, ec, sel, obj)
 	case job.JobRunDeletedActivityLogEntry:
-		return ec._JobRunDeletedActivityLogEntry(ctx, sel, &obj)
+		return _JobRunDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *job.JobRunDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobRunDeletedActivityLogEntry(ctx, sel, obj)
+		return _JobRunDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case job.JobDeletedActivityLogEntry:
-		return ec._JobDeletedActivityLogEntry(ctx, sel, &obj)
+		return _JobDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *job.JobDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobDeletedActivityLogEntry(ctx, sel, obj)
+		return _JobDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case job.JobCreatedActivityLogEntry:
-		return ec._JobCreatedActivityLogEntry(ctx, sel, &obj)
+		return _JobCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *job.JobCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._JobCreatedActivityLogEntry(ctx, sel, obj)
+		return _JobCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case activitylog.GenericKubernetesResourceActivityLogEntry:
-		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, &obj)
+		return _GenericKubernetesResourceActivityLogEntry(ctx, ec, sel, &obj)
 	case *activitylog.GenericKubernetesResourceActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._GenericKubernetesResourceActivityLogEntry(ctx, sel, obj)
+		return _GenericKubernetesResourceActivityLogEntry(ctx, ec, sel, obj)
 	case deploymentactivity.DeploymentActivityLogEntry:
-		return ec._DeploymentActivityLogEntry(ctx, sel, &obj)
+		return _DeploymentActivityLogEntry(ctx, ec, sel, &obj)
 	case *deploymentactivity.DeploymentActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._DeploymentActivityLogEntry(ctx, sel, obj)
+		return _DeploymentActivityLogEntry(ctx, ec, sel, obj)
 	case config.ConfigUpdatedActivityLogEntry:
-		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _ConfigUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *config.ConfigUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ConfigUpdatedActivityLogEntry(ctx, sel, obj)
+		return _ConfigUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case config.ConfigDeletedActivityLogEntry:
-		return ec._ConfigDeletedActivityLogEntry(ctx, sel, &obj)
+		return _ConfigDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *config.ConfigDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ConfigDeletedActivityLogEntry(ctx, sel, obj)
+		return _ConfigDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case config.ConfigCreatedActivityLogEntry:
-		return ec._ConfigCreatedActivityLogEntry(ctx, sel, &obj)
+		return _ConfigCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *config.ConfigCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ConfigCreatedActivityLogEntry(ctx, sel, obj)
+		return _ConfigCreatedActivityLogEntry(ctx, ec, sel, obj)
 	case pubsublog.ClusterAuditActivityLogEntry:
-		return ec._ClusterAuditActivityLogEntry(ctx, sel, &obj)
+		return _ClusterAuditActivityLogEntry(ctx, ec, sel, &obj)
 	case *pubsublog.ClusterAuditActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ClusterAuditActivityLogEntry(ctx, sel, obj)
+		return _ClusterAuditActivityLogEntry(ctx, ec, sel, obj)
 	case application.ApplicationUpdatedActivityLogEntry:
-		return ec._ApplicationUpdatedActivityLogEntry(ctx, sel, &obj)
+		return _ApplicationUpdatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *application.ApplicationUpdatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationUpdatedActivityLogEntry(ctx, sel, obj)
+		return _ApplicationUpdatedActivityLogEntry(ctx, ec, sel, obj)
 	case application.ApplicationScaledActivityLogEntry:
-		return ec._ApplicationScaledActivityLogEntry(ctx, sel, &obj)
+		return _ApplicationScaledActivityLogEntry(ctx, ec, sel, &obj)
 	case *application.ApplicationScaledActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationScaledActivityLogEntry(ctx, sel, obj)
+		return _ApplicationScaledActivityLogEntry(ctx, ec, sel, obj)
 	case application.ApplicationRestartedActivityLogEntry:
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
+		return _ApplicationRestartedActivityLogEntry(ctx, ec, sel, &obj)
 	case *application.ApplicationRestartedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, obj)
+		return _ApplicationRestartedActivityLogEntry(ctx, ec, sel, obj)
 	case application.ApplicationDeletedActivityLogEntry:
-		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, &obj)
+		return _ApplicationDeletedActivityLogEntry(ctx, ec, sel, &obj)
 	case *application.ApplicationDeletedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationDeletedActivityLogEntry(ctx, sel, obj)
+		return _ApplicationDeletedActivityLogEntry(ctx, ec, sel, obj)
 	case application.ApplicationCreatedActivityLogEntry:
-		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, &obj)
+		return _ApplicationCreatedActivityLogEntry(ctx, ec, sel, &obj)
 	case *application.ApplicationCreatedActivityLogEntry:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ApplicationCreatedActivityLogEntry(ctx, sel, obj)
+		return _ApplicationCreatedActivityLogEntry(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -1015,92 +1014,92 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 	}
 }
 
-func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.SelectionSet, obj activitylog.ActivityLogger) graphql.Marshaler {
+func _ActivityLogger(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj activitylog.ActivityLogger) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case valkey.Valkey:
-		return ec._Valkey(ctx, sel, &obj)
+		return _Valkey(ctx, ec, sel, &obj)
 	case *valkey.Valkey:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Valkey(ctx, sel, obj)
+		return _Valkey(ctx, ec, sel, obj)
 	case opensearch.OpenSearch:
-		return ec._OpenSearch(ctx, sel, &obj)
+		return _OpenSearch(ctx, ec, sel, &obj)
 	case *opensearch.OpenSearch:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._OpenSearch(ctx, sel, obj)
+		return _OpenSearch(ctx, ec, sel, obj)
 	case job.Job:
-		return ec._Job(ctx, sel, &obj)
+		return _Job(ctx, ec, sel, &obj)
 	case *job.Job:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Job(ctx, sel, obj)
+		return _Job(ctx, ec, sel, obj)
 	case application.Application:
-		return ec._Application(ctx, sel, &obj)
+		return _Application(ctx, ec, sel, &obj)
 	case *application.Application:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Application(ctx, sel, obj)
+		return _Application(ctx, ec, sel, obj)
 	case workload.Workload:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Workload(ctx, sel, obj)
+		return _Workload(ctx, ec, sel, obj)
 	case team.Team:
-		return ec._Team(ctx, sel, &obj)
+		return _Team(ctx, ec, sel, &obj)
 	case *team.Team:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Team(ctx, sel, obj)
+		return _Team(ctx, ec, sel, obj)
 	case serviceaccount.ServiceAccount:
-		return ec._ServiceAccount(ctx, sel, &obj)
+		return _ServiceAccount(ctx, ec, sel, &obj)
 	case *serviceaccount.ServiceAccount:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ServiceAccount(ctx, sel, obj)
+		return _ServiceAccount(ctx, ec, sel, obj)
 	case secret.Secret:
-		return ec._Secret(ctx, sel, &obj)
+		return _Secret(ctx, ec, sel, &obj)
 	case *secret.Secret:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Secret(ctx, sel, obj)
+		return _Secret(ctx, ec, sel, obj)
 	case reconciler.Reconciler:
-		return ec._Reconciler(ctx, sel, &obj)
+		return _Reconciler(ctx, ec, sel, &obj)
 	case *reconciler.Reconciler:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Reconciler(ctx, sel, obj)
+		return _Reconciler(ctx, ec, sel, obj)
 	case postgres.Postgres:
-		return ec._Postgres(ctx, sel, &obj)
+		return _Postgres(ctx, ec, sel, &obj)
 	case *postgres.Postgres:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Postgres(ctx, sel, obj)
+		return _Postgres(ctx, ec, sel, obj)
 	case workload.ContainerImage:
-		return ec._ContainerImage(ctx, sel, &obj)
+		return _ContainerImage(ctx, ec, sel, &obj)
 	case *workload.ContainerImage:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ContainerImage(ctx, sel, obj)
+		return _ContainerImage(ctx, ec, sel, obj)
 	case config.Config:
-		return ec._Config(ctx, sel, &obj)
+		return _Config(ctx, ec, sel, &obj)
 	case *config.Config:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._Config(ctx, sel, obj)
+		return _Config(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -1116,7 +1115,7 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 
 var activityLogActivityTypeFacetItemImplementors = []string{"ActivityLogActivityTypeFacetItem"}
 
-func (ec *executionContext) _ActivityLogActivityTypeFacetItem(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
+func _ActivityLogActivityTypeFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogActivityTypeFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1126,12 +1125,12 @@ func (ec *executionContext) _ActivityLogActivityTypeFacetItem(ctx context.Contex
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ActivityLogActivityTypeFacetItem")
 		case "activityType":
-			out.Values[i] = ec._ActivityLogActivityTypeFacetItem_activityType(ctx, field, obj)
+			out.Values[i] = _ActivityLogActivityTypeFacetItem_activityType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._ActivityLogActivityTypeFacetItem_count(ctx, field, obj)
+			out.Values[i] = _ActivityLogActivityTypeFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1160,7 +1159,7 @@ func (ec *executionContext) _ActivityLogActivityTypeFacetItem(ctx context.Contex
 
 var activityLogEntryConnectionImplementors = []string{"ActivityLogEntryConnection"}
 
-func (ec *executionContext) _ActivityLogEntryConnection(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
+func _ActivityLogEntryConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEntryConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1170,17 +1169,17 @@ func (ec *executionContext) _ActivityLogEntryConnection(ctx context.Context, sel
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ActivityLogEntryConnection")
 		case "pageInfo":
-			out.Values[i] = ec._ActivityLogEntryConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _ActivityLogEntryConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._ActivityLogEntryConnection_nodes(ctx, field, obj)
+			out.Values[i] = _ActivityLogEntryConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._ActivityLogEntryConnection_edges(ctx, field, obj)
+			out.Values[i] = _ActivityLogEntryConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1193,7 +1192,7 @@ func (ec *executionContext) _ActivityLogEntryConnection(ctx context.Context, sel
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ActivityLogEntryConnection_facets(ctx, field, obj)
+				res = _ActivityLogEntryConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -1242,7 +1241,7 @@ func (ec *executionContext) _ActivityLogEntryConnection(ctx context.Context, sel
 
 var activityLogEntryEdgeImplementors = []string{"ActivityLogEntryEdge"}
 
-func (ec *executionContext) _ActivityLogEntryEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+func _ActivityLogEntryEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogEntryEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1252,12 +1251,12 @@ func (ec *executionContext) _ActivityLogEntryEdge(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ActivityLogEntryEdge")
 		case "cursor":
-			out.Values[i] = ec._ActivityLogEntryEdge_cursor(ctx, field, obj)
+			out.Values[i] = _ActivityLogEntryEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._ActivityLogEntryEdge_node(ctx, field, obj)
+			out.Values[i] = _ActivityLogEntryEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1286,7 +1285,7 @@ func (ec *executionContext) _ActivityLogEntryEdge(ctx context.Context, sel ast.S
 
 var activityLogFacetsImplementors = []string{"ActivityLogFacets"}
 
-func (ec *executionContext) _ActivityLogFacets(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ActivityLogFacets) graphql.Marshaler {
+func _ActivityLogFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *activitylog.ActivityLogFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1296,17 +1295,17 @@ func (ec *executionContext) _ActivityLogFacets(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ActivityLogFacets")
 		case "activityTypes":
-			out.Values[i] = ec._ActivityLogFacets_activityTypes(ctx, field, obj)
+			out.Values[i] = _ActivityLogFacets_activityTypes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceTypes":
-			out.Values[i] = ec._ActivityLogFacets_resourceTypes(ctx, field, obj)
+			out.Values[i] = _ActivityLogFacets_resourceTypes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environments":
-			out.Values[i] = ec._ActivityLogFacets_environments(ctx, field, obj)
+			out.Values[i] = _ActivityLogFacets_environments(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1335,7 +1334,7 @@ func (ec *executionContext) _ActivityLogFacets(ctx context.Context, sel ast.Sele
 
 var activityLogResourceTypeFacetItemImplementors = []string{"ActivityLogResourceTypeFacetItem"}
 
-func (ec *executionContext) _ActivityLogResourceTypeFacetItem(ctx context.Context, sel ast.SelectionSet, obj *activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
+func _ActivityLogResourceTypeFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, activityLogResourceTypeFacetItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1345,12 +1344,12 @@ func (ec *executionContext) _ActivityLogResourceTypeFacetItem(ctx context.Contex
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ActivityLogResourceTypeFacetItem")
 		case "resourceType":
-			out.Values[i] = ec._ActivityLogResourceTypeFacetItem_resourceType(ctx, field, obj)
+			out.Values[i] = _ActivityLogResourceTypeFacetItem_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "count":
-			out.Values[i] = ec._ActivityLogResourceTypeFacetItem_count(ctx, field, obj)
+			out.Values[i] = _ActivityLogResourceTypeFacetItem_count(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1381,25 +1380,25 @@ func (ec *executionContext) _ActivityLogResourceTypeFacetItem(ctx context.Contex
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx context.Context, v any) (activitylog.ActivityLogActivityType, error) {
+func unmarshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx context.Context, ec *executionContext, v any) (activitylog.ActivityLogActivityType, error) {
 	var res activitylog.ActivityLogActivityType
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogActivityType) graphql.Marshaler {
+func marshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v activitylog.ActivityLogActivityType) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNActivityLogActivityTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItem(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
-	return ec._ActivityLogActivityTypeFacetItem(ctx, sel, &v)
+func marshalNActivityLogActivityTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
+	return _ActivityLogActivityTypeFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNActivityLogActivityTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
+func marshalNActivityLogActivityTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []activitylog.ActivityLogActivityTypeFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNActivityLogActivityTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItem(ctx, sel, v[i])
+		return marshalNActivityLogActivityTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1411,21 +1410,21 @@ func (ec *executionContext) marshalNActivityLogActivityTypeFacetItem2ᚕgithub�
 	return ret
 }
 
-func (ec *executionContext) marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEntry) graphql.Marshaler {
+func marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v activitylog.ActivityLogEntry) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ActivityLogEntry(ctx, sel, v)
+	return _ActivityLogEntry(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogEntry) graphql.Marshaler {
+func marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []activitylog.ActivityLogEntry) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, sel, v[i])
+		return marshalNActivityLogEntry2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntry(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1437,29 +1436,29 @@ func (ec *executionContext) marshalNActivityLogEntry2ᚕgithubᚗcomᚋnaisᚋap
 	return ret
 }
 
-func (ec *executionContext) marshalNActivityLogEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEntryConnection) graphql.Marshaler {
-	return ec._ActivityLogEntryConnection(ctx, sel, &v)
+func marshalNActivityLogEntryConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v activitylog.ActivityLogEntryConnection) graphql.Marshaler {
+	return _ActivityLogEntryConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx context.Context, sel ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
+func marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ActivityLogEntryConnection(ctx, sel, v)
+	return _ActivityLogEntryConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNActivityLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
-	return ec._ActivityLogEntryEdge(ctx, sel, &v)
+func marshalNActivityLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+	return _ActivityLogEntryEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
+func marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[activitylog.ActivityLogEntry]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNActivityLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNActivityLogEntryEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1471,13 +1470,13 @@ func (ec *executionContext) marshalNActivityLogEntryEdge2ᚕgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx context.Context, v any) (activitylog.ActivityLogEntryResourceType, error) {
+func unmarshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx context.Context, ec *executionContext, v any) (activitylog.ActivityLogEntryResourceType, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := activitylog.ActivityLogEntryResourceType(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+func marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
@@ -1488,15 +1487,15 @@ func (ec *executionContext) marshalNActivityLogEntryResourceType2githubᚗcomᚋ
 	return res
 }
 
-func (ec *executionContext) marshalNActivityLogResourceTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItem(ctx context.Context, sel ast.SelectionSet, v activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
-	return ec._ActivityLogResourceTypeFacetItem(ctx, sel, &v)
+func marshalNActivityLogResourceTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItem(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
+	return _ActivityLogResourceTypeFacetItem(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNActivityLogResourceTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItemᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
+func marshalNActivityLogResourceTypeFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItemᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []activitylog.ActivityLogResourceTypeFacetItem) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNActivityLogResourceTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItem(ctx, sel, v[i])
+		return marshalNActivityLogResourceTypeFacetItem2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogResourceTypeFacetItem(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1508,7 +1507,7 @@ func (ec *executionContext) marshalNActivityLogResourceTypeFacetItem2ᚕgithub�
 	return ret
 }
 
-func (ec *executionContext) unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx context.Context, v any) ([]activitylog.ActivityLogActivityType, error) {
+func unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx context.Context, ec *executionContext, v any) ([]activitylog.ActivityLogActivityType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1518,7 +1517,7 @@ func (ec *executionContext) unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋ
 	res := make([]activitylog.ActivityLogActivityType, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx, vSlice[i])
+		res[i], err = unmarshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -1526,14 +1525,14 @@ func (ec *executionContext) unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋ
 	return res, nil
 }
 
-func (ec *executionContext) marshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogActivityType) graphql.Marshaler {
+func marshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []activitylog.ActivityLogActivityType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx, sel, v[i])
+		return marshalNActivityLogActivityType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityType(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1545,7 +1544,7 @@ func (ec *executionContext) marshalOActivityLogActivityType2ᚕgithubᚗcomᚋna
 	return ret
 }
 
-func (ec *executionContext) unmarshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx context.Context, v any) ([]activitylog.ActivityLogEntryResourceType, error) {
+func unmarshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx context.Context, ec *executionContext, v any) ([]activitylog.ActivityLogEntryResourceType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -1555,7 +1554,7 @@ func (ec *executionContext) unmarshalOActivityLogEntryResourceType2ᚕgithubᚗc
 	res := make([]activitylog.ActivityLogEntryResourceType, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, vSlice[i])
+		res[i], err = unmarshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -1563,14 +1562,14 @@ func (ec *executionContext) unmarshalOActivityLogEntryResourceType2ᚕgithubᚗc
 	return res, nil
 }
 
-func (ec *executionContext) marshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
+func marshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, sel, v[i])
+		return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1582,18 +1581,18 @@ func (ec *executionContext) marshalOActivityLogEntryResourceType2ᚕgithubᚗcom
 	return ret
 }
 
-func (ec *executionContext) marshalOActivityLogFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFacets(ctx context.Context, sel ast.SelectionSet, v *activitylog.ActivityLogFacets) graphql.Marshaler {
+func marshalOActivityLogFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *activitylog.ActivityLogFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._ActivityLogFacets(ctx, sel, v)
+	return _ActivityLogFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
+func unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx context.Context, ec *executionContext, v any) (*activitylog.ActivityLogFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputActivityLogFilter(ctx, v)
+	res, err := unmarshalInputActivityLogFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

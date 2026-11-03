@@ -171,92 +171,92 @@ func (r *workloadProblemIssueResolver) Workload(ctx context.Context, obj *issue.
 }
 
 func (r *Resolver) ApplicationRestartLoopIssue() gengql.ApplicationRestartLoopIssueResolver {
-	return &applicationRestartLoopIssueResolver{r}
+	return &applicationRestartLoopIssueResolver{r.resolver}
 }
 
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
-	return &deprecatedIngressIssueResolver{r}
+	return &deprecatedIngressIssueResolver{r.resolver}
 }
 
 func (r *Resolver) DeprecatedRegistryIssue() gengql.DeprecatedRegistryIssueResolver {
-	return &deprecatedRegistryIssueResolver{r}
+	return &deprecatedRegistryIssueResolver{r.resolver}
 }
 
 func (r *Resolver) ExternalIngressUrgentVulnerabilityIssue() gengql.ExternalIngressUrgentVulnerabilityIssueResolver {
-	return &externalIngressUrgentVulnerabilityIssueResolver{r}
+	return &externalIngressUrgentVulnerabilityIssueResolver{r.resolver}
 }
 
 func (r *Resolver) FailedSynchronizationIssue() gengql.FailedSynchronizationIssueResolver {
-	return &failedSynchronizationIssueResolver{r}
+	return &failedSynchronizationIssueResolver{r.resolver}
 }
 
 func (r *Resolver) InvalidSpecIssue() gengql.InvalidSpecIssueResolver {
-	return &invalidSpecIssueResolver{r}
+	return &invalidSpecIssueResolver{r.resolver}
 }
 
 func (r *Resolver) IssueConnection() gengql.IssueConnectionResolver {
-	return &issueConnectionResolver{r}
+	return &issueConnectionResolver{r.resolver}
 }
 
 func (r *Resolver) LastRunFailedIssue() gengql.LastRunFailedIssueResolver {
-	return &lastRunFailedIssueResolver{r}
+	return &lastRunFailedIssueResolver{r.resolver}
 }
 
 func (r *Resolver) MissingSbomIssue() gengql.MissingSbomIssueResolver {
-	return &missingSbomIssueResolver{r}
+	return &missingSbomIssueResolver{r.resolver}
 }
 
 func (r *Resolver) NoRunningInstancesIssue() gengql.NoRunningInstancesIssueResolver {
-	return &noRunningInstancesIssueResolver{r}
+	return &noRunningInstancesIssueResolver{r.resolver}
 }
 
 func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
-	return &openSearchIssueResolver{r}
+	return &openSearchIssueResolver{r.resolver}
 }
 
 func (r *Resolver) PostgresBranchIssue() gengql.PostgresBranchIssueResolver {
-	return &postgresBranchIssueResolver{r}
+	return &postgresBranchIssueResolver{r.resolver}
 }
 
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
-	return &sqlInstanceStateIssueResolver{r}
+	return &sqlInstanceStateIssueResolver{r.resolver}
 }
 
 func (r *Resolver) SqlInstanceVersionIssue() gengql.SqlInstanceVersionIssueResolver {
-	return &sqlInstanceVersionIssueResolver{r}
+	return &sqlInstanceVersionIssueResolver{r.resolver}
 }
 
 func (r *Resolver) UnleashReleaseChannelIssue() gengql.UnleashReleaseChannelIssueResolver {
-	return &unleashReleaseChannelIssueResolver{r}
+	return &unleashReleaseChannelIssueResolver{r.resolver}
 }
 
-func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r} }
+func (r *Resolver) ValkeyIssue() gengql.ValkeyIssueResolver { return &valkeyIssueResolver{r.resolver} }
 
 func (r *Resolver) VulnerableImageIssue() gengql.VulnerableImageIssueResolver {
-	return &vulnerableImageIssueResolver{r}
+	return &vulnerableImageIssueResolver{r.resolver}
 }
 
 func (r *Resolver) WorkloadProblemIssue() gengql.WorkloadProblemIssueResolver {
-	return &workloadProblemIssueResolver{r}
+	return &workloadProblemIssueResolver{r.resolver}
 }
 
 type (
-	applicationRestartLoopIssueResolver             struct{ *Resolver }
-	deprecatedIngressIssueResolver                  struct{ *Resolver }
-	deprecatedRegistryIssueResolver                 struct{ *Resolver }
-	externalIngressUrgentVulnerabilityIssueResolver struct{ *Resolver }
-	failedSynchronizationIssueResolver              struct{ *Resolver }
-	invalidSpecIssueResolver                        struct{ *Resolver }
-	issueConnectionResolver                         struct{ *Resolver }
-	lastRunFailedIssueResolver                      struct{ *Resolver }
-	missingSbomIssueResolver                        struct{ *Resolver }
-	noRunningInstancesIssueResolver                 struct{ *Resolver }
-	openSearchIssueResolver                         struct{ *Resolver }
-	postgresBranchIssueResolver                     struct{ *Resolver }
-	sqlInstanceStateIssueResolver                   struct{ *Resolver }
-	sqlInstanceVersionIssueResolver                 struct{ *Resolver }
-	unleashReleaseChannelIssueResolver              struct{ *Resolver }
-	valkeyIssueResolver                             struct{ *Resolver }
-	vulnerableImageIssueResolver                    struct{ *Resolver }
-	workloadProblemIssueResolver                    struct{ *Resolver }
+	applicationRestartLoopIssueResolver             struct{ *resolver }
+	deprecatedIngressIssueResolver                  struct{ *resolver }
+	deprecatedRegistryIssueResolver                 struct{ *resolver }
+	externalIngressUrgentVulnerabilityIssueResolver struct{ *resolver }
+	failedSynchronizationIssueResolver              struct{ *resolver }
+	invalidSpecIssueResolver                        struct{ *resolver }
+	issueConnectionResolver                         struct{ *resolver }
+	lastRunFailedIssueResolver                      struct{ *resolver }
+	missingSbomIssueResolver                        struct{ *resolver }
+	noRunningInstancesIssueResolver                 struct{ *resolver }
+	openSearchIssueResolver                         struct{ *resolver }
+	postgresBranchIssueResolver                     struct{ *resolver }
+	sqlInstanceStateIssueResolver                   struct{ *resolver }
+	sqlInstanceVersionIssueResolver                 struct{ *resolver }
+	unleashReleaseChannelIssueResolver              struct{ *resolver }
+	valkeyIssueResolver                             struct{ *resolver }
+	vulnerableImageIssueResolver                    struct{ *resolver }
+	workloadProblemIssueResolver                    struct{ *resolver }
 )

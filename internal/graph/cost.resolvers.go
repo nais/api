@@ -183,21 +183,23 @@ func (r *workloadCostSampleResolver) Workload(ctx context.Context, obj *cost.Wor
 	return w, nil
 }
 
-func (r *Resolver) TeamCost() gengql.TeamCostResolver { return &teamCostResolver{r} }
+func (r *Resolver) TeamCost() gengql.TeamCostResolver { return &teamCostResolver{r.resolver} }
 
 func (r *Resolver) TeamEnvironmentCost() gengql.TeamEnvironmentCostResolver {
-	return &teamEnvironmentCostResolver{r}
+	return &teamEnvironmentCostResolver{r.resolver}
 }
 
-func (r *Resolver) WorkloadCost() gengql.WorkloadCostResolver { return &workloadCostResolver{r} }
+func (r *Resolver) WorkloadCost() gengql.WorkloadCostResolver {
+	return &workloadCostResolver{r.resolver}
+}
 
 func (r *Resolver) WorkloadCostSample() gengql.WorkloadCostSampleResolver {
-	return &workloadCostSampleResolver{r}
+	return &workloadCostSampleResolver{r.resolver}
 }
 
 type (
-	teamCostResolver            struct{ *Resolver }
-	teamEnvironmentCostResolver struct{ *Resolver }
-	workloadCostResolver        struct{ *Resolver }
-	workloadCostSampleResolver  struct{ *Resolver }
+	teamCostResolver            struct{ *resolver }
+	teamEnvironmentCostResolver struct{ *resolver }
+	workloadCostResolver        struct{ *resolver }
+	workloadCostSampleResolver  struct{ *resolver }
 )

@@ -40,6 +40,6 @@ func (r *userResolver) Teams(ctx context.Context, obj *user.User, first *int, af
 	return team.ListForUser(ctx, obj.UUID, page, orderBy)
 }
 
-func (r *Resolver) User() gengql.UserResolver { return &userResolver{r} }
+func (r *Resolver) User() gengql.UserResolver { return &userResolver{r.resolver} }
 
-type userResolver struct{ *Resolver }
+type userResolver struct{ *resolver }

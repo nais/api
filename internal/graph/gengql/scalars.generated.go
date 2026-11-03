@@ -4,13 +4,12 @@ package gengql
 
 import (
 	"context"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/vektah/gqlparser/v2/ast"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -43,43 +42,43 @@ import (
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, v any) (pagination.Cursor, error) {
+func unmarshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, ec *executionContext, v any) (pagination.Cursor, error) {
 	var res pagination.Cursor
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, sel ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
+func marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, v any) (scalar.Date, error) {
+func unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, ec *executionContext, v any) (scalar.Date, error) {
 	var res scalar.Date
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, sel ast.SelectionSet, v scalar.Date) graphql.Marshaler {
+func marshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v scalar.Date) graphql.Marshaler {
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v any) (slug.Slug, error) {
+func unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, ec *executionContext, v any) (slug.Slug, error) {
 	var res slug.Slug
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v slug.Slug) graphql.Marshaler {
+func marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v slug.Slug) graphql.Marshaler {
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v any) (*slug.Slug, error) {
+func unmarshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, ec *executionContext, v any) (*slug.Slug, error) {
 	var res = new(slug.Slug)
 	err := res.UnmarshalGQLContext(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+func marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -89,12 +88,12 @@ func (ec *executionContext) marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+func unmarshalNTime2timeᚐTime(ctx context.Context, ec *executionContext, v any) (time.Time, error) {
 	res, err := scalar.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+func marshalNTime2timeᚐTime(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	_ = sel
 	res := scalar.MarshalTime(v)
 	if res == graphql.Null {
@@ -105,12 +104,12 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalNTimeOfDay2string(ctx context.Context, v any) (string, error) {
+func unmarshalNTimeOfDay2string(ctx context.Context, ec *executionContext, v any) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNTimeOfDay2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+func marshalNTimeOfDay2string(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v string) graphql.Marshaler {
 	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
@@ -121,7 +120,7 @@ func (ec *executionContext) marshalNTimeOfDay2string(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, v any) (*pagination.Cursor, error) {
+func unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, ec *executionContext, v any) (*pagination.Cursor, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -130,14 +129,14 @@ func (ec *executionContext) unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinte
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, sel ast.SelectionSet, v *pagination.Cursor) graphql.Marshaler {
+func marshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Cursor) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, v any) (*scalar.Date, error) {
+func unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, ec *executionContext, v any) (*scalar.Date, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -146,14 +145,14 @@ func (ec *executionContext) unmarshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, sel ast.SelectionSet, v *scalar.Date) graphql.Marshaler {
+func marshalODate2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *scalar.Date) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx context.Context, v any) ([]slug.Slug, error) {
+func unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx context.Context, ec *executionContext, v any) ([]slug.Slug, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -163,7 +162,7 @@ func (ec *executionContext) unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋintern
 	res := make([]slug.Slug, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, vSlice[i])
+		res[i], err = unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -171,13 +170,13 @@ func (ec *executionContext) unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋintern
 	return res, nil
 }
 
-func (ec *executionContext) marshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx context.Context, sel ast.SelectionSet, v []slug.Slug) graphql.Marshaler {
+func marshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []slug.Slug) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := make(graphql.Array, len(v))
 	for i := range v {
-		ret[i] = ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, sel, v[i])
+		ret[i] = marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, sel, v[i])
 	}
 
 	for _, e := range ret {
@@ -189,7 +188,7 @@ func (ec *executionContext) marshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternal
 	return ret
 }
 
-func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v any) (*slug.Slug, error) {
+func unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, ec *executionContext, v any) (*slug.Slug, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -198,26 +197,26 @@ func (ec *executionContext) unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋintern
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
+func marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
-func (ec *executionContext) unmarshalOTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+func unmarshalOTime2timeᚐTime(ctx context.Context, ec *executionContext, v any) (time.Time, error) {
 	res, err := scalar.UnmarshalTime(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+func marshalOTime2timeᚐTime(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
 	_ = sel
 	_ = ctx
 	res := scalar.MarshalTime(v)
 	return res
 }
 
-func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v any) (*time.Time, error) {
+func unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, ec *executionContext, v any) (*time.Time, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -225,7 +224,7 @@ func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+func marshalOTime2ᚖtimeᚐTime(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

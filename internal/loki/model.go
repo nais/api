@@ -3,11 +3,9 @@ package loki
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/grafana/loki/v3/pkg/loghttp"
 	"github.com/grafana/loki/v3/pkg/logql/syntax"
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/environmentmapper"
@@ -50,11 +48,10 @@ func (f *LogSubscriptionFilter) Validate(ctx context.Context) error {
 		verr.Add("environmentName", "Environment does not exist.")
 	}
 
-	values, err := f.lokiQueryParameters()
-	if err != nil {
+	if _, err := f.lokiQueryParameters(); err != nil {
 		verr.Add("query", "Unable to parse log query: %v.", err.Error())
-	} else if _, err := loghttp.ParseTailQuery(&http.Request{Form: values}); err != nil {
-		verr.Add("query", "Unable to parse log query: %v.", err.Error())
+	} else if f.InitialBatch.Limit <= 0 {
+		verr.Add("query", "Unable to parse log query: limit must be a positive value.")
 	}
 
 	if f.InitialBatch.Start.After(time.Now()) {

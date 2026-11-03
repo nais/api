@@ -6,16 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/netpol"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -39,237 +38,237 @@ type NetworkPolicyRuleResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _ExternalNetworkPolicyHost_target(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
+func _ExternalNetworkPolicyHost_target(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ExternalNetworkPolicyHost_target(ctx, field)
+			return fieldContext_ExternalNetworkPolicyHost_target(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Target, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ExternalNetworkPolicyHost_target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ExternalNetworkPolicyHost_target(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalNetworkPolicyHost", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ExternalNetworkPolicyHost_ports(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
+func _ExternalNetworkPolicyHost_ports(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyHost) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ExternalNetworkPolicyHost_ports(ctx, field)
+			return fieldContext_ExternalNetworkPolicyHost_ports(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Ports, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []int) graphql.Marshaler {
-			return ec.marshalNInt2ᚕintᚄ(ctx, selections, v)
+			return marshalNInt2ᚕintᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ExternalNetworkPolicyHost_ports(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ExternalNetworkPolicyHost_ports(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalNetworkPolicyHost", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _ExternalNetworkPolicyIpv4_target(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyIpv4) (ret graphql.Marshaler) {
+func _ExternalNetworkPolicyIpv4_target(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyIpv4) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ExternalNetworkPolicyIpv4_target(ctx, field)
+			return fieldContext_ExternalNetworkPolicyIpv4_target(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Target, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_target(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ExternalNetworkPolicyIpv4_target(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalNetworkPolicyIpv4", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ExternalNetworkPolicyIpv4_ports(ctx context.Context, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyIpv4) (ret graphql.Marshaler) {
+func _ExternalNetworkPolicyIpv4_ports(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.ExternalNetworkPolicyIpv4) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ExternalNetworkPolicyIpv4_ports(ctx, field)
+			return fieldContext_ExternalNetworkPolicyIpv4_ports(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Ports, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []int) graphql.Marshaler {
-			return ec.marshalNInt2ᚕintᚄ(ctx, selections, v)
+			return marshalNInt2ᚕintᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ExternalNetworkPolicyIpv4_ports(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ExternalNetworkPolicyIpv4_ports(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ExternalNetworkPolicyIpv4", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _InboundNetworkPolicy_rules(ctx context.Context, field graphql.CollectedField, obj *netpol.InboundNetworkPolicy) (ret graphql.Marshaler) {
+func _InboundNetworkPolicy_rules(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.InboundNetworkPolicy) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_InboundNetworkPolicy_rules(ctx, field)
+			return fieldContext_InboundNetworkPolicy_rules(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Rules, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*netpol.NetworkPolicyRule) graphql.Marshaler {
-			return ec.marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx, selections, v)
+			return marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_InboundNetworkPolicy_rules(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_InboundNetworkPolicy_rules(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InboundNetworkPolicy",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_NetworkPolicyRule(ctx, field)
+			return childFields_NetworkPolicyRule(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _NetworkPolicy_inbound(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicy) (ret graphql.Marshaler) {
+func _NetworkPolicy_inbound(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicy) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicy_inbound(ctx, field)
+			return fieldContext_NetworkPolicy_inbound(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Inbound, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *netpol.InboundNetworkPolicy) graphql.Marshaler {
-			return ec.marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx, selections, v)
+			return marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicy_inbound(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicy_inbound(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicy",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_InboundNetworkPolicy(ctx, field)
+			return childFields_InboundNetworkPolicy(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _NetworkPolicy_outbound(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicy) (ret graphql.Marshaler) {
+func _NetworkPolicy_outbound(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicy) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicy_outbound(ctx, field)
+			return fieldContext_NetworkPolicy_outbound(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Outbound, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *netpol.OutboundNetworkPolicy) graphql.Marshaler {
-			return ec.marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy(ctx, selections, v)
+			return marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicy_outbound(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicy_outbound(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicy",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_OutboundNetworkPolicy(ctx, field)
+			return childFields_OutboundNetworkPolicy(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _NetworkPolicyRule_targetWorkloadName(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
+func _NetworkPolicyRule_targetWorkloadName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, field)
+			return fieldContext_NetworkPolicyRule_targetWorkloadName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TargetWorkloadName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicyRule_targetWorkloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicyRule_targetWorkloadName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("NetworkPolicyRule", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _NetworkPolicyRule_targetWorkload(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
+func _NetworkPolicyRule_targetWorkload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicyRule_targetWorkload(ctx, field)
+			return fieldContext_NetworkPolicyRule_targetWorkload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.NetworkPolicyRule().TargetWorkload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicyRule_targetWorkload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicyRule_targetWorkload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicyRule",
 		Field:      field,
@@ -282,136 +281,136 @@ func (ec *executionContext) fieldContext_NetworkPolicyRule_targetWorkload(_ cont
 	return fc, nil
 }
 
-func (ec *executionContext) _NetworkPolicyRule_targetTeamSlug(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
+func _NetworkPolicyRule_targetTeamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, field)
+			return fieldContext_NetworkPolicyRule_targetTeamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TargetTeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicyRule_targetTeamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("NetworkPolicyRule", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _NetworkPolicyRule_targetTeam(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
+func _NetworkPolicyRule_targetTeam(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicyRule_targetTeam(ctx, field)
+			return fieldContext_NetworkPolicyRule_targetTeam(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.NetworkPolicyRule().TargetTeam(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicyRule_targetTeam(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicyRule_targetTeam(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "NetworkPolicyRule",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _NetworkPolicyRule_mutual(ctx context.Context, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
+func _NetworkPolicyRule_mutual(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.NetworkPolicyRule) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_NetworkPolicyRule_mutual(ctx, field)
+			return fieldContext_NetworkPolicyRule_mutual(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.NetworkPolicyRule().Mutual(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_NetworkPolicyRule_mutual(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_NetworkPolicyRule_mutual(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("NetworkPolicyRule", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _OutboundNetworkPolicy_rules(ctx context.Context, field graphql.CollectedField, obj *netpol.OutboundNetworkPolicy) (ret graphql.Marshaler) {
+func _OutboundNetworkPolicy_rules(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.OutboundNetworkPolicy) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OutboundNetworkPolicy_rules(ctx, field)
+			return fieldContext_OutboundNetworkPolicy_rules(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Rules, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*netpol.NetworkPolicyRule) graphql.Marshaler {
-			return ec.marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx, selections, v)
+			return marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OutboundNetworkPolicy_rules(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_OutboundNetworkPolicy_rules(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OutboundNetworkPolicy",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_NetworkPolicyRule(ctx, field)
+			return childFields_NetworkPolicyRule(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _OutboundNetworkPolicy_external(ctx context.Context, field graphql.CollectedField, obj *netpol.OutboundNetworkPolicy) (ret graphql.Marshaler) {
+func _OutboundNetworkPolicy_external(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *netpol.OutboundNetworkPolicy) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_OutboundNetworkPolicy_external(ctx, field)
+			return fieldContext_OutboundNetworkPolicy_external(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.External, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
-			return ec.marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTargetᚄ(ctx, selections, v)
+			return marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTargetᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_OutboundNetworkPolicy_external(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_OutboundNetworkPolicy_external(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "OutboundNetworkPolicy",
 		Field:      field,
@@ -432,24 +431,24 @@ func (ec *executionContext) fieldContext_OutboundNetworkPolicy_external(_ contex
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _ExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, obj netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
+func _ExternalNetworkPolicyTarget(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case netpol.ExternalNetworkPolicyIpv4:
-		return ec._ExternalNetworkPolicyIpv4(ctx, sel, &obj)
+		return _ExternalNetworkPolicyIpv4(ctx, ec, sel, &obj)
 	case *netpol.ExternalNetworkPolicyIpv4:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ExternalNetworkPolicyIpv4(ctx, sel, obj)
+		return _ExternalNetworkPolicyIpv4(ctx, ec, sel, obj)
 	case netpol.ExternalNetworkPolicyHost:
-		return ec._ExternalNetworkPolicyHost(ctx, sel, &obj)
+		return _ExternalNetworkPolicyHost(ctx, ec, sel, &obj)
 	case *netpol.ExternalNetworkPolicyHost:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._ExternalNetworkPolicyHost(ctx, sel, obj)
+		return _ExternalNetworkPolicyHost(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -465,7 +464,7 @@ func (ec *executionContext) _ExternalNetworkPolicyTarget(ctx context.Context, se
 
 var externalNetworkPolicyHostImplementors = []string{"ExternalNetworkPolicyHost", "ExternalNetworkPolicyTarget"}
 
-func (ec *executionContext) _ExternalNetworkPolicyHost(ctx context.Context, sel ast.SelectionSet, obj *netpol.ExternalNetworkPolicyHost) graphql.Marshaler {
+func _ExternalNetworkPolicyHost(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *netpol.ExternalNetworkPolicyHost) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, externalNetworkPolicyHostImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -475,12 +474,12 @@ func (ec *executionContext) _ExternalNetworkPolicyHost(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ExternalNetworkPolicyHost")
 		case "target":
-			out.Values[i] = ec._ExternalNetworkPolicyHost_target(ctx, field, obj)
+			out.Values[i] = _ExternalNetworkPolicyHost_target(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "ports":
-			out.Values[i] = ec._ExternalNetworkPolicyHost_ports(ctx, field, obj)
+			out.Values[i] = _ExternalNetworkPolicyHost_ports(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -509,7 +508,7 @@ func (ec *executionContext) _ExternalNetworkPolicyHost(ctx context.Context, sel 
 
 var externalNetworkPolicyIpv4Implementors = []string{"ExternalNetworkPolicyIpv4", "ExternalNetworkPolicyTarget"}
 
-func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel ast.SelectionSet, obj *netpol.ExternalNetworkPolicyIpv4) graphql.Marshaler {
+func _ExternalNetworkPolicyIpv4(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *netpol.ExternalNetworkPolicyIpv4) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, externalNetworkPolicyIpv4Implementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -519,12 +518,12 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ExternalNetworkPolicyIpv4")
 		case "target":
-			out.Values[i] = ec._ExternalNetworkPolicyIpv4_target(ctx, field, obj)
+			out.Values[i] = _ExternalNetworkPolicyIpv4_target(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "ports":
-			out.Values[i] = ec._ExternalNetworkPolicyIpv4_ports(ctx, field, obj)
+			out.Values[i] = _ExternalNetworkPolicyIpv4_ports(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -553,7 +552,7 @@ func (ec *executionContext) _ExternalNetworkPolicyIpv4(ctx context.Context, sel 
 
 var inboundNetworkPolicyImplementors = []string{"InboundNetworkPolicy"}
 
-func (ec *executionContext) _InboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, obj *netpol.InboundNetworkPolicy) graphql.Marshaler {
+func _InboundNetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *netpol.InboundNetworkPolicy) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, inboundNetworkPolicyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -563,7 +562,7 @@ func (ec *executionContext) _InboundNetworkPolicy(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("InboundNetworkPolicy")
 		case "rules":
-			out.Values[i] = ec._InboundNetworkPolicy_rules(ctx, field, obj)
+			out.Values[i] = _InboundNetworkPolicy_rules(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -592,7 +591,7 @@ func (ec *executionContext) _InboundNetworkPolicy(ctx context.Context, sel ast.S
 
 var networkPolicyImplementors = []string{"NetworkPolicy"}
 
-func (ec *executionContext) _NetworkPolicy(ctx context.Context, sel ast.SelectionSet, obj *netpol.NetworkPolicy) graphql.Marshaler {
+func _NetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *netpol.NetworkPolicy) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, networkPolicyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -602,12 +601,12 @@ func (ec *executionContext) _NetworkPolicy(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("NetworkPolicy")
 		case "inbound":
-			out.Values[i] = ec._NetworkPolicy_inbound(ctx, field, obj)
+			out.Values[i] = _NetworkPolicy_inbound(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "outbound":
-			out.Values[i] = ec._NetworkPolicy_outbound(ctx, field, obj)
+			out.Values[i] = _NetworkPolicy_outbound(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -636,7 +635,7 @@ func (ec *executionContext) _NetworkPolicy(ctx context.Context, sel ast.Selectio
 
 var networkPolicyRuleImplementors = []string{"NetworkPolicyRule"}
 
-func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.SelectionSet, obj *netpol.NetworkPolicyRule) graphql.Marshaler {
+func _NetworkPolicyRule(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *netpol.NetworkPolicyRule) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, networkPolicyRuleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -646,7 +645,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("NetworkPolicyRule")
 		case "targetWorkloadName":
-			out.Values[i] = ec._NetworkPolicyRule_targetWorkloadName(ctx, field, obj)
+			out.Values[i] = _NetworkPolicyRule_targetWorkloadName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -659,7 +658,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._NetworkPolicyRule_targetWorkload(ctx, field, obj)
+				res = _NetworkPolicyRule_targetWorkload(ctx, ec, field, obj)
 				return res
 			}
 
@@ -684,7 +683,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "targetTeamSlug":
-			out.Values[i] = ec._NetworkPolicyRule_targetTeamSlug(ctx, field, obj)
+			out.Values[i] = _NetworkPolicyRule_targetTeamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -697,7 +696,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._NetworkPolicyRule_targetTeam(ctx, field, obj)
+				res = _NetworkPolicyRule_targetTeam(ctx, ec, field, obj)
 				return res
 			}
 
@@ -730,7 +729,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._NetworkPolicyRule_mutual(ctx, field, obj)
+				res = _NetworkPolicyRule_mutual(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -782,7 +781,7 @@ func (ec *executionContext) _NetworkPolicyRule(ctx context.Context, sel ast.Sele
 
 var outboundNetworkPolicyImplementors = []string{"OutboundNetworkPolicy"}
 
-func (ec *executionContext) _OutboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, obj *netpol.OutboundNetworkPolicy) graphql.Marshaler {
+func _OutboundNetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *netpol.OutboundNetworkPolicy) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, outboundNetworkPolicyImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -792,12 +791,12 @@ func (ec *executionContext) _OutboundNetworkPolicy(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("OutboundNetworkPolicy")
 		case "rules":
-			out.Values[i] = ec._OutboundNetworkPolicy_rules(ctx, field, obj)
+			out.Values[i] = _OutboundNetworkPolicy_rules(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "external":
-			out.Values[i] = ec._OutboundNetworkPolicy_external(ctx, field, obj)
+			out.Values[i] = _OutboundNetworkPolicy_external(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -828,21 +827,21 @@ func (ec *executionContext) _OutboundNetworkPolicy(ctx context.Context, sel ast.
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx context.Context, sel ast.SelectionSet, v netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
+func marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ExternalNetworkPolicyTarget(ctx, sel, v)
+	return _ExternalNetworkPolicyTarget(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTargetᚄ(ctx context.Context, sel ast.SelectionSet, v []netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
+func marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTargetᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []netpol.ExternalNetworkPolicyTarget) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx, sel, v[i])
+		return marshalNExternalNetworkPolicyTarget2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐExternalNetworkPolicyTarget(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -854,35 +853,35 @@ func (ec *executionContext) marshalNExternalNetworkPolicyTarget2ᚕgithubᚗcom�
 	return ret
 }
 
-func (ec *executionContext) marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.InboundNetworkPolicy) graphql.Marshaler {
+func marshalNInboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐInboundNetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *netpol.InboundNetworkPolicy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._InboundNetworkPolicy(ctx, sel, v)
+	return _InboundNetworkPolicy(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v netpol.NetworkPolicy) graphql.Marshaler {
-	return ec._NetworkPolicy(ctx, sel, &v)
+func marshalNNetworkPolicy2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v netpol.NetworkPolicy) graphql.Marshaler {
+	return _NetworkPolicy(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.NetworkPolicy) graphql.Marshaler {
+func marshalNNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *netpol.NetworkPolicy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._NetworkPolicy(ctx, sel, v)
+	return _NetworkPolicy(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx context.Context, sel ast.SelectionSet, v []*netpol.NetworkPolicyRule) graphql.Marshaler {
+func marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRuleᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*netpol.NetworkPolicyRule) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx, sel, v[i])
+		return marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -894,24 +893,24 @@ func (ec *executionContext) marshalNNetworkPolicyRule2ᚕᚖgithubᚗcomᚋnais�
 	return ret
 }
 
-func (ec *executionContext) marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx context.Context, sel ast.SelectionSet, v *netpol.NetworkPolicyRule) graphql.Marshaler {
+func marshalNNetworkPolicyRule2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐNetworkPolicyRule(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *netpol.NetworkPolicyRule) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._NetworkPolicyRule(ctx, sel, v)
+	return _NetworkPolicyRule(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy(ctx context.Context, sel ast.SelectionSet, v *netpol.OutboundNetworkPolicy) graphql.Marshaler {
+func marshalNOutboundNetworkPolicy2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋnetpolᚐOutboundNetworkPolicy(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *netpol.OutboundNetworkPolicy) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._OutboundNetworkPolicy(ctx, sel, v)
+	return _OutboundNetworkPolicy(ctx, ec, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

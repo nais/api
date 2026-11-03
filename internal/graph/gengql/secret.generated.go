@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -24,6 +19,10 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	"github.com/nais/api/internal/workload/secret"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -47,12 +46,12 @@ type SecretConnectionResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Secret_activityLog_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -60,7 +59,7 @@ func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, r
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -68,7 +67,7 @@ func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, r
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -76,7 +75,7 @@ func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, r
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -84,7 +83,7 @@ func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, r
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*activitylog.ActivityLogFilter, error) {
-			return ec.unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, v)
+			return unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -93,12 +92,12 @@ func (ec *executionContext) field_Secret_activityLog_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Secret_applications_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Secret_applications_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -106,7 +105,7 @@ func (ec *executionContext) field_Secret_applications_args(ctx context.Context, 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -114,7 +113,7 @@ func (ec *executionContext) field_Secret_applications_args(ctx context.Context, 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -122,7 +121,7 @@ func (ec *executionContext) field_Secret_applications_args(ctx context.Context, 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -131,12 +130,12 @@ func (ec *executionContext) field_Secret_applications_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Secret_jobs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Secret_jobs_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -144,7 +143,7 @@ func (ec *executionContext) field_Secret_jobs_args(ctx context.Context, rawArgs 
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -152,7 +151,7 @@ func (ec *executionContext) field_Secret_jobs_args(ctx context.Context, rawArgs 
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -160,7 +159,7 @@ func (ec *executionContext) field_Secret_jobs_args(ctx context.Context, rawArgs 
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -169,12 +168,12 @@ func (ec *executionContext) field_Secret_jobs_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Secret_workloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_Secret_workloads_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -182,7 +181,7 @@ func (ec *executionContext) field_Secret_workloads_args(ctx context.Context, raw
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -190,7 +189,7 @@ func (ec *executionContext) field_Secret_workloads_args(ctx context.Context, raw
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -198,7 +197,7 @@ func (ec *executionContext) field_Secret_workloads_args(ctx context.Context, raw
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -215,297 +214,297 @@ func (ec *executionContext) field_Secret_workloads_args(ctx context.Context, raw
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AddSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.AddSecretValuePayload) (ret graphql.Marshaler) {
+func _AddSecretValuePayload_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.AddSecretValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AddSecretValuePayload_secret(ctx, field)
+			return fieldContext_AddSecretValuePayload_secret(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Secret, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_AddSecretValuePayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AddSecretValuePayload_secret(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddSecretValuePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _CreateSecretPayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.CreateSecretPayload) (ret graphql.Marshaler) {
+func _CreateSecretPayload_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.CreateSecretPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CreateSecretPayload_secret(ctx, field)
+			return fieldContext_CreateSecretPayload_secret(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Secret, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_CreateSecretPayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CreateSecretPayload_secret(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateSecretPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _DeleteSecretPayload_secretDeleted(ctx context.Context, field graphql.CollectedField, obj *secret.DeleteSecretPayload) (ret graphql.Marshaler) {
+func _DeleteSecretPayload_secretDeleted(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.DeleteSecretPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_DeleteSecretPayload_secretDeleted(ctx, field)
+			return fieldContext_DeleteSecretPayload_secretDeleted(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.SecretDeleted, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalOBoolean2bool(ctx, selections, v)
+			return marshalOBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_DeleteSecretPayload_secretDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_DeleteSecretPayload_secretDeleted(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("DeleteSecretPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _RemoveSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.RemoveSecretValuePayload) (ret graphql.Marshaler) {
+func _RemoveSecretValuePayload_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.RemoveSecretValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RemoveSecretValuePayload_secret(ctx, field)
+			return fieldContext_RemoveSecretValuePayload_secret(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Secret, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RemoveSecretValuePayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RemoveSecretValuePayload_secret(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveSecretValuePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_id(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_id(ctx, field)
+			return fieldContext_Secret_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Secret", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Secret_name(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_name(ctx, field)
+			return fieldContext_Secret_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Secret", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Secret_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_teamEnvironment(ctx, field)
+			return fieldContext_Secret_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Secret().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_team(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_team(ctx, field)
+			return fieldContext_Secret_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Secret().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_keys(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_keys(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_keys(ctx, field)
+			return fieldContext_Secret_keys(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Keys, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
-			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+			return marshalNString2ᚕstringᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_keys(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_keys(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Secret", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Secret_labels(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_labels(ctx, field)
+			return fieldContext_Secret_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_applications(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_applications(ctx, field)
+			return fieldContext_Secret_applications(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -513,20 +512,20 @@ func (ec *executionContext) _Secret_applications(ctx context.Context, field grap
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*application.Application, *application.TeamApplicationsFilter]) graphql.Marshaler {
-			return ec.marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNApplicationConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_applications(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_applications(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ApplicationConnection(ctx, field)
+			return childFields_ApplicationConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -536,20 +535,20 @@ func (ec *executionContext) fieldContext_Secret_applications(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Secret_applications_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Secret_applications_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_jobs(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_jobs(ctx, field)
+			return fieldContext_Secret_jobs(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -557,20 +556,20 @@ func (ec *executionContext) _Secret_jobs(ctx context.Context, field graphql.Coll
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.FacetableConnection[*job.Job, *job.TeamJobsFilter]) graphql.Marshaler {
-			return ec.marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, selections, v)
+			return marshalNJobConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_jobs(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_JobConnection(ctx, field)
+			return childFields_JobConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -580,20 +579,20 @@ func (ec *executionContext) fieldContext_Secret_jobs(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Secret_jobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Secret_jobs_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_workloads(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_workloads(ctx, field)
+			return fieldContext_Secret_workloads(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -601,20 +600,20 @@ func (ec *executionContext) _Secret_workloads(ctx context.Context, field graphql
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_workloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_workloads(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadConnection(ctx, field)
+			return childFields_WorkloadConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -624,75 +623,75 @@ func (ec *executionContext) fieldContext_Secret_workloads(ctx context.Context, f
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Secret_workloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Secret_workloads_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_lastModifiedAt(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_lastModifiedAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_lastModifiedAt(ctx, field)
+			return fieldContext_Secret_lastModifiedAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.LastModifiedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_lastModifiedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_lastModifiedAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Secret", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _Secret_lastModifiedBy(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_lastModifiedBy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_lastModifiedBy(ctx, field)
+			return fieldContext_Secret_lastModifiedBy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.Secret().LastModifiedBy(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *user.User) graphql.Marshaler {
-			return ec.marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, selections, v)
+			return marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUser(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_lastModifiedBy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_lastModifiedBy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_User(ctx, field)
+			return childFields_User(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Secret_activityLog(ctx context.Context, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
+func _Secret_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.Secret) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Secret_activityLog(ctx, field)
+			return fieldContext_Secret_activityLog(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -700,20 +699,20 @@ func (ec *executionContext) _Secret_activityLog(ctx context.Context, field graph
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *activitylog.ActivityLogEntryConnection) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, selections, v)
+			return marshalNActivityLogEntryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Secret_activityLog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Secret_activityLog(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Secret",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ActivityLogEntryConnection(ctx, field)
+			return childFields_ActivityLogEntryConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -723,2340 +722,2340 @@ func (ec *executionContext) fieldContext_Secret_activityLog(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Secret_activityLog_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_Secret_activityLog_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
+func _SecretConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretConnection_pageInfo(ctx, field)
+			return fieldContext_SecretConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
+func _SecretConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretConnection_nodes(ctx, field)
+			return fieldContext_SecretConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*secret.Secret) graphql.Marshaler {
-			return ec.marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretᚄ(ctx, selections, v)
+			return marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
+func _SecretConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretConnection_edges(ctx, field)
+			return fieldContext_SecretConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*secret.Secret]) graphql.Marshaler {
-			return ec.marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretEdge(ctx, field)
+			return childFields_SecretEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
+func _SecretConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretConnection_facets(ctx, field)
+			return fieldContext_SecretConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.SecretConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretFacets) graphql.Marshaler {
-			return ec.marshalOSecretFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFacets(ctx, selections, v)
+			return marshalOSecretFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretFacets(ctx, field)
+			return childFields_SecretFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretCreatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretCreatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretCreatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretCreatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretDeletedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretDeletedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretDeletedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretDeletedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretDeletedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretDeletedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretDeletedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretDeletedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*secret.Secret]) (ret graphql.Marshaler) {
+func _SecretEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*secret.Secret]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretEdge_cursor(ctx, field)
+			return fieldContext_SecretEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _SecretEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*secret.Secret]) (ret graphql.Marshaler) {
+func _SecretEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*secret.Secret]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretEdge_node(ctx, field)
+			return fieldContext_SecretEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretFacets_environments(ctx context.Context, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
+func _SecretFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretFacets_environments(ctx, field)
+			return fieldContext_SecretFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretFacets_inUse(ctx context.Context, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
+func _SecretFacets_inUse(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretFacets_inUse(ctx, field)
+			return fieldContext_SecretFacets_inUse(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.InUse(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.BooleanFacetItem) graphql.Marshaler {
-			return ec.marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, selections, v)
+			return marshalNBooleanFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐBooleanFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretFacets_inUse(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretFacets_inUse(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_BooleanFacetItem(ctx, field)
+			return childFields_BooleanFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretFacets_labels(ctx context.Context, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
+func _SecretFacets_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretFacets_labels(ctx, field)
+			return fieldContext_SecretFacets_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+			return marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretFacets_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LabelFacetItem(ctx, field)
+			return childFields_LabelFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNSecretUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNSecretUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretUpdatedActivityLogEntryData(ctx, field)
+			return childFields_SecretUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntryData_updatedFields(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntryData_updatedFields(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntryData_updatedFields(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntryData_updatedFields(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.UpdatedFields, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
-			return ec.marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, selections, v)
+			return marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntryData_updatedFields(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntryData_updatedFields(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretUpdatedActivityLogEntryDataUpdatedField(ctx, field)
+			return childFields_SecretUpdatedActivityLogEntryDataUpdatedField(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Field, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_field(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.OldValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
+func _SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+			return fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.NewValue, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretUpdatedActivityLogEntryDataUpdatedField_newValue(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretUpdatedActivityLogEntryDataUpdatedField", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValue_name(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
+func _SecretValue_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValue_name(ctx, field)
+			return fieldContext_SecretValue_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValue_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValue_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValue", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValue_value(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
+func _SecretValue_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValue_value(ctx, field)
+			return fieldContext_SecretValue_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValue_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValue_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValue", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValue_encoding(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
+func _SecretValue_encoding(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValue) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValue_encoding(ctx, field)
+			return fieldContext_SecretValue_encoding(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Encoding, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v secret.ValueEncoding) graphql.Marshaler {
-			return ec.marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, selections, v)
+			return marshalNValueEncoding2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValue_encoding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValue_encoding(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValue", field, false, false, errors.New("field of type ValueEncoding does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntry_data(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx, selections, v)
+			return marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValueAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretValueAddedActivityLogEntryData(ctx, field)
+			return childFields_SecretValueAddedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _SecretValueAddedActivityLogEntryData_valueName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueAddedActivityLogEntryData_valueName(ctx, field)
+			return fieldContext_SecretValueAddedActivityLogEntryData_valueName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ValueName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueAddedActivityLogEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueAddedActivityLogEntryData_valueName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueAddedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntry_data(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx, selections, v)
+			return marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValueRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretValueRemovedActivityLogEntryData(ctx, field)
+			return childFields_SecretValueRemovedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+func _SecretValueRemovedActivityLogEntryData_valueName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueRemovedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueRemovedActivityLogEntryData_valueName(ctx, field)
+			return fieldContext_SecretValueRemovedActivityLogEntryData_valueName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ValueName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueRemovedActivityLogEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueRemovedActivityLogEntryData_valueName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueRemovedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValueUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValueUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretValueUpdatedActivityLogEntryData(ctx, field)
+			return childFields_SecretValueUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData_valueName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _SecretValueUpdatedActivityLogEntryData_valueName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValueUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(ctx, field)
+			return fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ValueName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValueUpdatedActivityLogEntryData_valueName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValueUpdatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_id(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_actor(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValuesViewedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_message(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntry_data(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.SecretValuesViewedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNSecretValuesViewedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValuesViewedActivityLogEntryData(ctx, selections, v)
+			return marshalNSecretValuesViewedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValuesViewedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "SecretValuesViewedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretValuesViewedActivityLogEntryData(ctx, field)
+			return childFields_SecretValuesViewedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntryData_reason(ctx context.Context, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntryData) (ret graphql.Marshaler) {
+func _SecretValuesViewedActivityLogEntryData_reason(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.SecretValuesViewedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_SecretValuesViewedActivityLogEntryData_reason(ctx, field)
+			return fieldContext_SecretValuesViewedActivityLogEntryData_reason(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Reason, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_SecretValuesViewedActivityLogEntryData_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_SecretValuesViewedActivityLogEntryData_reason(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("SecretValuesViewedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCountSecrets_total(ctx context.Context, field graphql.CollectedField, obj *secret.TeamInventoryCountSecrets) (ret graphql.Marshaler) {
+func _TeamInventoryCountSecrets_total(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.TeamInventoryCountSecrets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountSecrets_total(ctx, field)
+			return fieldContext_TeamInventoryCountSecrets_total(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountSecrets_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountSecrets_total(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountSecrets", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _UpdateSecretPayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.UpdateSecretPayload) (ret graphql.Marshaler) {
+func _UpdateSecretPayload_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.UpdateSecretPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateSecretPayload_secret(ctx, field)
+			return fieldContext_UpdateSecretPayload_secret(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Secret, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateSecretPayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateSecretPayload_secret(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateSecretPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _UpdateSecretValuePayload_secret(ctx context.Context, field graphql.CollectedField, obj *secret.UpdateSecretValuePayload) (ret graphql.Marshaler) {
+func _UpdateSecretValuePayload_secret(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.UpdateSecretValuePayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateSecretValuePayload_secret(ctx, field)
+			return fieldContext_UpdateSecretValuePayload_secret(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Secret, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
-			return ec.marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, selections, v)
+			return marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateSecretValuePayload_secret(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateSecretValuePayload_secret(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateSecretValuePayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Secret(ctx, field)
+			return childFields_Secret(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ViewSecretValuesPayload_values(ctx context.Context, field graphql.CollectedField, obj *secret.ViewSecretValuesPayload) (ret graphql.Marshaler) {
+func _ViewSecretValuesPayload_values(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *secret.ViewSecretValuesPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ViewSecretValuesPayload_values(ctx, field)
+			return fieldContext_ViewSecretValuesPayload_values(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Values, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*secret.SecretValue) graphql.Marshaler {
-			return ec.marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ(ctx, selections, v)
+			return marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ViewSecretValuesPayload_values(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ViewSecretValuesPayload_values(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ViewSecretValuesPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_SecretValue(ctx, field)
+			return childFields_SecretValue(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -3066,7 +3065,7 @@ func (ec *executionContext) fieldContext_ViewSecretValuesPayload_values(_ contex
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddSecretValueInput(ctx context.Context, obj any) (secret.AddSecretValueInput, error) {
+func unmarshalInputAddSecretValueInput(ctx context.Context, ec *executionContext, obj any) (secret.AddSecretValueInput, error) {
 	var it secret.AddSecretValueInput
 	if obj == nil {
 		return it, nil
@@ -3086,28 +3085,28 @@ func (ec *executionContext) unmarshalInputAddSecretValueInput(ctx context.Contex
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Team = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx, v)
+			data, err := unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3117,7 +3116,7 @@ func (ec *executionContext) unmarshalInputAddSecretValueInput(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCreateSecretInput(ctx context.Context, obj any) (secret.CreateSecretInput, error) {
+func unmarshalInputCreateSecretInput(ctx context.Context, ec *executionContext, obj any) (secret.CreateSecretInput, error) {
 	var it secret.CreateSecretInput
 	if obj == nil {
 		return it, nil
@@ -3137,21 +3136,21 @@ func (ec *executionContext) unmarshalInputCreateSecretInput(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3161,7 +3160,7 @@ func (ec *executionContext) unmarshalInputCreateSecretInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputDeleteSecretInput(ctx context.Context, obj any) (secret.DeleteSecretInput, error) {
+func unmarshalInputDeleteSecretInput(ctx context.Context, ec *executionContext, obj any) (secret.DeleteSecretInput, error) {
 	var it secret.DeleteSecretInput
 	if obj == nil {
 		return it, nil
@@ -3181,21 +3180,21 @@ func (ec *executionContext) unmarshalInputDeleteSecretInput(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3205,7 +3204,7 @@ func (ec *executionContext) unmarshalInputDeleteSecretInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveSecretValueInput(ctx context.Context, obj any) (secret.RemoveSecretValueInput, error) {
+func unmarshalInputRemoveSecretValueInput(ctx context.Context, ec *executionContext, obj any) (secret.RemoveSecretValueInput, error) {
 	var it secret.RemoveSecretValueInput
 	if obj == nil {
 		return it, nil
@@ -3225,28 +3224,28 @@ func (ec *executionContext) unmarshalInputRemoveSecretValueInput(ctx context.Con
 		switch k {
 		case "secretName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("secretName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.SecretName = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Team = data
 		case "valueName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("valueName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3256,7 +3255,7 @@ func (ec *executionContext) unmarshalInputRemoveSecretValueInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj any) (secret.SecretFilter, error) {
+func unmarshalInputSecretFilter(ctx context.Context, ec *executionContext, obj any) (secret.SecretFilter, error) {
 	var it secret.SecretFilter
 	if obj == nil {
 		return it, nil
@@ -3276,28 +3275,28 @@ func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2string(ctx, v)
+			data, err := unmarshalOString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "inUse":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("inUse"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := unmarshalOBoolean2ᚖbool(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.InUse = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3307,7 +3306,7 @@ func (ec *executionContext) unmarshalInputSecretFilter(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSecretOrder(ctx context.Context, obj any) (secret.SecretOrder, error) {
+func unmarshalInputSecretOrder(ctx context.Context, ec *executionContext, obj any) (secret.SecretOrder, error) {
 	var it secret.SecretOrder
 	if obj == nil {
 		return it, nil
@@ -3327,14 +3326,14 @@ func (ec *executionContext) unmarshalInputSecretOrder(ctx context.Context, obj a
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrderField(ctx, v)
+			data, err := unmarshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3344,7 +3343,7 @@ func (ec *executionContext) unmarshalInputSecretOrder(ctx context.Context, obj a
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, obj any) (secret.SecretValueInput, error) {
+func unmarshalInputSecretValueInput(ctx context.Context, ec *executionContext, obj any) (secret.SecretValueInput, error) {
 	var it secret.SecretValueInput
 	if obj == nil {
 		return it, nil
@@ -3368,21 +3367,21 @@ func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Value = data
 		case "encoding":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("encoding"))
-			data, err := ec.unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, v)
+			data, err := unmarshalOValueEncoding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐValueEncoding(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3392,7 +3391,7 @@ func (ec *executionContext) unmarshalInputSecretValueInput(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateSecretInput(ctx context.Context, obj any) (secret.UpdateSecretInput, error) {
+func unmarshalInputUpdateSecretInput(ctx context.Context, ec *executionContext, obj any) (secret.UpdateSecretInput, error) {
 	var it secret.UpdateSecretInput
 	if obj == nil {
 		return it, nil
@@ -3412,28 +3411,28 @@ func (ec *executionContext) unmarshalInputUpdateSecretInput(ctx context.Context,
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, v)
+			data, err := unmarshalNResourceLabelInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3443,7 +3442,7 @@ func (ec *executionContext) unmarshalInputUpdateSecretInput(ctx context.Context,
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Context, obj any) (secret.UpdateSecretValueInput, error) {
+func unmarshalInputUpdateSecretValueInput(ctx context.Context, ec *executionContext, obj any) (secret.UpdateSecretValueInput, error) {
 	var it secret.UpdateSecretValueInput
 	if obj == nil {
 		return it, nil
@@ -3463,28 +3462,28 @@ func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Con
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Team = data
 		case "value":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("value"))
-			data, err := ec.unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx, v)
+			data, err := unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3494,7 +3493,7 @@ func (ec *executionContext) unmarshalInputUpdateSecretValueInput(ctx context.Con
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputViewSecretValuesInput(ctx context.Context, obj any) (secret.ViewSecretValuesInput, error) {
+func unmarshalInputViewSecretValuesInput(ctx context.Context, ec *executionContext, obj any) (secret.ViewSecretValuesInput, error) {
 	var it secret.ViewSecretValuesInput
 	if obj == nil {
 		return it, nil
@@ -3514,28 +3513,28 @@ func (ec *executionContext) unmarshalInputViewSecretValuesInput(ctx context.Cont
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Team = data
 		case "reason":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("reason"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -3555,7 +3554,7 @@ func (ec *executionContext) unmarshalInputViewSecretValuesInput(ctx context.Cont
 
 var addSecretValuePayloadImplementors = []string{"AddSecretValuePayload"}
 
-func (ec *executionContext) _AddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.AddSecretValuePayload) graphql.Marshaler {
+func _AddSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.AddSecretValuePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, addSecretValuePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3565,7 +3564,7 @@ func (ec *executionContext) _AddSecretValuePayload(ctx context.Context, sel ast.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AddSecretValuePayload")
 		case "secret":
-			out.Values[i] = ec._AddSecretValuePayload_secret(ctx, field, obj)
+			out.Values[i] = _AddSecretValuePayload_secret(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3591,7 +3590,7 @@ func (ec *executionContext) _AddSecretValuePayload(ctx context.Context, sel ast.
 
 var createSecretPayloadImplementors = []string{"CreateSecretPayload"}
 
-func (ec *executionContext) _CreateSecretPayload(ctx context.Context, sel ast.SelectionSet, obj *secret.CreateSecretPayload) graphql.Marshaler {
+func _CreateSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.CreateSecretPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createSecretPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3601,7 +3600,7 @@ func (ec *executionContext) _CreateSecretPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CreateSecretPayload")
 		case "secret":
-			out.Values[i] = ec._CreateSecretPayload_secret(ctx, field, obj)
+			out.Values[i] = _CreateSecretPayload_secret(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3627,7 +3626,7 @@ func (ec *executionContext) _CreateSecretPayload(ctx context.Context, sel ast.Se
 
 var deleteSecretPayloadImplementors = []string{"DeleteSecretPayload"}
 
-func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.SelectionSet, obj *secret.DeleteSecretPayload) graphql.Marshaler {
+func _DeleteSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.DeleteSecretPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, deleteSecretPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3637,7 +3636,7 @@ func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("DeleteSecretPayload")
 		case "secretDeleted":
-			out.Values[i] = ec._DeleteSecretPayload_secretDeleted(ctx, field, obj)
+			out.Values[i] = _DeleteSecretPayload_secretDeleted(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3663,7 +3662,7 @@ func (ec *executionContext) _DeleteSecretPayload(ctx context.Context, sel ast.Se
 
 var removeSecretValuePayloadImplementors = []string{"RemoveSecretValuePayload"}
 
-func (ec *executionContext) _RemoveSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.RemoveSecretValuePayload) graphql.Marshaler {
+func _RemoveSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.RemoveSecretValuePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, removeSecretValuePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3673,7 +3672,7 @@ func (ec *executionContext) _RemoveSecretValuePayload(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RemoveSecretValuePayload")
 		case "secret":
-			out.Values[i] = ec._RemoveSecretValuePayload_secret(ctx, field, obj)
+			out.Values[i] = _RemoveSecretValuePayload_secret(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3699,7 +3698,7 @@ func (ec *executionContext) _RemoveSecretValuePayload(ctx context.Context, sel a
 
 var secretImplementors = []string{"Secret", "Node", "ActivityLogger"}
 
-func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, obj *secret.Secret) graphql.Marshaler {
+func _Secret(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.Secret) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3709,12 +3708,12 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Secret")
 		case "id":
-			out.Values[i] = ec._Secret_id(ctx, field, obj)
+			out.Values[i] = _Secret_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._Secret_name(ctx, field, obj)
+			out.Values[i] = _Secret_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -3727,7 +3726,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_teamEnvironment(ctx, field, obj)
+				res = _Secret_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3763,7 +3762,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_team(ctx, field, obj)
+				res = _Secret_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3791,12 +3790,12 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "keys":
-			out.Values[i] = ec._Secret_keys(ctx, field, obj)
+			out.Values[i] = _Secret_keys(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "labels":
-			out.Values[i] = ec._Secret_labels(ctx, field, obj)
+			out.Values[i] = _Secret_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -3809,7 +3808,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_applications(ctx, field, obj)
+				res = _Secret_applications(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3845,7 +3844,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_jobs(ctx, field, obj)
+				res = _Secret_jobs(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3881,7 +3880,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_workloads(ctx, field, obj)
+				res = _Secret_workloads(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3909,7 +3908,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "lastModifiedAt":
-			out.Values[i] = ec._Secret_lastModifiedAt(ctx, field, obj)
+			out.Values[i] = _Secret_lastModifiedAt(ctx, ec, field, obj)
 		case "lastModifiedBy":
 			field := field
 
@@ -3919,7 +3918,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_lastModifiedBy(ctx, field, obj)
+				res = _Secret_lastModifiedBy(ctx, ec, field, obj)
 				return res
 			}
 
@@ -3952,7 +3951,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Secret_activityLog(ctx, field, obj)
+				res = _Secret_activityLog(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4004,7 +4003,7 @@ func (ec *executionContext) _Secret(ctx context.Context, sel ast.SelectionSet, o
 
 var secretConnectionImplementors = []string{"SecretConnection"}
 
-func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
+func _SecretConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4014,17 +4013,17 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretConnection")
 		case "pageInfo":
-			out.Values[i] = ec._SecretConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _SecretConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._SecretConnection_nodes(ctx, field, obj)
+			out.Values[i] = _SecretConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._SecretConnection_edges(ctx, field, obj)
+			out.Values[i] = _SecretConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -4037,7 +4036,7 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SecretConnection_facets(ctx, field, obj)
+				res = _SecretConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -4086,7 +4085,7 @@ func (ec *executionContext) _SecretConnection(ctx context.Context, sel ast.Selec
 
 var secretCreatedActivityLogEntryImplementors = []string{"SecretCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretCreatedActivityLogEntry) graphql.Marshaler {
+func _SecretCreatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretCreatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4096,44 +4095,44 @@ func (ec *executionContext) _SecretCreatedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretCreatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretCreatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4159,7 +4158,7 @@ func (ec *executionContext) _SecretCreatedActivityLogEntry(ctx context.Context, 
 
 var secretDeletedActivityLogEntryImplementors = []string{"SecretDeletedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretDeletedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretDeletedActivityLogEntry) graphql.Marshaler {
+func _SecretDeletedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretDeletedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretDeletedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4169,44 +4168,44 @@ func (ec *executionContext) _SecretDeletedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretDeletedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretDeletedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretDeletedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4232,7 +4231,7 @@ func (ec *executionContext) _SecretDeletedActivityLogEntry(ctx context.Context, 
 
 var secretEdgeImplementors = []string{"SecretEdge"}
 
-func (ec *executionContext) _SecretEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*secret.Secret]) graphql.Marshaler {
+func _SecretEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*secret.Secret]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4242,12 +4241,12 @@ func (ec *executionContext) _SecretEdge(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretEdge")
 		case "cursor":
-			out.Values[i] = ec._SecretEdge_cursor(ctx, field, obj)
+			out.Values[i] = _SecretEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._SecretEdge_node(ctx, field, obj)
+			out.Values[i] = _SecretEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4276,7 +4275,7 @@ func (ec *executionContext) _SecretEdge(ctx context.Context, sel ast.SelectionSe
 
 var secretFacetsImplementors = []string{"SecretFacets"}
 
-func (ec *executionContext) _SecretFacets(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretFacets) graphql.Marshaler {
+func _SecretFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4294,7 +4293,7 @@ func (ec *executionContext) _SecretFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SecretFacets_environments(ctx, field, obj)
+				res = _SecretFacets_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4330,7 +4329,7 @@ func (ec *executionContext) _SecretFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SecretFacets_inUse(ctx, field, obj)
+				res = _SecretFacets_inUse(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4366,7 +4365,7 @@ func (ec *executionContext) _SecretFacets(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._SecretFacets_labels(ctx, field, obj)
+				res = _SecretFacets_labels(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4418,7 +4417,7 @@ func (ec *executionContext) _SecretFacets(ctx context.Context, sel ast.Selection
 
 var secretUpdatedActivityLogEntryImplementors = []string{"SecretUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretUpdatedActivityLogEntry) graphql.Marshaler {
+func _SecretUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4428,46 +4427,46 @@ func (ec *executionContext) _SecretUpdatedActivityLogEntry(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4496,7 +4495,7 @@ func (ec *executionContext) _SecretUpdatedActivityLogEntry(ctx context.Context, 
 
 var secretUpdatedActivityLogEntryDataImplementors = []string{"SecretUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretUpdatedActivityLogEntryData) graphql.Marshaler {
+func _SecretUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4506,7 +4505,7 @@ func (ec *executionContext) _SecretUpdatedActivityLogEntryData(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretUpdatedActivityLogEntryData")
 		case "updatedFields":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntryData_updatedFields(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntryData_updatedFields(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4535,7 +4534,7 @@ func (ec *executionContext) _SecretUpdatedActivityLogEntryData(ctx context.Conte
 
 var secretUpdatedActivityLogEntryDataUpdatedFieldImplementors = []string{"SecretUpdatedActivityLogEntryDataUpdatedField"}
 
-func (ec *executionContext) _SecretUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func _SecretUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretUpdatedActivityLogEntryDataUpdatedFieldImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4545,14 +4544,14 @@ func (ec *executionContext) _SecretUpdatedActivityLogEntryDataUpdatedField(ctx c
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretUpdatedActivityLogEntryDataUpdatedField")
 		case "field":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntryDataUpdatedField_field(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "oldValue":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, ec, field, obj)
 		case "newValue":
-			out.Values[i] = ec._SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field, obj)
+			out.Values[i] = _SecretUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4578,7 +4577,7 @@ func (ec *executionContext) _SecretUpdatedActivityLogEntryDataUpdatedField(ctx c
 
 var secretValueImplementors = []string{"SecretValue"}
 
-func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValue) graphql.Marshaler {
+func _SecretValue(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValue) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4588,17 +4587,17 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValue")
 		case "name":
-			out.Values[i] = ec._SecretValue_name(ctx, field, obj)
+			out.Values[i] = _SecretValue_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "value":
-			out.Values[i] = ec._SecretValue_value(ctx, field, obj)
+			out.Values[i] = _SecretValue_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "encoding":
-			out.Values[i] = ec._SecretValue_encoding(ctx, field, obj)
+			out.Values[i] = _SecretValue_encoding(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4627,7 +4626,7 @@ func (ec *executionContext) _SecretValue(ctx context.Context, sel ast.SelectionS
 
 var secretValueAddedActivityLogEntryImplementors = []string{"SecretValueAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntry) graphql.Marshaler {
+func _SecretValueAddedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4637,46 +4636,46 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Contex
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4705,7 +4704,7 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntry(ctx context.Contex
 
 var secretValueAddedActivityLogEntryDataImplementors = []string{"SecretValueAddedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretValueAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
+func _SecretValueAddedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueAddedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4715,7 +4714,7 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntryData(ctx context.Co
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValueAddedActivityLogEntryData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueAddedActivityLogEntryData_valueName(ctx, field, obj)
+			out.Values[i] = _SecretValueAddedActivityLogEntryData_valueName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4744,7 +4743,7 @@ func (ec *executionContext) _SecretValueAddedActivityLogEntryData(ctx context.Co
 
 var secretValueRemovedActivityLogEntryImplementors = []string{"SecretValueRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogEntry) graphql.Marshaler {
+func _SecretValueRemovedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4754,46 +4753,46 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntry(ctx context.Cont
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4822,7 +4821,7 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntry(ctx context.Cont
 
 var secretValueRemovedActivityLogEntryDataImplementors = []string{"SecretValueRemovedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretValueRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
+func _SecretValueRemovedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueRemovedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4832,7 +4831,7 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntryData(ctx context.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValueRemovedActivityLogEntryData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueRemovedActivityLogEntryData_valueName(ctx, field, obj)
+			out.Values[i] = _SecretValueRemovedActivityLogEntryData_valueName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4861,7 +4860,7 @@ func (ec *executionContext) _SecretValueRemovedActivityLogEntryData(ctx context.
 
 var secretValueUpdatedActivityLogEntryImplementors = []string{"SecretValueUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogEntry) graphql.Marshaler {
+func _SecretValueUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4871,46 +4870,46 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntry(ctx context.Cont
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4939,7 +4938,7 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntry(ctx context.Cont
 
 var secretValueUpdatedActivityLogEntryDataImplementors = []string{"SecretValueUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
+func _SecretValueUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValueUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4949,7 +4948,7 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData(ctx context.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValueUpdatedActivityLogEntryData")
 		case "valueName":
-			out.Values[i] = ec._SecretValueUpdatedActivityLogEntryData_valueName(ctx, field, obj)
+			out.Values[i] = _SecretValueUpdatedActivityLogEntryData_valueName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4978,7 +4977,7 @@ func (ec *executionContext) _SecretValueUpdatedActivityLogEntryData(ctx context.
 
 var secretValuesViewedActivityLogEntryImplementors = []string{"SecretValuesViewedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValuesViewedActivityLogEntry) graphql.Marshaler {
+func _SecretValuesViewedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValuesViewedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValuesViewedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4988,46 +4987,46 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntry(ctx context.Cont
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValuesViewedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5056,7 +5055,7 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntry(ctx context.Cont
 
 var secretValuesViewedActivityLogEntryDataImplementors = []string{"SecretValuesViewedActivityLogEntryData"}
 
-func (ec *executionContext) _SecretValuesViewedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *secret.SecretValuesViewedActivityLogEntryData) graphql.Marshaler {
+func _SecretValuesViewedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.SecretValuesViewedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, secretValuesViewedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5066,7 +5065,7 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntryData(ctx context.
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("SecretValuesViewedActivityLogEntryData")
 		case "reason":
-			out.Values[i] = ec._SecretValuesViewedActivityLogEntryData_reason(ctx, field, obj)
+			out.Values[i] = _SecretValuesViewedActivityLogEntryData_reason(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5095,7 +5094,7 @@ func (ec *executionContext) _SecretValuesViewedActivityLogEntryData(ctx context.
 
 var teamInventoryCountSecretsImplementors = []string{"TeamInventoryCountSecrets"}
 
-func (ec *executionContext) _TeamInventoryCountSecrets(ctx context.Context, sel ast.SelectionSet, obj *secret.TeamInventoryCountSecrets) graphql.Marshaler {
+func _TeamInventoryCountSecrets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.TeamInventoryCountSecrets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountSecretsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5105,7 +5104,7 @@ func (ec *executionContext) _TeamInventoryCountSecrets(ctx context.Context, sel 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountSecrets")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountSecrets_total(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountSecrets_total(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5134,7 +5133,7 @@ func (ec *executionContext) _TeamInventoryCountSecrets(ctx context.Context, sel 
 
 var updateSecretPayloadImplementors = []string{"UpdateSecretPayload"}
 
-func (ec *executionContext) _UpdateSecretPayload(ctx context.Context, sel ast.SelectionSet, obj *secret.UpdateSecretPayload) graphql.Marshaler {
+func _UpdateSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.UpdateSecretPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateSecretPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5144,7 +5143,7 @@ func (ec *executionContext) _UpdateSecretPayload(ctx context.Context, sel ast.Se
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateSecretPayload")
 		case "secret":
-			out.Values[i] = ec._UpdateSecretPayload_secret(ctx, field, obj)
+			out.Values[i] = _UpdateSecretPayload_secret(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5170,7 +5169,7 @@ func (ec *executionContext) _UpdateSecretPayload(ctx context.Context, sel ast.Se
 
 var updateSecretValuePayloadImplementors = []string{"UpdateSecretValuePayload"}
 
-func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, obj *secret.UpdateSecretValuePayload) graphql.Marshaler {
+func _UpdateSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.UpdateSecretValuePayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateSecretValuePayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5180,7 +5179,7 @@ func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel a
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateSecretValuePayload")
 		case "secret":
-			out.Values[i] = ec._UpdateSecretValuePayload_secret(ctx, field, obj)
+			out.Values[i] = _UpdateSecretValuePayload_secret(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5206,7 +5205,7 @@ func (ec *executionContext) _UpdateSecretValuePayload(ctx context.Context, sel a
 
 var viewSecretValuesPayloadImplementors = []string{"ViewSecretValuesPayload"}
 
-func (ec *executionContext) _ViewSecretValuesPayload(ctx context.Context, sel ast.SelectionSet, obj *secret.ViewSecretValuesPayload) graphql.Marshaler {
+func _ViewSecretValuesPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *secret.ViewSecretValuesPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, viewSecretValuesPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5216,7 +5215,7 @@ func (ec *executionContext) _ViewSecretValuesPayload(ctx context.Context, sel as
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ViewSecretValuesPayload")
 		case "values":
-			out.Values[i] = ec._ViewSecretValuesPayload_values(ctx, field, obj)
+			out.Values[i] = _ViewSecretValuesPayload_values(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5247,91 +5246,91 @@ func (ec *executionContext) _ViewSecretValuesPayload(ctx context.Context, sel as
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAddSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValueInput(ctx context.Context, v any) (secret.AddSecretValueInput, error) {
-	res, err := ec.unmarshalInputAddSecretValueInput(ctx, v)
+func unmarshalNAddSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValueInput(ctx context.Context, ec *executionContext, v any) (secret.AddSecretValueInput, error) {
+	res, err := unmarshalInputAddSecretValueInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAddSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v secret.AddSecretValuePayload) graphql.Marshaler {
-	return ec._AddSecretValuePayload(ctx, sel, &v)
+func marshalNAddSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.AddSecretValuePayload) graphql.Marshaler {
+	return _AddSecretValuePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAddSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.AddSecretValuePayload) graphql.Marshaler {
+func marshalNAddSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐAddSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.AddSecretValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AddSecretValuePayload(ctx, sel, v)
+	return _AddSecretValuePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCreateSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretInput(ctx context.Context, v any) (secret.CreateSecretInput, error) {
-	res, err := ec.unmarshalInputCreateSecretInput(ctx, v)
+func unmarshalNCreateSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretInput(ctx context.Context, ec *executionContext, v any) (secret.CreateSecretInput, error) {
+	res, err := unmarshalInputCreateSecretInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateSecretPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretPayload(ctx context.Context, sel ast.SelectionSet, v secret.CreateSecretPayload) graphql.Marshaler {
-	return ec._CreateSecretPayload(ctx, sel, &v)
+func marshalNCreateSecretPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.CreateSecretPayload) graphql.Marshaler {
+	return _CreateSecretPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretPayload(ctx context.Context, sel ast.SelectionSet, v *secret.CreateSecretPayload) graphql.Marshaler {
+func marshalNCreateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐCreateSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.CreateSecretPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CreateSecretPayload(ctx, sel, v)
+	return _CreateSecretPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNDeleteSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretInput(ctx context.Context, v any) (secret.DeleteSecretInput, error) {
-	res, err := ec.unmarshalInputDeleteSecretInput(ctx, v)
+func unmarshalNDeleteSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretInput(ctx context.Context, ec *executionContext, v any) (secret.DeleteSecretInput, error) {
+	res, err := unmarshalInputDeleteSecretInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDeleteSecretPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretPayload(ctx context.Context, sel ast.SelectionSet, v secret.DeleteSecretPayload) graphql.Marshaler {
-	return ec._DeleteSecretPayload(ctx, sel, &v)
+func marshalNDeleteSecretPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.DeleteSecretPayload) graphql.Marshaler {
+	return _DeleteSecretPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNDeleteSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretPayload(ctx context.Context, sel ast.SelectionSet, v *secret.DeleteSecretPayload) graphql.Marshaler {
+func marshalNDeleteSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐDeleteSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.DeleteSecretPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._DeleteSecretPayload(ctx, sel, v)
+	return _DeleteSecretPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRemoveSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValueInput(ctx context.Context, v any) (secret.RemoveSecretValueInput, error) {
-	res, err := ec.unmarshalInputRemoveSecretValueInput(ctx, v)
+func unmarshalNRemoveSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValueInput(ctx context.Context, ec *executionContext, v any) (secret.RemoveSecretValueInput, error) {
+	res, err := unmarshalInputRemoveSecretValueInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRemoveSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v secret.RemoveSecretValuePayload) graphql.Marshaler {
-	return ec._RemoveSecretValuePayload(ctx, sel, &v)
+func marshalNRemoveSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.RemoveSecretValuePayload) graphql.Marshaler {
+	return _RemoveSecretValuePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNRemoveSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.RemoveSecretValuePayload) graphql.Marshaler {
+func marshalNRemoveSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐRemoveSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.RemoveSecretValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RemoveSecretValuePayload(ctx, sel, v)
+	return _RemoveSecretValuePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, sel ast.SelectionSet, v secret.Secret) graphql.Marshaler {
-	return ec._Secret(ctx, sel, &v)
+func marshalNSecret2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.Secret) graphql.Marshaler {
+	return _Secret(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.Secret) graphql.Marshaler {
+func marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*secret.Secret) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, sel, v[i])
+		return marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -5343,39 +5342,39 @@ func (ec *executionContext) marshalNSecret2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋint
 	return ret
 }
 
-func (ec *executionContext) marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, sel ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
+func marshalNSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Secret(ctx, sel, v)
+	return _Secret(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
-	return ec._SecretConnection(ctx, sel, &v)
+func marshalNSecretConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
+	return _SecretConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
+func marshalNSecretConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.FacetableConnection[*secret.Secret, *secret.SecretFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretConnection(ctx, sel, v)
+	return _SecretConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*secret.Secret]) graphql.Marshaler {
-	return ec._SecretEdge(ctx, sel, &v)
+func marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*secret.Secret]) graphql.Marshaler {
+	return _SecretEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*secret.Secret]) graphql.Marshaler {
+func marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*secret.Secret]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNSecretEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -5387,31 +5386,31 @@ func (ec *executionContext) marshalNSecretEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋin
 	return ret
 }
 
-func (ec *executionContext) unmarshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrderField(ctx context.Context, v any) (secret.SecretOrderField, error) {
+func unmarshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrderField(ctx context.Context, ec *executionContext, v any) (secret.SecretOrderField, error) {
 	var res secret.SecretOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrderField(ctx context.Context, sel ast.SelectionSet, v secret.SecretOrderField) graphql.Marshaler {
+func marshalNSecretOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.SecretOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNSecretUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNSecretUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretUpdatedActivityLogEntryData(ctx, sel, v)
+	return _SecretUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedFieldᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v[i])
+		return marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -5423,21 +5422,21 @@ func (ec *executionContext) marshalNSecretUpdatedActivityLogEntryDataUpdatedFiel
 	return ret
 }
 
-func (ec *executionContext) marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, sel ast.SelectionSet, v *secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
+func marshalNSecretUpdatedActivityLogEntryDataUpdatedField2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretUpdatedActivityLogEntryDataUpdatedField) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
+	return _SecretUpdatedActivityLogEntryDataUpdatedField(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ(ctx context.Context, sel ast.SelectionSet, v []*secret.SecretValue) graphql.Marshaler {
+func marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*secret.SecretValue) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx, sel, v[i])
+		return marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -5449,159 +5448,159 @@ func (ec *executionContext) marshalNSecretValue2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValue) graphql.Marshaler {
+func marshalNSecretValue2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValue(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretValue) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValue(ctx, sel, v)
+	return _SecretValue(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
+func marshalNSecretValueAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueAddedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretValueAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueAddedActivityLogEntryData(ctx, sel, v)
+	return _SecretValueAddedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx context.Context, v any) (*secret.SecretValueInput, error) {
-	res, err := ec.unmarshalInputSecretValueInput(ctx, v)
+func unmarshalNSecretValueInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueInput(ctx context.Context, ec *executionContext, v any) (*secret.SecretValueInput, error) {
+	res, err := unmarshalInputSecretValueInput(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
+func marshalNSecretValueRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueRemovedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretValueRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueRemovedActivityLogEntryData(ctx, sel, v)
+	return _SecretValueRemovedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNSecretValueUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValueUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretValueUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValueUpdatedActivityLogEntryData(ctx, sel, v)
+	return _SecretValueUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNSecretValuesViewedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValuesViewedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *secret.SecretValuesViewedActivityLogEntryData) graphql.Marshaler {
+func marshalNSecretValuesViewedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretValuesViewedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretValuesViewedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._SecretValuesViewedActivityLogEntryData(ctx, sel, v)
+	return _SecretValuesViewedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountSecrets2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx context.Context, sel ast.SelectionSet, v secret.TeamInventoryCountSecrets) graphql.Marshaler {
-	return ec._TeamInventoryCountSecrets(ctx, sel, &v)
+func marshalNTeamInventoryCountSecrets2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.TeamInventoryCountSecrets) graphql.Marshaler {
+	return _TeamInventoryCountSecrets(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountSecrets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx context.Context, sel ast.SelectionSet, v *secret.TeamInventoryCountSecrets) graphql.Marshaler {
+func marshalNTeamInventoryCountSecrets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐTeamInventoryCountSecrets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.TeamInventoryCountSecrets) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCountSecrets(ctx, sel, v)
+	return _TeamInventoryCountSecrets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretInput(ctx context.Context, v any) (secret.UpdateSecretInput, error) {
-	res, err := ec.unmarshalInputUpdateSecretInput(ctx, v)
+func unmarshalNUpdateSecretInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretInput(ctx context.Context, ec *executionContext, v any) (secret.UpdateSecretInput, error) {
+	res, err := unmarshalInputUpdateSecretInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateSecretPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretPayload(ctx context.Context, sel ast.SelectionSet, v secret.UpdateSecretPayload) graphql.Marshaler {
-	return ec._UpdateSecretPayload(ctx, sel, &v)
+func marshalNUpdateSecretPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.UpdateSecretPayload) graphql.Marshaler {
+	return _UpdateSecretPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretPayload(ctx context.Context, sel ast.SelectionSet, v *secret.UpdateSecretPayload) graphql.Marshaler {
+func marshalNUpdateSecretPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.UpdateSecretPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateSecretPayload(ctx, sel, v)
+	return _UpdateSecretPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx context.Context, v any) (secret.UpdateSecretValueInput, error) {
-	res, err := ec.unmarshalInputUpdateSecretValueInput(ctx, v)
+func unmarshalNUpdateSecretValueInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValueInput(ctx context.Context, ec *executionContext, v any) (secret.UpdateSecretValueInput, error) {
+	res, err := unmarshalInputUpdateSecretValueInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v secret.UpdateSecretValuePayload) graphql.Marshaler {
-	return ec._UpdateSecretValuePayload(ctx, sel, &v)
+func marshalNUpdateSecretValuePayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.UpdateSecretValuePayload) graphql.Marshaler {
+	return _UpdateSecretValuePayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, sel ast.SelectionSet, v *secret.UpdateSecretValuePayload) graphql.Marshaler {
+func marshalNUpdateSecretValuePayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐUpdateSecretValuePayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.UpdateSecretValuePayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateSecretValuePayload(ctx, sel, v)
+	return _UpdateSecretValuePayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNViewSecretValuesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesInput(ctx context.Context, v any) (secret.ViewSecretValuesInput, error) {
-	res, err := ec.unmarshalInputViewSecretValuesInput(ctx, v)
+func unmarshalNViewSecretValuesInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesInput(ctx context.Context, ec *executionContext, v any) (secret.ViewSecretValuesInput, error) {
+	res, err := unmarshalInputViewSecretValuesInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNViewSecretValuesPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesPayload(ctx context.Context, sel ast.SelectionSet, v secret.ViewSecretValuesPayload) graphql.Marshaler {
-	return ec._ViewSecretValuesPayload(ctx, sel, &v)
+func marshalNViewSecretValuesPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v secret.ViewSecretValuesPayload) graphql.Marshaler {
+	return _ViewSecretValuesPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNViewSecretValuesPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesPayload(ctx context.Context, sel ast.SelectionSet, v *secret.ViewSecretValuesPayload) graphql.Marshaler {
+func marshalNViewSecretValuesPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐViewSecretValuesPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.ViewSecretValuesPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ViewSecretValuesPayload(ctx, sel, v)
+	return _ViewSecretValuesPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, sel ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
+func marshalOSecret2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecret(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.Secret) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Secret(ctx, sel, v)
+	return _Secret(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOSecretFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFacets(ctx context.Context, sel ast.SelectionSet, v *secret.SecretFacets) graphql.Marshaler {
+func marshalOSecretFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *secret.SecretFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._SecretFacets(ctx, sel, v)
+	return _SecretFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSecretFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFilter(ctx context.Context, v any) (*secret.SecretFilter, error) {
+func unmarshalOSecretFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretFilter(ctx context.Context, ec *executionContext, v any) (*secret.SecretFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputSecretFilter(ctx, v)
+	res, err := unmarshalInputSecretFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrder(ctx context.Context, v any) (*secret.SecretOrder, error) {
+func unmarshalOSecretOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋsecretᚐSecretOrder(ctx context.Context, ec *executionContext, v any) (*secret.SecretOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputSecretOrder(ctx, v)
+	res, err := unmarshalInputSecretOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

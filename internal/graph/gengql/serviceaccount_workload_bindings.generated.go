@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -19,6 +14,10 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -42,200 +41,200 @@ type ServiceAccountWorkloadBindingResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AddWorkloadToServiceAccountPayload_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.AddWorkloadToServiceAccountPayload) (ret graphql.Marshaler) {
+func _AddWorkloadToServiceAccountPayload_serviceAccount(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.AddWorkloadToServiceAccountPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AddWorkloadToServiceAccountPayload_serviceAccount(ctx, field)
+			return fieldContext_AddWorkloadToServiceAccountPayload_serviceAccount(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ServiceAccount, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccount) graphql.Marshaler {
-			return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, selections, v)
+			return marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_AddWorkloadToServiceAccountPayload_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AddWorkloadToServiceAccountPayload_serviceAccount(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddWorkloadToServiceAccountPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccount(ctx, field)
+			return childFields_ServiceAccount(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _AddWorkloadToServiceAccountPayload_binding(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.AddWorkloadToServiceAccountPayload) (ret graphql.Marshaler) {
+func _AddWorkloadToServiceAccountPayload_binding(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.AddWorkloadToServiceAccountPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AddWorkloadToServiceAccountPayload_binding(ctx, field)
+			return fieldContext_AddWorkloadToServiceAccountPayload_binding(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Binding, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
-			return ec.marshalOServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx, selections, v)
+			return marshalOServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_AddWorkloadToServiceAccountPayload_binding(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_AddWorkloadToServiceAccountPayload_binding(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "AddWorkloadToServiceAccountPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountWorkloadBinding(ctx, field)
+			return childFields_ServiceAccountWorkloadBinding(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RemoveWorkloadFromServiceAccountPayload) (ret graphql.Marshaler) {
+func _RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.RemoveWorkloadFromServiceAccountPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx, field)
+			return fieldContext_RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ServiceAccount, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccount) graphql.Marshaler {
-			return ec.marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, selections, v)
+			return marshalOServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RemoveWorkloadFromServiceAccountPayload_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RemoveWorkloadFromServiceAccountPayload_serviceAccount(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "RemoveWorkloadFromServiceAccountPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccount(ctx, field)
+			return childFields_ServiceAccount(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.RemoveWorkloadFromServiceAccountPayload) (ret graphql.Marshaler) {
+func _RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.RemoveWorkloadFromServiceAccountPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx, field)
+			return fieldContext_RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.BindingDeleted, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *bool) graphql.Marshaler {
-			return ec.marshalOBoolean2ᚖbool(ctx, selections, v)
+			return marshalOBoolean2ᚖbool(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_RemoveWorkloadFromServiceAccountPayload_bindingDeleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_RemoveWorkloadFromServiceAccountPayload_bindingDeleted(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("RemoveWorkloadFromServiceAccountPayload", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_id(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_serviceAccount(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_serviceAccount(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_serviceAccount(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_serviceAccount(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ServiceAccountWorkloadBinding().ServiceAccount(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccount) graphql.Marshaler {
-			return ec.marshalNServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, selections, v)
+			return marshalNServiceAccount2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccount(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_serviceAccount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_serviceAccount(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBinding",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccount(ctx, field)
+			return childFields_ServiceAccount(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_workload(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_workload(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ServiceAccountWorkloadBinding().Workload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_workload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBinding",
 		Field:      field,
@@ -248,926 +247,926 @@ func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_workload(
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_environment(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_environment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_environment(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_environment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environment, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_environment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_environment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_teamSlug(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_workloadName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_workloadName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_workloadName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_workloadName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_workloadName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_isBroken(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_isBroken(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_isBroken(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_isBroken(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.ServiceAccountWorkloadBinding().IsBroken(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
+			return marshalNBoolean2bool(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_isBroken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_isBroken(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_createdAt(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding_lastUsedAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBinding_lastUsedAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBinding) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBinding_lastUsedAt(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBinding_lastUsedAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.LastUsedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
-			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+			return marshalOTime2ᚖtimeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBinding_lastUsedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBinding_lastUsedAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBinding", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_id(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_message(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_data(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNServiceAccountWorkloadBindingAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx, selections, v)
+			return marshalNServiceAccountWorkloadBindingAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingAddedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx, field)
+			return childFields_ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *workload.Type) graphql.Marshaler {
-			return ec.marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx, selections, v)
+			return marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingAddedActivityLogEntryData", field, false, false, errors.New("field of type WorkloadType does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingConnection_nodes(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
-			return ec.marshalNServiceAccountWorkloadBinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingᚄ(ctx, selections, v)
+			return marshalNServiceAccountWorkloadBinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountWorkloadBinding(ctx, field)
+			return childFields_ServiceAccountWorkloadBinding(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingConnection_edges(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
-			return ec.marshalNServiceAccountWorkloadBindingEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNServiceAccountWorkloadBindingEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountWorkloadBindingEdge(ctx, field)
+			return childFields_ServiceAccountWorkloadBindingEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingConnection_pageInfo(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingEdge_node(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
-			return ec.marshalNServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx, selections, v)
+			return marshalNServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountWorkloadBinding(ctx, field)
+			return childFields_ServiceAccountWorkloadBinding(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingEdge_cursor(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNServiceAccountWorkloadBindingRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx, selections, v)
+			return marshalNServiceAccountWorkloadBindingRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ServiceAccountWorkloadBindingRemovedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx, field)
+			return childFields_ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx context.Context, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx, field)
+			return fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *workload.Type) graphql.Marshaler {
-			return ec.marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx, selections, v)
+			return marshalOWorkloadType2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐType(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ServiceAccountWorkloadBindingRemovedActivityLogEntryData", field, false, false, errors.New("field of type WorkloadType does not have child fields"))
 }
 
@@ -1175,7 +1174,7 @@ func (ec *executionContext) fieldContext_ServiceAccountWorkloadBindingRemovedAct
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddWorkloadToServiceAccountInput(ctx context.Context, obj any) (serviceaccount.AddWorkloadToServiceAccountInput, error) {
+func unmarshalInputAddWorkloadToServiceAccountInput(ctx context.Context, ec *executionContext, obj any) (serviceaccount.AddWorkloadToServiceAccountInput, error) {
 	var it serviceaccount.AddWorkloadToServiceAccountInput
 	if obj == nil {
 		return it, nil
@@ -1195,28 +1194,28 @@ func (ec *executionContext) unmarshalInputAddWorkloadToServiceAccountInput(ctx c
 		switch k {
 		case "serviceAccountID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("serviceAccountID"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			data, err := unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.ServiceAccountID = data
 		case "environment":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environment"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environment = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "workloadName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workloadName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1226,7 +1225,7 @@ func (ec *executionContext) unmarshalInputAddWorkloadToServiceAccountInput(ctx c
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputRemoveWorkloadFromServiceAccountInput(ctx context.Context, obj any) (serviceaccount.RemoveWorkloadFromServiceAccountInput, error) {
+func unmarshalInputRemoveWorkloadFromServiceAccountInput(ctx context.Context, ec *executionContext, obj any) (serviceaccount.RemoveWorkloadFromServiceAccountInput, error) {
 	var it serviceaccount.RemoveWorkloadFromServiceAccountInput
 	if obj == nil {
 		return it, nil
@@ -1246,7 +1245,7 @@ func (ec *executionContext) unmarshalInputRemoveWorkloadFromServiceAccountInput(
 		switch k {
 		case "bindingID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bindingID"))
-			data, err := ec.unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, v)
+			data, err := unmarshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -1266,7 +1265,7 @@ func (ec *executionContext) unmarshalInputRemoveWorkloadFromServiceAccountInput(
 
 var addWorkloadToServiceAccountPayloadImplementors = []string{"AddWorkloadToServiceAccountPayload"}
 
-func (ec *executionContext) _AddWorkloadToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
+func _AddWorkloadToServiceAccountPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, addWorkloadToServiceAccountPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1276,9 +1275,9 @@ func (ec *executionContext) _AddWorkloadToServiceAccountPayload(ctx context.Cont
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AddWorkloadToServiceAccountPayload")
 		case "serviceAccount":
-			out.Values[i] = ec._AddWorkloadToServiceAccountPayload_serviceAccount(ctx, field, obj)
+			out.Values[i] = _AddWorkloadToServiceAccountPayload_serviceAccount(ctx, ec, field, obj)
 		case "binding":
-			out.Values[i] = ec._AddWorkloadToServiceAccountPayload_binding(ctx, field, obj)
+			out.Values[i] = _AddWorkloadToServiceAccountPayload_binding(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1304,7 +1303,7 @@ func (ec *executionContext) _AddWorkloadToServiceAccountPayload(ctx context.Cont
 
 var removeWorkloadFromServiceAccountPayloadImplementors = []string{"RemoveWorkloadFromServiceAccountPayload"}
 
-func (ec *executionContext) _RemoveWorkloadFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
+func _RemoveWorkloadFromServiceAccountPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, removeWorkloadFromServiceAccountPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1314,9 +1313,9 @@ func (ec *executionContext) _RemoveWorkloadFromServiceAccountPayload(ctx context
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("RemoveWorkloadFromServiceAccountPayload")
 		case "serviceAccount":
-			out.Values[i] = ec._RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx, field, obj)
+			out.Values[i] = _RemoveWorkloadFromServiceAccountPayload_serviceAccount(ctx, ec, field, obj)
 		case "bindingDeleted":
-			out.Values[i] = ec._RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx, field, obj)
+			out.Values[i] = _RemoveWorkloadFromServiceAccountPayload_bindingDeleted(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1342,7 +1341,7 @@ func (ec *executionContext) _RemoveWorkloadFromServiceAccountPayload(ctx context
 
 var serviceAccountWorkloadBindingImplementors = []string{"ServiceAccountWorkloadBinding", "Node"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
+func _ServiceAccountWorkloadBinding(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1352,7 +1351,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBinding")
 		case "id":
-			out.Values[i] = ec._ServiceAccountWorkloadBinding_id(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBinding_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1365,7 +1364,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ServiceAccountWorkloadBinding_serviceAccount(ctx, field, obj)
+				res = _ServiceAccountWorkloadBinding_serviceAccount(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1401,7 +1400,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ServiceAccountWorkloadBinding_workload(ctx, field, obj)
+				res = _ServiceAccountWorkloadBinding_workload(ctx, ec, field, obj)
 				return res
 			}
 
@@ -1426,17 +1425,17 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "environment":
-			out.Values[i] = ec._ServiceAccountWorkloadBinding_environment(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBinding_environment(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBinding_teamSlug(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBinding_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "workloadName":
-			out.Values[i] = ec._ServiceAccountWorkloadBinding_workloadName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBinding_workloadName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -1449,7 +1448,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._ServiceAccountWorkloadBinding_isBroken(ctx, field, obj)
+				res = _ServiceAccountWorkloadBinding_isBroken(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -1477,12 +1476,12 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
-			out.Values[i] = ec._ServiceAccountWorkloadBinding_createdAt(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBinding_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "lastUsedAt":
-			out.Values[i] = ec._ServiceAccountWorkloadBinding_lastUsedAt(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBinding_lastUsedAt(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1508,7 +1507,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBinding(ctx context.Context, 
 
 var serviceAccountWorkloadBindingAddedActivityLogEntryImplementors = []string{"ServiceAccountWorkloadBindingAddedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) graphql.Marshaler {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingAddedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1518,43 +1517,43 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry(
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingAddedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 		case "environmentName":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1583,7 +1582,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntry(
 
 var serviceAccountWorkloadBindingAddedActivityLogEntryDataImplementors = []string{"ServiceAccountWorkloadBindingAddedActivityLogEntryData"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) graphql.Marshaler {
+func _ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingAddedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1593,17 +1592,17 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryD
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingAddedActivityLogEntryData")
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntryData_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "workloadName":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "workloadType":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingAddedActivityLogEntryData_workloadType(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1629,7 +1628,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingAddedActivityLogEntryD
 
 var serviceAccountWorkloadBindingConnectionImplementors = []string{"ServiceAccountWorkloadBindingConnection"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
+func _ServiceAccountWorkloadBindingConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1639,17 +1638,17 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingConnection(ctx context
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingConnection")
 		case "nodes":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingConnection_nodes(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingConnection_edges(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "pageInfo":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1678,7 +1677,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingConnection(ctx context
 
 var serviceAccountWorkloadBindingEdgeImplementors = []string{"ServiceAccountWorkloadBindingEdge"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
+func _ServiceAccountWorkloadBindingEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1688,12 +1687,12 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingEdge(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingEdge")
 		case "node":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingEdge_node(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cursor":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingEdge_cursor(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1722,7 +1721,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingEdge(ctx context.Conte
 
 var serviceAccountWorkloadBindingRemovedActivityLogEntryImplementors = []string{"ServiceAccountWorkloadBindingRemovedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) graphql.Marshaler {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingRemovedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1732,43 +1731,43 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingRemovedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 		case "environmentName":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1797,7 +1796,7 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 
 var serviceAccountWorkloadBindingRemovedActivityLogEntryDataImplementors = []string{"ServiceAccountWorkloadBindingRemovedActivityLogEntryData"}
 
-func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) graphql.Marshaler {
+func _ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serviceAccountWorkloadBindingRemovedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1807,17 +1806,17 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServiceAccountWorkloadBindingRemovedActivityLogEntryData")
 		case "teamSlug":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "workloadName":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "workloadType":
-			out.Values[i] = ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx, field, obj)
+			out.Values[i] = _ServiceAccountWorkloadBindingRemovedActivityLogEntryData_workloadType(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1845,49 +1844,49 @@ func (ec *executionContext) _ServiceAccountWorkloadBindingRemovedActivityLogEntr
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAddWorkloadToServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountInput(ctx context.Context, v any) (serviceaccount.AddWorkloadToServiceAccountInput, error) {
-	res, err := ec.unmarshalInputAddWorkloadToServiceAccountInput(ctx, v)
+func unmarshalNAddWorkloadToServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountInput(ctx context.Context, ec *executionContext, v any) (serviceaccount.AddWorkloadToServiceAccountInput, error) {
+	res, err := unmarshalInputAddWorkloadToServiceAccountInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNAddWorkloadToServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
-	return ec._AddWorkloadToServiceAccountPayload(ctx, sel, &v)
+func marshalNAddWorkloadToServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
+	return _AddWorkloadToServiceAccountPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNAddWorkloadToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
+func marshalNAddWorkloadToServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐAddWorkloadToServiceAccountPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *serviceaccount.AddWorkloadToServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AddWorkloadToServiceAccountPayload(ctx, sel, v)
+	return _AddWorkloadToServiceAccountPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNRemoveWorkloadFromServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountInput(ctx context.Context, v any) (serviceaccount.RemoveWorkloadFromServiceAccountInput, error) {
-	res, err := ec.unmarshalInputRemoveWorkloadFromServiceAccountInput(ctx, v)
+func unmarshalNRemoveWorkloadFromServiceAccountInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountInput(ctx context.Context, ec *executionContext, v any) (serviceaccount.RemoveWorkloadFromServiceAccountInput, error) {
+	res, err := unmarshalInputRemoveWorkloadFromServiceAccountInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNRemoveWorkloadFromServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
-	return ec._RemoveWorkloadFromServiceAccountPayload(ctx, sel, &v)
+func marshalNRemoveWorkloadFromServiceAccountPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
+	return _RemoveWorkloadFromServiceAccountPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNRemoveWorkloadFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountPayload(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
+func marshalNRemoveWorkloadFromServiceAccountPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐRemoveWorkloadFromServiceAccountPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *serviceaccount.RemoveWorkloadFromServiceAccountPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._RemoveWorkloadFromServiceAccountPayload(ctx, sel, v)
+	return _RemoveWorkloadFromServiceAccountPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingᚄ(ctx context.Context, sel ast.SelectionSet, v []*serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
+func marshalNServiceAccountWorkloadBinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx, sel, v[i])
+		return marshalNServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1899,49 +1898,49 @@ func (ec *executionContext) marshalNServiceAccountWorkloadBinding2ᚕᚖgithub�
 	return ret
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
+func marshalNServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceAccountWorkloadBinding(ctx, sel, v)
+	return _ServiceAccountWorkloadBinding(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBindingAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) graphql.Marshaler {
+func marshalNServiceAccountWorkloadBindingAddedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBindingAddedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx, sel, v)
+	return _ServiceAccountWorkloadBindingAddedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBindingConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
-	return ec._ServiceAccountWorkloadBindingConnection(ctx, sel, &v)
+func marshalNServiceAccountWorkloadBindingConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
+	return _ServiceAccountWorkloadBindingConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBindingConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
+func marshalNServiceAccountWorkloadBindingConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceAccountWorkloadBindingConnection(ctx, sel, v)
+	return _ServiceAccountWorkloadBindingConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBindingEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
-	return ec._ServiceAccountWorkloadBindingEdge(ctx, sel, &v)
+func marshalNServiceAccountWorkloadBindingEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
+	return _ServiceAccountWorkloadBindingEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBindingEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
+func marshalNServiceAccountWorkloadBindingEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*serviceaccount.ServiceAccountWorkloadBinding]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNServiceAccountWorkloadBindingEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNServiceAccountWorkloadBindingEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -1953,21 +1952,21 @@ func (ec *executionContext) marshalNServiceAccountWorkloadBindingEdge2ᚕgithub�
 	return ret
 }
 
-func (ec *executionContext) marshalNServiceAccountWorkloadBindingRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) graphql.Marshaler {
+func marshalNServiceAccountWorkloadBindingRemovedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBindingRemovedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx, sel, v)
+	return _ServiceAccountWorkloadBindingRemovedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx context.Context, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
+func marshalOServiceAccountWorkloadBinding2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋserviceaccountᚐServiceAccountWorkloadBinding(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *serviceaccount.ServiceAccountWorkloadBinding) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._ServiceAccountWorkloadBinding(ctx, sel, v)
+	return _ServiceAccountWorkloadBinding(ctx, ec, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

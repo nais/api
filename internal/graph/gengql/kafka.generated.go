@@ -5,11 +5,6 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/middleware/github"
@@ -21,6 +16,10 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -43,12 +42,12 @@ type KafkaTopicConnectionResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func field_KafkaTopic_acl_args(ctx context.Context, ec *executionContext, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -56,7 +55,7 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 	args["first"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -64,7 +63,7 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 	args["after"] = arg1
 	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "last",
 		func(ctx context.Context, v any) (*int, error) {
-			return ec.unmarshalOInt2ᚖint(ctx, v)
+			return unmarshalOInt2ᚖint(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -72,7 +71,7 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 	args["last"] = arg2
 	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "before",
 		func(ctx context.Context, v any) (*pagination.Cursor, error) {
-			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+			return unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -80,7 +79,7 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 	args["before"] = arg3
 	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
 		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLFilter, error) {
-			return ec.unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx, v)
+			return unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -88,7 +87,7 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 	args["filter"] = arg4
 	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLOrder, error) {
-			return ec.unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, v)
+			return unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx, ec, v)
 		})
 	if err != nil {
 		return nil, err
@@ -105,564 +104,564 @@ func (ec *executionContext) field_KafkaTopic_acl_args(ctx context.Context, rawAr
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CreateKafkaCredentialsPayload_credentials(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.CreateKafkaCredentialsPayload) (ret graphql.Marshaler) {
+func _CreateKafkaCredentialsPayload_credentials(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.CreateKafkaCredentialsPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CreateKafkaCredentialsPayload_credentials(ctx, field)
+			return fieldContext_CreateKafkaCredentialsPayload_credentials(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Credentials, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaCredentials) graphql.Marshaler {
-			return ec.marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx, selections, v)
+			return marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_credentials(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CreateKafkaCredentialsPayload_credentials(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CreateKafkaCredentialsPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaCredentials(ctx, field)
+			return childFields_KafkaCredentials(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentials_username(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+func _KafkaCredentials_username(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentials_username(ctx, field)
+			return fieldContext_KafkaCredentials_username(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Username, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentials_username(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentials_username(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentials_accessCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+func _KafkaCredentials_accessCert(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentials_accessCert(ctx, field)
+			return fieldContext_KafkaCredentials_accessCert(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.AccessCert, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentials_accessCert(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentials_accessCert(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentials_accessKey(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+func _KafkaCredentials_accessKey(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentials_accessKey(ctx, field)
+			return fieldContext_KafkaCredentials_accessKey(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.AccessKey, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentials_accessKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentials_accessKey(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentials_caCert(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+func _KafkaCredentials_caCert(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentials_caCert(ctx, field)
+			return fieldContext_KafkaCredentials_caCert(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CaCert, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentials_caCert(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentials_caCert(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentials_brokers(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+func _KafkaCredentials_brokers(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentials_brokers(ctx, field)
+			return fieldContext_KafkaCredentials_brokers(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Brokers, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentials_brokers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentials_brokers(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentials_schemaRegistry(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
+func _KafkaCredentials_schemaRegistry(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentials_schemaRegistry(ctx, field)
+			return fieldContext_KafkaCredentials_schemaRegistry(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.SchemaRegistry, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentials_schemaRegistry(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentials_schemaRegistry(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentials", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_id(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaCredentialsCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_message(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntry_data(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNKafkaCredentialsCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentialsCreatedActivityLogEntryData(ctx, selections, v)
+			return marshalNKafkaCredentialsCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentialsCreatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaCredentialsCreatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaCredentialsCreatedActivityLogEntryData(ctx, field)
+			return childFields_KafkaCredentialsCreatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx, field)
+			return fieldContext_KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TTL, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaCredentialsCreatedActivityLogEntryData_ttl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaCredentialsCreatedActivityLogEntryData_ttl(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaCredentialsCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopic_id(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_id(ctx, field)
+			return fieldContext_KafkaTopic_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopic", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopic_name(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_name(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_name(ctx, field)
+			return fieldContext_KafkaTopic_name(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_name(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopic", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopic_team(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_team(ctx, field)
+			return fieldContext_KafkaTopic_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopic().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalNTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopic_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_teamEnvironment(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_teamEnvironment(ctx, field)
+			return fieldContext_KafkaTopic_teamEnvironment(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopic().TeamEnvironment(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+			return marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_teamEnvironment(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
+			return childFields_TeamEnvironment(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopic_acl(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_acl(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_acl(ctx, field)
+			return fieldContext_KafkaTopic_acl(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
@@ -670,20 +669,20 @@ func (ec *executionContext) _KafkaTopic_acl(ctx context.Context, field graphql.C
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
-			return ec.marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+			return marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_acl(ctx context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicAclConnection(ctx, field)
+			return childFields_KafkaTopicAclConnection(ctx, ec, field)
 		},
 	}
 	defer func() {
@@ -693,221 +692,221 @@ func (ec *executionContext) fieldContext_KafkaTopic_acl(ctx context.Context, fie
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_KafkaTopic_acl_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = field_KafkaTopic_acl_args(ctx, ec, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopic_configuration(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_configuration(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_configuration(ctx, field)
+			return fieldContext_KafkaTopic_configuration(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Configuration, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicConfiguration) graphql.Marshaler {
-			return ec.marshalOKafkaTopicConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConfiguration(ctx, selections, v)
+			return marshalOKafkaTopicConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConfiguration(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_configuration(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_configuration(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicConfiguration(ctx, field)
+			return childFields_KafkaTopicConfiguration(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopic_pool(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_pool(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_pool(ctx, field)
+			return fieldContext_KafkaTopic_pool(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Pool, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_pool(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_pool(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopic", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopic_labels(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
+func _KafkaTopic_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopic) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopic_labels(ctx, field)
+			return fieldContext_KafkaTopic_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*model.ResourceLabel) graphql.Marshaler {
-			return ec.marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, selections, v)
+			return marshalNResourceLabel2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐResourceLabelᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopic_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopic_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopic",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_ResourceLabel(ctx, field)
+			return childFields_ResourceLabel(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_access(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+func _KafkaTopicAcl_access(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAcl_access(ctx, field)
+			return fieldContext_KafkaTopicAcl_access(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Access, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v kafkatopic.KafkaTopicGrantAccess) graphql.Marshaler {
-			return ec.marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, selections, v)
+			return marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAcl_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAcl_access(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type KafkaTopicGrantAccess does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicAcl_workloadName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+func _KafkaTopicAcl_workloadName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAcl_workloadName(ctx, field)
+			return fieldContext_KafkaTopicAcl_workloadName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.WorkloadName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAcl_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAcl_workloadName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicAcl_teamName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+func _KafkaTopicAcl_teamName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAcl_teamName(ctx, field)
+			return fieldContext_KafkaTopicAcl_teamName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAcl_teamName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAcl_teamName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicAcl", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicAcl_team(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+func _KafkaTopicAcl_team(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAcl_team(ctx, field)
+			return fieldContext_KafkaTopicAcl_team(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicAcl().Team(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *team.Team) graphql.Marshaler {
-			return ec.marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, selections, v)
+			return marshalOTeam2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeam(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAcl_team(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAcl_team(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Team(ctx, field)
+			return childFields_Team(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_workload(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+func _KafkaTopicAcl_workload(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAcl_workload(ctx, field)
+			return fieldContext_KafkaTopicAcl_workload(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicAcl().Workload(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAcl_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAcl_workload(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
@@ -920,1083 +919,1083 @@ func (ec *executionContext) fieldContext_KafkaTopicAcl_workload(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAcl_topic(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
+func _KafkaTopicAcl_topic(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicACL) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAcl_topic(ctx, field)
+			return fieldContext_KafkaTopicAcl_topic(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicAcl().Topic(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
-			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+			return marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAcl_topic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAcl_topic(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAcl",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopic(ctx, field)
+			return childFields_KafkaTopic(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAclConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
+func _KafkaTopicAclConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAclConnection_pageInfo(ctx, field)
+			return fieldContext_KafkaTopicAclConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAclConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAclConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAclConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
+func _KafkaTopicAclConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAclConnection_nodes(ctx, field)
+			return fieldContext_KafkaTopicAclConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*kafkatopic.KafkaTopicACL) graphql.Marshaler {
-			return ec.marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx, selections, v)
+			return marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAclConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAclConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicAcl(ctx, field)
+			return childFields_KafkaTopicAcl(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAclConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
+func _KafkaTopicAclConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAclConnection_edges(ctx, field)
+			return fieldContext_KafkaTopicAclConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
-			return ec.marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAclConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAclConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicAclEdge(ctx, field)
+			return childFields_KafkaTopicAclEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicAclEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
+func _KafkaTopicAclEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAclEdge_cursor(ctx, field)
+			return fieldContext_KafkaTopicAclEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAclEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAclEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicAclEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicAclEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
+func _KafkaTopicAclEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicAclEdge_node(ctx, field)
+			return fieldContext_KafkaTopicAclEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicACL) graphql.Marshaler {
-			return ec.marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx, selections, v)
+			return marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicAclEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicAclEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicAclEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicAcl(ctx, field)
+			return childFields_KafkaTopicAcl(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_cleanupPolicy(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_cleanupPolicy(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_cleanupPolicy(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_cleanupPolicy(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CleanupPolicy, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_cleanupPolicy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_cleanupPolicy(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_maxMessageBytes(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_maxMessageBytes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_maxMessageBytes(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_maxMessageBytes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.MaxMessageBytes, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_maxMessageBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_maxMessageBytes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_minimumInSyncReplicas(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_minimumInSyncReplicas(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.MinimumInSyncReplicas, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_minimumInSyncReplicas(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_partitions(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_partitions(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_partitions(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_partitions(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Partitions, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_partitions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_partitions(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_replication(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_replication(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_replication(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_replication(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Replication, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_replication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_replication(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_retentionBytes(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_retentionBytes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_retentionBytes(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_retentionBytes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RetentionBytes, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_retentionBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_retentionBytes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_retentionHours(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_retentionHours(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_retentionHours(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_retentionHours(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RetentionHours, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_retentionHours(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_retentionHours(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConfiguration_segmentHours(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
+func _KafkaTopicConfiguration_segmentHours(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicConfiguration) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConfiguration_segmentHours(ctx, field)
+			return fieldContext_KafkaTopicConfiguration_segmentHours(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.SegmentHours, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
-			return ec.marshalOInt2ᚖint(ctx, selections, v)
+			return marshalOInt2ᚖint(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConfiguration_segmentHours(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConfiguration_segmentHours(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicConfiguration", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
+func _KafkaTopicConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConnection_pageInfo(ctx, field)
+			return fieldContext_KafkaTopicConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
+func _KafkaTopicConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConnection_nodes(ctx, field)
+			return fieldContext_KafkaTopicConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {
-			return ec.marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx, selections, v)
+			return marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopic(ctx, field)
+			return childFields_KafkaTopic(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
+func _KafkaTopicConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConnection_edges(ctx, field)
+			return fieldContext_KafkaTopicConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
-			return ec.marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicEdge(ctx, field)
+			return childFields_KafkaTopicEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicConnection_facets(ctx context.Context, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
+func _KafkaTopicConnection_facets(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicConnection_facets(ctx, field)
+			return fieldContext_KafkaTopicConnection_facets(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.KafkaTopicConnection().Facets(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicFacets) graphql.Marshaler {
-			return ec.marshalOKafkaTopicFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFacets(ctx, selections, v)
+			return marshalOKafkaTopicFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFacets(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicConnection_facets(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicConnection",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicFacets(ctx, field)
+			return childFields_KafkaTopicFacets(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
+func _KafkaTopicEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicEdge_cursor(ctx, field)
+			return fieldContext_KafkaTopicEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
+func _KafkaTopicEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[*kafkatopic.KafkaTopic]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicEdge_node(ctx, field)
+			return fieldContext_KafkaTopicEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
-			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+			return marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopic(ctx, field)
+			return childFields_KafkaTopic(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicFacets_environments(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicFacets) (ret graphql.Marshaler) {
+func _KafkaTopicFacets_environments(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicFacets_environments(ctx, field)
+			return fieldContext_KafkaTopicFacets_environments(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Environments(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicFacets_environments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicFacets_environments(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicFacets_pools(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicFacets) (ret graphql.Marshaler) {
+func _KafkaTopicFacets_pools(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicFacets_pools(ctx, field)
+			return fieldContext_KafkaTopicFacets_pools(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Pools(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.StringFacetItem) graphql.Marshaler {
-			return ec.marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, selections, v)
+			return marshalNStringFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐStringFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicFacets_pools(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicFacets_pools(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_StringFacetItem(ctx, field)
+			return childFields_StringFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicFacets_labels(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicFacets) (ret graphql.Marshaler) {
+func _KafkaTopicFacets_labels(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicFacets) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicFacets_labels(ctx, field)
+			return fieldContext_KafkaTopicFacets_labels(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Labels(ctx), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []model.LabelFacetItem) graphql.Marshaler {
-			return ec.marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, selections, v)
+			return marshalNLabelFacetItem2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFacetItemᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicFacets_labels(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicFacets_labels(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicFacets",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_LabelFacetItem(ctx, field)
+			return childFields_LabelFacetItem(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_id(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_id(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_actor(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_actor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_actor(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_actor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Actor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_actor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_actor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.GitHubActorClaims, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *github.GitHubActorClaims) graphql.Marshaler {
-			return ec.marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, selections, v)
+			return marshalOGitHubActorClaims2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋauthᚋmiddlewareᚋgithubᚐGitHubActorClaims(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_GitHubActorClaims(ctx, field)
+			return childFields_GitHubActorClaims(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_createdAt(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_createdAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_createdAt(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_createdAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_createdAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_message(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_message(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_resourceType(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_resourceType(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceType(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceType(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceType, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v activitylog.ActivityLogEntryResourceType) graphql.Marshaler {
-			return ec.marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, selections, v)
+			return marshalNActivityLogEntryResourceType2githubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceType(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceType(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceType(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type ActivityLogEntryResourceType does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_resourceName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_resourceName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceName(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ResourceName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_resourceName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_teamSlug(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_teamSlug(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_teamSlug(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_teamSlug(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamSlug, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+			return marshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_teamSlug(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type Slug does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_environmentName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_environmentName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_environmentName(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_environmentName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.EnvironmentName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+			return marshalOString2ᚖstring(ctx, ec, selections, v)
 		},
 		true,
 		false,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_environmentName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntry", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry_data(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntry_data(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntry_data(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntry_data(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Data, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) graphql.Marshaler {
-			return ec.marshalNKafkaTopicUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryData(ctx, selections, v)
+			return marshalNKafkaTopicUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryData(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntry_data(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntry_data(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicUpdatedActivityLogEntry",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicUpdatedActivityLogEntryData(ctx, field)
+			return childFields_KafkaTopicUpdatedActivityLogEntryData(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.AddedGrants, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
-			return ec.marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrantᚄ(ctx, selections, v)
+			return marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrantᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntryData_addedGrants(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntryData_addedGrants(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicUpdatedActivityLogEntryDataGrant(ctx, field)
+			return childFields_KafkaTopicUpdatedActivityLogEntryDataGrant(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.RevokedGrants, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
-			return ec.marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrantᚄ(ctx, selections, v)
+			return marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrantᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntryData_revokedGrants(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntryData_revokedGrants(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "KafkaTopicUpdatedActivityLogEntryData",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopicUpdatedActivityLogEntryDataGrant(ctx, field)
+			return childFields_KafkaTopicUpdatedActivityLogEntryDataGrant(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Subject, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_subject(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_subject(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntryDataGrant", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TeamName, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntryDataGrant", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) (ret graphql.Marshaler) {
+func _KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx, field)
+			return fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Access, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v kafkatopic.KafkaTopicGrantAccess) graphql.Marshaler {
-			return ec.marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, selections, v)
+			return marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_access(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_KafkaTopicUpdatedActivityLogEntryDataGrant_access(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("KafkaTopicUpdatedActivityLogEntryDataGrant", field, false, false, errors.New("field of type KafkaTopicGrantAccess does not have child fields"))
 }
 
-func (ec *executionContext) _TeamInventoryCountKafkaTopics_total(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.TeamInventoryCountKafkaTopics) (ret graphql.Marshaler) {
+func _TeamInventoryCountKafkaTopics_total(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.TeamInventoryCountKafkaTopics) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_TeamInventoryCountKafkaTopics_total(ctx, field)
+			return fieldContext_TeamInventoryCountKafkaTopics_total(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Total, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_TeamInventoryCountKafkaTopics_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_TeamInventoryCountKafkaTopics_total(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("TeamInventoryCountKafkaTopics", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _UpdateKafkaTopicPayload_kafkaTopic(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.UpdateKafkaTopicPayload) (ret graphql.Marshaler) {
+func _UpdateKafkaTopicPayload_kafkaTopic(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *kafkatopic.UpdateKafkaTopicPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_UpdateKafkaTopicPayload_kafkaTopic(ctx, field)
+			return fieldContext_UpdateKafkaTopicPayload_kafkaTopic(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.KafkaTopic, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
-			return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, selections, v)
+			return marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_UpdateKafkaTopicPayload_kafkaTopic(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_UpdateKafkaTopicPayload_kafkaTopic(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UpdateKafkaTopicPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_KafkaTopic(ctx, field)
+			return childFields_KafkaTopic(ctx, ec, field)
 		},
 	}
 	return fc, nil
@@ -2006,7 +2005,7 @@ func (ec *executionContext) fieldContext_UpdateKafkaTopicPayload_kafkaTopic(_ co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx context.Context, obj any) (kafkatopic.CreateKafkaCredentialsInput, error) {
+func unmarshalInputCreateKafkaCredentialsInput(ctx context.Context, ec *executionContext, obj any) (kafkatopic.CreateKafkaCredentialsInput, error) {
 	var it kafkatopic.CreateKafkaCredentialsInput
 	if obj == nil {
 		return it, nil
@@ -2026,21 +2025,21 @@ func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx contex
 		switch k {
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "ttl":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ttl"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2050,7 +2049,7 @@ func (ec *executionContext) unmarshalInputCreateKafkaCredentialsInput(ctx contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Context, obj any) (kafkatopic.KafkaTopicACLFilter, error) {
+func unmarshalInputKafkaTopicAclFilter(ctx context.Context, ec *executionContext, obj any) (kafkatopic.KafkaTopicACLFilter, error) {
 	var it kafkatopic.KafkaTopicACLFilter
 	if obj == nil {
 		return it, nil
@@ -2070,21 +2069,21 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 		switch k {
 		case "team":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("team"))
-			data, err := ec.unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalOSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Team = data
 		case "workload":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workload"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := unmarshalOString2ᚖstring(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Workload = data
 		case "validWorkloads":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("validWorkloads"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := unmarshalOBoolean2ᚖbool(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2094,7 +2093,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclFilter(ctx context.Contex
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputKafkaTopicAclOrder(ctx context.Context, obj any) (kafkatopic.KafkaTopicACLOrder, error) {
+func unmarshalInputKafkaTopicAclOrder(ctx context.Context, ec *executionContext, obj any) (kafkatopic.KafkaTopicACLOrder, error) {
 	var it kafkatopic.KafkaTopicACLOrder
 	if obj == nil {
 		return it, nil
@@ -2114,14 +2113,14 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclOrder(ctx context.Context
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNKafkaTopicAclOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrderField(ctx, v)
+			data, err := unmarshalNKafkaTopicAclOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2131,7 +2130,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicAclOrder(ctx context.Context
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputKafkaTopicFilter(ctx context.Context, obj any) (kafkatopic.KafkaTopicFilter, error) {
+func unmarshalInputKafkaTopicFilter(ctx context.Context, ec *executionContext, obj any) (kafkatopic.KafkaTopicFilter, error) {
 	var it kafkatopic.KafkaTopicFilter
 	if obj == nil {
 		return it, nil
@@ -2151,28 +2150,28 @@ func (ec *executionContext) unmarshalInputKafkaTopicFilter(ctx context.Context, 
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2string(ctx, v)
+			data, err := unmarshalOString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Environments = data
 		case "pools":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pools"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := unmarshalOString2ᚕstringᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Pools = data
 		case "labels":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
-			data, err := ec.unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, v)
+			data, err := unmarshalOLabelFilter2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFiltersᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2182,7 +2181,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicFilter(ctx context.Context, 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputKafkaTopicGrantInput(ctx context.Context, obj any) (kafkatopic.KafkaTopicGrantInput, error) {
+func unmarshalInputKafkaTopicGrantInput(ctx context.Context, ec *executionContext, obj any) (kafkatopic.KafkaTopicGrantInput, error) {
 	var it kafkatopic.KafkaTopicGrantInput
 	if obj == nil {
 		return it, nil
@@ -2202,21 +2201,21 @@ func (ec *executionContext) unmarshalInputKafkaTopicGrantInput(ctx context.Conte
 		switch k {
 		case "subject":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("subject"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Subject = data
 		case "teamName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamName = data
 		case "access":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("access"))
-			data, err := ec.unmarshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, v)
+			data, err := unmarshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2226,7 +2225,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicGrantInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, obj any) (kafkatopic.KafkaTopicOrder, error) {
+func unmarshalInputKafkaTopicOrder(ctx context.Context, ec *executionContext, obj any) (kafkatopic.KafkaTopicOrder, error) {
 	var it kafkatopic.KafkaTopicOrder
 	if obj == nil {
 		return it, nil
@@ -2246,14 +2245,14 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 		switch k {
 		case "field":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
-			data, err := ec.unmarshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx, v)
+			data, err := unmarshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Field = data
 		case "direction":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
-			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, v)
+			data, err := unmarshalNOrderDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐOrderDirection(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2263,7 +2262,7 @@ func (ec *executionContext) unmarshalInputKafkaTopicOrder(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputUpdateKafkaTopicInput(ctx context.Context, obj any) (kafkatopic.UpdateKafkaTopicInput, error) {
+func unmarshalInputUpdateKafkaTopicInput(ctx context.Context, ec *executionContext, obj any) (kafkatopic.UpdateKafkaTopicInput, error) {
 	var it kafkatopic.UpdateKafkaTopicInput
 	if obj == nil {
 		return it, nil
@@ -2283,35 +2282,35 @@ func (ec *executionContext) unmarshalInputUpdateKafkaTopicInput(ctx context.Cont
 		switch k {
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.Name = data
 		case "teamSlug":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlug"))
-			data, err := ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, v)
+			data, err := unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.TeamSlug = data
 		case "environmentName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environmentName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := unmarshalNString2string(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.EnvironmentName = data
 		case "addGrants":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addGrants"))
-			data, err := ec.unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx, v)
+			data, err := unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.AddGrants = data
 		case "revokeGrants":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("revokeGrants"))
-			data, err := ec.unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx, v)
+			data, err := unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -2331,7 +2330,7 @@ func (ec *executionContext) unmarshalInputUpdateKafkaTopicInput(ctx context.Cont
 
 var createKafkaCredentialsPayloadImplementors = []string{"CreateKafkaCredentialsPayload"}
 
-func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
+func _CreateKafkaCredentialsPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, createKafkaCredentialsPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2341,7 +2340,7 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("CreateKafkaCredentialsPayload")
 		case "credentials":
-			out.Values[i] = ec._CreateKafkaCredentialsPayload_credentials(ctx, field, obj)
+			out.Values[i] = _CreateKafkaCredentialsPayload_credentials(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2370,7 +2369,7 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, 
 
 var kafkaCredentialsImplementors = []string{"KafkaCredentials"}
 
-func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentials) graphql.Marshaler {
+func _KafkaCredentials(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentials) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaCredentialsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2380,32 +2379,32 @@ func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.Selec
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaCredentials")
 		case "username":
-			out.Values[i] = ec._KafkaCredentials_username(ctx, field, obj)
+			out.Values[i] = _KafkaCredentials_username(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "accessCert":
-			out.Values[i] = ec._KafkaCredentials_accessCert(ctx, field, obj)
+			out.Values[i] = _KafkaCredentials_accessCert(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "accessKey":
-			out.Values[i] = ec._KafkaCredentials_accessKey(ctx, field, obj)
+			out.Values[i] = _KafkaCredentials_accessKey(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "caCert":
-			out.Values[i] = ec._KafkaCredentials_caCert(ctx, field, obj)
+			out.Values[i] = _KafkaCredentials_caCert(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "brokers":
-			out.Values[i] = ec._KafkaCredentials_brokers(ctx, field, obj)
+			out.Values[i] = _KafkaCredentials_brokers(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "schemaRegistry":
-			out.Values[i] = ec._KafkaCredentials_schemaRegistry(ctx, field, obj)
+			out.Values[i] = _KafkaCredentials_schemaRegistry(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2434,7 +2433,7 @@ func (ec *executionContext) _KafkaCredentials(ctx context.Context, sel ast.Selec
 
 var kafkaCredentialsCreatedActivityLogEntryImplementors = []string{"KafkaCredentialsCreatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) graphql.Marshaler {
+func _KafkaCredentialsCreatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaCredentialsCreatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2444,46 +2443,46 @@ func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry(ctx context
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaCredentialsCreatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2512,7 +2511,7 @@ func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntry(ctx context
 
 var kafkaCredentialsCreatedActivityLogEntryDataImplementors = []string{"KafkaCredentialsCreatedActivityLogEntryData"}
 
-func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
+func _KafkaCredentialsCreatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaCredentialsCreatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2522,7 +2521,7 @@ func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntryData(ctx con
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaCredentialsCreatedActivityLogEntryData")
 		case "ttl":
-			out.Values[i] = ec._KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx, field, obj)
+			out.Values[i] = _KafkaCredentialsCreatedActivityLogEntryData_ttl(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2551,7 +2550,7 @@ func (ec *executionContext) _KafkaCredentialsCreatedActivityLogEntryData(ctx con
 
 var kafkaTopicImplementors = []string{"KafkaTopic", "Persistence", "Node", "SearchNode"}
 
-func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopic) graphql.Marshaler {
+func _KafkaTopic(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopic) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2561,12 +2560,12 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopic")
 		case "id":
-			out.Values[i] = ec._KafkaTopic_id(ctx, field, obj)
+			out.Values[i] = _KafkaTopic_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
-			out.Values[i] = ec._KafkaTopic_name(ctx, field, obj)
+			out.Values[i] = _KafkaTopic_name(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2579,7 +2578,7 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopic_team(ctx, field, obj)
+				res = _KafkaTopic_team(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2615,7 +2614,7 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopic_teamEnvironment(ctx, field, obj)
+				res = _KafkaTopic_teamEnvironment(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2651,7 +2650,7 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopic_acl(ctx, field, obj)
+				res = _KafkaTopic_acl(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2679,14 +2678,14 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "configuration":
-			out.Values[i] = ec._KafkaTopic_configuration(ctx, field, obj)
+			out.Values[i] = _KafkaTopic_configuration(ctx, ec, field, obj)
 		case "pool":
-			out.Values[i] = ec._KafkaTopic_pool(ctx, field, obj)
+			out.Values[i] = _KafkaTopic_pool(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "labels":
-			out.Values[i] = ec._KafkaTopic_labels(ctx, field, obj)
+			out.Values[i] = _KafkaTopic_labels(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2715,7 +2714,7 @@ func (ec *executionContext) _KafkaTopic(ctx context.Context, sel ast.SelectionSe
 
 var kafkaTopicAclImplementors = []string{"KafkaTopicAcl"}
 
-func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicACL) graphql.Marshaler {
+func _KafkaTopicAcl(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicACL) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicAclImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2725,17 +2724,17 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicAcl")
 		case "access":
-			out.Values[i] = ec._KafkaTopicAcl_access(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAcl_access(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "workloadName":
-			out.Values[i] = ec._KafkaTopicAcl_workloadName(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAcl_workloadName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "teamName":
-			out.Values[i] = ec._KafkaTopicAcl_teamName(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAcl_teamName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -2748,7 +2747,7 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicAcl_team(ctx, field, obj)
+				res = _KafkaTopicAcl_team(ctx, ec, field, obj)
 				return res
 			}
 
@@ -2781,7 +2780,7 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicAcl_workload(ctx, field, obj)
+				res = _KafkaTopicAcl_workload(ctx, ec, field, obj)
 				return res
 			}
 
@@ -2814,7 +2813,7 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicAcl_topic(ctx, field, obj)
+				res = _KafkaTopicAcl_topic(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -2866,7 +2865,7 @@ func (ec *executionContext) _KafkaTopicAcl(ctx context.Context, sel ast.Selectio
 
 var kafkaTopicAclConnectionImplementors = []string{"KafkaTopicAclConnection"}
 
-func (ec *executionContext) _KafkaTopicAclConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+func _KafkaTopicAclConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicAclConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2876,17 +2875,17 @@ func (ec *executionContext) _KafkaTopicAclConnection(ctx context.Context, sel as
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicAclConnection")
 		case "pageInfo":
-			out.Values[i] = ec._KafkaTopicAclConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAclConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._KafkaTopicAclConnection_nodes(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAclConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._KafkaTopicAclConnection_edges(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAclConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2915,7 +2914,7 @@ func (ec *executionContext) _KafkaTopicAclConnection(ctx context.Context, sel as
 
 var kafkaTopicAclEdgeImplementors = []string{"KafkaTopicAclEdge"}
 
-func (ec *executionContext) _KafkaTopicAclEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+func _KafkaTopicAclEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicAclEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2925,12 +2924,12 @@ func (ec *executionContext) _KafkaTopicAclEdge(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicAclEdge")
 		case "cursor":
-			out.Values[i] = ec._KafkaTopicAclEdge_cursor(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAclEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._KafkaTopicAclEdge_node(ctx, field, obj)
+			out.Values[i] = _KafkaTopicAclEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2959,7 +2958,7 @@ func (ec *executionContext) _KafkaTopicAclEdge(ctx context.Context, sel ast.Sele
 
 var kafkaTopicConfigurationImplementors = []string{"KafkaTopicConfiguration"}
 
-func (ec *executionContext) _KafkaTopicConfiguration(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicConfiguration) graphql.Marshaler {
+func _KafkaTopicConfiguration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicConfiguration) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicConfigurationImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2969,21 +2968,21 @@ func (ec *executionContext) _KafkaTopicConfiguration(ctx context.Context, sel as
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicConfiguration")
 		case "cleanupPolicy":
-			out.Values[i] = ec._KafkaTopicConfiguration_cleanupPolicy(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_cleanupPolicy(ctx, ec, field, obj)
 		case "maxMessageBytes":
-			out.Values[i] = ec._KafkaTopicConfiguration_maxMessageBytes(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_maxMessageBytes(ctx, ec, field, obj)
 		case "minimumInSyncReplicas":
-			out.Values[i] = ec._KafkaTopicConfiguration_minimumInSyncReplicas(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_minimumInSyncReplicas(ctx, ec, field, obj)
 		case "partitions":
-			out.Values[i] = ec._KafkaTopicConfiguration_partitions(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_partitions(ctx, ec, field, obj)
 		case "replication":
-			out.Values[i] = ec._KafkaTopicConfiguration_replication(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_replication(ctx, ec, field, obj)
 		case "retentionBytes":
-			out.Values[i] = ec._KafkaTopicConfiguration_retentionBytes(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_retentionBytes(ctx, ec, field, obj)
 		case "retentionHours":
-			out.Values[i] = ec._KafkaTopicConfiguration_retentionHours(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_retentionHours(ctx, ec, field, obj)
 		case "segmentHours":
-			out.Values[i] = ec._KafkaTopicConfiguration_segmentHours(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConfiguration_segmentHours(ctx, ec, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3009,7 +3008,7 @@ func (ec *executionContext) _KafkaTopicConfiguration(ctx context.Context, sel as
 
 var kafkaTopicConnectionImplementors = []string{"KafkaTopicConnection"}
 
-func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
+func _KafkaTopicConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3019,17 +3018,17 @@ func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicConnection")
 		case "pageInfo":
-			out.Values[i] = ec._KafkaTopicConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "nodes":
-			out.Values[i] = ec._KafkaTopicConnection_nodes(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "edges":
-			out.Values[i] = ec._KafkaTopicConnection_edges(ctx, field, obj)
+			out.Values[i] = _KafkaTopicConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -3042,7 +3041,7 @@ func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.S
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicConnection_facets(ctx, field, obj)
+				res = _KafkaTopicConnection_facets(ctx, ec, field, obj)
 				return res
 			}
 
@@ -3091,7 +3090,7 @@ func (ec *executionContext) _KafkaTopicConnection(ctx context.Context, sel ast.S
 
 var kafkaTopicEdgeImplementors = []string{"KafkaTopicEdge"}
 
-func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
+func _KafkaTopicEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3101,12 +3100,12 @@ func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.Selecti
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicEdge")
 		case "cursor":
-			out.Values[i] = ec._KafkaTopicEdge_cursor(ctx, field, obj)
+			out.Values[i] = _KafkaTopicEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._KafkaTopicEdge_node(ctx, field, obj)
+			out.Values[i] = _KafkaTopicEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3135,7 +3134,7 @@ func (ec *executionContext) _KafkaTopicEdge(ctx context.Context, sel ast.Selecti
 
 var kafkaTopicFacetsImplementors = []string{"KafkaTopicFacets"}
 
-func (ec *executionContext) _KafkaTopicFacets(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicFacets) graphql.Marshaler {
+func _KafkaTopicFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicFacets) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicFacetsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3153,7 +3152,7 @@ func (ec *executionContext) _KafkaTopicFacets(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicFacets_environments(ctx, field, obj)
+				res = _KafkaTopicFacets_environments(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3189,7 +3188,7 @@ func (ec *executionContext) _KafkaTopicFacets(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicFacets_pools(ctx, field, obj)
+				res = _KafkaTopicFacets_pools(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3225,7 +3224,7 @@ func (ec *executionContext) _KafkaTopicFacets(ctx context.Context, sel ast.Selec
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._KafkaTopicFacets_labels(ctx, field, obj)
+				res = _KafkaTopicFacets_labels(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3277,7 +3276,7 @@ func (ec *executionContext) _KafkaTopicFacets(ctx context.Context, sel ast.Selec
 
 var kafkaTopicUpdatedActivityLogEntryImplementors = []string{"KafkaTopicUpdatedActivityLogEntry", "ActivityLogEntry", "Node"}
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) graphql.Marshaler {
+func _KafkaTopicUpdatedActivityLogEntry(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntry) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicUpdatedActivityLogEntryImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3287,46 +3286,46 @@ func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry(ctx context.Conte
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicUpdatedActivityLogEntry")
 		case "id":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_id(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "actor":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_actor(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_actor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "gitHubActorClaims":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_gitHubActorClaims(ctx, ec, field, obj)
 		case "createdAt":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_createdAt(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_createdAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_message(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceType":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_resourceType(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_resourceType(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "resourceName":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_resourceName(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_resourceName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamSlug":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_teamSlug(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_teamSlug(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "environmentName":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_environmentName(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_environmentName(ctx, ec, field, obj)
 		case "data":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntry_data(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntry_data(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3355,7 +3354,7 @@ func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntry(ctx context.Conte
 
 var kafkaTopicUpdatedActivityLogEntryDataImplementors = []string{"KafkaTopicUpdatedActivityLogEntryData"}
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) graphql.Marshaler {
+func _KafkaTopicUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicUpdatedActivityLogEntryDataImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3365,12 +3364,12 @@ func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryData(ctx context.C
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicUpdatedActivityLogEntryData")
 		case "addedGrants":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntryData_addedGrants(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "revokedGrants":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntryData_revokedGrants(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3399,7 +3398,7 @@ func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryData(ctx context.C
 
 var kafkaTopicUpdatedActivityLogEntryDataGrantImplementors = []string{"KafkaTopicUpdatedActivityLogEntryDataGrant"}
 
-func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryDataGrant(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
+func _KafkaTopicUpdatedActivityLogEntryDataGrant(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, kafkaTopicUpdatedActivityLogEntryDataGrantImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3409,17 +3408,17 @@ func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryDataGrant(ctx cont
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("KafkaTopicUpdatedActivityLogEntryDataGrant")
 		case "subject":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntryDataGrant_subject(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "teamName":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntryDataGrant_teamName(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "access":
-			out.Values[i] = ec._KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx, field, obj)
+			out.Values[i] = _KafkaTopicUpdatedActivityLogEntryDataGrant_access(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3448,7 +3447,7 @@ func (ec *executionContext) _KafkaTopicUpdatedActivityLogEntryDataGrant(ctx cont
 
 var teamInventoryCountKafkaTopicsImplementors = []string{"TeamInventoryCountKafkaTopics"}
 
-func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
+func _TeamInventoryCountKafkaTopics(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, teamInventoryCountKafkaTopicsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3458,7 +3457,7 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, 
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TeamInventoryCountKafkaTopics")
 		case "total":
-			out.Values[i] = ec._TeamInventoryCountKafkaTopics_total(ctx, field, obj)
+			out.Values[i] = _TeamInventoryCountKafkaTopics_total(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3487,7 +3486,7 @@ func (ec *executionContext) _TeamInventoryCountKafkaTopics(ctx context.Context, 
 
 var updateKafkaTopicPayloadImplementors = []string{"UpdateKafkaTopicPayload"}
 
-func (ec *executionContext) _UpdateKafkaTopicPayload(ctx context.Context, sel ast.SelectionSet, obj *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+func _UpdateKafkaTopicPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, updateKafkaTopicPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3497,7 +3496,7 @@ func (ec *executionContext) _UpdateKafkaTopicPayload(ctx context.Context, sel as
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("UpdateKafkaTopicPayload")
 		case "kafkaTopic":
-			out.Values[i] = ec._UpdateKafkaTopicPayload_kafkaTopic(ctx, field, obj)
+			out.Values[i] = _UpdateKafkaTopicPayload_kafkaTopic(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3528,54 +3527,54 @@ func (ec *executionContext) _UpdateKafkaTopicPayload(ctx context.Context, sel as
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsInput(ctx context.Context, v any) (kafkatopic.CreateKafkaCredentialsInput, error) {
-	res, err := ec.unmarshalInputCreateKafkaCredentialsInput(ctx, v)
+func unmarshalNCreateKafkaCredentialsInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsInput(ctx context.Context, ec *executionContext, v any) (kafkatopic.CreateKafkaCredentialsInput, error) {
+	res, err := unmarshalInputCreateKafkaCredentialsInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
-	return ec._CreateKafkaCredentialsPayload(ctx, sel, &v)
+func marshalNCreateKafkaCredentialsPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
+	return _CreateKafkaCredentialsPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
+func marshalNCreateKafkaCredentialsPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐCreateKafkaCredentialsPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.CreateKafkaCredentialsPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CreateKafkaCredentialsPayload(ctx, sel, v)
+	return _CreateKafkaCredentialsPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaCredentials) graphql.Marshaler {
+func marshalNKafkaCredentials2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentials(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaCredentials) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaCredentials(ctx, sel, v)
+	return _KafkaCredentials(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaCredentialsCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentialsCreatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
+func marshalNKafkaCredentialsCreatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaCredentialsCreatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaCredentialsCreatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaCredentialsCreatedActivityLogEntryData(ctx, sel, v)
+	return _KafkaCredentialsCreatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {
-	return ec._KafkaTopic(ctx, sel, &v)
+func marshalNKafkaTopic2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.KafkaTopic) graphql.Marshaler {
+	return _KafkaTopic(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx context.Context, sel ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {
+func marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*kafkatopic.KafkaTopic) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, sel, v[i])
+		return marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3587,21 +3586,21 @@ func (ec *executionContext) marshalNKafkaTopic2ᚕᚖgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
+func marshalNKafkaTopic2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopic(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaTopic) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaTopic(ctx, sel, v)
+	return _KafkaTopic(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx context.Context, sel ast.SelectionSet, v []*kafkatopic.KafkaTopicACL) graphql.Marshaler {
+func marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []*kafkatopic.KafkaTopicACL) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx, sel, v[i])
+		return marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3613,39 +3612,39 @@ func (ec *executionContext) marshalNKafkaTopicAcl2ᚕᚖgithubᚗcomᚋnaisᚋap
 	return ret
 }
 
-func (ec *executionContext) marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicACL) graphql.Marshaler {
+func marshalNKafkaTopicAcl2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACL(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaTopicACL) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaTopicAcl(ctx, sel, v)
+	return _KafkaTopicAcl(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicAclConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
-	return ec._KafkaTopicAclConnection(ctx, sel, &v)
+func marshalNKafkaTopicAclConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+	return _KafkaTopicAclConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+func marshalNKafkaTopicAclConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaTopicAclConnection(ctx, sel, v)
+	return _KafkaTopicAclConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicAclEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
-	return ec._KafkaTopicAclEdge(ctx, sel, &v)
+func marshalNKafkaTopicAclEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+	return _KafkaTopicAclEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
+func marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopicACL]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNKafkaTopicAclEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNKafkaTopicAclEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3657,39 +3656,39 @@ func (ec *executionContext) marshalNKafkaTopicAclEdge2ᚕgithubᚗcomᚋnaisᚋa
 	return ret
 }
 
-func (ec *executionContext) unmarshalNKafkaTopicAclOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrderField(ctx context.Context, v any) (kafkatopic.KafkaTopicACLOrderField, error) {
+func unmarshalNKafkaTopicAclOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrderField(ctx context.Context, ec *executionContext, v any) (kafkatopic.KafkaTopicACLOrderField, error) {
 	var res kafkatopic.KafkaTopicACLOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNKafkaTopicAclOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrderField(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicACLOrderField) graphql.Marshaler {
+func marshalNKafkaTopicAclOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.KafkaTopicACLOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNKafkaTopicConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
-	return ec._KafkaTopicConnection(ctx, sel, &v)
+func marshalNKafkaTopicConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
+	return _KafkaTopicConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
+func marshalNKafkaTopicConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐFacetableConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.FacetableConnection[*kafkatopic.KafkaTopic, *kafkatopic.KafkaTopicFilter]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaTopicConnection(ctx, sel, v)
+	return _KafkaTopicConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
-	return ec._KafkaTopicEdge(ctx, sel, &v)
+func marshalNKafkaTopicEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
+	return _KafkaTopicEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
+func marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[*kafkatopic.KafkaTopic]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNKafkaTopicEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNKafkaTopicEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3701,50 +3700,50 @@ func (ec *executionContext) marshalNKafkaTopicEdge2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) unmarshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx context.Context, v any) (kafkatopic.KafkaTopicGrantAccess, error) {
+func unmarshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx context.Context, ec *executionContext, v any) (kafkatopic.KafkaTopicGrantAccess, error) {
 	var res kafkatopic.KafkaTopicGrantAccess
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicGrantAccess) graphql.Marshaler {
+func marshalNKafkaTopicGrantAccess2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantAccess(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.KafkaTopicGrantAccess) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalNKafkaTopicGrantInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInput(ctx context.Context, v any) (*kafkatopic.KafkaTopicGrantInput, error) {
-	res, err := ec.unmarshalInputKafkaTopicGrantInput(ctx, v)
+func unmarshalNKafkaTopicGrantInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInput(ctx context.Context, ec *executionContext, v any) (*kafkatopic.KafkaTopicGrantInput, error) {
+	res, err := unmarshalInputKafkaTopicGrantInput(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, v any) (kafkatopic.KafkaTopicOrderField, error) {
+func unmarshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, ec *executionContext, v any) (kafkatopic.KafkaTopicOrderField, error) {
 	var res kafkatopic.KafkaTopicOrderField
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicOrderField) graphql.Marshaler {
+func marshalNKafkaTopicOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrderField(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.KafkaTopicOrderField) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) marshalNKafkaTopicUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryData(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) graphql.Marshaler {
+func marshalNKafkaTopicUpdatedActivityLogEntryData2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryData(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaTopicUpdatedActivityLogEntryData) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._KafkaTopicUpdatedActivityLogEntryData(ctx, sel, v)
+	return _KafkaTopicUpdatedActivityLogEntryData(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrant(ctx context.Context, sel ast.SelectionSet, v kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
-	return ec._KafkaTopicUpdatedActivityLogEntryDataGrant(ctx, sel, &v)
+func marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrant(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
+	return _KafkaTopicUpdatedActivityLogEntryDataGrant(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrantᚄ(ctx context.Context, sel ast.SelectionSet, v []kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
+func marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrantᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []kafkatopic.KafkaTopicUpdatedActivityLogEntryDataGrant) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrant(ctx, sel, v[i])
+		return marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicUpdatedActivityLogEntryDataGrant(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -3756,78 +3755,78 @@ func (ec *executionContext) marshalNKafkaTopicUpdatedActivityLogEntryDataGrant2�
 	return ret
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, v kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
-	return ec._TeamInventoryCountKafkaTopics(ctx, sel, &v)
+func marshalNTeamInventoryCountKafkaTopics2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
+	return _TeamInventoryCountKafkaTopics(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
+func marshalNTeamInventoryCountKafkaTopics2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐTeamInventoryCountKafkaTopics(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.TeamInventoryCountKafkaTopics) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._TeamInventoryCountKafkaTopics(ctx, sel, v)
+	return _TeamInventoryCountKafkaTopics(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalNUpdateKafkaTopicInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicInput(ctx context.Context, v any) (kafkatopic.UpdateKafkaTopicInput, error) {
-	res, err := ec.unmarshalInputUpdateKafkaTopicInput(ctx, v)
+func unmarshalNUpdateKafkaTopicInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicInput(ctx context.Context, ec *executionContext, v any) (kafkatopic.UpdateKafkaTopicInput, error) {
+	res, err := unmarshalInputUpdateKafkaTopicInput(ctx, ec, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUpdateKafkaTopicPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx context.Context, sel ast.SelectionSet, v kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
-	return ec._UpdateKafkaTopicPayload(ctx, sel, &v)
+func marshalNUpdateKafkaTopicPayload2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+	return _UpdateKafkaTopicPayload(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNUpdateKafkaTopicPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
+func marshalNUpdateKafkaTopicPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐUpdateKafkaTopicPayload(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.UpdateKafkaTopicPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._UpdateKafkaTopicPayload(ctx, sel, v)
+	return _UpdateKafkaTopicPayload(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLFilter, error) {
+func unmarshalOKafkaTopicAclFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLFilter(ctx context.Context, ec *executionContext, v any) (*kafkatopic.KafkaTopicACLFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputKafkaTopicAclFilter(ctx, v)
+	res, err := unmarshalInputKafkaTopicAclFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx context.Context, v any) (*kafkatopic.KafkaTopicACLOrder, error) {
+func unmarshalOKafkaTopicAclOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicACLOrder(ctx context.Context, ec *executionContext, v any) (*kafkatopic.KafkaTopicACLOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputKafkaTopicAclOrder(ctx, v)
+	res, err := unmarshalInputKafkaTopicAclOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOKafkaTopicConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConfiguration(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicConfiguration) graphql.Marshaler {
+func marshalOKafkaTopicConfiguration2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicConfiguration(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaTopicConfiguration) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._KafkaTopicConfiguration(ctx, sel, v)
+	return _KafkaTopicConfiguration(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalOKafkaTopicFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFacets(ctx context.Context, sel ast.SelectionSet, v *kafkatopic.KafkaTopicFacets) graphql.Marshaler {
+func marshalOKafkaTopicFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFacets(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *kafkatopic.KafkaTopicFacets) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._KafkaTopicFacets(ctx, sel, v)
+	return _KafkaTopicFacets(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) unmarshalOKafkaTopicFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFilter(ctx context.Context, v any) (*kafkatopic.KafkaTopicFilter, error) {
+func unmarshalOKafkaTopicFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicFilter(ctx context.Context, ec *executionContext, v any) (*kafkatopic.KafkaTopicFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputKafkaTopicFilter(ctx, v)
+	res, err := unmarshalInputKafkaTopicFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx context.Context, v any) ([]*kafkatopic.KafkaTopicGrantInput, error) {
+func unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInputᚄ(ctx context.Context, ec *executionContext, v any) ([]*kafkatopic.KafkaTopicGrantInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -3837,7 +3836,7 @@ func (ec *executionContext) unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋ
 	res := make([]*kafkatopic.KafkaTopicGrantInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNKafkaTopicGrantInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInput(ctx, vSlice[i])
+		res[i], err = unmarshalNKafkaTopicGrantInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicGrantInput(ctx, ec, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -3845,11 +3844,11 @@ func (ec *executionContext) unmarshalOKafkaTopicGrantInput2ᚕᚖgithubᚗcomᚋ
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx context.Context, v any) (*kafkatopic.KafkaTopicOrder, error) {
+func unmarshalOKafkaTopicOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋkafkatopicᚐKafkaTopicOrder(ctx context.Context, ec *executionContext, v any) (*kafkatopic.KafkaTopicOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputKafkaTopicOrder(ctx, v)
+	res, err := unmarshalInputKafkaTopicOrder(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

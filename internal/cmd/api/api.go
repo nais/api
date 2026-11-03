@@ -180,7 +180,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			&graph.TopicWrapper{Topic: pubsubTopic},
 			graph.WithLogger(log),
 		),
-		Complexity: gengql.NewComplexityRoot(),
 	}, log.WithField("subsystem", "graph"))
 	if err != nil {
 		return fmt.Errorf("create graph handler: %w", err)

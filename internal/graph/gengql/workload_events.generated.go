@@ -6,16 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
-	"sync/atomic"
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes/event"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -32,58 +31,58 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _WorkloadEventConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[event.WorkloadEvent]) (ret graphql.Marshaler) {
+func _WorkloadEventConnection_pageInfo(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[event.WorkloadEvent]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEventConnection_pageInfo(ctx, field)
+			return fieldContext_WorkloadEventConnection_pageInfo(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.PageInfo) graphql.Marshaler {
-			return ec.marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, selections, v)
+			return marshalNPageInfo2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐPageInfo(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEventConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEventConnection_pageInfo(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadEventConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_PageInfo(ctx, field)
+			return childFields_PageInfo(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadEventConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[event.WorkloadEvent]) (ret graphql.Marshaler) {
+func _WorkloadEventConnection_nodes(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[event.WorkloadEvent]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEventConnection_nodes(ctx, field)
+			return fieldContext_WorkloadEventConnection_nodes(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Nodes(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []event.WorkloadEvent) graphql.Marshaler {
-			return ec.marshalNWorkloadEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventᚄ(ctx, selections, v)
+			return marshalNWorkloadEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEventConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEventConnection_nodes(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadEventConnection",
 		Field:      field,
@@ -96,81 +95,81 @@ func (ec *executionContext) fieldContext_WorkloadEventConnection_nodes(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadEventConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[event.WorkloadEvent]) (ret graphql.Marshaler) {
+func _WorkloadEventConnection_edges(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Connection[event.WorkloadEvent]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEventConnection_edges(ctx, field)
+			return fieldContext_WorkloadEventConnection_edges(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
-			return ec.marshalNWorkloadEventEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, selections, v)
+			return marshalNWorkloadEventEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEventConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEventConnection_edges(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadEventConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_WorkloadEventEdge(ctx, field)
+			return childFields_WorkloadEventEdge(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadEventEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[event.WorkloadEvent]) (ret graphql.Marshaler) {
+func _WorkloadEventEdge_cursor(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[event.WorkloadEvent]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEventEdge_cursor(ctx, field)
+			return fieldContext_WorkloadEventEdge_cursor(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v pagination.Cursor) graphql.Marshaler {
-			return ec.marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, selections, v)
+			return marshalNCursor2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEventEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEventEdge_cursor(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadEventEdge", field, false, false, errors.New("field of type Cursor does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadEventEdge_node(ctx context.Context, field graphql.CollectedField, obj *pagination.Edge[event.WorkloadEvent]) (ret graphql.Marshaler) {
+func _WorkloadEventEdge_node(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *pagination.Edge[event.WorkloadEvent]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadEventEdge_node(ctx, field)
+			return fieldContext_WorkloadEventEdge_node(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v event.WorkloadEvent) graphql.Marshaler {
-			return ec.marshalNWorkloadEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEvent(ctx, selections, v)
+			return marshalNWorkloadEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEvent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadEventEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadEventEdge_node(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "WorkloadEventEdge",
 		Field:      field,
@@ -183,233 +182,233 @@ func (ec *executionContext) fieldContext_WorkloadEventEdge_node(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadKillingEvent_id(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
+func _WorkloadKillingEvent_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadKillingEvent_id(ctx, field)
+			return fieldContext_WorkloadKillingEvent_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadKillingEvent_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadKillingEvent_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadKillingEvent", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadKillingEvent_triggeredAt(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
+func _WorkloadKillingEvent_triggeredAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadKillingEvent_triggeredAt(ctx, field)
+			return fieldContext_WorkloadKillingEvent_triggeredAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TriggeredAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadKillingEvent_triggeredAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadKillingEvent_triggeredAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadKillingEvent", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadKillingEvent_message(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
+func _WorkloadKillingEvent_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadKillingEvent_message(ctx, field)
+			return fieldContext_WorkloadKillingEvent_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadKillingEvent_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadKillingEvent_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadKillingEvent", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadKillingEvent_container(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
+func _WorkloadKillingEvent_container(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadKillingEvent_container(ctx, field)
+			return fieldContext_WorkloadKillingEvent_container(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Container, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadKillingEvent_container(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadKillingEvent_container(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadKillingEvent", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadKillingEvent_reason(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
+func _WorkloadKillingEvent_reason(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadKillingEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadKillingEvent_reason(ctx, field)
+			return fieldContext_WorkloadKillingEvent_reason(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Reason, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadKillingEvent_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadKillingEvent_reason(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadKillingEvent", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadSuccessfulRescaleEvent_id(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
+func _WorkloadSuccessfulRescaleEvent_id(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadSuccessfulRescaleEvent_id(ctx, field)
+			return fieldContext_WorkloadSuccessfulRescaleEvent_id(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.ID(), nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
-			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+			return marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadSuccessfulRescaleEvent_id(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadSuccessfulRescaleEvent", field, true, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadSuccessfulRescaleEvent_triggeredAt(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
+func _WorkloadSuccessfulRescaleEvent_triggeredAt(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadSuccessfulRescaleEvent_triggeredAt(ctx, field)
+			return fieldContext_WorkloadSuccessfulRescaleEvent_triggeredAt(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.TriggeredAt, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+			return marshalNTime2timeᚐTime(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_triggeredAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadSuccessfulRescaleEvent_triggeredAt(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadSuccessfulRescaleEvent", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadSuccessfulRescaleEvent_message(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
+func _WorkloadSuccessfulRescaleEvent_message(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadSuccessfulRescaleEvent_message(ctx, field)
+			return fieldContext_WorkloadSuccessfulRescaleEvent_message(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Message, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+			return marshalNString2string(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadSuccessfulRescaleEvent_message(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadSuccessfulRescaleEvent", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadSuccessfulRescaleEvent_newSize(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
+func _WorkloadSuccessfulRescaleEvent_newSize(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadSuccessfulRescaleEvent_newSize(ctx, field)
+			return fieldContext_WorkloadSuccessfulRescaleEvent_newSize(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.NewSize, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNInt2int(ctx, selections, v)
+			return marshalNInt2int(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_newSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadSuccessfulRescaleEvent_newSize(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadSuccessfulRescaleEvent", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadSuccessfulRescaleEvent_direction(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
+func _WorkloadSuccessfulRescaleEvent_direction(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *event.WorkloadSuccessfulRescaleEvent) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_WorkloadSuccessfulRescaleEvent_direction(ctx, field)
+			return fieldContext_WorkloadSuccessfulRescaleEvent_direction(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Direction, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v event.WorkloadSuccessfulRescaleEventDirection) graphql.Marshaler {
-			return ec.marshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx, selections, v)
+			return marshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_direction(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_WorkloadSuccessfulRescaleEvent_direction(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("WorkloadSuccessfulRescaleEvent", field, false, false, errors.New("field of type WorkloadSuccessfulRescaleEventDirection does not have child fields"))
 }
 
@@ -417,7 +416,7 @@ func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_directio
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputWorkloadEventFilter(ctx context.Context, obj any) (event.WorkloadEventFilter, error) {
+func unmarshalInputWorkloadEventFilter(ctx context.Context, ec *executionContext, obj any) (event.WorkloadEventFilter, error) {
 	var it event.WorkloadEventFilter
 	if obj == nil {
 		return it, nil
@@ -437,14 +436,14 @@ func (ec *executionContext) unmarshalInputWorkloadEventFilter(ctx context.Contex
 		switch k {
 		case "from":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := unmarshalOTime2ᚖtimeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
 			it.From = data
 		case "to":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := unmarshalOTime2ᚖtimeᚐTime(ctx, ec, v)
 			if err != nil {
 				return it, err
 			}
@@ -458,24 +457,24 @@ func (ec *executionContext) unmarshalInputWorkloadEventFilter(ctx context.Contex
 
 // region    ************************** interface.gotpl ***************************
 
-func (ec *executionContext) _WorkloadEvent(ctx context.Context, sel ast.SelectionSet, obj event.WorkloadEvent) graphql.Marshaler {
+func _WorkloadEvent(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj event.WorkloadEvent) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
 	case event.WorkloadSuccessfulRescaleEvent:
-		return ec._WorkloadSuccessfulRescaleEvent(ctx, sel, &obj)
+		return _WorkloadSuccessfulRescaleEvent(ctx, ec, sel, &obj)
 	case *event.WorkloadSuccessfulRescaleEvent:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._WorkloadSuccessfulRescaleEvent(ctx, sel, obj)
+		return _WorkloadSuccessfulRescaleEvent(ctx, ec, sel, obj)
 	case event.WorkloadKillingEvent:
-		return ec._WorkloadKillingEvent(ctx, sel, &obj)
+		return _WorkloadKillingEvent(ctx, ec, sel, &obj)
 	case *event.WorkloadKillingEvent:
 		if obj == nil {
 			return graphql.Null
 		}
-		return ec._WorkloadKillingEvent(ctx, sel, obj)
+		return _WorkloadKillingEvent(ctx, ec, sel, obj)
 	default:
 		if typedObj, ok := obj.(graphql.Marshaler); ok {
 			return typedObj
@@ -491,7 +490,7 @@ func (ec *executionContext) _WorkloadEvent(ctx context.Context, sel ast.Selectio
 
 var workloadEventConnectionImplementors = []string{"WorkloadEventConnection"}
 
-func (ec *executionContext) _WorkloadEventConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
+func _WorkloadEventConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadEventConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -501,17 +500,17 @@ func (ec *executionContext) _WorkloadEventConnection(ctx context.Context, sel as
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadEventConnection")
 		case "pageInfo":
-			out.Values[i] = ec._WorkloadEventConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = _WorkloadEventConnection_pageInfo(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "nodes":
-			out.Values[i] = ec._WorkloadEventConnection_nodes(ctx, field, obj)
+			out.Values[i] = _WorkloadEventConnection_nodes(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "edges":
-			out.Values[i] = ec._WorkloadEventConnection_edges(ctx, field, obj)
+			out.Values[i] = _WorkloadEventConnection_edges(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -540,7 +539,7 @@ func (ec *executionContext) _WorkloadEventConnection(ctx context.Context, sel as
 
 var workloadEventEdgeImplementors = []string{"WorkloadEventEdge"}
 
-func (ec *executionContext) _WorkloadEventEdge(ctx context.Context, sel ast.SelectionSet, obj *pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
+func _WorkloadEventEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadEventEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -550,12 +549,12 @@ func (ec *executionContext) _WorkloadEventEdge(ctx context.Context, sel ast.Sele
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadEventEdge")
 		case "cursor":
-			out.Values[i] = ec._WorkloadEventEdge_cursor(ctx, field, obj)
+			out.Values[i] = _WorkloadEventEdge_cursor(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "node":
-			out.Values[i] = ec._WorkloadEventEdge_node(ctx, field, obj)
+			out.Values[i] = _WorkloadEventEdge_node(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -584,7 +583,7 @@ func (ec *executionContext) _WorkloadEventEdge(ctx context.Context, sel ast.Sele
 
 var workloadKillingEventImplementors = []string{"WorkloadKillingEvent", "WorkloadEvent", "Node"}
 
-func (ec *executionContext) _WorkloadKillingEvent(ctx context.Context, sel ast.SelectionSet, obj *event.WorkloadKillingEvent) graphql.Marshaler {
+func _WorkloadKillingEvent(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *event.WorkloadKillingEvent) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadKillingEventImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -594,27 +593,27 @@ func (ec *executionContext) _WorkloadKillingEvent(ctx context.Context, sel ast.S
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadKillingEvent")
 		case "id":
-			out.Values[i] = ec._WorkloadKillingEvent_id(ctx, field, obj)
+			out.Values[i] = _WorkloadKillingEvent_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "triggeredAt":
-			out.Values[i] = ec._WorkloadKillingEvent_triggeredAt(ctx, field, obj)
+			out.Values[i] = _WorkloadKillingEvent_triggeredAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._WorkloadKillingEvent_message(ctx, field, obj)
+			out.Values[i] = _WorkloadKillingEvent_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "container":
-			out.Values[i] = ec._WorkloadKillingEvent_container(ctx, field, obj)
+			out.Values[i] = _WorkloadKillingEvent_container(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "reason":
-			out.Values[i] = ec._WorkloadKillingEvent_reason(ctx, field, obj)
+			out.Values[i] = _WorkloadKillingEvent_reason(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -643,7 +642,7 @@ func (ec *executionContext) _WorkloadKillingEvent(ctx context.Context, sel ast.S
 
 var workloadSuccessfulRescaleEventImplementors = []string{"WorkloadSuccessfulRescaleEvent", "WorkloadEvent", "Node"}
 
-func (ec *executionContext) _WorkloadSuccessfulRescaleEvent(ctx context.Context, sel ast.SelectionSet, obj *event.WorkloadSuccessfulRescaleEvent) graphql.Marshaler {
+func _WorkloadSuccessfulRescaleEvent(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *event.WorkloadSuccessfulRescaleEvent) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadSuccessfulRescaleEventImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -653,27 +652,27 @@ func (ec *executionContext) _WorkloadSuccessfulRescaleEvent(ctx context.Context,
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("WorkloadSuccessfulRescaleEvent")
 		case "id":
-			out.Values[i] = ec._WorkloadSuccessfulRescaleEvent_id(ctx, field, obj)
+			out.Values[i] = _WorkloadSuccessfulRescaleEvent_id(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "triggeredAt":
-			out.Values[i] = ec._WorkloadSuccessfulRescaleEvent_triggeredAt(ctx, field, obj)
+			out.Values[i] = _WorkloadSuccessfulRescaleEvent_triggeredAt(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._WorkloadSuccessfulRescaleEvent_message(ctx, field, obj)
+			out.Values[i] = _WorkloadSuccessfulRescaleEvent_message(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "newSize":
-			out.Values[i] = ec._WorkloadSuccessfulRescaleEvent_newSize(ctx, field, obj)
+			out.Values[i] = _WorkloadSuccessfulRescaleEvent_newSize(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "direction":
-			out.Values[i] = ec._WorkloadSuccessfulRescaleEvent_direction(ctx, field, obj)
+			out.Values[i] = _WorkloadSuccessfulRescaleEvent_direction(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -704,21 +703,21 @@ func (ec *executionContext) _WorkloadSuccessfulRescaleEvent(ctx context.Context,
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNWorkloadEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEvent(ctx context.Context, sel ast.SelectionSet, v event.WorkloadEvent) graphql.Marshaler {
+func marshalNWorkloadEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEvent(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v event.WorkloadEvent) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadEvent(ctx, sel, v)
+	return _WorkloadEvent(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventᚄ(ctx context.Context, sel ast.SelectionSet, v []event.WorkloadEvent) graphql.Marshaler {
+func marshalNWorkloadEvent2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []event.WorkloadEvent) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWorkloadEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEvent(ctx, sel, v[i])
+		return marshalNWorkloadEvent2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEvent(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -730,29 +729,29 @@ func (ec *executionContext) marshalNWorkloadEvent2ᚕgithubᚗcomᚋnaisᚋapi�
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadEventConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
-	return ec._WorkloadEventConnection(ctx, sel, &v)
+func marshalNWorkloadEventConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
+	return _WorkloadEventConnection(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadEventConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
+func marshalNWorkloadEventConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *pagination.Connection[event.WorkloadEvent]) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._WorkloadEventConnection(ctx, sel, v)
+	return _WorkloadEventConnection(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNWorkloadEventEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, sel ast.SelectionSet, v pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
-	return ec._WorkloadEventEdge(ctx, sel, &v)
+func marshalNWorkloadEventEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
+	return _WorkloadEventEdge(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadEventEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
+func marshalNWorkloadEventEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdgeᚄ(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v []pagination.Edge[event.WorkloadEvent]) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNWorkloadEventEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, sel, v[i])
+		return marshalNWorkloadEventEdge2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐEdge(ctx, ec, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -764,21 +763,21 @@ func (ec *executionContext) marshalNWorkloadEventEdge2ᚕgithubᚗcomᚋnaisᚋa
 	return ret
 }
 
-func (ec *executionContext) unmarshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx context.Context, v any) (event.WorkloadSuccessfulRescaleEventDirection, error) {
+func unmarshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx context.Context, ec *executionContext, v any) (event.WorkloadSuccessfulRescaleEventDirection, error) {
 	var res event.WorkloadSuccessfulRescaleEventDirection
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx context.Context, sel ast.SelectionSet, v event.WorkloadSuccessfulRescaleEventDirection) graphql.Marshaler {
+func marshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v event.WorkloadSuccessfulRescaleEventDirection) graphql.Marshaler {
 	return v
 }
 
-func (ec *executionContext) unmarshalOWorkloadEventFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventFilter(ctx context.Context, v any) (*event.WorkloadEventFilter, error) {
+func unmarshalOWorkloadEventFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadEventFilter(ctx context.Context, ec *executionContext, v any) (*event.WorkloadEventFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputWorkloadEventFilter(ctx, v)
+	res, err := unmarshalInputWorkloadEventFilter(ctx, ec, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

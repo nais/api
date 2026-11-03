@@ -5,13 +5,12 @@ package gengql
 import (
 	"context"
 	"errors"
-	"math"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/price"
 	"github.com/vektah/gqlparser/v2/ast"
+	"math"
+	"strconv"
+	"sync/atomic"
 )
 
 // region    ************************** generated!.gotpl **************************
@@ -33,90 +32,90 @@ type CurrentUnitPricesResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _CurrentUnitPrices_cpu(ctx context.Context, field graphql.CollectedField, obj *price.CurrentUnitPrices) (ret graphql.Marshaler) {
+func _CurrentUnitPrices_cpu(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *price.CurrentUnitPrices) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CurrentUnitPrices_cpu(ctx, field)
+			return fieldContext_CurrentUnitPrices_cpu(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.CurrentUnitPrices().CPU(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *price.Price) graphql.Marshaler {
-			return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, selections, v)
+			return marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_CurrentUnitPrices_cpu(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CurrentUnitPrices_cpu(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CurrentUnitPrices",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Price(ctx, field)
+			return childFields_Price(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _CurrentUnitPrices_memory(ctx context.Context, field graphql.CollectedField, obj *price.CurrentUnitPrices) (ret graphql.Marshaler) {
+func _CurrentUnitPrices_memory(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *price.CurrentUnitPrices) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_CurrentUnitPrices_memory(ctx, field)
+			return fieldContext_CurrentUnitPrices_memory(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return ec.Resolvers.CurrentUnitPrices().Memory(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *price.Price) graphql.Marshaler {
-			return ec.marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, selections, v)
+			return marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_CurrentUnitPrices_memory(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_CurrentUnitPrices_memory(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "CurrentUnitPrices",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Price(ctx, field)
+			return childFields_Price(ctx, ec, field)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Price_value(ctx context.Context, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
+func _Price_value(ctx context.Context, ec *executionContext, field graphql.CollectedField, obj *price.Price) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Price_value(ctx, field)
+			return fieldContext_Price_value(ctx, ec, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Value, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
-			return ec.marshalNFloat2float64(ctx, selections, v)
+			return marshalNFloat2float64(ctx, ec, selections, v)
 		},
 		true,
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Price_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func fieldContext_Price_value(_ context.Context, ec *executionContext, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Price", field, false, false, errors.New("field of type Float does not have child fields"))
 }
 
@@ -134,7 +133,7 @@ func (ec *executionContext) fieldContext_Price_value(_ context.Context, field gr
 
 var currentUnitPricesImplementors = []string{"CurrentUnitPrices"}
 
-func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, obj *price.CurrentUnitPrices) graphql.Marshaler {
+func _CurrentUnitPrices(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *price.CurrentUnitPrices) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, currentUnitPricesImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -152,7 +151,7 @@ func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._CurrentUnitPrices_cpu(ctx, field, obj)
+				res = _CurrentUnitPrices_cpu(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -188,7 +187,7 @@ func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.Sele
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._CurrentUnitPrices_memory(ctx, field, obj)
+				res = _CurrentUnitPrices_memory(ctx, ec, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -240,7 +239,7 @@ func (ec *executionContext) _CurrentUnitPrices(ctx context.Context, sel ast.Sele
 
 var priceImplementors = []string{"Price"}
 
-func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, obj *price.Price) graphql.Marshaler {
+func _Price(ctx context.Context, ec *executionContext, sel ast.SelectionSet, obj *price.Price) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, priceImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -250,7 +249,7 @@ func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, ob
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Price")
 		case "value":
-			out.Values[i] = ec._Price_value(ctx, field, obj)
+			out.Values[i] = _Price_value(ctx, ec, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -281,32 +280,32 @@ func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, ob
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNCurrentUnitPrices2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, v price.CurrentUnitPrices) graphql.Marshaler {
-	return ec._CurrentUnitPrices(ctx, sel, &v)
+func marshalNCurrentUnitPrices2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v price.CurrentUnitPrices) graphql.Marshaler {
+	return _CurrentUnitPrices(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNCurrentUnitPrices2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, sel ast.SelectionSet, v *price.CurrentUnitPrices) graphql.Marshaler {
+func marshalNCurrentUnitPrices2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐCurrentUnitPrices(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *price.CurrentUnitPrices) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CurrentUnitPrices(ctx, sel, v)
+	return _CurrentUnitPrices(ctx, ec, sel, v)
 }
 
-func (ec *executionContext) marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v price.Price) graphql.Marshaler {
-	return ec._Price(ctx, sel, &v)
+func marshalNPrice2githubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v price.Price) graphql.Marshaler {
+	return _Price(ctx, ec, sel, &v)
 }
 
-func (ec *executionContext) marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, sel ast.SelectionSet, v *price.Price) graphql.Marshaler {
+func marshalNPrice2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpriceᚐPrice(ctx context.Context, ec *executionContext, sel ast.SelectionSet, v *price.Price) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Price(ctx, sel, v)
+	return _Price(ctx, ec, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

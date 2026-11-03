@@ -25,6 +25,6 @@ func (r *teamEnvironmentResolver) Environment(ctx context.Context, obj *team.Tea
 	return environment.Get(ctx, obj.EnvironmentName)
 }
 
-func (r *Resolver) Environment() gengql.EnvironmentResolver { return &environmentResolver{r} }
+func (r *Resolver) Environment() gengql.EnvironmentResolver { return &environmentResolver{r.resolver} }
 
-type environmentResolver struct{ *Resolver }
+type environmentResolver struct{ *resolver }

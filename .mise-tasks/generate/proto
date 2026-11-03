@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #MISE description="Generate proto code using protoc"
+#MISE depends_post=["fmt:go"]
 
 set -e
 
@@ -9,5 +10,3 @@ protoc \
 	--go_opt=default_api_level=API_HYBRID \
 	--go_out=. \
 	--go-grpc_out=.
-
-mise run fmt:go

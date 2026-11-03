@@ -265,21 +265,21 @@ func (r *teamServiceUtilizationSqlInstancesResolver) Disk(ctx context.Context, o
 	return ret, nil
 }
 
-func (r *Resolver) SqlDatabase() gengql.SqlDatabaseResolver { return &sqlDatabaseResolver{r} }
+func (r *Resolver) SqlDatabase() gengql.SqlDatabaseResolver { return &sqlDatabaseResolver{r.resolver} }
 
-func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r} }
+func (r *Resolver) SqlInstance() gengql.SqlInstanceResolver { return &sqlInstanceResolver{r.resolver} }
 
 func (r *Resolver) SqlInstanceMetrics() gengql.SqlInstanceMetricsResolver {
-	return &sqlInstanceMetricsResolver{r}
+	return &sqlInstanceMetricsResolver{r.resolver}
 }
 
 func (r *Resolver) TeamServiceUtilizationSqlInstances() gengql.TeamServiceUtilizationSqlInstancesResolver {
-	return &teamServiceUtilizationSqlInstancesResolver{r}
+	return &teamServiceUtilizationSqlInstancesResolver{r.resolver}
 }
 
 type (
-	sqlDatabaseResolver                        struct{ *Resolver }
-	sqlInstanceResolver                        struct{ *Resolver }
-	sqlInstanceMetricsResolver                 struct{ *Resolver }
-	teamServiceUtilizationSqlInstancesResolver struct{ *Resolver }
+	sqlDatabaseResolver                        struct{ *resolver }
+	sqlInstanceResolver                        struct{ *resolver }
+	sqlInstanceMetricsResolver                 struct{ *resolver }
+	teamServiceUtilizationSqlInstancesResolver struct{ *resolver }
 )

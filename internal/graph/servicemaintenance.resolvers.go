@@ -144,14 +144,14 @@ func (r *valkeyMaintenanceResolver) Updates(ctx context.Context, obj *servicemai
 }
 
 func (r *Resolver) OpenSearchMaintenance() gengql.OpenSearchMaintenanceResolver {
-	return &openSearchMaintenanceResolver{r}
+	return &openSearchMaintenanceResolver{r.resolver}
 }
 
 func (r *Resolver) ValkeyMaintenance() gengql.ValkeyMaintenanceResolver {
-	return &valkeyMaintenanceResolver{r}
+	return &valkeyMaintenanceResolver{r.resolver}
 }
 
 type (
-	openSearchMaintenanceResolver struct{ *Resolver }
-	valkeyMaintenanceResolver     struct{ *Resolver }
+	openSearchMaintenanceResolver struct{ *resolver }
+	valkeyMaintenanceResolver     struct{ *resolver }
 )
