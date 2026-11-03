@@ -29508,8 +29508,13 @@ enum PostgresAccessLevel {
 	READ
 	"Read and modify existing data."
 	READWRITE
-	"Read, modify, and create database objects where supported."
+	"Read and modify data and create objects in public, without database ownership."
 	READWRITECREATE
+		@deprecated(
+			reason: "This level will be removed in a future API change. Until then, it remains available with unchanged privileges. ADMIN grants broader database-owner privileges."
+		)
+	"Administer the application database through membership in its owner role, with the same database privileges as workload admin but without PostgreSQL superuser privileges."
+	ADMIN
 	"Monitor and maintain the PostgreSQL instance through pg_monitor and pg_maintain, without granting application data access or database ownership."
 	MAINTAIN
 }
@@ -35837,11 +35842,14 @@ extend type ContainerImage {
 }
 
 extend type Team {
-	vulnerabilitySummary(filter: TeamVulnerabilitySummaryFilter): TeamVulnerabilitySummary!
+	vulnerabilitySummary(
+		"Filter the aggregate by environment, priority, KEV or user labels."
+		filter: TeamVulnerabilitySummaryFilter
+	): TeamVulnerabilitySummary!
 
 	"Fetch vulnerability summaries for workloads in the team."
 	vulnerabilitySummaries(
-		"Filter vulnerability summaries by environment."
+		"Filter workload vulnerability summaries by environment, priority, KEV or user labels."
 		filter: TeamVulnerabilitySummaryFilter
 
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -35889,6 +35897,12 @@ extend enum ActivityLogEntryResourceType {
 Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
+	"""
+	Match all user-label filters for team vulnerability summaries and their aggregate.
+	An omitted value matches any value; an empty string matches only an empty value.
+	"""
+	labels: [LabelFilter!]
+
 	"""
 	Only return vulnerability summaries for the given environment.
 	"""
@@ -36603,7 +36617,7 @@ type TeamVulnerabilitySummary {
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 
-	"Trend of vulnerability status for the team."
+	"Trend of vulnerability status for the whole team. Not affected by the vulnerabilitySummary filter."
 	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
 

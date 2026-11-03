@@ -392,12 +392,13 @@ const (
 	PostgresAccessLevelRead            PostgresAccessLevel = "READ"
 	PostgresAccessLevelReadWrite       PostgresAccessLevel = "READWRITE"
 	PostgresAccessLevelReadWriteCreate PostgresAccessLevel = "READWRITECREATE"
+	PostgresAccessLevelAdmin           PostgresAccessLevel = "ADMIN"
 	PostgresAccessLevelMaintain        PostgresAccessLevel = "MAINTAIN"
 )
 
 func (e PostgresAccessLevel) IsValid() bool {
 	switch e {
-	case PostgresAccessLevelRead, PostgresAccessLevelReadWrite, PostgresAccessLevelReadWriteCreate, PostgresAccessLevelMaintain:
+	case PostgresAccessLevelRead, PostgresAccessLevelReadWrite, PostgresAccessLevelReadWriteCreate, PostgresAccessLevelAdmin, PostgresAccessLevelMaintain:
 		return true
 	}
 	return false

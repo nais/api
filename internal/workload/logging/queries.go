@@ -3,6 +3,7 @@ package logging
 import (
 	"context"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/workload"
@@ -11,21 +12,21 @@ import (
 
 func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 	logging := wl.GetLogging()
-	if logging == nil {
-		logging = &nais_io_v1.Logging{
-			Enabled: true,
-		}
-
-		for _, dl := range fromContext(ctx).defaultLogDestinations {
-			logging.Destinations = append(logging.Destinations, nais_io_v1.LogDestination{
-				ID: string(dl),
-			})
-		}
-	}
-
-	if !logging.Enabled {
+	if logging != nil && !logging.Enabled {
 		// Log destinations are disabled
 		return []LogDestination{}
+	}
+
+	var logDestinations []nais_io_v1.LogDestination
+	if logging != nil {
+		logDestinations = logging.Destinations
+	}
+	if len(logDestinations) == 0 {
+		destination := fromContext(ctx).environmentDestinations[environmentmapper.ClusterName(wl.GetEnvironmentName())]
+		if destination == "" {
+			destination = Loki
+		}
+		logDestinations = []nais_io_v1.LogDestination{{ID: string(destination)}}
 	}
 
 	base := logDestinationBase{
@@ -36,7 +37,7 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 	}
 
 	var destinations []LogDestination
-	for _, logDestination := range logging.Destinations {
+	for _, logDestination := range logDestinations {
 		switch SupportedLogDestination(logDestination.ID) {
 		case SecureLogs:
 			destinations = append(destinations, LogDestinationSecureLogs{base})
@@ -49,11 +50,6 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 				Name:               logDestination.ID,
 			})
 		}
-	}
-
-	// If no destinations are defined, default to Loki
-	if len(logging.Destinations) == 0 {
-		destinations = append(destinations, LogDestinationLoki{base})
 	}
 
 	return destinations

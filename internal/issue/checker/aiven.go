@@ -38,13 +38,15 @@ func (a Aiven) Run(ctx context.Context) ([]Issue, error) {
 				a.log.WithField("service_type", *alert.ServiceType).WithField("event", alert.Event).Warn("unknown Aiven service type")
 				continue
 			}
+
+			team, name := getTeamAndNameFromServiceName(*alert.ServiceName)
 			issue := Issue{
-				ResourceName: *alert.ServiceName,
+				ResourceName: name,
 				ResourceType: issue.ResourceType(strings.ToUpper(*alert.ServiceType)), // TODO: assume these are ok, may have to map
 				Env:          env,
-				Team:         getTeamFromServiceName(*alert.ServiceName), // lookup team by project and service type and name
+				Team:         team, // lookup team by project and service type and name
 				IssueType:    issueType,
-				Message:      message(alert.Event, *alert.ServiceType, *alert.ServiceName, alert.Event),
+				Message:      message(alert.Event, *alert.ServiceType, name, alert.Event),
 				IssueDetails: issue.AivenIssueDetails{
 					Event: alert.Event,
 				},
@@ -89,12 +91,13 @@ func projects(tenant string, envs []string) map[string]string {
 	return ret
 }
 
-func getTeamFromServiceName(s string) string {
-	parts := strings.Split(s, "-")
+func getTeamAndNameFromServiceName(s string) (team, name string) {
+	// opensearch-navno-enonic-cms-archive
+	parts := strings.SplitN(s, "-", 3)
 	if len(parts) >= 3 {
-		return parts[1]
+		return parts[1], parts[2]
 	}
-	return "unknown"
+	return "unknown", "unknown"
 }
 
 func severity(severity string) issue.Severity {

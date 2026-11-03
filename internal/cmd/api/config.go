@@ -114,9 +114,8 @@ type UnleashConfig struct {
 }
 
 type loggingConfig struct {
-	LokiDefault        bool   `env:"LOGGING_LOKI_CLUSTER_DEFAULT"`
-	SecureLogsDefault  bool   `env:"LOGGING_SECURE_LOGS_CLUSTER_DEFAULT"`
-	LokiQuerierAddress string `env:"LOKI_QUERIER_ADDRESS,default=http://loki-query-frontend.nais-system.svc:3100"`
+	Destinations       logging.EnvironmentDestinations `env:"LOGGING_DESTINATIONS"`
+	LokiQuerierAddress string                          `env:"LOKI_QUERIER_ADDRESS,default=http://loki-query-frontend.nais-system.svc:3100"`
 }
 
 type zitadelConfig struct {
@@ -135,17 +134,6 @@ type zitadelConfig struct {
 	// NaisOrganizationID enables syncing and authenticating nais.io users from this Zitadel organization.
 	// The usersync machine user must have read access to its users.
 	NaisOrganizationID string `env:"ZITADEL_NAIS_ORGANIZATION_ID"`
-}
-
-func (l loggingConfig) DefaultLogDestinations() []logging.SupportedLogDestination {
-	var destinations []logging.SupportedLogDestination
-	if l.LokiDefault {
-		destinations = append(destinations, logging.Loki)
-	}
-	if l.SecureLogsDefault {
-		destinations = append(destinations, logging.SecureLogs)
-	}
-	return destinations
 }
 
 type Aiven struct {
