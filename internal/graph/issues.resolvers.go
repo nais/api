@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
@@ -102,6 +103,14 @@ func (r *openSearchIssueResolver) TeamEnvironment(ctx context.Context, obj *issu
 
 func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.OpenSearchIssue) (*opensearch.OpenSearch, error) {
 	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
+}
+
+func (r *postgresBranchIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.PostgresBranchIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *postgresBranchIssueResolver) Branch(ctx context.Context, obj *issue.PostgresBranchIssue) (*postgres.PostgresBranch, error) {
+	return postgres.GetPostgresBranchByObjectName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
 func (r *sqlInstanceStateIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.SqlInstanceStateIssue) (*team.TeamEnvironment, error) {
@@ -205,6 +214,10 @@ func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
 
+func (r *Resolver) PostgresBranchIssue() gengql.PostgresBranchIssueResolver {
+	return &postgresBranchIssueResolver{r}
+}
+
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
 	return &sqlInstanceStateIssueResolver{r}
 }
@@ -239,6 +252,7 @@ type (
 	missingSbomIssueResolver                        struct{ *Resolver }
 	noRunningInstancesIssueResolver                 struct{ *Resolver }
 	openSearchIssueResolver                         struct{ *Resolver }
+	postgresBranchIssueResolver                     struct{ *Resolver }
 	sqlInstanceStateIssueResolver                   struct{ *Resolver }
 	sqlInstanceVersionIssueResolver                 struct{ *Resolver }
 	unleashReleaseChannelIssueResolver              struct{ *Resolver }

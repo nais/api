@@ -218,7 +218,7 @@ func ConfigureGraph(
 	hookdClient hookd.Client,
 	unleashCfg UnleashConfig,
 	allowedClusters []string,
-	defaultLogDestinations []logging.SupportedLogDestination,
+	environmentDestinations logging.EnvironmentDestinations,
 	notifier *notify.Notifier,
 	lokiClient loki.Client,
 	auditLogProjectID string,
@@ -403,7 +403,7 @@ func ConfigureGraph(
 		ctx = search.NewLoaderContext(ctx, pool, searcher)
 		ctx = unleash.NewLoaderContext(ctx, tenantName, watchers.UnleashWatcher, unleashCfg.Enabled, unleashCfg.BifrostAPIURL, unleashCfg.BifrostAPIKey, allowedClusters, log)
 		ctx = tunnel.WithLoaders(ctx, tunnel.NewLoaders(watchers.TunnelWatcher))
-		ctx = logging.NewPackageContext(ctx, tenantName, defaultLogDestinations)
+		ctx = logging.NewPackageContext(ctx, tenantName, environmentDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
 		unleashAvailable := unleashCfg.Enabled && watchers.UnleashWatcher != nil && watchers.UnleashWatcher.Enabled()
 		ctx = feature.NewLoaderContext(

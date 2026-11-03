@@ -48,6 +48,15 @@ func (ValkeyIssue) IsIssue() {}
 
 func (ValkeyIssue) IsNode() {}
 
+// PostgresBranchIssue reports a failure on a Postgres branch.
+type PostgresBranchIssue struct {
+	Base
+}
+
+func (PostgresBranchIssue) IsIssue() {}
+
+func (PostgresBranchIssue) IsNode() {}
+
 type SqlInstanceVersionIssue struct {
 	Base
 }
@@ -120,12 +129,13 @@ func (DeprecatedIngressIssue) IsNode() {}
 type ResourceType string
 
 const (
-	ResourceTypeOpensearch  ResourceType = "OPENSEARCH"
-	ResourceTypeValkey      ResourceType = "VALKEY"
-	ResourceTypeSQLInstance ResourceType = "SQLINSTANCE"
-	ResourceTypeApplication ResourceType = "APPLICATION"
-	ResourceTypeJob         ResourceType = "JOB"
-	ResourceTypeUnleash     ResourceType = "UNLEASH"
+	ResourceTypeOpensearch     ResourceType = "OPENSEARCH"
+	ResourceTypeValkey         ResourceType = "VALKEY"
+	ResourceTypeSQLInstance    ResourceType = "SQLINSTANCE"
+	ResourceTypeApplication    ResourceType = "APPLICATION"
+	ResourceTypeJob            ResourceType = "JOB"
+	ResourceTypeUnleash        ResourceType = "UNLEASH"
+	ResourceTypePostgresBranch ResourceType = "POSTGRES_BRANCH"
 )
 
 var AllResourceType = []ResourceType{
@@ -135,11 +145,12 @@ var AllResourceType = []ResourceType{
 	ResourceTypeApplication,
 	ResourceTypeJob,
 	ResourceTypeUnleash,
+	ResourceTypePostgresBranch,
 }
 
 func (e ResourceType) IsValid() bool {
 	switch e {
-	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash:
+	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash, ResourceTypePostgresBranch:
 		return true
 	}
 	return false
@@ -210,6 +221,7 @@ const (
 	IssueTypeExternalIngressUrgentVulnerability IssueType = "EXTERNAL_INGRESS_URGENT_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel              IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop             IssueType = "APPLICATION_RESTART_LOOP"
+	IssueTypePostgresBranch                     IssueType = "POSTGRES_BRANCH"
 )
 
 var AllIssueType = []IssueType{
@@ -229,6 +241,7 @@ var AllIssueType = []IssueType{
 	IssueTypeExternalIngressUrgentVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
+	IssueTypePostgresBranch,
 }
 
 func (e IssueType) IsValid() bool {
@@ -239,7 +252,7 @@ func (e IssueType) IsValid() bool {
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM,
 		IssueTypeExternalIngressUrgentVulnerability, IssueTypeUnleashReleaseChannel,
-		IssueTypeApplicationRestartLoop:
+		IssueTypeApplicationRestartLoop, IssueTypePostgresBranch:
 		return true
 	}
 	return false

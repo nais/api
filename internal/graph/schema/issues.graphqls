@@ -206,6 +206,8 @@ enum Severity {
 }
 
 enum ResourceType {
+	"A branch of a Postgres database."
+	POSTGRES_BRANCH
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -215,6 +217,8 @@ enum ResourceType {
 }
 
 enum IssueType {
+	"Raised when a Postgres branch has reported a failure."
+	POSTGRES_BRANCH
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -343,6 +347,20 @@ type ValkeyIssue implements Issue & Node {
 
 	valkey: Valkey!
 	event: String!
+}
+
+"A failure reported by a Postgres branch, including inactive branches."
+type PostgresBranchIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"Team environment containing the affected branch."
+	teamEnvironment: TeamEnvironment!
+	"Severity of the reported failure."
+	severity: Severity!
+	"Description of the reported failure."
+	message: String!
+	"The branch that reported the failure."
+	branch: PostgresBranch!
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {

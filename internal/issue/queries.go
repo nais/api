@@ -120,6 +120,8 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 	}
 
 	switch IssueType(issue.IssueType) {
+	case IssueTypePostgresBranch:
+		return &PostgresBranchIssue{Base: base}, nil
 	case IssueTypeOpenSearch:
 		d, err := unmarshal[AivenIssueDetails](issue.IssueDetails)
 		if err != nil {

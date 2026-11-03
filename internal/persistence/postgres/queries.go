@@ -628,15 +628,15 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		}
 		if existing.GetDeletionTimestamp() == nil && existingExpiry(existing).After(time.Now()) {
 			level, _, _ := unstructured.NestedString(existing.Object, "spec", "accessLevel")
-			if level != input.AccessLevel.CRDValue() {
-				return nil, apierror.Errorf("You already have %s access to this branch until %s. Wait for it to expire before requesting a different access level.", level, existingExpiry(existing).Format(time.RFC3339))
+			if level == input.AccessLevel.CRDValue() {
+				return &CreatePostgresAccessPayload{Name: name, ExpiresAt: existingExpiry(existing)}, nil
 			}
-			return &CreatePostgresAccessPayload{Name: name, ExpiresAt: existingExpiry(existing)}, nil
 		}
 		if attempt > 0 {
 			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
 		}
-		// The immutable expired access must disappear before it can be replaced.
+		// The immutable access must disappear before it can be replaced after
+		// expiry or a change in access level.
 		// Only delete the UID we inspected, never a concurrent replacement.
 		uid := existing.GetUID()
 		if existing.GetDeletionTimestamp() == nil {

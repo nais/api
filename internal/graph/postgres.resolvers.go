@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/workload"
@@ -169,6 +170,23 @@ func (r *postgresBranchResolver) Workloads(ctx context.Context, obj *postgres.Po
 	workloads := postgres.WorkloadsForInstance(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName, obj.Name)
 
 	return pagination.NewConnection(pagination.Slice(workloads, page), page, len(workloads)), nil
+}
+
+func (r *postgresBranchResolver) Issues(ctx context.Context, obj *postgres.PostgresBranch, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	scope := &issue.IssueScope{
+		ResourceName: obj.GetName(),
+		ResourceType: issue.ResourceTypePostgresBranch,
+		Env:          obj.EnvironmentName,
+	}
+	var f *issue.IssueFilter
+	if filter != nil {
+		f = &issue.IssueFilter{ResourceIssueFilter: *filter}
+	}
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
 }
 
 func (r *postgresBranchConnectionResolver) Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter]) (*postgres.PostgresBranchFacets, error) {
