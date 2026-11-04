@@ -1,3 +1,28 @@
+extend type Query {
+	"""
+	Issues across teams in the tenant, ordered by severity unless otherwise specified.
+	"""
+	issues(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: IssueOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TenantIssueFilter
+	): IssueConnection!
+}
+
 extend type Team {
 	"Issues that affects the team."
 	issues(
@@ -29,7 +54,29 @@ input IssueOrder {
 	direction: OrderDirection!
 }
 
+"Filtering options for issues."
 input IssueFilter {
+	"Filter by resource name."
+	resourceName: String
+
+	"Filter by resource type."
+	resourceType: ResourceType
+
+	"Filter by environment."
+	environments: [String!]
+
+	"Filter by severity."
+	severity: Severity
+
+	"Filter by issue type."
+	issueType: IssueType
+}
+
+"Filtering options for issues across teams."
+input TenantIssueFilter {
+	"Filter by team selection."
+	teamScope: TeamScopeInput
+
 	"Filter by resource name."
 	resourceName: String
 
@@ -88,6 +135,9 @@ type IssueConnection {
 Facets for issues, providing distribution counts across different dimensions.
 """
 type IssueFacets {
+	"Up to 10 teams with matching issues, ordered by count descending, then team slug."
+	teams: [IssueTeamFacetItem!]!
+
 	"""
 	Distribution of issues by environment.
 	"""
@@ -107,6 +157,17 @@ type IssueFacets {
 	Distribution of issues by issue type.
 	"""
 	issueTypes: [IssueTypeFacetItem!]!
+}
+
+"""
+A single facet item for teams.
+"""
+type IssueTeamFacetItem {
+	"The team."
+	team: Team!
+
+	"Number of matching issues."
+	count: Int!
 }
 
 """

@@ -50,9 +50,14 @@ input SearchFilter {
 	types: [SearchType!]
 
 	"""
+	Team selection. An empty query defaults to memberships when no selection is supplied.
+	"""
+	teamScope: TeamScopeInput
+
+	"""
 	Teams to search in. If not specified, all teams will be searched.
 	"""
-	teams: [Slug!]
+	teams: [Slug!] @deprecated(reason: "Use teamScope.teamSlugs instead.")
 }
 
 """

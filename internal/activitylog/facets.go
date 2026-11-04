@@ -20,6 +20,7 @@ func ComputeFacets(ctx context.Context, scope *ActivityLogScope, filter *Activit
 
 	if scope != nil && scope.TenantWide {
 		rows, err := q.FacetsForTenantActivityTypes(ctx, activitylogsql.FacetsForTenantActivityTypesParams{
+			TeamSlugs:           scope.TeamSlugs,
 			From:                from,
 			To:                  to,
 			Filter:              filterValues,

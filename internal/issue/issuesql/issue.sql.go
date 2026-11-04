@@ -8,10 +8,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 const facetsForIssues = `-- name: FacetsForIssues :many
 SELECT
+	team,
 	severity,
 	resource_type,
 	env,
@@ -42,25 +44,34 @@ SELECT
 FROM
 	issues
 WHERE
-	team = $6
+	(
+		$6::TEXT = ''
+		OR team = $6
+	)
 	AND (
-		$7::TEXT IS NULL
-		OR resource_type = $7::TEXT
+		$7::slug[] IS NULL
+		OR team = ANY ($7::slug[])
 	)
 	AND (
 		$8::TEXT IS NULL
-		OR resource_name = $8::TEXT
+		OR resource_type = $8::TEXT
 	)
 	AND (
 		$9::TEXT IS NULL
-		OR env = $9::TEXT
+		OR resource_name = $9::TEXT
+	)
+	AND (
+		$10::TEXT IS NULL
+		OR env = $10::TEXT
 	)
 GROUP BY
+	team,
 	severity,
 	resource_type,
 	env,
 	issue_type
 ORDER BY
+	team,
 	severity,
 	resource_type,
 	env,
@@ -74,12 +85,14 @@ type FacetsForIssuesParams struct {
 	FilterResourceType *string
 	FilterResourceName *string
 	Team               string
+	TeamSlugs          []slug.Slug
 	ScopeResourceType  *string
 	ScopeResourceName  *string
 	ScopeEnv           *string
 }
 
 type FacetsForIssuesRow struct {
+	Team          string
 	Severity      SeverityLevel
 	ResourceType  string
 	Env           string
@@ -95,6 +108,7 @@ func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams
 		arg.FilterResourceType,
 		arg.FilterResourceName,
 		arg.Team,
+		arg.TeamSlugs,
 		arg.ScopeResourceType,
 		arg.ScopeResourceName,
 		arg.ScopeEnv,
@@ -107,6 +121,7 @@ func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams
 	for rows.Next() {
 		var i FacetsForIssuesRow
 		if err := rows.Scan(
+			&i.Team,
 			&i.Severity,
 			&i.ResourceType,
 			&i.Env,
@@ -195,68 +210,76 @@ SELECT
 FROM
 	issues
 WHERE
-	team = $1
-	AND (
-		$2::TEXT[] IS NULL
-		OR env = ANY ($2::TEXT[])
+	(
+		$1::TEXT = ''
+		OR team = $1
 	)
 	AND (
-		$3::TEXT IS NULL
-		OR issue_type = $3::TEXT
+		$2::slug[] IS NULL
+		OR team = ANY ($2::slug[])
 	)
 	AND (
-		$4::severity_level IS NULL
-		OR severity = $4::severity_level
+		$3::TEXT[] IS NULL
+		OR env = ANY ($3::TEXT[])
 	)
 	AND (
-		$5::TEXT IS NULL
-		OR resource_type = $5::TEXT
+		$4::TEXT IS NULL
+		OR issue_type = $4::TEXT
+	)
+	AND (
+		$5::severity_level IS NULL
+		OR severity = $5::severity_level
 	)
 	AND (
 		$6::TEXT IS NULL
-		OR resource_name = $6::TEXT
+		OR resource_type = $6::TEXT
+	)
+	AND (
+		$7::TEXT IS NULL
+		OR resource_name = $7::TEXT
 	)
 ORDER BY
 	CASE
-		WHEN $7::TEXT = 'env:asc' THEN env
+		WHEN $8::TEXT = 'env:asc' THEN env
 	END ASC,
 	CASE
-		WHEN $7::TEXT = 'env:desc' THEN env
+		WHEN $8::TEXT = 'env:desc' THEN env
 	END DESC,
 	CASE
-		WHEN $7::TEXT = 'issue_type:asc' THEN issue_type
+		WHEN $8::TEXT = 'issue_type:asc' THEN issue_type
 	END ASC,
 	CASE
-		WHEN $7::TEXT = 'issue_type:desc' THEN issue_type
+		WHEN $8::TEXT = 'issue_type:desc' THEN issue_type
 	END DESC,
 	CASE
-		WHEN $7::TEXT = 'resource_type:asc' THEN resource_type
+		WHEN $8::TEXT = 'resource_type:asc' THEN resource_type
 	END ASC,
 	CASE
-		WHEN $7::TEXT = 'resource_type:desc' THEN resource_type
+		WHEN $8::TEXT = 'resource_type:desc' THEN resource_type
 	END DESC,
 	CASE
-		WHEN $7::TEXT = 'resource_name:asc' THEN resource_name
+		WHEN $8::TEXT = 'resource_name:asc' THEN resource_name
 	END ASC,
 	CASE
-		WHEN $7::TEXT = 'resource_name:desc' THEN resource_name
+		WHEN $8::TEXT = 'resource_name:desc' THEN resource_name
 	END DESC,
 	CASE
-		WHEN $7::TEXT = 'severity:asc' THEN severity
+		WHEN $8::TEXT = 'severity:asc' THEN severity
 	END ASC,
 	CASE
-		WHEN $7::TEXT = 'severity:desc' THEN severity
+		WHEN $8::TEXT = 'severity:desc' THEN severity
 	END DESC,
 	severity DESC,
 	id
 OFFSET
-	$8
-LIMIT
 	$9
+LIMIT
+	$10
 `
 
 type ListIssuesParams struct {
 	Team         string
+	TeamSlugs    []slug.Slug
 	Env          []string
 	IssueType    *string
 	Severity     *SeverityLevel
@@ -284,6 +307,7 @@ type ListIssuesRow struct {
 func (q *Queries) ListIssues(ctx context.Context, arg ListIssuesParams) ([]*ListIssuesRow, error) {
 	rows, err := q.db.Query(ctx, listIssues,
 		arg.Team,
+		arg.TeamSlugs,
 		arg.Env,
 		arg.IssueType,
 		arg.Severity,

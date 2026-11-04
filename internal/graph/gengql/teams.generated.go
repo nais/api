@@ -32,6 +32,7 @@ import (
 	"github.com/nais/api/internal/serviceaccount"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/team/teamscope"
 	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
@@ -7947,13 +7948,20 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"hasWorkloads", "vulnerabilityPriorityGroup"}
+	fieldsInOrder := [...]string{"teamScope", "hasWorkloads", "vulnerabilityPriorityGroup"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "teamScope":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamScope"))
+			data, err := ec.unmarshalOTeamScopeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚋteamscopeᚐTeamScopeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamScope = data
 		case "hasWorkloads":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasWorkloads"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -8042,6 +8050,43 @@ func (ec *executionContext) unmarshalInputTeamOrder(ctx context.Context, obj any
 				return it, err
 			}
 			it.Direction = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTeamScopeInput(ctx context.Context, obj any) (teamscope.TeamScopeInput, error) {
+	var it teamscope.TeamScopeInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamSlugs", "memberOfViewer"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamSlugs":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamSlugs"))
+			data, err := ec.unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamSlugs = data
+		case "memberOfViewer":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("memberOfViewer"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MemberOfViewer = data
 		}
 	}
 	return it, nil
@@ -13114,6 +13159,14 @@ func (ec *executionContext) unmarshalOTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋi
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputTeamOrder(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTeamScopeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚋteamscopeᚐTeamScopeInput(ctx context.Context, v any) (*teamscope.TeamScopeInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTeamScopeInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

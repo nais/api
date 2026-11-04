@@ -26,7 +26,7 @@ extend type Query {
 		"""
 		Filter items.
 		"""
-		filter: ActivityLogFilter
+		filter: TenantActivityLogFilter
 	): ActivityLogEntryConnection!
 }
 
@@ -238,6 +238,7 @@ extend type ServiceAccount implements ActivityLogger {
 	): ActivityLogEntryConnection!
 }
 
+"Filtering options for activity log entries."
 input ActivityLogFilter {
 	"""
 	Only include entries whose activity type matches one of these values.
@@ -265,6 +266,27 @@ input ActivityLogFilter {
 	Only include entries created before this timestamp.
 	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
 	"""
+	to: Time
+}
+
+"Filtering options for activity log entries across teams."
+input TenantActivityLogFilter {
+	"Filter by team selection. Excludes entries without a team."
+	teamScope: TeamScopeInput
+
+	"Only include entries matching these activity types."
+	activityTypes: [ActivityLogActivityType!]
+
+	"Only include entries matching these resource types."
+	resourceTypes: [ActivityLogEntryResourceType!]
+
+	"Only include entries in these environments."
+	environments: [String!]
+
+	"Only include entries created at or after this timestamp."
+	from: Time
+
+	"Only include entries created before this timestamp."
 	to: Time
 }
 

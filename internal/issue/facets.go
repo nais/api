@@ -10,10 +10,12 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func ComputeFacets(ctx context.Context, teamSlug slug.Slug, scope *IssueScope, filter *IssueFilter) (*IssueFacets, error) {
+func ComputeFacets(ctx context.Context, connection *IssueConnection) (*IssueFacets, error) {
 	params := issuesql.FacetsForIssuesParams{
-		Team: teamSlug.String(),
+		Team:      connection.teamSlug.String(),
+		TeamSlugs: connection.teamSlugs,
 	}
+	scope, filter := connection.scope, connection.filter
 
 	if scope != nil {
 		params.ScopeResourceName = &scope.ResourceName
@@ -48,6 +50,7 @@ func buildFacets(rows []*issuesql.FacetsForIssuesRow) *IssueFacets {
 	resourceTypeCounts := map[ResourceType]int{}
 	environmentCounts := map[string]int{}
 	issueTypeCounts := map[IssueType]int{}
+	teamCounts := map[slug.Slug]int{}
 
 	for _, row := range rows {
 		sev := Severity(row.Severity)
@@ -68,6 +71,9 @@ func buildFacets(rows []*issuesql.FacetsForIssuesRow) *IssueFacets {
 		}
 
 		filtered := int(row.FilteredCount)
+		if filtered > 0 {
+			teamCounts[slug.Slug(row.Team)] += filtered
+		}
 		severityCounts[sev] += filtered
 		resourceTypeCounts[rt] += filtered
 		environmentCounts[row.Env] += filtered
@@ -104,7 +110,20 @@ func buildFacets(rows []*issuesql.FacetsForIssuesRow) *IssueFacets {
 		return strings.Compare(a.IssueType.String(), b.IssueType.String())
 	})
 
+	teams := make([]IssueTeamFacetItem, 0, len(teamCounts))
+	for team, count := range teamCounts {
+		teams = append(teams, IssueTeamFacetItem{TeamSlug: team, Count: count})
+	}
+	slices.SortFunc(teams, func(a, b IssueTeamFacetItem) int {
+		if a.Count != b.Count {
+			return b.Count - a.Count
+		}
+		return strings.Compare(a.TeamSlug.String(), b.TeamSlug.String())
+	})
+	teams = teams[:min(10, len(teams))]
+
 	return &IssueFacets{
+		Teams:         teams,
 		Environments:  environments,
 		Severities:    severities,
 		ResourceTypes: resourceTypes,

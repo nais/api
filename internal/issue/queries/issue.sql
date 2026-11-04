@@ -33,7 +33,14 @@ SELECT
 FROM
 	issues
 WHERE
-	team = @team
+	(
+		@team::TEXT = ''
+		OR team = @team
+	)
+	AND (
+		sqlc.narg('team_slugs')::slug[] IS NULL
+		OR team = ANY (sqlc.narg('team_slugs')::slug[])
+	)
 	AND (
 		sqlc.narg('env')::TEXT[] IS NULL
 		OR env = ANY (sqlc.narg('env')::TEXT[])
@@ -95,6 +102,7 @@ LIMIT
 
 -- name: FacetsForIssues :many
 SELECT
+	team,
 	severity,
 	resource_type,
 	env,
@@ -125,7 +133,14 @@ SELECT
 FROM
 	issues
 WHERE
-	team = @team
+	(
+		@team::TEXT = ''
+		OR team = @team
+	)
+	AND (
+		sqlc.narg('team_slugs')::slug[] IS NULL
+		OR team = ANY (sqlc.narg('team_slugs')::slug[])
+	)
 	AND (
 		sqlc.narg('scope_resource_type')::TEXT IS NULL
 		OR resource_type = sqlc.narg('scope_resource_type')::TEXT
@@ -139,11 +154,13 @@ WHERE
 		OR env = sqlc.narg('scope_env')::TEXT
 	)
 GROUP BY
+	team,
 	severity,
 	resource_type,
 	env,
 	issue_type
 ORDER BY
+	team,
 	severity,
 	resource_type,
 	env,

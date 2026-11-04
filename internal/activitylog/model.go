@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 )
 
 type (
@@ -48,6 +49,7 @@ func (c *ActivityLogEntryConnection) GetFilter() *ActivityLogFilter { return c.f
 // ActivityLogScope defines the base scope for an activity log query.
 type ActivityLogScope struct {
 	TeamSlug        *slug.Slug
+	TeamSlugs       []slug.Slug
 	ResourceType    *string
 	ResourceName    *string
 	EnvironmentName *string
@@ -131,6 +133,11 @@ type ActivityLogFilter struct {
 	Environments  []string                       `json:"environments,omitempty"`
 	From          *time.Time                     `json:"from,omitempty"`
 	To            *time.Time                     `json:"to,omitempty"`
+}
+
+type TenantActivityLogFilter struct {
+	ActivityLogFilter
+	TeamScope *teamscope.TeamScopeInput `json:"teamScope,omitempty"`
 }
 
 type ActivityLogActivityType string

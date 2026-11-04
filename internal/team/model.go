@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 	"github.com/nais/api/internal/team/teamsql"
 	"github.com/nais/api/internal/validate"
 )
@@ -356,6 +357,7 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamFilter struct {
+	TeamScope                  *teamscope.TeamScopeInput       `json:"teamScope,omitempty"`
 	HasWorkloads               *bool                           `json:"hasWorkloads"`
 	VulnerabilityPriorityGroup *TeamVulnerabilityPriorityGroup `json:"vulnerabilityPriorityGroup"`
 }

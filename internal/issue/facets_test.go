@@ -1,12 +1,37 @@
 package issue
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/issue/issuesql"
+	"github.com/nais/api/internal/slug"
 )
+
+func TestTeamFacets(t *testing.T) {
+	rows := []*issuesql.FacetsForIssuesRow{
+		{Team: "filtered-out", FilteredCount: 0},
+		{Team: "highest", FilteredCount: 5},
+		{Team: "highest", FilteredCount: 8},
+	}
+	for i := 11; i >= 0; i-- {
+		rows = append(rows, &issuesql.FacetsForIssuesRow{Team: fmt.Sprintf("team-%02d", i), FilteredCount: 2})
+	}
+	facets := buildFacets(rows)
+	if len(facets.Teams) != 10 {
+		t.Fatalf("got %d team facets, want 10", len(facets.Teams))
+	}
+	if facets.Teams[0].TeamSlug != "highest" || facets.Teams[0].Count != 13 {
+		t.Fatalf("expected aggregated highest count first, got %+v", facets.Teams[0])
+	}
+	for i, item := range facets.Teams[1:] {
+		if want := slug.Slug(fmt.Sprintf("team-%02d", i)); item.TeamSlug != want || item.Count != 2 {
+			t.Errorf("team facet %d = %+v, want %s with count 2", i+1, item, want)
+		}
+	}
+}
 
 func TestBuildFacets(t *testing.T) {
 	rows := []*issuesql.FacetsForIssuesRow{

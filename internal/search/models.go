@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 )
 
 type (
@@ -26,9 +27,10 @@ type Result struct {
 }
 
 type SearchFilter struct {
-	Query string       `json:"query"`
-	Types []SearchType `json:"types,omitempty"`
-	Teams []slug.Slug  `json:"teams,omitempty"`
+	Query     string                    `json:"query"`
+	Types     []SearchType              `json:"types,omitempty"`
+	Teams     []slug.Slug               `json:"teams,omitempty"`
+	TeamScope *teamscope.TeamScopeInput `json:"teamScope,omitempty"`
 }
 
 type SearchType string
