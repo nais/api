@@ -135,7 +135,7 @@ type IssueConnection {
 Facets for issues, providing distribution counts across different dimensions.
 """
 type IssueFacets {
-	"Up to 10 teams with matching issues, ordered by count descending, then team slug."
+	"Up to 25 teams with matching issues, ordered by count descending, then team slug."
 	teams: [IssueTeamFacetItem!]!
 
 	"""

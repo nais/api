@@ -48,7 +48,7 @@ Test.gql("Issue team facets exclude nonexistent teams before limiting", function
 		}
 	]]
 	local teams = { { team = { slug = "outside" }, count = 1 } }
-	for i = 1, 9 do
+	for i = 1, 24 do
 		table.insert(teams, { team = { slug = string.format("scope-%02d", i) }, count = 1 })
 	end
 	t.check { data = {
@@ -146,7 +146,7 @@ Test.gql("Scopes include memberships beyond the first page", function(t)
 		}
 	]]
 	local teams = {}
-	for i = 1, 10 do
+	for i = 1, 25 do
 		table.insert(teams, { team = { slug = string.format("scope-%02d", i) }, count = 1 })
 	end
 	t.check { data = {
@@ -230,7 +230,7 @@ Test.gql("Tenant scopes and team filters are independent", function(t)
 		{ team = { slug = "scope-01" }, count = 2 },
 		{ team = { slug = "outside" },  count = 1 },
 	}
-	for i = 2, 9 do
+	for i = 2, 24 do
 		table.insert(teamFacets, { team = { slug = string.format("scope-%02d", i) }, count = 1 })
 	end
 	local activityNodes = { { teamSlug = "outside" } }

@@ -10,6 +10,8 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
+const teamFacetLimit = 25
+
 func ComputeFacets(ctx context.Context, connection *IssueConnection) (*IssueFacets, error) {
 	params := issuesql.FacetsForIssuesParams{
 		Team:      connection.teamSlug.String(),
@@ -120,7 +122,7 @@ func buildFacets(rows []*issuesql.FacetsForIssuesRow) *IssueFacets {
 		}
 		return strings.Compare(a.TeamSlug.String(), b.TeamSlug.String())
 	})
-	teams = teams[:min(10, len(teams))]
+	teams = teams[:min(teamFacetLimit, len(teams))]
 
 	return &IssueFacets{
 		Teams:         teams,

@@ -18,12 +18,12 @@ func TestTeamFacets(t *testing.T) {
 		{Team: "highest", TeamExists: true, FilteredCount: 5},
 		{Team: "highest", TeamExists: true, FilteredCount: 8},
 	}
-	for i := 11; i >= 0; i-- {
+	for i := teamFacetLimit + 1; i >= 0; i-- {
 		rows = append(rows, &issuesql.FacetsForIssuesRow{Team: fmt.Sprintf("team-%02d", i), TeamExists: true, FilteredCount: 2})
 	}
 	facets := buildFacets(rows)
-	if len(facets.Teams) != 10 {
-		t.Fatalf("got %d team facets, want 10", len(facets.Teams))
+	if len(facets.Teams) != teamFacetLimit {
+		t.Fatalf("got %d team facets, want %d", len(facets.Teams), teamFacetLimit)
 	}
 	if facets.Teams[0].TeamSlug != "highest" || facets.Teams[0].Count != 13 {
 		t.Fatalf("expected aggregated highest count first, got %+v", facets.Teams[0])
