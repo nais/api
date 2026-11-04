@@ -798,9 +798,29 @@ type TeamGoogleArtifactRegistry {
 }
 
 """
+Combine explicit teams and viewer memberships without changing access permissions. Omit both to select any team.
+"""
+input TeamScopeInput {
+	"""
+	Add these teams to the selection. An empty list adds none.
+	"""
+	teamSlugs: [Slug!]
+
+	"""
+	Add the authenticated user's memberships when true. Identities without memberships add none.
+	"""
+	memberOfViewer: Boolean
+}
+
+"""
 Input for filtering teams.
 """
 input TeamFilter {
+	"""
+	Filter by team selection.
+	"""
+	teamScope: TeamScopeInput
+
 	"""
 	Filter teams by the existence of workloads.
 	"""

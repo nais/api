@@ -90,6 +90,7 @@ type ResolverRoot interface {
 	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	IssueConnection() IssueConnectionResolver
+	IssueTeamFacetItem() IssueTeamFacetItemResolver
 	Job() JobResolver
 	JobConnection() JobConnectionResolver
 	JobRun() JobRunResolver
@@ -1241,6 +1242,7 @@ type ComplexityRoot struct {
 		IssueTypes    func(childComplexity int) int
 		ResourceTypes func(childComplexity int) int
 		Severities    func(childComplexity int) int
+		Teams         func(childComplexity int) int
 	}
 
 	IssueResourceTypeFacetItem struct {
@@ -1251,6 +1253,11 @@ type ComplexityRoot struct {
 	IssueSeverityFacetItem struct {
 		Count    func(childComplexity int) int
 		Severity func(childComplexity int) int
+	}
+
+	IssueTeamFacetItem struct {
+		Count func(childComplexity int) int
+		Team  func(childComplexity int) int
 	}
 
 	IssueTypeFacetItem struct {
@@ -2234,7 +2241,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
@@ -2244,6 +2251,7 @@ type ComplexityRoot struct {
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
+		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -2260,7 +2268,7 @@ type ComplexityRoot struct {
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
-		VulnerabilitySummary      func(childComplexity int) int
+		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
 	}
 
 	Reconciler struct {
@@ -8525,6 +8533,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.IssueFacets.Severities(childComplexity), true
 
+	case "IssueFacets.teams":
+		if e.ComplexityRoot.IssueFacets.Teams == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueFacets.Teams(childComplexity), true
+
 	case "IssueResourceTypeFacetItem.count":
 		if e.ComplexityRoot.IssueResourceTypeFacetItem.Count == nil {
 			break
@@ -8552,6 +8567,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.IssueSeverityFacetItem.Severity(childComplexity), true
+
+	case "IssueTeamFacetItem.count":
+		if e.ComplexityRoot.IssueTeamFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueTeamFacetItem.Count(childComplexity), true
+
+	case "IssueTeamFacetItem.team":
+		if e.ComplexityRoot.IssueTeamFacetItem.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueTeamFacetItem.Team(childComplexity), true
 
 	case "IssueTypeFacetItem.count":
 		if e.ComplexityRoot.IssueTypeFacetItem.Count == nil {
@@ -13456,7 +13485,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+		return e.ComplexityRoot.Query.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.TenantActivityLogFilter)), true
 
 	case "Query.cve":
 		if e.ComplexityRoot.Query.CVE == nil {
@@ -13555,6 +13584,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.ImageVulnerabilityHistory(childComplexity, args["from"].(scalar.Date)), true
+
+	case "Query.issues":
+		if e.ComplexityRoot.Query.Issues == nil {
+			break
+		}
+
+		args, err := ec.field_Query_issues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.TenantIssueFilter)), true
 
 	case "Query.me":
 		if e.ComplexityRoot.Query.Me == nil {
@@ -13743,7 +13784,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity), true
+		args, err := ec.field_Query_vulnerabilitySummary_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter)), true
 
 	case "Reconciler.activityLog":
 		if e.ComplexityRoot.Reconciler.ActivityLog == nil {
@@ -22283,8 +22329,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamPostgresFilter,
 		ec.unmarshalInputTeamRepositoryFilter,
+		ec.unmarshalInputTeamScopeInput,
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
+		ec.unmarshalInputTenantActivityLogFilter,
+		ec.unmarshalInputTenantIssueFilter,
 		ec.unmarshalInputTenantVulnerabilitySummaryFilter,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
@@ -22436,7 +22485,7 @@ var sources = []*ast.Source{
 		"""
 		Filter items.
 		"""
-		filter: ActivityLogFilter
+		filter: TenantActivityLogFilter
 	): ActivityLogEntryConnection!
 }
 
@@ -22648,6 +22697,7 @@ extend type ServiceAccount implements ActivityLogger {
 	): ActivityLogEntryConnection!
 }
 
+"Filtering options for activity log entries."
 input ActivityLogFilter {
 	"""
 	Only include entries whose activity type matches one of these values.
@@ -22675,6 +22725,27 @@ input ActivityLogFilter {
 	Only include entries created before this timestamp.
 	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
 	"""
+	to: Time
+}
+
+"Filtering options for activity log entries across teams."
+input TenantActivityLogFilter {
+	"Filter by team selection. Excludes entries without a team."
+	teamScope: TeamScopeInput
+
+	"Only include entries matching these activity types."
+	activityTypes: [ActivityLogActivityType!]
+
+	"Only include entries matching these resource types."
+	resourceTypes: [ActivityLogEntryResourceType!]
+
+	"Only include entries in these environments."
+	environments: [String!]
+
+	"Only include entries created at or after this timestamp."
+	from: Time
+
+	"Only include entries created before this timestamp."
 	to: Time
 }
 
@@ -26279,7 +26350,32 @@ enum InstanceGroupValueSourceKind {
 	NAIS
 }
 `, BuiltIn: false},
-	{Name: "../schema/issues.graphqls", Input: `extend type Team {
+	{Name: "../schema/issues.graphqls", Input: `extend type Query {
+	"""
+	Issues across teams in the tenant, ordered by severity unless otherwise specified.
+	"""
+	issues(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: IssueOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TenantIssueFilter
+	): IssueConnection!
+}
+
+extend type Team {
 	"Issues that affects the team."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -26310,7 +26406,29 @@ input IssueOrder {
 	direction: OrderDirection!
 }
 
+"Filtering options for issues."
 input IssueFilter {
+	"Filter by resource name."
+	resourceName: String
+
+	"Filter by resource type."
+	resourceType: ResourceType
+
+	"Filter by environment."
+	environments: [String!]
+
+	"Filter by severity."
+	severity: Severity
+
+	"Filter by issue type."
+	issueType: IssueType
+}
+
+"Filtering options for issues across teams."
+input TenantIssueFilter {
+	"Filter by team selection."
+	teamScope: TeamScopeInput
+
 	"Filter by resource name."
 	resourceName: String
 
@@ -26369,6 +26487,9 @@ type IssueConnection {
 Facets for issues, providing distribution counts across different dimensions.
 """
 type IssueFacets {
+	"Up to 25 teams with matching issues, ordered by count descending, then team slug."
+	teams: [IssueTeamFacetItem!]!
+
 	"""
 	Distribution of issues by environment.
 	"""
@@ -26388,6 +26509,17 @@ type IssueFacets {
 	Distribution of issues by issue type.
 	"""
 	issueTypes: [IssueTypeFacetItem!]!
+}
+
+"""
+A single facet item for teams.
+"""
+type IssueTeamFacetItem {
+	"The team."
+	team: Team!
+
+	"Number of matching issues."
+	count: Int!
 }
 
 """
@@ -30432,9 +30564,14 @@ input SearchFilter {
 	types: [SearchType!]
 
 	"""
+	Team selection. An empty query defaults to memberships when no selection is supplied.
+	"""
+	teamScope: TeamScopeInput
+
+	"""
 	Teams to search in. If not specified, all teams will be searched.
 	"""
-	teams: [Slug!]
+	teams: [Slug!] @deprecated(reason: "Use teamScope.teamSlugs instead.")
 }
 
 """
@@ -33835,9 +33972,29 @@ type TeamGoogleArtifactRegistry {
 }
 
 """
+Combine explicit teams and viewer memberships without changing access permissions. Omit both to select any team.
+"""
+input TeamScopeInput {
+	"""
+	Add these teams to the selection. An empty list adds none.
+	"""
+	teamSlugs: [Slug!]
+
+	"""
+	Add the authenticated user's memberships when true. Identities without memberships add none.
+	"""
+	memberOfViewer: Boolean
+}
+
+"""
 Input for filtering teams.
 """
 input TeamFilter {
+	"""
+	Filter by team selection.
+	"""
+	teamScope: TeamScopeInput
+
 	"""
 	Filter teams by the existence of workloads.
 	"""
@@ -35626,7 +35783,10 @@ extend type Query {
 	): ImageVulnerabilityHistory!
 
 	"Get the vulnerability summary for the tenant."
-	vulnerabilitySummary: TenantVulnerabilitySummary!
+	vulnerabilitySummary(
+		"Filter the aggregate."
+		filter: TenantVulnerabilitySummaryFilter
+	): TenantVulnerabilitySummary!
 
 	"List per-workload vulnerability summaries across all teams."
 	vulnerabilitySummaries(
@@ -35677,8 +35837,11 @@ extend type Query {
 	): CVEConnection!
 }
 
-"Filter active CVEs by their calculated risk assessment."
+"Filter active CVEs."
 input CVEFilter {
+	"Only include CVEs affecting the selected teams."
+	teamScope: TeamScopeInput
+
 	"Operational priority. URGENT requires workload context and currently returns no CVEs."
 	priority: CVEPriority
 }
@@ -35932,6 +36095,12 @@ input TeamVulnerabilitySummaryFilter {
 Input for filtering vulnerability summaries across all teams.
 """
 input TenantVulnerabilitySummaryFilter {
+	"Filter by team selection."
+	teamScope: TeamScopeInput
+
+	"Only include workloads in this environment."
+	environmentName: String
+
 	"""
 	Only return vulnerability summaries whose highest priority is exactly one of
 	the given values. URGENT is workload-contextual and cannot be resolved at
@@ -36240,7 +36409,7 @@ type CVE implements Node {
 	"Risk and threat intelligence signals used to prioritize the CVE."
 	riskAssessment: VulnerabilityRiskAssessment!
 
-	"Affected workloads"
+	"Affected workloads within the team selection of the CVE list, when applicable."
 	workloads(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -36254,7 +36423,7 @@ type CVE implements Node {
 		"Get items before this cursor."
 		before: Cursor
 
-		"Filter workloads. When teamSlugs is set only workloads belonging to those teams are returned."
+		"Further filter affected workloads."
 		filter: CVEWorkloadsFilter
 
 		"Order all matching findings before pagination. Defaults to team ascending."
@@ -36296,10 +36465,16 @@ type CVEImpact {
 	packageCount: Int!
 }
 
-"Filter for workloads affected by a CVE. When teamSlugs is provided only workloads belonging to those teams are returned."
+"Filter workloads affected by a CVE."
 input CVEWorkloadsFilter {
-	"Team identifiers used to limit results to workloads owned by those teams."
-	teamSlugs: [Slug!]
+	"Filter by team selection. Combined with teamSlugs, only teams matching both are included."
+	teamScope: TeamScopeInput
+
+	"Only include workloads in this environment."
+	environmentName: String
+
+	"Only include workloads owned by these teams."
+	teamSlugs: [Slug!] @deprecated(reason: "Use teamScope.teamSlugs instead.")
 }
 
 type WorkloadWithVulnerabilityConnection {
@@ -39112,6 +39287,8 @@ func (ec *executionContext) childFields_IssueEdge(ctx context.Context, field gra
 
 func (ec *executionContext) childFields_IssueFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "teams":
+		return ec.fieldContext_IssueFacets_teams(ctx, field)
 	case "environments":
 		return ec.fieldContext_IssueFacets_environments(ctx, field)
 	case "severities":
@@ -39142,6 +39319,16 @@ func (ec *executionContext) childFields_IssueSeverityFacetItem(ctx context.Conte
 		return ec.fieldContext_IssueSeverityFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type IssueSeverityFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueTeamFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_IssueTeamFacetItem_team(ctx, field)
+	case "count":
+		return ec.fieldContext_IssueTeamFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueTeamFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_IssueTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

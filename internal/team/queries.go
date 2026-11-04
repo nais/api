@@ -3,6 +3,7 @@ package team
 import (
 	"context"
 	"errors"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -173,6 +174,14 @@ func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination,
 	teams := make([]*Team, len(all))
 	for i, t := range all {
 		teams[i] = toGraphTeam(t)
+	}
+
+	if filter != nil {
+		if scope := filter.TeamScope.Resolve(ctx); scope != nil {
+			teams = slices.DeleteFunc(teams, func(t *Team) bool {
+				return !slices.Contains(scope, t.Slug)
+			})
+		}
 	}
 
 	filteredTeams := SortFilter.Filter(ctx, teams, filter)

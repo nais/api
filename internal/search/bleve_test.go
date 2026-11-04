@@ -11,6 +11,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 	"github.com/sirupsen/logrus"
 )
 
@@ -145,6 +146,75 @@ func TestSearchEmptyQueryWithoutUserTeamsReturnsNoDefaults(t *testing.T) {
 
 	if got := len(result.Nodes()); got != 0 {
 		t.Fatalf("expected no default results, got %d", got)
+	}
+}
+
+func TestSearchTeamScope(t *testing.T) {
+	searcher := newTestSearcher(t, []slug.Slug{"team-a"}, []Document{
+		newTestDocument("app-a1", "APPLICATION", "app", withTeam("team-a")),
+		newTestDocument("app-a2", "APPLICATION", "app", withTeam("team-a")),
+		newTestDocument("app-b", "APPLICATION", "app", withTeam("team-b")),
+	})
+	t.Cleanup(func() { _ = searcher.Client.Close() })
+	ctx := authz.ContextWithActor(t.Context(), testUser{id: uuid.New()}, []*authz.Role{
+		{Name: "Team member", TargetTeamSlug: new(slug.Slug("team-a"))},
+	})
+	for _, query := range []string{"", "app"} {
+		for _, tt := range []struct {
+			name   string
+			scope  *teamscope.TeamScopeInput
+			legacy []slug.Slug
+			total  int
+			ids    []string
+		}{
+			{"explicit", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-b"}}, nil, 1, []string{"app-b"}},
+			{"membership", &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, nil, 2, []string{"app-a1", "app-a2"}},
+			{"overlapping union", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-a", "team-b"}, MemberOfViewer: new(true)}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
+			{"empty", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}}, nil, 0, nil},
+			{"disjoint union", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-b"}, MemberOfViewer: new(true)}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
+			{"empty explicit teams with memberships", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}, MemberOfViewer: new(true)}, nil, 2, []string{"app-a1", "app-a2"}},
+			{"unrestricted", &teamscope.TeamScopeInput{}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
+			{"membership false", &teamscope.TeamScopeInput{MemberOfViewer: new(false)}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
+			{"legacy intersection", &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, []slug.Slug{"team-b"}, 0, nil},
+		} {
+			t.Run(query+"/"+tt.name, func(t *testing.T) {
+				filter := SearchFilter{Query: query, Types: []SearchType{"APPLICATION"}, TeamScope: tt.scope, Teams: tt.legacy}
+				result, err := searcher.Search(ctx, newTestPage(t, 10), filter)
+				if err != nil {
+					t.Fatal(err)
+				}
+				assertSameElements(t, tt.ids, testNodeIDs(result.Nodes()))
+				if result.PageInfo.TotalCount != tt.total {
+					t.Fatalf("totalCount = %d, want %d", result.PageInfo.TotalCount, tt.total)
+				}
+				result, err = searcher.Search(ctx, newTestPage(t, 1), filter)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if result.PageInfo.TotalCount != tt.total || len(result.Nodes()) != min(1, tt.total) || result.PageInfo.HasNextPage != (tt.total > 1) {
+					t.Fatalf("scope must precede pagination: %+v", result.PageInfo)
+				}
+			})
+		}
+	}
+}
+
+func TestSearchEmptyQueryWithUnrestrictedScope(t *testing.T) {
+	searcher := newTestSearcher(t, nil, []Document{
+		newTestDocument("team-a", "TEAM", "team-a"),
+		newTestDocument("team-b", "TEAM", "team-b"),
+		newTestDocument("app-a", "APPLICATION", "app", withTeam("team-a")),
+	})
+	t.Cleanup(func() { _ = searcher.Client.Close() })
+	result, err := searcher.Search(newTestContext(), newTestPage(t, 10), SearchFilter{
+		TeamScope: &teamscope.TeamScopeInput{},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertSameElements(t, []string{"team-a", "team-b", "app-a"}, testNodeIDs(result.Nodes()))
+	if result.PageInfo.TotalCount != 3 {
+		t.Fatalf("totalCount = %d, want 3", result.PageInfo.TotalCount)
 	}
 }
 

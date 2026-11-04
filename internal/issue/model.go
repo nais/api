@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 )
 
 type Issue interface {
@@ -292,20 +293,23 @@ type IssueScope struct {
 type IssueConnection struct {
 	pagination.Connection[Issue]
 
-	teamSlug slug.Slug
-	scope    *IssueScope
-	filter   *IssueFilter
+	teamSlug  slug.Slug
+	teamSlugs []slug.Slug
+	scope     *IssueScope
+	filter    *IssueFilter
 }
 
-func (c *IssueConnection) GetTeamSlug() slug.Slug  { return c.teamSlug }
-func (c *IssueConnection) GetScope() *IssueScope   { return c.scope }
-func (c *IssueConnection) GetFilter() *IssueFilter { return c.filter }
-
 type IssueFacets struct {
+	Teams         []IssueTeamFacetItem         `json:"teams"`
 	Environments  []model.StringFacetItem      `json:"environments"`
 	Severities    []IssueSeverityFacetItem     `json:"severities"`
 	ResourceTypes []IssueResourceTypeFacetItem `json:"resourceTypes"`
 	IssueTypes    []IssueTypeFacetItem         `json:"issueTypes"`
+}
+
+type IssueTeamFacetItem struct {
+	TeamSlug slug.Slug `json:"-"`
+	Count    int       `json:"count"`
 }
 
 type IssueSeverityFacetItem struct {
@@ -549,6 +553,11 @@ type IssueFilter struct {
 	Environments []string `json:"environments,omitempty"`
 
 	ResourceIssueFilter
+}
+
+type TenantIssueFilter struct {
+	IssueFilter
+	TeamScope *teamscope.TeamScopeInput `json:"teamScope,omitempty"`
 }
 
 // ApplicationRestartLoopIssueDetails holds details about a restart loop issue.
