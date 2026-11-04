@@ -103,6 +103,14 @@ LIMIT
 -- name: FacetsForIssues :many
 SELECT
 	team,
+	EXISTS (
+		SELECT
+			1
+		FROM
+			teams
+		WHERE
+			teams.slug = issues.team
+	) AS team_exists,
 	severity,
 	resource_type,
 	env,

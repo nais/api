@@ -71,7 +71,7 @@ func buildFacets(rows []*issuesql.FacetsForIssuesRow) *IssueFacets {
 		}
 
 		filtered := int(row.FilteredCount)
-		if filtered > 0 {
+		if filtered > 0 && row.TeamExists {
 			teamCounts[slug.Slug(row.Team)] += filtered
 		}
 		severityCounts[sev] += filtered

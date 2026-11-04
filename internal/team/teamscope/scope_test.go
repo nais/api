@@ -40,14 +40,19 @@ func TestResolve(t *testing.T) {
 		{"empty input", ctx, &teamscope.TeamScopeInput{}, nil},
 		{"explicit empty", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}}, []slug.Slug{}},
 		{"explicit teams", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other"}}, []slug.Slug{"other"}},
+		{"duplicate explicit teams", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other", "team-24", "other"}}, []slug.Slug{"other", "team-24"}},
 		{"all memberships", ctx, &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, memberships},
-		{"intersection", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-24", "other"}, MemberOfViewer: new(true)}, []slug.Slug{"team-24"}},
-		{"empty intersection", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}, MemberOfViewer: new(true)}, []slug.Slug{}},
+		{"union", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-24", "other", "other"}, MemberOfViewer: new(true)}, append([]slug.Slug{"team-24", "other"}, memberships[:24]...)},
+		{"empty explicit teams with memberships", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}, MemberOfViewer: new(true)}, memberships},
 		{"membership false", ctx, &teamscope.TeamScopeInput{MemberOfViewer: new(false)}, nil},
+		{"membership false with explicit teams", ctx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other"}, MemberOfViewer: new(false)}, []slug.Slug{"other"}},
 		{"admin without memberships", adminCtx, &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, []slug.Slug{}},
+		{"admin with explicit teams", adminCtx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other"}, MemberOfViewer: new(true)}, []slug.Slug{"other"}},
 		{"service account", serviceCtx, &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, []slug.Slug{}},
 		{"service account explicit teams", serviceCtx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other"}}, []slug.Slug{"other"}},
+		{"service account explicit teams with memberships", serviceCtx, &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other"}, MemberOfViewer: new(true)}, []slug.Slug{"other"}},
 		{"no actor", t.Context(), &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, []slug.Slug{}},
+		{"no actor with explicit teams", t.Context(), &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"other"}, MemberOfViewer: new(true)}, []slug.Slug{"other"}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if diff := cmp.Diff(tt.want, tt.scope.Resolve(tt.ctx)); diff != "" {

@@ -19,24 +19,34 @@ func (s *TeamScopeInput) Resolve(ctx context.Context) []slug.Slug {
 		return nil
 	}
 
-	teams := slices.Clone(s.TeamSlugs)
+	var teams []slug.Slug
+	if s.TeamSlugs != nil {
+		teams = make([]slug.Slug, 0, len(s.TeamSlugs))
+		for _, team := range s.TeamSlugs {
+			if !slices.Contains(teams, team) {
+				teams = append(teams, team)
+			}
+		}
+	}
 	if s.MemberOfViewer == nil || !*s.MemberOfViewer {
 		return teams
 	}
 
-	memberships := make([]slug.Slug, 0)
+	if teams == nil {
+		teams = make([]slug.Slug, 0)
+	}
 	actor := authz.ActorFromContext(ctx)
 	if actor == nil || actor.User == nil || actor.User.IsServiceAccount() {
-		return memberships
+		return teams
 	}
 	for _, role := range actor.Roles {
 		if role.TargetTeamSlug == nil {
 			continue
 		}
 		team := *role.TargetTeamSlug
-		if (teams == nil || slices.Contains(teams, team)) && !slices.Contains(memberships, team) {
-			memberships = append(memberships, team)
+		if !slices.Contains(teams, team) {
+			teams = append(teams, team)
 		}
 	}
-	return memberships
+	return teams
 }

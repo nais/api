@@ -169,9 +169,10 @@ func TestSearchTeamScope(t *testing.T) {
 		}{
 			{"explicit", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-b"}}, nil, 1, []string{"app-b"}},
 			{"membership", &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, nil, 2, []string{"app-a1", "app-a2"}},
-			{"intersection", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-a", "team-b"}, MemberOfViewer: new(true)}, nil, 2, []string{"app-a1", "app-a2"}},
+			{"overlapping union", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-a", "team-b"}, MemberOfViewer: new(true)}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
 			{"empty", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}}, nil, 0, nil},
-			{"disjoint", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-b"}, MemberOfViewer: new(true)}, nil, 0, nil},
+			{"disjoint union", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{"team-b"}, MemberOfViewer: new(true)}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
+			{"empty explicit teams with memberships", &teamscope.TeamScopeInput{TeamSlugs: []slug.Slug{}, MemberOfViewer: new(true)}, nil, 2, []string{"app-a1", "app-a2"}},
 			{"unrestricted", &teamscope.TeamScopeInput{}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
 			{"membership false", &teamscope.TeamScopeInput{MemberOfViewer: new(false)}, nil, 3, []string{"app-a1", "app-a2", "app-b"}},
 			{"legacy intersection", &teamscope.TeamScopeInput{MemberOfViewer: new(true)}, []slug.Slug{"team-b"}, 0, nil},

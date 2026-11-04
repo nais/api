@@ -14,6 +14,14 @@ import (
 const facetsForIssues = `-- name: FacetsForIssues :many
 SELECT
 	team,
+	EXISTS (
+		SELECT
+			1
+		FROM
+			teams
+		WHERE
+			teams.slug = issues.team
+	) AS team_exists,
 	severity,
 	resource_type,
 	env,
@@ -93,6 +101,7 @@ type FacetsForIssuesParams struct {
 
 type FacetsForIssuesRow struct {
 	Team          string
+	TeamExists    bool
 	Severity      SeverityLevel
 	ResourceType  string
 	Env           string
@@ -122,6 +131,7 @@ func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams
 		var i FacetsForIssuesRow
 		if err := rows.Scan(
 			&i.Team,
+			&i.TeamExists,
 			&i.Severity,
 			&i.ResourceType,
 			&i.Env,

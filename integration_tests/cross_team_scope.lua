@@ -18,11 +18,56 @@ Helper.SQLExec([[
 	VALUES
 		('NO_RUNNING_INSTANCES', 'outside', 'APPLICATION', 'outside', 'dev', 'CRITICAL'),
 		('NO_RUNNING_INSTANCES', 'prod-app', 'APPLICATION', 'scope-01', 'prod', 'WARNING');
+	INSERT INTO issues (issue_type, resource_name, resource_type, team, env, severity)
+	SELECT 'NO_RUNNING_INSTANCES', 'orphan-' || i, 'APPLICATION', 'unknown', 'dev', 'CRITICAL'
+	FROM generate_series(1, 30) AS i;
 	INSERT INTO activity_log_entries (actor, action, resource_type, resource_name, team_slug, environment, data)
 	VALUES
 		('deployer', 'DEPLOYMENT', 'APP', 'outside', 'outside', 'dev', '{}'),
 		('deployer', 'DEPLOYMENT', 'APP', 'tenant', NULL, 'dev', '{}');
 ]])
+
+Test.gql("Issue team facets exclude nonexistent teams before limiting", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[
+		{
+			issues(first: 1, filter: {severity: CRITICAL, environments: ["dev"]}) {
+				pageInfo { totalCount }
+				facets {
+					teams { team { slug } count }
+					severities { severity count }
+					resourceTypes { resourceType count }
+					environments { value count }
+					issueTypes { issueType count }
+				}
+			}
+			unknown: issues(filter: {teamScope: {teamSlugs: ["unknown"]}}) {
+				pageInfo { totalCount }
+				facets { teams { team { slug } count } severities { severity count } }
+			}
+		}
+	]]
+	local teams = { { team = { slug = "outside" }, count = 1 } }
+	for i = 1, 9 do
+		table.insert(teams, { team = { slug = string.format("scope-%02d", i) }, count = 1 })
+	end
+	t.check { data = {
+		issues = {
+			pageInfo = { totalCount = 56 },
+			facets = {
+				teams = teams,
+				severities = { { severity = "CRITICAL", count = 56 }, { severity = "WARNING", count = 0 } },
+				resourceTypes = { { resourceType = "APPLICATION", count = 56 } },
+				environments = { { value = "dev", count = 56 }, { value = "prod", count = 0 } },
+				issueTypes = { { issueType = "NO_RUNNING_INSTANCES", count = 56 } },
+			},
+		},
+		unknown = {
+			pageInfo = { totalCount = 30 },
+			facets = { teams = {}, severities = { { severity = "CRITICAL", count = 30 } } },
+		},
+	} }
+end)
 
 Test.gql("Team discovery scopes precede ordering and pagination", function(t)
 	t.addHeader("x-user-email", member:email())
@@ -32,7 +77,7 @@ Test.gql("Team discovery scopes precede ordering and pagination", function(t)
 				nodes { slug }
 				pageInfo { totalCount hasNextPage endCursor }
 			}
-			selected: teams(filter: {teamScope: {teamSlugs: ["scope-25", "outside"], memberOfViewer: true}, hasWorkloads: false}) {
+			selected: teams(first: 30, filter: {teamScope: {teamSlugs: ["scope-25", "outside"], memberOfViewer: true}, hasWorkloads: false}) {
 				nodes { slug }
 				pageInfo { totalCount }
 			}
@@ -42,12 +87,16 @@ Test.gql("Team discovery scopes precede ordering and pagination", function(t)
 			}
 		}
 	]]
+	local selectedTeams = { { slug = "outside" } }
+	for i = 1, 25 do
+		table.insert(selectedTeams, { slug = string.format("scope-%02d", i) })
+	end
 	t.check { data = {
 		teams = {
 			nodes = { { slug = "scope-25" } },
 			pageInfo = { totalCount = 25, hasNextPage = true, endCursor = Save("teamsEnd") },
 		},
-		selected = { nodes = { { slug = "scope-25" } }, pageInfo = { totalCount = 1 } },
+		selected = { nodes = selectedTeams, pageInfo = { totalCount = 26 } },
 		withWorkloads = { nodes = {}, pageInfo = { totalCount = 0 } },
 	} }
 	t.query(string.format([[
@@ -161,7 +210,7 @@ Test.gql("Tenant scopes and team filters are independent", function(t)
 				pageInfo { totalCount }
 				facets { teams { team { slug } count } }
 			}
-			activityLog(filter: {teamScope: {teamSlugs: ["scope-25", "outside"], memberOfViewer: true}}) {
+			activityLog(first: 30, filter: {teamScope: {teamSlugs: ["scope-25", "outside"], memberOfViewer: true}}) {
 				nodes { teamSlug }
 				pageInfo { totalCount }
 			}
@@ -177,14 +226,25 @@ Test.gql("Tenant scopes and team filters are independent", function(t)
 			}
 		}
 	]]
+	local teamFacets = {
+		{ team = { slug = "scope-01" }, count = 2 },
+		{ team = { slug = "outside" },  count = 1 },
+	}
+	for i = 2, 9 do
+		table.insert(teamFacets, { team = { slug = string.format("scope-%02d", i) }, count = 1 })
+	end
+	local activityNodes = { { teamSlug = "outside" } }
+	for i = 25, 1, -1 do
+		table.insert(activityNodes, { teamSlug = string.format("scope-%02d", i) })
+	end
 	t.check { data = {
 		issues = {
-			pageInfo = { totalCount = 1 },
-			facets = { teams = { { team = { slug = "scope-25" }, count = 1 } } },
+			pageInfo = { totalCount = 27 },
+			facets = { teams = teamFacets },
 		},
 		activityLog = {
-			nodes = { { teamSlug = "scope-25" } },
-			pageInfo = { totalCount = 1 },
+			nodes = activityNodes,
+			pageInfo = { totalCount = 26 },
 		},
 		team = {
 			issues = { pageInfo = { totalCount = 1 }, facets = { teams = { { count = 1 } } } },
@@ -193,7 +253,23 @@ Test.gql("Tenant scopes and team filters are independent", function(t)
 	} }
 end)
 
-for _, selection in ipairs({ "teamSlugs: []", "teamSlugs: [], memberOfViewer: true" }) do
+Test.gql("Empty explicit selection still includes requested memberships", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[
+		{
+			teams(filter: {teamScope: {teamSlugs: [], memberOfViewer: true}}) { pageInfo { totalCount } }
+			issues(filter: {teamScope: {teamSlugs: [], memberOfViewer: true}}) { pageInfo { totalCount } }
+			activityLog(filter: {teamScope: {teamSlugs: [], memberOfViewer: true}}) { pageInfo { totalCount } }
+		}
+	]]
+	t.check { data = {
+		teams = { pageInfo = { totalCount = 25 } },
+		issues = { pageInfo = { totalCount = 26 } },
+		activityLog = { pageInfo = { totalCount = 25 } },
+	} }
+end)
+
+for _, selection in ipairs({ "teamSlugs: []", "teamSlugs: [], memberOfViewer: false" }) do
 	Test.gql("Explicit empty scope: " .. selection, function(t)
 		t.addHeader("x-user-email", member:email())
 		t.query(string.format([[

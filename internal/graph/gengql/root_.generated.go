@@ -33972,17 +33972,16 @@ type TeamGoogleArtifactRegistry {
 }
 
 """
-Team selection. Supplied constraints are intersected without changing access permissions.
+Combine explicit teams and viewer memberships without changing access permissions. Omit both to select any team.
 """
 input TeamScopeInput {
 	"""
-	Only include these teams. Omit to include any team; an empty list selects none.
+	Add these teams to the selection. An empty list adds none.
 	"""
 	teamSlugs: [Slug!]
 
 	"""
-	Only include the authenticated user's memberships when true.
-	Identities without memberships match no teams. False or omission adds no constraint.
+	Add the authenticated user's memberships when true. Identities without memberships add none.
 	"""
 	memberOfViewer: Boolean
 }
