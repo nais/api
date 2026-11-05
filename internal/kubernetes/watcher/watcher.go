@@ -100,6 +100,11 @@ func (w *Watcher[T]) Enabled() bool {
 	return false
 }
 
+// EnvironmentNames returns the environments this watcher watches.
+func (w *Watcher[T]) EnvironmentNames() []string {
+	return slices.Clone(w.environmentNames)
+}
+
 func (w *Watcher[T]) HasSynced(environmentName string) bool {
 	for _, watcher := range w.watchers {
 		if watcher.cluster == environmentName {
