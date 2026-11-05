@@ -4,18 +4,13 @@ package nais.api.protobuf;
 
 option go_package = "./pkg/apiclient/protoapi";
 
-enum WorkloadKind {
-  WORKLOAD_KIND_UNSPECIFIED = 0;
-  APPLICATION = 1;
-  JOB = 2;
-}
-
+// An application and a job cannot share a name in a team, so team and name identify a
+// workload within an environment.
 message WorkloadImage {
   string team_slug = 1;
   string name = 2;
-  WorkloadKind kind = 3;
   // The workload's effective image reference, as deployed: a tag, a digest, or both.
-  string image = 4;
+  string image = 3;
 }
 
 message EnvironmentWorkloadImages {

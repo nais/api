@@ -38,7 +38,6 @@ func (s *Server) ListImages(context.Context, *protoapi.ListWorkloadImagesRequest
 			workloads = append(workloads, &protoapi.WorkloadImage{
 				TeamSlug: a.Obj.Namespace,
 				Name:     a.Obj.Name,
-				Kind:     protoapi.WorkloadKind_APPLICATION,
 				Image:    cmp.Or(a.Obj.GetEffectiveImage(), a.Obj.GetImage()),
 			})
 		}
@@ -46,7 +45,6 @@ func (s *Server) ListImages(context.Context, *protoapi.ListWorkloadImagesRequest
 			workloads = append(workloads, &protoapi.WorkloadImage{
 				TeamSlug: j.Obj.Namespace,
 				Name:     j.Obj.Name,
-				Kind:     protoapi.WorkloadKind_JOB,
 				Image:    cmp.Or(j.Obj.GetEffectiveImage(), j.Obj.GetImage()),
 			})
 		}

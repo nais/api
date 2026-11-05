@@ -57,15 +57,13 @@ func TestListImages(t *testing.T) {
 	}
 
 	type workload struct {
-		Team, Name string
-		Kind       protoapi.WorkloadKind
-		Image      string
+		Team, Name, Image string
 	}
 	got := map[string][]workload{}
 	for _, env := range resp.Environments {
 		ws := []workload{}
 		for _, w := range env.Workloads {
-			ws = append(ws, workload{w.TeamSlug, w.Name, w.Kind, w.Image})
+			ws = append(ws, workload{w.TeamSlug, w.Name, w.Image})
 		}
 		slices.SortFunc(ws, func(a, b workload) int { return strings.Compare(a.Name, b.Name) })
 		got[env.Environment] = ws
@@ -73,12 +71,12 @@ func TestListImages(t *testing.T) {
 
 	want := map[string][]workload{
 		"dev": {
-			{"myteam", "batch", protoapi.WorkloadKind_JOB, "europe-north1-docker.pkg.dev/nais-io/batch@sha256:2222222222222222222222222222222222222222222222222222222222222222"},
+			{"myteam", "batch", "europe-north1-docker.pkg.dev/nais-io/batch@sha256:2222222222222222222222222222222222222222222222222222222222222222"},
 			// The effective image wins over spec.image.
-			{"myteam", "deployed", protoapi.WorkloadKind_APPLICATION, "ghcr.io/nais/deployed:new@sha256:1111111111111111111111111111111111111111111111111111111111111111"},
-			{"myteam", "tagged", protoapi.WorkloadKind_APPLICATION, "ghcr.io/nais/tagged:1.0"},
+			{"myteam", "deployed", "ghcr.io/nais/deployed:new@sha256:1111111111111111111111111111111111111111111111111111111111111111"},
+			{"myteam", "tagged", "ghcr.io/nais/tagged:1.0"},
 		},
-		"prod":  {{"otherteam", "nightly", protoapi.WorkloadKind_JOB, "redis:7.2"}},
+		"prod":  {{"otherteam", "nightly", "redis:7.2"}},
 		"empty": {},
 	}
 	if diff := cmp.Diff(want, got); diff != "" {
