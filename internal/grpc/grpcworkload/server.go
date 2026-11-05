@@ -4,7 +4,6 @@ package grpcworkload
 import (
 	"cmp"
 	"context"
-	"slices"
 
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/pkg/apiclient/protoapi"
@@ -21,17 +20,9 @@ func NewServer(appWatcher *watchers.AppWatcher, jobWatcher *watchers.JobWatcher)
 }
 
 func (s *Server) ListImages(context.Context, *protoapi.ListWorkloadImagesRequest) (*protoapi.ListWorkloadImagesResponse, error) {
-	appEnvs, jobEnvs := s.appWatcher.EnvironmentNames(), s.jobWatcher.EnvironmentNames()
-	envs := slices.Concat(appEnvs, jobEnvs)
-	slices.Sort(envs)
-	envs = slices.Compact(envs)
-
 	resp := &protoapi.ListWorkloadImagesResponse{}
-	for _, env := range envs {
-		// A watcher that does not watch an environment (its CRD is not installed there)
-		// has nothing to wait for.
-		if slices.Contains(appEnvs, env) && !s.appWatcher.HasSynced(env) ||
-			slices.Contains(jobEnvs, env) && !s.jobWatcher.HasSynced(env) {
+	for _, env := range s.appWatcher.EnvironmentNames() {
+		if !s.appWatcher.HasSynced(env) || !s.jobWatcher.HasSynced(env) {
 			continue
 		}
 
