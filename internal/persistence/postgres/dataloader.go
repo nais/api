@@ -21,8 +21,9 @@ func NewLoaderContext(
 	auditLogLocation string,
 	tenantName string,
 	clients map[string]dynamic.Interface,
+	branchWritesDisabled bool,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, postgresWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
+	return context.WithValue(ctx, loadersKey, newLoaders(postgresBranchWatcher, postgresWatcher, auditLogProjectID, auditLogLocation, tenantName, clients, branchWritesDisabled))
 }
 
 type loaders struct {
@@ -32,6 +33,7 @@ type loaders struct {
 	auditLogLocation      string
 	tenantName            string
 	clients               map[string]dynamic.Interface
+	branchWritesDisabled  bool
 }
 
 func newLoaders(
@@ -41,6 +43,7 @@ func newLoaders(
 	auditLogLocation string,
 	tenantName string,
 	clients map[string]dynamic.Interface,
+	branchWritesDisabled bool,
 ) *loaders {
 	return &loaders{
 		postgresBranchWatcher: postgresBranchWatcher,
@@ -49,6 +52,7 @@ func newLoaders(
 		auditLogLocation:      auditLogLocation,
 		tenantName:            tenantName,
 		clients:               clients,
+		branchWritesDisabled:  branchWritesDisabled,
 	}
 }
 

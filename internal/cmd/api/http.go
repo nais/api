@@ -223,6 +223,7 @@ func ConfigureGraph(
 	lokiClient loki.Client,
 	auditLogProjectID string,
 	auditLogLocation string,
+	postgresBranchWritesDisabled bool,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
 	logStep := func(name string, fn func() error) error {
@@ -381,7 +382,7 @@ func ConfigureGraph(
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
-		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresBranchWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation, tenantName, dynamicClients)
+		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresBranchWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation, tenantName, dynamicClients, postgresBranchWritesDisabled)
 		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)

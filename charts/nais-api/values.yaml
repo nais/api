@@ -78,6 +78,11 @@ unleash:
 
 replicas: 2
 
+postgres:
+  # Freeze legacy branch create/activate/delete before database ownership migration.
+  # Keep false until the compatibility release has reached every API replica.
+  branchWritesDisabled: false
+
 logging:
   destinations: ""
 

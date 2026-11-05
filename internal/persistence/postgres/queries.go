@@ -41,6 +41,9 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
+	if err := ensureBranchWritesEnabled(ctx); err != nil {
+		return nil, err
+	}
 
 	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName)
 	if err != nil {
@@ -890,23 +893,9 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 		return nil, err
 	}
 
-	pg, err := kubernetes.ToConcrete[nais_io_v1.Postgres](existing)
+	obj, changes, err := preparePostgresUpdate(existing, input)
 	if err != nil {
 		return nil, err
-	}
-
-	var changes []*PostgresUpdatedActivityLogEntryDataUpdatedField
-	for _, f := range []func(*nais_io_v1.Postgres, UpdatePostgresInput) ([]*PostgresUpdatedActivityLogEntryDataUpdatedField, error){
-		updatePostgresUserLabels,
-		updateHighAvailability,
-		updateResources,
-		updateExtensions,
-	} {
-		res, err := f(pg, input)
-		if err != nil {
-			return nil, err
-		}
-		changes = append(changes, res...)
 	}
 
 	if len(changes) == 0 {
@@ -917,10 +906,6 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 		return &UpdatePostgresPayload{Postgres: ret}, nil
 	}
 
-	obj, err := toUnstructuredWithoutZeroResources(pg)
-	if err != nil {
-		return nil, err
-	}
 	obj.SetAnnotations(kubernetes.WithCommonAnnotations(obj.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
 
 	updated, err := client.Update(ctx, obj, metav1.UpdateOptions{})

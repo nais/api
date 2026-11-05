@@ -19,6 +19,8 @@ import (
 )
 
 var (
+	errBranchWritesDisabled = apierror.Errorf("Postgres branch creation, activation and deletion are disabled. Existing databases and personal access are unaffected.")
+
 	cnpgClusterGVR = schema.GroupVersionResource{
 		Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters",
 	}
@@ -26,6 +28,13 @@ var (
 		Group: "barmancloud.cnpg.io", Version: "v1", Resource: "objectstores",
 	}
 )
+
+func ensureBranchWritesEnabled(ctx context.Context) error {
+	if fromContext(ctx).branchWritesDisabled {
+		return errBranchWritesDisabled
+	}
+	return nil
+}
 
 func branchClient(ctx context.Context, environment string, team slug.Slug) (dynamic.ResourceInterface, error) {
 	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environment)
@@ -144,6 +153,9 @@ func CreateBranch(ctx context.Context, input CreatePostgresBranchInput) (*Create
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
+	if err := ensureBranchWritesEnabled(ctx); err != nil {
+		return nil, err
+	}
 	pg, err := postgresClient(ctx, input.EnvironmentName, input.TeamSlug)
 	if err != nil {
 		return nil, err
@@ -245,6 +257,9 @@ func sameRecovery(obj *unstructured.Unstructured, input CreatePostgresBranchInpu
 
 func ActivateBranch(ctx context.Context, input ActivatePostgresBranchInput) (*ActivatePostgresBranchPayload, error) {
 	if err := input.Validate(ctx); err != nil {
+		return nil, err
+	}
+	if err := ensureBranchWritesEnabled(ctx); err != nil {
 		return nil, err
 	}
 	branches, err := branchClient(ctx, input.EnvironmentName, input.TeamSlug)

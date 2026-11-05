@@ -106,6 +106,8 @@ spec:
               value: {{ .Values.auditLog.projectID | quote }}
             - name: NAIS_AUDIT_LOG_LOCATION
               value: {{ .Values.auditLog.location | quote }}
+            - name: POSTGRES_BRANCH_WRITES_DISABLED
+              value: {{ .Values.postgres.branchWritesDisabled | quote }}
             {{- if .Values.kubernetes.oidcIssuers }}
             - name: KUBERNETES_OIDC_ISSUERS
               value: {{ .Values.kubernetes.oidcIssuers | quote }}
