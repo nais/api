@@ -22,7 +22,9 @@ func NewServer(appWatcher *watchers.AppWatcher, jobWatcher *watchers.JobWatcher)
 
 func (s *Server) ListImages(context.Context, *protoapi.ListWorkloadImagesRequest) (*protoapi.ListWorkloadImagesResponse, error) {
 	appEnvs, jobEnvs := s.appWatcher.EnvironmentNames(), s.jobWatcher.EnvironmentNames()
-	envs := slices.Compact(slices.Sorted(slices.Values(append(slices.Clone(appEnvs), jobEnvs...))))
+	envs := slices.Concat(appEnvs, jobEnvs)
+	slices.Sort(envs)
+	envs = slices.Compact(envs)
 
 	resp := &protoapi.ListWorkloadImagesResponse{}
 	for _, env := range envs {
