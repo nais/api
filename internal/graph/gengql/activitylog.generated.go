@@ -487,6 +487,71 @@ func (ec *executionContext) unmarshalInputActivityLogFilter(ctx context.Context,
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTenantActivityLogFilter(ctx context.Context, obj any) (activitylog.TenantActivityLogFilter, error) {
+	var it activitylog.TenantActivityLogFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamScope", "activityTypes", "resourceTypes", "environments", "from", "to"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamScope":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamScope"))
+			data, err := ec.unmarshalOTeamScopeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚋteamscopeᚐTeamScopeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamScope = data
+		case "activityTypes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("activityTypes"))
+			data, err := ec.unmarshalOActivityLogActivityType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogActivityTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ActivityTypes = data
+		case "resourceTypes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("resourceTypes"))
+			data, err := ec.unmarshalOActivityLogEntryResourceType2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐActivityLogEntryResourceTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ResourceTypes = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
+		case "from":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("from"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.From = data
+		case "to":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("to"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.To = data
+		}
+	}
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -1594,6 +1659,14 @@ func (ec *executionContext) unmarshalOActivityLogFilter2ᚖgithubᚗcomᚋnais�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputActivityLogFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTenantActivityLogFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐTenantActivityLogFilter(ctx context.Context, v any) (*activitylog.TenantActivityLogFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTenantActivityLogFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

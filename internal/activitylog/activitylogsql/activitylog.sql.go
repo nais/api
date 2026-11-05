@@ -683,8 +683,12 @@ WHERE
 		OR created_at >= $6::TIMESTAMPTZ
 	)
 	AND (
-		$7::TIMESTAMPTZ IS NULL
-		OR created_at < $7::TIMESTAMPTZ
+		$7::slug[] IS NULL
+		OR team_slug = ANY ($7::slug[])
+	)
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR created_at < $8::TIMESTAMPTZ
 	)
 GROUP BY
 	resource_type,
@@ -703,6 +707,7 @@ type FacetsForTenantActivityTypesParams struct {
 	FilterFrom          pgtype.Timestamptz
 	FilterTo            pgtype.Timestamptz
 	From                pgtype.Timestamptz
+	TeamSlugs           []slug.Slug
 	To                  pgtype.Timestamptz
 }
 
@@ -722,6 +727,7 @@ func (q *Queries) FacetsForTenantActivityTypes(ctx context.Context, arg FacetsFo
 		arg.FilterFrom,
 		arg.FilterTo,
 		arg.From,
+		arg.TeamSlugs,
 		arg.To,
 	)
 	if err != nil {
@@ -880,7 +886,8 @@ WHERE
 		OR activity_log_combined_view.created_at < $7::TIMESTAMPTZ
 	)
 ORDER BY
-	activity_log_combined_view.created_at DESC
+	activity_log_combined_view.created_at DESC,
+	id DESC
 LIMIT
 	$9
 OFFSET
@@ -977,7 +984,8 @@ WHERE
 		OR created_at < $8::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	$10
 OFFSET
@@ -1077,7 +1085,8 @@ WHERE
 		OR created_at < $9::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	$11
 OFFSET
@@ -1178,7 +1187,8 @@ WHERE
 		OR created_at < $7::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	$9
 OFFSET
@@ -1305,7 +1315,8 @@ WHERE
 		OR activity_log_combined_view.created_at < $6::TIMESTAMPTZ
 	)
 ORDER BY
-	activity_log_combined_view.created_at DESC
+	activity_log_combined_view.created_at DESC,
+	id DESC
 LIMIT
 	$8
 OFFSET
@@ -1394,8 +1405,12 @@ WITH
 				OR created_at >= $4::TIMESTAMPTZ
 			)
 			AND (
-				$5::TIMESTAMPTZ IS NULL
-				OR created_at < $5::TIMESTAMPTZ
+				$5::slug[] IS NULL
+				OR team_slug = ANY ($5::slug[])
+			)
+			AND (
+				$6::TIMESTAMPTZ IS NULL
+				OR created_at < $6::TIMESTAMPTZ
 			)
 	)
 SELECT
@@ -1422,15 +1437,20 @@ WHERE
 		OR created_at >= $4::TIMESTAMPTZ
 	)
 	AND (
-		$5::TIMESTAMPTZ IS NULL
-		OR created_at < $5::TIMESTAMPTZ
+		$5::slug[] IS NULL
+		OR team_slug = ANY ($5::slug[])
+	)
+	AND (
+		$6::TIMESTAMPTZ IS NULL
+		OR created_at < $6::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
-	$7
+	$8
 OFFSET
-	$6
+	$7
 `
 
 type ListForTenantParams struct {
@@ -1438,6 +1458,7 @@ type ListForTenantParams struct {
 	ResourceTypes []string
 	Environments  []string
 	From          pgtype.Timestamptz
+	TeamSlugs     []slug.Slug
 	To            pgtype.Timestamptz
 	Offset        int32
 	Limit         int32
@@ -1454,6 +1475,7 @@ func (q *Queries) ListForTenant(ctx context.Context, arg ListForTenantParams) ([
 		arg.ResourceTypes,
 		arg.Environments,
 		arg.From,
+		arg.TeamSlugs,
 		arg.To,
 		arg.Offset,
 		arg.Limit,

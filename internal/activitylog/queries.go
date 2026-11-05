@@ -130,17 +130,24 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 	}, nil
 }
 
-func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *ActivityLogFilter) (*ActivityLogEntryConnection, error) {
+func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *TenantActivityLogFilter) (*ActivityLogEntryConnection, error) {
 	q := db(ctx)
+	var entryFilter *ActivityLogFilter
+	scope := &ActivityLogScope{TenantWide: true}
+	if filter != nil {
+		entryFilter = &filter.ActivityLogFilter
+		scope.TeamSlugs = filter.TeamScope.Resolve(ctx)
+	}
 
 	ret, err := q.ListForTenant(ctx, activitylogsql.ListForTenantParams{
 		Offset:        page.Offset(),
 		Limit:         page.Limit(),
-		Filter:        withFilters(filter),
-		ResourceTypes: withResourceTypes(filter),
-		Environments:  withEnvironments(filter),
-		From:          withFrom(filter),
-		To:            withTo(filter),
+		Filter:        withFilters(entryFilter),
+		ResourceTypes: withResourceTypes(entryFilter),
+		Environments:  withEnvironments(entryFilter),
+		From:          withFrom(entryFilter),
+		To:            withTo(entryFilter),
+		TeamSlugs:     scope.TeamSlugs,
 	})
 	if err != nil {
 		return nil, err
@@ -149,6 +156,14 @@ func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *Act
 	var total int64
 	if len(ret) > 0 {
 		total = ret[0].TotalCount
+	} else {
+		facets, err := ComputeFacets(ctx, scope, entryFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, resourceType := range facets.ResourceTypes {
+			total += int64(resourceType.Count)
+		}
 	}
 
 	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *activitylogsql.ListForTenantRow) (ActivityLogEntry, error) {
@@ -160,8 +175,8 @@ func ListForTenant(ctx context.Context, page *pagination.Pagination, filter *Act
 
 	return &ActivityLogEntryConnection{
 		Connection: *conn,
-		scope:      &ActivityLogScope{TenantWide: true},
-		filter:     filter,
+		scope:      scope,
+		filter:     entryFilter,
 	}, nil
 }
 

@@ -59,7 +59,8 @@ WHERE
 		OR activity_log_combined_view.created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	activity_log_combined_view.created_at DESC
+	activity_log_combined_view.created_at DESC,
+	id DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -91,6 +92,10 @@ WITH
 				OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
 			)
 			AND (
+				sqlc.narg('team_slugs')::slug[] IS NULL
+				OR team_slug = ANY (sqlc.narg('team_slugs')::slug[])
+			)
+			AND (
 				sqlc.narg('to')::TIMESTAMPTZ IS NULL
 				OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 			)
@@ -119,11 +124,16 @@ WHERE
 		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
 	)
 	AND (
+		sqlc.narg('team_slugs')::slug[] IS NULL
+		OR team_slug = ANY (sqlc.narg('team_slugs')::slug[])
+	)
+	AND (
 		sqlc.narg('to')::TIMESTAMPTZ IS NULL
 		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -193,7 +203,8 @@ WHERE
 		OR activity_log_combined_view.created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	activity_log_combined_view.created_at DESC
+	activity_log_combined_view.created_at DESC,
+	id DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -231,7 +242,8 @@ WHERE
 		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -269,7 +281,8 @@ WHERE
 		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -308,7 +321,8 @@ WHERE
 		OR created_at < sqlc.narg('to')::TIMESTAMPTZ
 	)
 ORDER BY
-	created_at DESC
+	created_at DESC,
+	id DESC
 LIMIT
 	sqlc.arg('limit')
 OFFSET
@@ -653,6 +667,10 @@ WHERE
 	(
 		sqlc.narg('from')::TIMESTAMPTZ IS NULL
 		OR created_at >= sqlc.narg('from')::TIMESTAMPTZ
+	)
+	AND (
+		sqlc.narg('team_slugs')::slug[] IS NULL
+		OR team_slug = ANY (sqlc.narg('team_slugs')::slug[])
 	)
 	AND (
 		sqlc.narg('to')::TIMESTAMPTZ IS NULL

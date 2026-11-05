@@ -821,6 +821,8 @@ github.com/nais/v13s/pkg/api v0.0.0-20261103111509-925bdfdec8e0 h1:ub3JzRojeUbCI
 github.com/nais/v13s/pkg/api v0.0.0-20261103111509-925bdfdec8e0/go.mod h1:iyokFt2PMpW+MFlcYBjHONsrmHqY8WCOEvV84VvF6vQ=
 github.com/nais/v13s/pkg/api v0.0.0-20261103121724-adfad8b37eab h1:1DPCgnFpbMXuah44gOdQUeWtoOXw7/mB6ijCxZ1buB0=
 github.com/nais/v13s/pkg/api v0.0.0-20261103121724-adfad8b37eab/go.mod h1:iyokFt2PMpW+MFlcYBjHONsrmHqY8WCOEvV84VvF6vQ=
+github.com/nais/v13s/pkg/api v0.0.0-20261105092527-4fb2d5f61e67 h1:F4TAvlkMZ/m4zzQU8ZY/EbCo7oPgc3vg4tz+Fn0U2b8=
+github.com/nais/v13s/pkg/api v0.0.0-20261105092527-4fb2d5f61e67/go.mod h1:iyokFt2PMpW+MFlcYBjHONsrmHqY8WCOEvV84VvF6vQ=
 github.com/ncruces/go-sqlite3 v0.32.0 h1:hNBUXp88LrfQCsuyXLqWTbTUG35sUuktDsqhhgHvU20=
 github.com/ncruces/go-sqlite3 v0.32.0/go.mod h1:MIWTK60ONDl0oVY073zYvJP21C3Dly6P9bxVpgkLwdQ=
 github.com/ncruces/go-strftime v1.0.0 h1:HMFp8mLCTPp341M/ZnA4qaf7ZlsbTc+miZjCLOFAw7w=

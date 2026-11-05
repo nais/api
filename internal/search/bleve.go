@@ -162,6 +162,20 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		return nil, err
 	}
 
+	teams := filter.TeamScope.Resolve(ctx)
+	if len(filter.Teams) > 0 {
+		legacyTeams := make([]slug.Slug, 0, len(filter.Teams))
+		for _, team := range filter.Teams {
+			if teams == nil || slices.Contains(teams, team) {
+				legacyTeams = append(legacyTeams, team)
+			}
+		}
+		teams = legacyTeams
+	}
+	if teams != nil && len(teams) == 0 {
+		return pagination.NewConnection([]SearchNode{}, page, 0), nil
+	}
+
 	queries := []query.Query{}
 
 	if filter.Query != "" {
@@ -185,14 +199,11 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			qq,
 			term,
 		))
-	} else {
-		if len(filter.Teams) > 0 {
-			queries = append(queries, teamDisjunctionQuery(filter.Teams))
-		} else if len(slugs) == 0 {
+	} else if filter.TeamScope == nil && teams == nil {
+		if len(slugs) == 0 {
 			return pagination.NewConnection([]SearchNode{}, page, 0), nil
-		} else {
-			queries = append(queries, teamDisjunctionQuery(slugs))
 		}
+		teams = slugs
 	}
 
 	if len(filter.Types) > 0 {
@@ -205,19 +216,17 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 		queries = append(queries, typesQuery)
 	}
 
-	if filter.Query != "" && len(filter.Teams) > 0 {
-		queries = append(queries, teamDisjunctionQuery(filter.Teams))
+	if teams != nil {
+		queries = append(queries, teamDisjunctionQuery(teams))
+	}
+	if len(queries) == 0 {
+		queries = append(queries, bleve.NewMatchAllQuery())
 	}
 
 	var q query.Query = bleve.NewConjunctionQuery(queries...)
 
 	filteredByTeamOnly := len(filter.Types) == 1 && slices.Contains(filter.Types, "TEAM")
 	if !filteredByTeamOnly && (len(slugs) > 0 || filter.Query == "") {
-		teamSlugs := make([]string, 0, len(slugs))
-		for _, slug := range slugs {
-			teamSlugs = append(teamSlugs, slug.String())
-		}
-
 		boostFields := []string{"team"}
 		if filter.Query == "" {
 			boostFields = append(boostFields, "kind")
@@ -227,7 +236,7 @@ func (b *bleveSearcher) Search(ctx context.Context, page *pagination.Pagination,
 			switch field {
 			case "team":
 				v := 1
-				if slices.Contains(teamSlugs, string(term)) {
+				if slices.Contains(slugs, slug.Slug(term)) {
 					v *= 1000
 				}
 				b := query.Boost(v)
