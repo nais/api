@@ -364,7 +364,7 @@ func CanReadWebhook(ctx context.Context, teamSlug *slug.Slug) error {
 	if teamSlug == nil {
 		return RequireGlobalAdmin(ctx)
 	}
-	return CanUpdateWebhook(ctx, teamSlug)
+	return requireTeamAuthorization(ctx, *teamSlug, "webhooks:read")
 }
 
 func CanUpdateWebhook(ctx context.Context, teamSlug *slug.Slug) error {

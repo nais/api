@@ -135,7 +135,11 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 }
 
 func TestWebhook(ctx context.Context, input TestWebhookInput) (*TestWebhookPayload, error) {
-	sub, err := GetSubscriptionByIdent(ctx, input.ID)
+	uid, err := parseSubscriptionIdent(input.ID)
+	if err != nil {
+		return nil, err
+	}
+	sub, err := fromContext(ctx).subscriptionLoader.Load(ctx, uid)
 	if err != nil {
 		return nil, err
 	}

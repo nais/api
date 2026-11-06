@@ -137,6 +137,10 @@ INSERT INTO
 	authorizations (name, description)
 VALUES
 	(
+		'webhooks:read',
+		'Permission to read webhook subscriptions, deliveries and activity logs.'
+	),
+	(
 		'webhooks:create',
 		'Permission to create webhook subscriptions.'
 	),
@@ -153,6 +157,8 @@ VALUES
 INSERT INTO
 	role_authorizations (role_name, authorization_name)
 VALUES
+	('Team member', 'webhooks:read'),
+	('Team owner', 'webhooks:read'),
 	('Team owner', 'webhooks:create'),
 	('Team owner', 'webhooks:update'),
 	('Team owner', 'webhooks:delete')

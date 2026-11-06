@@ -224,14 +224,15 @@ Disabled subscriptions pause queued deliveries until re-enabled.
 ## Authorisation
 
 Reads of subscriptions, delivery diagnostics, and subscription activity logs require
-the owning team's webhook-update permission. Global subscriptions require admin access.
+the owning team's `webhooks:read` permission, granted to both members and owners.
+Admins can also read team webhooks. Global subscriptions require admin access.
 The same checks apply to direct node lookups.
 
-| Action              | Allowed                                    |
-| ------------------- | ------------------------------------------ |
-| Team-scoped webhook | Team owner                                 |
-| Global webhook      | Admin (Go-level check, not a DB role)      |
-| Update / delete     | Owner of the subscription's team, or admin |
+| Action                            | Allowed                                    |
+| --------------------------------- | ------------------------------------------ |
+| Read team webhooks and deliveries | Team member, team owner, or admin          |
+| Global webhook                    | Admin (Go-level check, not a DB role)      |
+| Create / update / delete / test   | Owner of the subscription's team, or admin |
 
 ## Endpoint policy
 

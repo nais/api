@@ -1,9 +1,11 @@
 local owner = User.new("owner", "owner@example.com", "owner")
+local member = User.new("member", "member@example.com", "member")
 local outsider = User.new("outsider", "outsider@example.com", "outsider")
 local admin = User.new("admin", "admin@example.com", "admin")
 admin:admin(true)
 local team = Team.new("team-owner", "Owner", "#owner")
 team:addOwner(owner)
+team:addMember(member)
 
 local function checkTeamEntry(t, activityType, entry)
 	t.query(string.format([[
@@ -504,6 +506,82 @@ Test.gql("Prepare delivery node authorization fixtures", function(t)
 		}
 	end
 end)
+
+Test.gql("Team members can read webhook lists, subscription activity and delivery nodes", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query(string.format([[
+		query {
+			team(slug: "team-owner") { webhooks(first: 10) { pageInfo { totalCount } } }
+			subscription: node(id: "%s") {
+				... on WebhookSubscription {
+					id url
+					activityLog(first: 1) { pageInfo { totalCount } }
+					deliveries(first: 10) { nodes { id } }
+				}
+			}
+			delivery: node(id: "%s") {
+				... on WebhookDelivery { id requestBody responseBody }
+			}
+		}
+	]], State.primaryWebhookID, State.primaryWebhookIDDeliveryID))
+	t.check {
+		data = {
+			team = { webhooks = { pageInfo = { totalCount = 2 } } },
+			subscription = {
+				id = State.primaryWebhookID,
+				url = NotNull(),
+				activityLog = { pageInfo = { totalCount = 2 } },
+				deliveries = { nodes = { { id = State.primaryWebhookIDDeliveryID } } },
+			},
+			delivery = { id = State.primaryWebhookIDDeliveryID, requestBody = "{}", responseBody = Null },
+		},
+	}
+end)
+
+for _, key in ipairs({ "globalWebhookID", "globalWebhookIDDeliveryID" }) do
+	Test.gql("Team members cannot read global webhook node " .. key, function(t)
+		t.addHeader("x-user-email", member:email())
+		t.query(string.format('query { node(id: "%s") { id } }', State[key]))
+		t.check {
+			data = { node = Null },
+			errors = { { message = NotNull(), locations = NotNull(), path = { "node" } } },
+		}
+	end)
+end
+
+for _, tt in ipairs({
+	{ mutation = "createWebhook", permission = "create" },
+	{ mutation = "updateWebhook", permission = "update" },
+	{ mutation = "deleteWebhook", permission = "delete" },
+	{ mutation = "testWebhook",   permission = "update" },
+}) do
+	Test.gql("Team membership does not grant " .. tt.mutation, function(t)
+		t.addHeader("x-user-email", member:email())
+		local input = string.format('id: "%s"', State.primaryWebhookID)
+		local selection = "webhook { id }"
+		if tt.mutation == "createWebhook" then
+			input =
+			[=[name: "Member webhook", teamSlug: "team-owner", url: "https://hooks.example.com", secret: "test-secret", eventTypes: ["*"]]=]
+		elseif tt.mutation == "updateWebhook" then
+			input = input .. ", enabled: true"
+		elseif tt.mutation == "deleteWebhook" then
+			selection = "webhookID"
+		elseif tt.mutation == "testWebhook" then
+			selection = "delivery { id }"
+		end
+		t.query(string.format("mutation { %s(input: { %s }) { %s } }", tt.mutation, input, selection))
+		t.check {
+			data = Null,
+			errors = {
+				{
+					message = Contains('"webhooks:' .. tt.permission .. '"'),
+					locations = NotNull(),
+					path = { tt.mutation },
+				},
+			},
+		}
+	end)
+end
 
 for _, key in ipairs({ "primaryWebhookID", "primaryWebhookIDDeliveryID", "globalWebhookID", "globalWebhookIDDeliveryID" }) do
 	Test.gql("Outsiders cannot read webhook node " .. key, function(t)
