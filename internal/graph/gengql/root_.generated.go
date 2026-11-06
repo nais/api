@@ -169,10 +169,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	ActivatePostgresBranchPayload struct {
-		Postgres func(childComplexity int) int
-	}
-
 	ActivityLogActivityTypeFacetItem struct {
 		ActivityType func(childComplexity int) int
 		Count        func(childComplexity int) int
@@ -767,10 +763,6 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 	}
 
-	CreatePostgresBranchPayload struct {
-		PostgresBranch func(childComplexity int) int
-	}
-
 	CreatePostgresPayload struct {
 		Postgres func(childComplexity int) int
 	}
@@ -835,10 +827,6 @@ type ComplexityRoot struct {
 
 	DeleteOpenSearchPayload struct {
 		OpenSearchDeleted func(childComplexity int) int
-	}
-
-	DeletePostgresBranchPayload struct {
-		PostgresBranchDeleted func(childComplexity int) int
 	}
 
 	DeletePostgresPayload struct {
@@ -1652,7 +1640,6 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ActivatePostgresBranch           func(childComplexity int, input postgres.ActivatePostgresBranchInput) int
 		AddConfigValue                   func(childComplexity int, input config.AddConfigValueInput) int
 		AddRepositoryToTeam              func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue                   func(childComplexity int, input secret.AddSecretValueInput) int
@@ -1669,7 +1656,6 @@ type ComplexityRoot struct {
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreatePostgres                   func(childComplexity int, input postgres.CreatePostgresInput) int
 		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
-		CreatePostgresBranch             func(childComplexity int, input postgres.CreatePostgresBranchInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1684,7 +1670,6 @@ type ComplexityRoot struct {
 		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
 		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
-		DeletePostgresBranch             func(childComplexity int, input postgres.DeletePostgresBranchInput) int
 		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken        func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
@@ -4229,13 +4214,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
-	case "ActivatePostgresBranchPayload.postgres":
-		if e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres(childComplexity), true
-
 	case "ActivityLogActivityTypeFacetItem.activityType":
 		if e.ComplexityRoot.ActivityLogActivityTypeFacetItem.ActivityType == nil {
 			break
@@ -6734,13 +6712,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
 
-	case "CreatePostgresBranchPayload.postgresBranch":
-		if e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch(childComplexity), true
-
 	case "CreatePostgresPayload.postgres":
 		if e.ComplexityRoot.CreatePostgresPayload.Postgres == nil {
 			break
@@ -6887,13 +6858,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted(childComplexity), true
-
-	case "DeletePostgresBranchPayload.postgresBranchDeleted":
-		if e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted == nil {
-			break
-		}
-
-		return e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted(childComplexity), true
 
 	case "DeletePostgresPayload.deletionRequested":
 		if e.ComplexityRoot.DeletePostgresPayload.DeletionRequested == nil {
@@ -10297,18 +10261,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MissingSbomIssue.Workload(childComplexity), true
 
-	case "Mutation.activatePostgresBranch":
-		if e.ComplexityRoot.Mutation.ActivatePostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_activatePostgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.ActivatePostgresBranch(childComplexity, args["input"].(postgres.ActivatePostgresBranchInput)), true
-
 	case "Mutation.addConfigValue":
 		if e.ComplexityRoot.Mutation.AddConfigValue == nil {
 			break
@@ -10501,18 +10453,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
 
-	case "Mutation.createPostgresBranch":
-		if e.ComplexityRoot.Mutation.CreatePostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createPostgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.CreatePostgresBranch(childComplexity, args["input"].(postgres.CreatePostgresBranchInput)), true
-
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
 			break
@@ -10680,18 +10620,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
-
-	case "Mutation.deletePostgresBranch":
-		if e.ComplexityRoot.Mutation.DeletePostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deletePostgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.DeletePostgresBranch(childComplexity, args["input"].(postgres.DeletePostgresBranchInput)), true
 
 	case "Mutation.deleteSecret":
 		if e.ComplexityRoot.Mutation.DeleteSecret == nil {
@@ -22248,7 +22176,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputActivatePostgresBranchInput,
 		ec.unmarshalInputActivityLogFilter,
 		ec.unmarshalInputAddConfigValueInput,
 		ec.unmarshalInputAddRepositoryToTeamInput,
@@ -22279,7 +22206,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreatePostgresAccessInput,
-		ec.unmarshalInputCreatePostgresBranchInput,
 		ec.unmarshalInputCreatePostgresInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
@@ -22294,7 +22220,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
-		ec.unmarshalInputDeletePostgresBranchInput,
 		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
@@ -29631,12 +29556,6 @@ extend type Mutation {
 	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
 	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
 	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
-	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
-	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
-	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
-	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
-	"Delete a PostgresBranch that is not active on its Postgres."
-	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
@@ -29684,46 +29603,6 @@ enum PostgresAccessLevel {
 	MAINTAIN
 }
 
-"Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
-input CreatePostgresBranchInput {
-	"Name of the owning Postgres."
-	postgres: String!
-	"Local name of the new branch."
-	branch: String!
-	"Local name of the source branch in the same Postgres."
-	sourceBranch: String!
-	"Explicit UTC recovery target; must not be in the future."
-	targetTime: Time!
-	"Environment containing the Postgres."
-	environmentName: String!
-	"Team owning the Postgres."
-	teamSlug: Slug!
-}
-
-"Result of creating a branch; provisioning continues asynchronously."
-type CreatePostgresBranchPayload {
-	"The new branch."
-	postgresBranch: PostgresBranch!
-}
-
-"Request a branch for normal workloads. It becomes active once its database is ready."
-input ActivatePostgresBranchInput {
-	"Name of the owning Postgres."
-	postgres: String!
-	"Local name of the branch to activate."
-	branch: String!
-	"Environment containing the Postgres."
-	environmentName: String!
-	"Team owning the Postgres."
-	teamSlug: Slug!
-}
-
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
-type ActivatePostgresBranchPayload {
-	"Postgres with desired and observed branch selection."
-	postgres: Postgres!
-}
-
 "Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
 input DeletePostgresInput {
 	"Name of the Postgres."
@@ -29738,22 +29617,6 @@ input DeletePostgresInput {
 type DeletePostgresPayload {
 	"True if Kubernetes accepted the deletion request; data deletion may still be pending."
 	deletionRequested: Boolean!
-}
-
-input DeletePostgresBranchInput {
-	"Name of the Postgres containing the branch."
-	postgres: String!
-	"Local name of the branch to delete."
-	branch: String!
-	"The environment containing the PostgresBranch."
-	environmentName: String!
-	"The team that owns the PostgresBranch."
-	teamSlug: Slug!
-}
-
-type DeletePostgresBranchPayload {
-	"Whether the PostgresBranch was deleted."
-	postgresBranchDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {
@@ -37639,14 +37502,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
 
-func (ec *executionContext) childFields_ActivatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "postgres":
-		return ec.fieldContext_ActivatePostgresBranchPayload_postgres(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type ActivatePostgresBranchPayload", field.Name)
-}
-
 func (ec *executionContext) childFields_ActivityLogActivityTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "activityType":
@@ -38579,14 +38434,6 @@ func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
 }
 
-func (ec *executionContext) childFields_CreatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "postgresBranch":
-		return ec.fieldContext_CreatePostgresBranchPayload_postgresBranch(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresBranchPayload", field.Name)
-}
-
 func (ec *executionContext) childFields_CreatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "postgres":
@@ -38717,14 +38564,6 @@ func (ec *executionContext) childFields_DeleteOpenSearchPayload(ctx context.Cont
 		return ec.fieldContext_DeleteOpenSearchPayload_openSearchDeleted(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type DeleteOpenSearchPayload", field.Name)
-}
-
-func (ec *executionContext) childFields_DeletePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "postgresBranchDeleted":
-		return ec.fieldContext_DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresBranchPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

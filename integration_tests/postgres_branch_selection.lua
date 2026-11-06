@@ -70,68 +70,31 @@ Test.gql("Postgres workload branches use explicit selection or the observed acti
 	} } } } }
 end)
 
-for _, test in ipairs({
-	{ branch = "main",    reference = 'Application "pinned-app"' },
-	{ branch = "pr-123",  reference = 'Naisjob "pinned-job"' },
-	{ branch = "binding", reference = 'PostgresBinding "standalone-binding"' },
-}) do
-	Test.gql("Deleting a branch referenced by " .. test.reference .. " is allowed and audited", function(t)
-		t.addHeader("x-user-email", user:email())
-		t.query([[mutation { deletePostgresBranch(input: { postgres: "orders", branch: "]] ..
-			test.branch .. [[", environmentName: "dev", teamSlug: "pg-selection-team" }) { postgresBranchDeleted } }]])
-		t.check { data = { deletePostgresBranch = { postgresBranchDeleted = true } } }
-		t.query [[{ team(slug: "pg-selection-team") {
-			activityLog(first: 1, filter: { activityTypes: [POSTGRES_BRANCH_DELETED] }) {
-				nodes { actor createdAt resourceName teamSlug environmentName
-					... on PostgresBranchDeletedActivityLogEntry { data { branch } }
-				}
-			}
-		} }]]
-		t.check { data = { team = { activityLog = { nodes = {
-			{ actor = user:email(), createdAt = NotNull(), resourceName = "orders", teamSlug = "pg-selection-team", environmentName = "dev", data = { branch = test.branch } },
-		} } } } }
-	end)
-end
-
 Test.gql("A missing referenced branch returns an error instead of omitting the workload", function(t)
 	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "orders") {
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "missing-branch") {
 		workloads { pageInfo { totalCount } nodes { workload {
 			... on Application { __typename name }
 			... on Job { __typename name }
 		} } }
 	} } } }]]
 	t.check { data = { team = { environment = { postgres = { workloads = {
-		pageInfo = { totalCount = 3 }, nodes = {
-		{ workload = { __typename = "Application", name = "following-app" } },
-		{ workload = { __typename = "Application", name = "pinned-app" } },
-		{ workload = { __typename = "Job", name = "pinned-job" } },
+		pageInfo = { totalCount = 1 }, nodes = {
+		{ workload = { __typename = "Application", name = "missing-branch-app" } },
 	},
 	} } } } } }
-	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "orders") {
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "missing-branch") {
 		workloads(first: 2) { nodes { workload { ... on Application { name } } branch { name } } }
 	} } } }]]
 	t.check {
 		data = Null,
-		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 1, "branch" } } },
+		errors = { { locations = NotNull(), message = Contains("missing-branch/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 0, "branch" } } },
 	}
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-		application(name: "pinned-app") { postgreses { nodes { postgres { name } branch { name } } } }
+		application(name: "missing-branch-app") { postgreses { nodes { postgres { name } branch { name } } } }
 	} } }]]
 	t.check {
 		data = Null,
-		errors = { { locations = NotNull(), message = Contains("orders/main"), path = { "team", "environment", "application", "postgreses" } } },
+		errors = { { locations = NotNull(), message = Contains("missing-branch/main"), path = { "team", "environment", "application", "postgreses" } } },
 	}
-end)
-
-Test.gql("Pending activation also prevents deletion", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[mutation { deletePostgresBranch(input: { postgres: "orders", branch: "pending", environmentName: "dev", teamSlug: "pg-selection-team" }) { postgresBranchDeleted } }]]
-	t.check { errors = { { locations = NotNull(), path = { "deletePostgresBranch" }, message = Contains("is active and cannot be deleted") } }, data = Null }
-end)
-
-Test.gql("References to other branches do not block deleting an unused branch", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[mutation { deletePostgresBranch(input: { postgres: "orders", branch: "old", environmentName: "dev", teamSlug: "pg-selection-team" }) { postgresBranchDeleted } }]]
-	t.check { data = { deletePostgresBranch = { postgresBranchDeleted = true } } }
 end)
