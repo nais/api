@@ -1,0 +1,125 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-team-logs
+spec:
+  image: example.com/app:latest
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-team-logs-loki
+spec:
+  image: example.com/app:latest
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: loki
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-team-logs-disabled
+spec:
+  image: example.com/app:latest
+  observability:
+    logging:
+      enabled: false
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-team-logs-secure
+spec:
+  image: example.com/app:latest
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: secure_logs
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-team-logs
+spec:
+  image: example.com/job:latest
+  schedule: "0 * * * *"
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-team-logs-loki
+spec:
+  image: example.com/job:latest
+  schedule: "0 * * * *"
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: loki
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-team-logs-disabled
+spec:
+  image: example.com/job:latest
+  schedule: "0 * * * *"
+  observability:
+    logging:
+      enabled: false
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-team-logs-secure
+spec:
+  image: example.com/job:latest
+  schedule: "0 * * * *"
+  observability:
+    logging:
+      enabled: true
+      destinations:
+        - id: secure_logs
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
