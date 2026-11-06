@@ -17,45 +17,7 @@ import (
 	"github.com/nais/api/internal/workload/job"
 	liberatorv1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/sirupsen/logrus/hooks/test"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
-
-func TestDeletePostgresBranchRequiresInactiveBranch(t *testing.T) {
-	tests := []struct {
-		name       string
-		postgres   map[string]any
-		wantDenied bool
-	}{
-		{"selected in status", map[string]any{"status": map[string]any{"activeBranch": "restored"}}, true},
-		{"selected in spec", map[string]any{"spec": map[string]any{"activeBranch": "restored"}}, true},
-		{"pending switch", map[string]any{"spec": map[string]any{"activeBranch": "restored"}, "status": map[string]any{"activeBranch": "original"}}, true},
-		{"inactive", map[string]any{"status": map[string]any{"activeBranch": "original"}}, false},
-		{"default active", map[string]any{}, true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			postgres := &unstructured.Unstructured{Object: tt.postgres}
-			postgres.SetName("orders")
-			requested := "restored"
-			if tt.name == "default active" {
-				requested = "main"
-			}
-			err := ensureInstanceMayBeDeleted(requested, postgres)
-			if (err != nil) != tt.wantDenied {
-				t.Errorf("deletion error = %v; denied = %v", err, tt.wantDenied)
-			}
-		})
-	}
-}
-
-func TestBranchDeletionProtectsInitialMainDuringPendingActivation(t *testing.T) {
-	postgres := &unstructured.Unstructured{Object: map[string]any{"spec": map[string]any{"activeBranch": "restored"}}}
-	for _, branch := range []string{"main", "restored"} {
-		if err := ensureInstanceMayBeDeleted(branch, postgres); err == nil {
-			t.Errorf("branch %q must be protected until activation is observed", branch)
-		}
-	}
-}
 
 func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()

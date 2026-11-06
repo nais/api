@@ -1,12 +1,10 @@
 package postgres
 
 import (
-	"context"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -185,84 +183,6 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := postgresStateFromConditions(tt.conditions, tt.reconciled); got != tt.want {
 				t.Errorf("state = %s, want %s", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
-	tests := []struct {
-		name          string
-		input         DeletePostgresBranchInput
-		wantErrFields []string
-	}{
-		{
-			name: "all fields valid",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "main",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: nil,
-		},
-		{
-			name: "empty name",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: []string{"branch"},
-		},
-		{
-			name: "empty environmentName",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "main",
-				EnvironmentName: "",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: []string{"environmentName"},
-		},
-		{
-			name: "empty teamSlug",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "main",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug(""),
-			},
-			wantErrFields: []string{"teamSlug"},
-		},
-		{
-			name: "all fields empty",
-			input: DeletePostgresBranchInput{
-				Postgres: "", Branch: "",
-				EnvironmentName: "",
-				TeamSlug:        slug.Slug(""),
-			},
-			wantErrFields: []string{"postgres", "branch", "environmentName", "teamSlug"},
-		},
-		{
-			name: "whitespace-only name treated as empty",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "   ",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: []string{"branch"},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			verr := tt.input.ValidationErrors(context.Background())
-			var gotFields []string
-			for _, e := range verr.Errors {
-				if e.GraphQLField != nil {
-					gotFields = append(gotFields, *e.GraphQLField)
-				}
-			}
-			if !reflect.DeepEqual(gotFields, tt.wantErrFields) {
-				t.Errorf("ValidationErrors() fields = %v, want %v", gotFields, tt.wantErrFields)
 			}
 		})
 	}
