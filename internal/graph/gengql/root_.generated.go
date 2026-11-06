@@ -4055,9 +4055,14 @@ type ComplexityRoot struct {
 		Workload        func(childComplexity int) int
 	}
 
+	WebhookActivityLogEntryData struct {
+		Name func(childComplexity int) int
+	}
+
 	WebhookCreatedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
 		EnvironmentName   func(childComplexity int) int
 		GitHubActorClaims func(childComplexity int) int
 		ID                func(childComplexity int) int
@@ -4070,6 +4075,7 @@ type ComplexityRoot struct {
 	WebhookDeletedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
 		EnvironmentName   func(childComplexity int) int
 		GitHubActorClaims func(childComplexity int) int
 		ID                func(childComplexity int) int
@@ -4113,13 +4119,13 @@ type ComplexityRoot struct {
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		ConsecutiveFailures func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
-		CreatedBy           func(childComplexity int) int
 		Deliveries          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		DisabledAt          func(childComplexity int) int
 		Enabled             func(childComplexity int) int
 		EventTypes          func(childComplexity int) int
 		HasSecret           func(childComplexity int) int
 		ID                  func(childComplexity int) int
+		Name                func(childComplexity int) int
 		SourceTeamSlugs     func(childComplexity int) int
 		TeamSlug            func(childComplexity int) int
 		URL                 func(childComplexity int) int
@@ -4151,6 +4157,7 @@ type ComplexityRoot struct {
 	}
 
 	WebhookUpdatedActivityLogEntryData struct {
+		Name          func(childComplexity int) int
 		UpdatedFields func(childComplexity int) int
 	}
 
@@ -21733,6 +21740,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerableImageIssue.Workload(childComplexity), true
 
+	case "WebhookActivityLogEntryData.name":
+		if e.ComplexityRoot.WebhookActivityLogEntryData.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookActivityLogEntryData.Name(childComplexity), true
+
 	case "WebhookCreatedActivityLogEntry.actor":
 		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Actor == nil {
 			break
@@ -21746,6 +21760,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.Data(childComplexity), true
 
 	case "WebhookCreatedActivityLogEntry.environmentName":
 		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.EnvironmentName == nil {
@@ -21809,6 +21830,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.data":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.Data(childComplexity), true
 
 	case "WebhookDeletedActivityLogEntry.environmentName":
 		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.EnvironmentName == nil {
@@ -22011,13 +22039,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookSubscription.CreatedAt(childComplexity), true
 
-	case "WebhookSubscription.createdBy":
-		if e.ComplexityRoot.WebhookSubscription.CreatedBy == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WebhookSubscription.CreatedBy(childComplexity), true
-
 	case "WebhookSubscription.deliveries":
 		if e.ComplexityRoot.WebhookSubscription.Deliveries == nil {
 			break
@@ -22064,6 +22085,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WebhookSubscription.ID(childComplexity), true
+
+	case "WebhookSubscription.name":
+		if e.ComplexityRoot.WebhookSubscription.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.Name(childComplexity), true
 
 	case "WebhookSubscription.sourceTeamSlugs":
 		if e.ComplexityRoot.WebhookSubscription.SourceTeamSlugs == nil {
@@ -22197,6 +22225,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryData.name":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.Name(childComplexity), true
 
 	case "WebhookUpdatedActivityLogEntryData.updatedFields":
 		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.UpdatedFields == nil {
@@ -37552,6 +37587,9 @@ type WebhookSubscription implements Node {
 	"Globally unique ID of the webhook subscription."
 	id: ID!
 
+	"The display name of the webhook subscription. Must be unique within the owning team."
+	name: String!
+
 	"The team that owns and manages this webhook. Null for admin-only global webhooks."
 	teamSlug: Slug
 
@@ -37572,9 +37610,6 @@ type WebhookSubscription implements Node {
 
 	"When the webhook was automatically disabled due to repeated failures. Null if not auto-disabled."
 	disabledAt: Time
-
-	"The identity of the user who created this webhook."
-	createdBy: String!
 
 	"When the webhook was created."
 	createdAt: Time!
@@ -37745,7 +37780,7 @@ extend type Mutation {
 	"""
 	Update an existing webhook subscription.
 
-	Can be used to change the source teams, URL, secret, event types, or enabled status. Ownership cannot be changed.
+	Can be used to change the name, source teams, URL, secret, event types, or enabled status. Ownership and the subscription ID cannot be changed.
 	"""
 	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
 
@@ -37759,6 +37794,9 @@ extend type Mutation {
 
 "Input for creating a new webhook subscription."
 input CreateWebhookInput {
+	"The required display name of the webhook, unique within the owning team. Leading and trailing whitespace is removed; blank names are not allowed."
+	name: String!
+
 	"The team that owns and manages this webhook. Omit for an admin-only global webhook."
 	teamSlug: Slug
 
@@ -37768,7 +37806,7 @@ input CreateWebhookInput {
 	"The URL that will receive webhook HTTP POST requests."
 	url: String!
 
-	"The secret used for HMAC-SHA256 signing of webhook payloads."
+	"The required secret used for HMAC-SHA256 signing of webhook payloads. Must contain at least 8 characters."
 	secret: String!
 
 	"The event types to subscribe to. Use '*' to subscribe to all events."
@@ -37786,13 +37824,16 @@ input UpdateWebhookInput {
 	"The ID of the webhook subscription to update."
 	id: ID!
 
+	"The replacement display name, unique within the owning team. Omit or pass null to keep the current name. Leading and trailing whitespace is removed; blank names are not allowed."
+	name: String
+
 	"The teams whose events to receive. Omit or pass null to keep the current selection. An empty list selects all teams, excluding global events for team-owned webhooks."
 	sourceTeamSlugs: [Slug!]
 
 	"The new URL for the webhook. Null to keep the current value."
 	url: String
 
-	"The replacement signing secret. Omit or pass null to keep the current secret. The stored secret is never returned."
+	"The replacement signing secret, containing at least 8 characters. Omit or pass null to keep the current secret. The stored secret is never returned."
 	secret: String
 
 	"The new event types to subscribe to. Null to keep the current value."
@@ -37856,6 +37897,14 @@ type WebhookCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	teamSlug: Slug
 	"The environment associated with the activity, if any."
 	environmentName: String
+	"The webhook name captured when it was created."
+	data: WebhookActivityLogEntryData!
+}
+
+"Display information captured at the time of a webhook activity. Later renames or deletion do not change it."
+type WebhookActivityLogEntryData {
+	"The display name of the webhook at the time of the activity."
+	name: String!
 }
 
 "An activity log entry for updating a webhook subscription."
@@ -37884,6 +37933,9 @@ type WebhookUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 "Details of a webhook subscription update."
 type WebhookUpdatedActivityLogEntryData {
+	"The display name after this update, captured independently of later renames or deletion."
+	name: String!
+
 	"The fields whose values changed. Empty when the update made no changes."
 	updatedFields: [WebhookUpdatedActivityLogEntryDataUpdatedField!]!
 }
@@ -37918,6 +37970,8 @@ type WebhookDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	teamSlug: Slug
 	"The environment associated with the activity, if any."
 	environmentName: String
+	"The webhook name captured when it was deleted."
+	data: WebhookActivityLogEntryData!
 }
 `, BuiltIn: false},
 	{Name: "../schema/workload_events.graphqls", Input: `extend interface Workload {
@@ -43743,6 +43797,14 @@ func (ec *executionContext) childFields_VulnerabilityRiskAssessment(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityRiskAssessment", field.Name)
 }
 
+func (ec *executionContext) childFields_WebhookActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_WebhookActivityLogEntryData_name(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookActivityLogEntryData", field.Name)
+}
+
 func (ec *executionContext) childFields_WebhookDelivery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -43807,6 +43869,8 @@ func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context,
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_WebhookSubscription_id(ctx, field)
+	case "name":
+		return ec.fieldContext_WebhookSubscription_name(ctx, field)
 	case "teamSlug":
 		return ec.fieldContext_WebhookSubscription_teamSlug(ctx, field)
 	case "sourceTeamSlugs":
@@ -43821,8 +43885,6 @@ func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context,
 		return ec.fieldContext_WebhookSubscription_consecutiveFailures(ctx, field)
 	case "disabledAt":
 		return ec.fieldContext_WebhookSubscription_disabledAt(ctx, field)
-	case "createdBy":
-		return ec.fieldContext_WebhookSubscription_createdBy(ctx, field)
 	case "createdAt":
 		return ec.fieldContext_WebhookSubscription_createdAt(ctx, field)
 	case "updatedAt":
@@ -43861,6 +43923,8 @@ func (ec *executionContext) childFields_WebhookSubscriptionEdge(ctx context.Cont
 
 func (ec *executionContext) childFields_WebhookUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "name":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryData_name(ctx, field)
 	case "updatedFields":
 		return ec.fieldContext_WebhookUpdatedActivityLogEntryData_updatedFields(ctx, field)
 	}

@@ -9,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -20,14 +19,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/slug"
-	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/testcontainers/testcontainers-go"
@@ -52,56 +49,38 @@ func TestDispatcherIntegration(t *testing.T) {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
 
-	t.Run("source migration preserves legacy subscriptions and rolling deployment inserts", func(t *testing.T) {
+	t.Run("subscriptions without explicit sources preserve ownership scope", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
-		sqlDB := stdlib.OpenDBFromPool(pool)
-		defer sqlDB.Close()
-		provider, err := goose.NewProvider(goose.DialectPostgres, sqlDB, os.DirFS("../../database/migrations"))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if _, err := provider.DownTo(ctx, 82); err != nil {
-			t.Fatal(err)
-		}
 		owner := slug.Slug("team-owner")
 		createTeam(ctx, t, pool, owner.String())
-		legacy, global, rolling := uuid.New(), uuid.New(), uuid.New()
-		insertLegacy := func(id uuid.UUID, team *slug.Slug) {
+		owned, global := uuid.New(), uuid.New()
+		insertSubscription := func(id uuid.UUID, team *slug.Slug) {
 			t.Helper()
 			if _, err := pool.Exec(ctx, `
-				INSERT INTO webhook_subscriptions (id, team_slug, url, secret, event_types, created_by)
-				VALUES ($1, $2, 'https://subscriber.example.test', 'secret', ARRAY['*'], 'tester')
-			`, id, team); err != nil {
+				INSERT INTO webhook_subscriptions (id, name, team_slug, url, secret, event_types)
+				VALUES ($1, $2, $3, 'https://subscriber.example.test', 'test-secret', ARRAY['*'])
+			`, id, id.String(), team); err != nil {
 				t.Fatal(err)
 			}
 		}
-		insertLegacy(legacy, &owner)
-		insertLegacy(global, nil)
-		if _, err := provider.Up(ctx); err != nil {
-			t.Fatal(err)
-		}
-		insertLegacy(rolling, &owner)
+		insertSubscription(owned, &owner)
+		insertSubscription(global, nil)
 		q := webhooksql.New(pool)
-		for _, id := range []uuid.UUID{legacy, global, rolling} {
+		for _, id := range []uuid.UUID{owned, global} {
 			row, err := q.GetSubscription(ctx, id)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if id == legacy {
-				if diff := cmp.Diff([]slug.Slug{owner}, row.SourceTeamSlugs); diff != "" {
-					t.Errorf("unexpected backfilled sources (-want +got):\n%s", diff)
-				}
-			}
 			sub := toGraphSubscription(row)
 			if !sub.MatchesEvent(WebhookEvent{TeamSlug: &owner}) {
-				t.Errorf("legacy subscription no longer matches own-team events: %+v", sub)
+				t.Errorf("subscription does not match own-team events: %+v", sub)
 			}
 			if id == global {
 				if len(sub.SourceTeamSlugs) != 0 || !sub.MatchesEvent(WebhookEvent{}) {
 					t.Errorf("global subscription changed scope: %+v", sub)
 				}
 			} else if diff := cmp.Diff([]slug.Slug{owner}, sub.SourceTeamSlugs); diff != "" {
-				t.Errorf("unexpected migrated sources (-want +got):\n%s", diff)
+				t.Errorf("unexpected default sources (-want +got):\n%s", diff)
 			}
 		}
 	})
@@ -114,15 +93,17 @@ func TestDispatcherIntegration(t *testing.T) {
 		}
 		q := webhooksql.New(pool)
 		listed, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:     "Test webhook",
 			TeamSlug: &owner, SourceTeamSlugs: []slug.Slug{other},
-			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"}, CreatedBy: "tester",
+			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"},
 		})
 		if err != nil {
 			t.Fatal(err)
 		}
 		all, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:     "All teams",
 			TeamSlug: &owner, SourceTeamSlugs: []slug.Slug{},
-			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"}, CreatedBy: "tester",
+			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"},
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -155,8 +136,9 @@ func TestDispatcherIntegration(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Url: "https://subscriber.example.test", Secret: "test-secret",
-			EventTypes: []string{"*"}, CreatedBy: "tester",
+			Name: "Test webhook",
+			Url:  "https://subscriber.example.test", Secret: "test-secret",
+			EventTypes: []string{"*"},
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -228,8 +210,9 @@ func TestDispatcherIntegration(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Url: "https://subscriber.example.test", Secret: "test-secret",
-			EventTypes: []string{"*"}, CreatedBy: "tester",
+			Name: "Test webhook",
+			Url:  "https://subscriber.example.test", Secret: "test-secret",
+			EventTypes: []string{"*"},
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -312,10 +295,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
 			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -384,10 +367,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
 			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -424,10 +407,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
 			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -480,10 +463,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
 			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -529,10 +512,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
 			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -571,19 +554,19 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		healthySub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        healthySrv.URL,
-			Secret:     "secret",
+			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create healthy subscription: %v", err)
 		}
 		failingSub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        failingSrv.URL,
-			Secret:     "secret",
+			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create failing subscription: %v", err)
@@ -631,10 +614,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		if _, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
-			Secret:     "secret",
+			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		}); err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
 		}
@@ -704,10 +687,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		row, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        srv.URL,
-			Secret:     "secret",
+			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -755,19 +738,19 @@ func TestDispatcherIntegration(t *testing.T) {
 		q := webhooksql.New(pool)
 
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        "https://example.invalid",
-			Secret:     "secret",
+			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
 		}
 		sub2, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:       "Test webhook",
 			Url:        "https://example.invalid/2",
-			Secret:     "secret",
+			Secret:     "test-secret",
 			EventTypes: []string{"*"},
-			CreatedBy:  "tester",
 		})
 		if err != nil {
 			t.Fatalf("failed to create second subscription: %v", err)

@@ -13,6 +13,7 @@ import (
 
 type WebhookSubscription struct {
 	UUID                uuid.UUID   `json:"id"`
+	Name                string      `json:"name"`
 	TeamSlug            *slug.Slug  `json:"teamSlug,omitempty"`
 	SourceTeamSlugs     []slug.Slug `json:"sourceTeamSlugs"`
 	URL                 string      `json:"url"`
@@ -21,7 +22,6 @@ type WebhookSubscription struct {
 	Enabled             bool        `json:"enabled"`
 	ConsecutiveFailures int         `json:"consecutiveFailures"`
 	DisabledAt          *time.Time  `json:"disabledAt,omitempty"`
-	CreatedBy           string      `json:"createdBy"`
 	CreatedAt           time.Time   `json:"createdAt"`
 	UpdatedAt           time.Time   `json:"updatedAt"`
 }
@@ -63,6 +63,7 @@ type (
 )
 
 type CreateWebhookInput struct {
+	Name            string      `json:"name"`
 	TeamSlug        *slug.Slug  `json:"teamSlug,omitempty"`
 	SourceTeamSlugs []slug.Slug `json:"sourceTeamSlugs,omitempty"`
 	URL             string      `json:"url"`
@@ -76,6 +77,7 @@ type CreateWebhookPayload struct {
 
 type UpdateWebhookInput struct {
 	ID              ident.Ident `json:"id"`
+	Name            *string     `json:"name,omitempty"`
 	SourceTeamSlugs []slug.Slug `json:"sourceTeamSlugs,omitempty"`
 	URL             *string     `json:"url,omitempty"`
 	Secret          *string     `json:"secret,omitempty"`

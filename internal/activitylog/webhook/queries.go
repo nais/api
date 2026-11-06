@@ -2,11 +2,15 @@ package webhook
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/auth/authz"
@@ -48,6 +52,15 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 		return nil, err
 	}
 
+	name := strings.TrimSpace(input.Name)
+	if name == "" {
+		return nil, apierror.Errorf("Webhook name must not be empty.")
+	}
+
+	if utf8.RuneCountInString(input.Secret) < 8 {
+		return nil, apierror.Errorf("Webhook secret must be at least 8 characters.")
+	}
+
 	if err := validateEventTypes(input.TeamSlug, input.EventTypes); err != nil {
 		return nil, err
 	}
@@ -68,12 +81,12 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 	err = database.Transaction(ctx, func(ctx context.Context) error {
 		var err error
 		row, err = db(ctx).CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name:            name,
 			TeamSlug:        input.TeamSlug,
 			SourceTeamSlugs: sourceTeamSlugs,
 			Url:             input.URL,
 			Secret:          input.Secret,
 			EventTypes:      input.EventTypes,
-			CreatedBy:       actor.User.Identity(),
 		})
 		if err != nil {
 			return err
@@ -84,9 +97,14 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 			ResourceType: ActivityLogEntryResourceTypeWebhook,
 			ResourceName: row.ID.String(),
 			TeamSlug:     row.TeamSlug,
+			Data:         &WebhookActivityLogEntryData{Name: row.Name},
 		})
 	})
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.ConstraintName == "webhook_subscriptions_team_name_key" {
+			return nil, apierror.Errorf("A webhook with this name already exists in the team.")
+		}
 		return nil, fmt.Errorf("creating webhook subscription: %w", err)
 	}
 
@@ -117,6 +135,18 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 		return nil, err
 	}
 
+	if input.Name != nil {
+		name := strings.TrimSpace(*input.Name)
+		if name == "" {
+			return nil, apierror.Errorf("Webhook name must not be empty.")
+		}
+		input.Name = &name
+	}
+
+	if input.Secret != nil && utf8.RuneCountInString(*input.Secret) < 8 {
+		return nil, apierror.Errorf("Webhook secret must be at least 8 characters.")
+	}
+
 	if input.EventTypes != nil {
 		if err := validateEventTypes(existing.TeamSlug, input.EventTypes); err != nil {
 			return nil, err
@@ -139,6 +169,7 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 		var err error
 		row, err = db(ctx).UpdateSubscription(ctx, webhooksql.UpdateSubscriptionParams{
 			ID:              uid,
+			Name:            input.Name,
 			SourceTeamSlugs: sourceTeamSlugs,
 			Url:             input.URL,
 			Secret:          input.Secret,
@@ -155,11 +186,16 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 			ResourceName: row.ID.String(),
 			TeamSlug:     row.TeamSlug,
 			Data: &WebhookUpdatedActivityLogEntryData{
+				Name:          row.Name,
 				UpdatedFields: webhookUpdatedFields(existing, toGraphSubscription(row)),
 			},
 		})
 	})
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" && pgErr.ConstraintName == "webhook_subscriptions_team_name_key" {
+			return nil, apierror.Errorf("A webhook with this name already exists in the team.")
+		}
 		return nil, fmt.Errorf("updating webhook subscription: %w", err)
 	}
 
@@ -193,6 +229,7 @@ func Delete(ctx context.Context, input DeleteWebhookInput) (*DeleteWebhookPayloa
 			ResourceType: ActivityLogEntryResourceTypeWebhook,
 			ResourceName: existing.UUID.String(),
 			TeamSlug:     existing.TeamSlug,
+			Data:         &WebhookActivityLogEntryData{Name: existing.Name},
 		})
 	}); err != nil {
 		return nil, fmt.Errorf("deleting webhook subscription: %w", err)
@@ -275,7 +312,7 @@ func toGraphSubscription(row *webhooksql.WebhookSubscription) *WebhookSubscripti
 	}
 
 	sourceTeamSlugs := row.SourceTeamSlugs
-	// Older instances may still create own-team webhooks during a rolling deployment.
+	// Keep omitted sources distinct from an explicit empty list (all teams).
 	if sourceTeamSlugs == nil {
 		sourceTeamSlugs = []slug.Slug{}
 		if row.TeamSlug != nil {
@@ -285,6 +322,7 @@ func toGraphSubscription(row *webhooksql.WebhookSubscription) *WebhookSubscripti
 
 	return &WebhookSubscription{
 		UUID:                row.ID,
+		Name:                row.Name,
 		TeamSlug:            row.TeamSlug,
 		SourceTeamSlugs:     sourceTeamSlugs,
 		URL:                 row.Url,
@@ -293,7 +331,6 @@ func toGraphSubscription(row *webhooksql.WebhookSubscription) *WebhookSubscripti
 		Enabled:             row.Enabled,
 		ConsecutiveFailures: int(row.ConsecutiveFailures),
 		DisabledAt:          disabledAt,
-		CreatedBy:           row.CreatedBy,
 		CreatedAt:           row.CreatedAt.Time,
 		UpdatedAt:           row.UpdatedAt.Time,
 	}

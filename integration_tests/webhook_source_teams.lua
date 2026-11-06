@@ -28,21 +28,23 @@ for _, tt in ipairs({
 		t.query(string.format([[
 			mutation {
 				createWebhook(input: {
+					name: "  %s  "
 					teamSlug: "team-owner"
 					%s
 					url: "http://127.0.0.1:1/webhook"
 					secret: "test-secret"
 					eventTypes: ["*"]
 				}) {
-					webhook { id teamSlug sourceTeamSlugs hasSecret }
+					webhook { id name teamSlug sourceTeamSlugs hasSecret }
 				}
 			}
-		]], tt.selection))
+		]], tt.name, tt.selection))
 		t.check {
 			data = {
 				createWebhook = {
 					webhook = {
 						id = Save("webhookID"),
+						name = tt.name,
 						teamSlug = "team-owner",
 						sourceTeamSlugs = tt.teams,
 						hasSecret = true,
@@ -54,8 +56,43 @@ for _, tt in ipairs({
 end
 
 for _, tt in ipairs({
-	{ name = "Unrelated update preserves all teams",  selection = "enabled: false",        teams = {} },
-	{ name = "Null source teams preserves all teams", selection = "sourceTeamSlugs: null", teams = {} },
+	{ name = "Reject an empty name on creation", mutation = "createWebhook", value = "" },
+	{ name = "Reject a blank name on creation",  mutation = "createWebhook", value = "   " },
+	{ name = "Reject an empty rename",           mutation = "updateWebhook", value = "" },
+	{ name = "Reject a blank rename",            mutation = "updateWebhook", value = "   " },
+}) do
+	Test.gql(tt.name, function(t)
+		t.addHeader("x-user-email", owner:email())
+		local input
+		if tt.mutation == "createWebhook" then
+			input = string.format([[
+				name: %q teamSlug: "team-owner" url: "http://127.0.0.1:1/webhook"
+				secret: "test-secret" eventTypes: ["*"]
+			]], tt.value)
+		else
+			input = string.format('id: "%s" name: %q', State.webhookID, tt.value)
+		end
+		t.query(string.format([[
+			mutation {
+				%s(input: { %s }) { webhook { id } }
+			}
+		]], tt.mutation, input))
+		t.check {
+			data = Null,
+			errors = {
+				{
+					locations = NotNull(),
+					message = "Webhook name must not be empty.",
+					path = { tt.mutation },
+				},
+			},
+		}
+	end)
+end
+
+for _, tt in ipairs({
+	{ name = "Unrelated update preserves all teams",  selection = "enabled: false",                   teams = {} },
+	{ name = "Null source teams preserves all teams", selection = "name: null sourceTeamSlugs: null", teams = {} },
 	{
 		name = "Switch all teams to explicit list",
 		selection = 'sourceTeamSlugs: ["team-other"]',
@@ -75,7 +112,7 @@ for _, tt in ipairs({
 		t.query(string.format([[
 			mutation {
 				updateWebhook(input: { id: "%s" %s }) {
-					webhook { teamSlug sourceTeamSlugs hasSecret }
+					webhook { name teamSlug sourceTeamSlugs hasSecret }
 				}
 			}
 		]], State.webhookID, tt.selection))
@@ -83,6 +120,7 @@ for _, tt in ipairs({
 			data = {
 				updateWebhook = {
 					webhook = {
+						name = "All teams without admin permissions",
 						teamSlug = "team-owner",
 						sourceTeamSlugs = tt.teams,
 						hasSecret = true,
@@ -140,6 +178,7 @@ Test.gql("All teams still requires authorization in the owner team", function(t)
 	t.query [[
 		mutation {
 			createWebhook(input: {
+				name: "Test webhook"
 				teamSlug: "team-owner"
 				sourceTeamSlugs: []
 				url: "http://127.0.0.1:1/webhook"
@@ -167,6 +206,7 @@ Test.gql("Legacy admin global webhooks remain global", function(t)
 	t.query [[
 		mutation {
 			createWebhook(input: {
+				name: "Test webhook"
 				url: "http://127.0.0.1:1/webhook"
 				secret: "test-secret"
 				eventTypes: ["*"]
@@ -188,14 +228,15 @@ Test.gql("Legacy admin global webhooks remain global", function(t)
 	}
 end)
 
-Test.gql("Report when no signing secret is set", function(t)
+Test.gql("Accept an eight-character signing secret", function(t)
 	t.addHeader("x-user-email", owner:email())
 	t.query [[
 		mutation {
 			createWebhook(input: {
+				name: "Test webhook"
 				teamSlug: "team-owner"
 				url: "http://127.0.0.1:1/secret-test"
-				secret: ""
+				secret: "12345678"
 				eventTypes: ["*"]
 			}) {
 				webhook { id hasSecret }
@@ -207,7 +248,7 @@ Test.gql("Report when no signing secret is set", function(t)
 			createWebhook = {
 				webhook = {
 					id = Save("secretWebhookID"),
-					hasSecret = false,
+					hasSecret = true,
 				},
 			},
 		},
@@ -243,3 +284,145 @@ for _, tt in ipairs({
 		assert(row.matches, "Stored signing secret was not preserved or replaced correctly")
 	end)
 end
+
+for _, tt in ipairs({
+	{ name = "empty",                    value = "" },
+	{ name = "seven ASCII characters",   value = "1234567" },
+	{ name = "seven Unicode characters", value = string.rep("\195\184", 7) },
+}) do
+	for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
+		Test.gql(mutation .. " rejects a secret with " .. tt.name, function(t)
+			t.addHeader("x-user-email", owner:email())
+			local input
+			if mutation == "createWebhook" then
+				input = [=[
+					name: "Rejected secret" teamSlug: "team-owner"
+					url: "http://127.0.0.1:1/rejected-secret" eventTypes: ["*"]
+				]=]
+			else
+				input = string.format('id: "%s"', State.secretWebhookID)
+			end
+			t.query(string.format([[
+				mutation {
+					%s(input: { secret: "%s" %s }) { webhook { id } }
+				}
+			]], mutation, tt.value, input))
+			t.check {
+				data = Null,
+				errors = {
+					{
+						locations = NotNull(),
+						message = "Webhook secret must be at least 8 characters.",
+						path = { mutation },
+					},
+				},
+			}
+			local row = Helper.SQLQueryRow([[
+				SELECT secret = 'replacement-secret' AS matches
+				FROM webhook_subscriptions
+				WHERE url = 'http://127.0.0.1:1/secret-test'
+			]])
+			assert(row.matches, "Rejected secrets must not replace the stored secret")
+		end)
+	end
+end
+
+for _, tt in ipairs({
+	{ team = "team-owner", user = owner,      key = "sharedWebhookID" },
+	{ team = "team-other", user = otherOwner, key = "otherSharedWebhookID" },
+}) do
+	Test.gql("Create a shared webhook name in " .. tt.team, function(t)
+		t.addHeader("x-user-email", tt.user:email())
+		t.query(string.format([[
+			mutation {
+				createWebhook(input: {
+					name: "Shared webhook"
+					teamSlug: "%s"
+					sourceTeamSlugs: ["team-other"]
+					url: "http://127.0.0.1:1/shared"
+					secret: "test-secret"
+					eventTypes: ["*"]
+				}) {
+					webhook { id name teamSlug }
+				}
+			}
+		]], tt.team))
+		t.check {
+			data = {
+				createWebhook = {
+					webhook = {
+						id = Save(tt.key),
+						name = "Shared webhook",
+						teamSlug = tt.team,
+					},
+				},
+			},
+		}
+	end)
+end
+
+for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
+	Test.gql(mutation .. " rejects a duplicate name in the owning team", function(t)
+		t.addHeader("x-user-email", owner:email())
+		local before = Helper.SQLQueryRow(
+			"SELECT COUNT(*) AS count FROM activity_log_entries WHERE resource_type = 'WEBHOOK'")
+		local input
+		if mutation == "createWebhook" then
+			input = [=[
+				teamSlug: "team-owner" sourceTeamSlugs: [] url: "http://127.0.0.1:1/duplicate"
+				secret: "test-secret" eventTypes: ["*"]
+			]=]
+		else
+			input = string.format('id: "%s"', State.webhookID)
+		end
+		t.query(string.format([[
+			mutation {
+				%s(input: { name: "  Shared webhook  " %s }) { webhook { id } }
+			}
+		]], mutation, input))
+		t.check {
+			data = Null,
+			errors = {
+				{
+					locations = NotNull(),
+					message = "A webhook with this name already exists in the team.",
+					path = { mutation },
+				},
+			},
+		}
+		local after = Helper.SQLQueryRow(
+			"SELECT COUNT(*) AS count FROM activity_log_entries WHERE resource_type = 'WEBHOOK'")
+		assert(tonumber(before.count) == tonumber(after.count), "Rejected duplicates must not create audit entries")
+		local row = Helper.SQLQueryRow([[
+			SELECT COUNT(*) AS count FROM webhook_subscriptions
+			WHERE team_slug = 'team-owner' AND name = 'Shared webhook'
+		]])
+		assert(tonumber(row.count) == 1, "The owning team must retain exactly one webhook with this name")
+		t.query(string.format([[
+			query {
+				node(id: "%s") { ... on WebhookSubscription { name } }
+			}
+		]], State.webhookID))
+		t.check {
+			data = { node = { name = "All teams without admin permissions" } },
+		}
+	end)
+end
+
+Test.gql("Updating a webhook to its own trimmed name is allowed", function(t)
+	t.addHeader("x-user-email", owner:email())
+	t.query(string.format([[
+		mutation {
+			updateWebhook(input: { id: "%s" name: "  Shared webhook  " }) {
+				webhook { id name }
+			}
+		}
+	]], State.sharedWebhookID))
+	t.check {
+		data = {
+			updateWebhook = {
+				webhook = { id = State.sharedWebhookID, name = "Shared webhook" },
+			},
+		},
+	}
+end)

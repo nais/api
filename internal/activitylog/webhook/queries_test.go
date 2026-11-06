@@ -106,14 +106,17 @@ func TestValidateEventTypes_GlobalWebhookCanSubscribeToAnyValidType(t *testing.T
 
 func TestWebhookUpdatedFields(t *testing.T) {
 	before := &WebhookSubscription{
-		URL: "https://old.example.test/token", Secret: "old-secret",
+		Name: "Original webhook",
+		URL:  "https://old.example.test/token", Secret: "old-secret",
 		EventTypes: []string{"TEAM_UPDATED"}, SourceTeamSlugs: []slug.Slug{"team-owner"}, Enabled: true,
 	}
 	after := &WebhookSubscription{
-		URL: "https://new.example.test/other-token", Secret: "new-secret",
+		Name: "Renamed webhook",
+		URL:  "https://new.example.test/other-token", Secret: "new-secret",
 		EventTypes: []string{"TEAM_MEMBER_ADDED"}, SourceTeamSlugs: []slug.Slug{}, Enabled: false,
 	}
 	want := []*WebhookUpdatedActivityLogEntryDataUpdatedField{
+		{Field: "name", OldValue: new("Original webhook"), NewValue: new("Renamed webhook")},
 		{Field: "url"},
 		{Field: "secret"},
 		{Field: "eventTypes", OldValue: new("[TEAM_UPDATED]"), NewValue: new("[TEAM_MEMBER_ADDED]")},

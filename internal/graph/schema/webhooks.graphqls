@@ -6,6 +6,9 @@ type WebhookSubscription implements Node {
 	"Globally unique ID of the webhook subscription."
 	id: ID!
 
+	"The display name of the webhook subscription. Must be unique within the owning team."
+	name: String!
+
 	"The team that owns and manages this webhook. Null for admin-only global webhooks."
 	teamSlug: Slug
 
@@ -26,9 +29,6 @@ type WebhookSubscription implements Node {
 
 	"When the webhook was automatically disabled due to repeated failures. Null if not auto-disabled."
 	disabledAt: Time
-
-	"The identity of the user who created this webhook."
-	createdBy: String!
 
 	"When the webhook was created."
 	createdAt: Time!
@@ -199,7 +199,7 @@ extend type Mutation {
 	"""
 	Update an existing webhook subscription.
 
-	Can be used to change the source teams, URL, secret, event types, or enabled status. Ownership cannot be changed.
+	Can be used to change the name, source teams, URL, secret, event types, or enabled status. Ownership and the subscription ID cannot be changed.
 	"""
 	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
 
@@ -213,6 +213,9 @@ extend type Mutation {
 
 "Input for creating a new webhook subscription."
 input CreateWebhookInput {
+	"The required display name of the webhook, unique within the owning team. Leading and trailing whitespace is removed; blank names are not allowed."
+	name: String!
+
 	"The team that owns and manages this webhook. Omit for an admin-only global webhook."
 	teamSlug: Slug
 
@@ -222,7 +225,7 @@ input CreateWebhookInput {
 	"The URL that will receive webhook HTTP POST requests."
 	url: String!
 
-	"The secret used for HMAC-SHA256 signing of webhook payloads."
+	"The required secret used for HMAC-SHA256 signing of webhook payloads. Must contain at least 8 characters."
 	secret: String!
 
 	"The event types to subscribe to. Use '*' to subscribe to all events."
@@ -240,13 +243,16 @@ input UpdateWebhookInput {
 	"The ID of the webhook subscription to update."
 	id: ID!
 
+	"The replacement display name, unique within the owning team. Omit or pass null to keep the current name. Leading and trailing whitespace is removed; blank names are not allowed."
+	name: String
+
 	"The teams whose events to receive. Omit or pass null to keep the current selection. An empty list selects all teams, excluding global events for team-owned webhooks."
 	sourceTeamSlugs: [Slug!]
 
 	"The new URL for the webhook. Null to keep the current value."
 	url: String
 
-	"The replacement signing secret. Omit or pass null to keep the current secret. The stored secret is never returned."
+	"The replacement signing secret, containing at least 8 characters. Omit or pass null to keep the current secret. The stored secret is never returned."
 	secret: String
 
 	"The new event types to subscribe to. Null to keep the current value."
@@ -310,6 +316,14 @@ type WebhookCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	teamSlug: Slug
 	"The environment associated with the activity, if any."
 	environmentName: String
+	"The webhook name captured when it was created."
+	data: WebhookActivityLogEntryData!
+}
+
+"Display information captured at the time of a webhook activity. Later renames or deletion do not change it."
+type WebhookActivityLogEntryData {
+	"The display name of the webhook at the time of the activity."
+	name: String!
 }
 
 "An activity log entry for updating a webhook subscription."
@@ -338,6 +352,9 @@ type WebhookUpdatedActivityLogEntry implements ActivityLogEntry & Node {
 
 "Details of a webhook subscription update."
 type WebhookUpdatedActivityLogEntryData {
+	"The display name after this update, captured independently of later renames or deletion."
+	name: String!
+
 	"The fields whose values changed. Empty when the update made no changes."
 	updatedFields: [WebhookUpdatedActivityLogEntryDataUpdatedField!]!
 }
@@ -372,4 +389,6 @@ type WebhookDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	teamSlug: Slug
 	"The environment associated with the activity, if any."
 	environmentName: String
+	"The webhook name captured when it was deleted."
+	data: WebhookActivityLogEntryData!
 }

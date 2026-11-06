@@ -1,21 +1,21 @@
 -- name: CreateSubscription :one
 INSERT INTO
 	webhook_subscriptions (
+		name,
 		team_slug,
 		source_team_slugs,
 		url,
 		secret,
-		event_types,
-		created_by
+		event_types
 	)
 VALUES
 	(
+		@name,
 		@team_slug,
 		@source_team_slugs::slug[],
 		@url,
 		@secret,
-		@event_types,
-		@created_by
+		@event_types
 	)
 RETURNING
 	*
@@ -24,6 +24,7 @@ RETURNING
 -- name: UpdateSubscription :one
 UPDATE webhook_subscriptions
 SET
+	name = COALESCE(sqlc.narg(name), name),
 	url = COALESCE(sqlc.narg(url), url),
 	secret = COALESCE(sqlc.narg(secret), secret),
 	event_types = COALESCE(sqlc.narg(event_types), event_types),

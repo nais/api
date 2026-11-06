@@ -1,16 +1,22 @@
 -- +goose Up
 CREATE TABLE webhook_subscriptions (
 	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+	name TEXT NOT NULL CHECK (BTRIM(name) <> ''),
 	team_slug slug REFERENCES teams (slug) ON DELETE CASCADE,
+	source_team_slugs slug[],
 	url TEXT NOT NULL,
-	secret TEXT NOT NULL,
+	secret TEXT NOT NULL CHECK (CHAR_LENGTH(secret) >= 8),
 	event_types TEXT[] NOT NULL,
 	enabled BOOLEAN NOT NULL DEFAULT TRUE,
 	consecutive_failures INT NOT NULL DEFAULT 0,
 	disabled_at TIMESTAMPTZ,
-	created_by TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	CONSTRAINT webhook_subscriptions_team_name_key UNIQUE (team_slug, name),
+	CONSTRAINT webhook_subscription_source_teams CHECK (
+		team_slug IS NOT NULL
+		OR COALESCE(CARDINALITY(source_team_slugs), 0) = 0
+	)
 )
 ;
 

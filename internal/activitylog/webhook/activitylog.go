@@ -14,8 +14,13 @@ func init() {
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypeWebhook, func(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 		switch entry.Action {
 		case activitylog.ActivityLogEntryActionCreated:
+			data, err := activitylog.UnmarshalData[WebhookActivityLogEntryData](entry)
+			if err != nil {
+				return nil, err
+			}
 			return WebhookCreatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Created webhook"),
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Created webhook %q", data.Name)),
+				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionUpdated:
 			data, err := activitylog.UnmarshalData[WebhookUpdatedActivityLogEntryData](entry)
@@ -23,12 +28,17 @@ func init() {
 				return nil, err
 			}
 			return WebhookUpdatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Updated webhook"),
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Updated webhook %q", data.Name)),
 				Data:                    data,
 			}, nil
 		case activitylog.ActivityLogEntryActionDeleted:
+			data, err := activitylog.UnmarshalData[WebhookActivityLogEntryData](entry)
+			if err != nil {
+				return nil, err
+			}
 			return WebhookDeletedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage("Deleted webhook"),
+				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Deleted webhook %q", data.Name)),
+				Data:                    data,
 			}, nil
 		default:
 			return nil, fmt.Errorf("unsupported webhook activity log entry action: %q", entry.Action)
@@ -57,6 +67,11 @@ func init() {
 
 type WebhookCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+	Data *WebhookActivityLogEntryData `json:"data"`
+}
+
+type WebhookActivityLogEntryData struct {
+	Name string `json:"name"`
 }
 
 type WebhookUpdatedActivityLogEntry struct {
@@ -65,6 +80,7 @@ type WebhookUpdatedActivityLogEntry struct {
 }
 
 type WebhookUpdatedActivityLogEntryData struct {
+	Name          string                                            `json:"name"`
 	UpdatedFields []*WebhookUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
@@ -76,10 +92,18 @@ type WebhookUpdatedActivityLogEntryDataUpdatedField struct {
 
 type WebhookDeletedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+	Data *WebhookActivityLogEntryData `json:"data"`
 }
 
 func webhookUpdatedFields(before, after *WebhookSubscription) []*WebhookUpdatedActivityLogEntryDataUpdatedField {
 	fields := make([]*WebhookUpdatedActivityLogEntryDataUpdatedField, 0)
+	if before.Name != after.Name {
+		fields = append(fields, &WebhookUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "name",
+			OldValue: &before.Name,
+			NewValue: &after.Name,
+		})
+	}
 	// Endpoint URLs can contain credentials. Log only the field names for URLs and signing secrets.
 	if before.URL != after.URL {
 		fields = append(fields, &WebhookUpdatedActivityLogEntryDataUpdatedField{Field: "url"})
