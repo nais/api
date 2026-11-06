@@ -12,9 +12,11 @@ local function checkTeamEntry(t, activityType, entry)
 				activityLog(first: 10, filter: { resourceTypes: [WEBHOOK], activityTypes: [%s] }) {
 					nodes {
 						__typename actor message resourceType resourceName teamSlug
+						... on WebhookCreatedActivityLogEntry { data { name } }
 						... on WebhookUpdatedActivityLogEntry {
-							data { updatedFields { field oldValue newValue } }
+							data { name updatedFields { field oldValue newValue } }
 						}
+						... on WebhookDeletedActivityLogEntry { data { name } }
 					}
 					pageInfo { totalCount }
 				}
@@ -41,6 +43,7 @@ Test.gql("Creating a webhook records the actor, owner and subscription identifie
 	t.query [[
 		mutation {
 			createWebhook(input: {
+				name: "Test webhook"
 				teamSlug: "team-owner"
 				url: "http://127.0.0.1:1/old-url-token"
 				secret: "old-signing-secret"
@@ -59,8 +62,9 @@ Test.gql("Creating a webhook records the actor, owner and subscription identifie
 	}
 	checkTeamEntry(t, "WEBHOOK_CREATED", {
 		__typename = "WebhookCreatedActivityLogEntry",
-		message = "Created webhook",
+		message = 'Created webhook "Test webhook"',
 		resourceName = Save("webhookResourceName"),
+		data = { name = "Test webhook" },
 	})
 	local row = Helper.SQLQueryRow([[
 		SELECT resource_name = subscription.id::text AS matches
@@ -76,29 +80,32 @@ Test.gql("Webhook updates record changes without storing signing secrets or endp
 		mutation {
 			updateWebhook(input: {
 				id: "%s"
+				name: "Renamed webhook"
 				url: "http://127.0.0.1:1/new-url-token"
 				secret: "new-signing-secret"
 				eventTypes: ["TEAM_MEMBER_ADDED"]
 				sourceTeamSlugs: []
 				enabled: false
 			}) {
-				webhook { id }
+				webhook { id name }
 			}
 		}
 	]], State.webhookID))
 	t.check {
 		data = {
 			updateWebhook = {
-				webhook = { id = State.webhookID },
+				webhook = { id = State.webhookID, name = "Renamed webhook" },
 			},
 		},
 	}
 	checkTeamEntry(t, "WEBHOOK_UPDATED", {
 		__typename = "WebhookUpdatedActivityLogEntry",
-		message = "Updated webhook",
+		message = 'Updated webhook "Renamed webhook"',
 		resourceName = State.webhookResourceName,
 		data = {
+			name = "Renamed webhook",
 			updatedFields = {
+				{ field = "name",            oldValue = "Test webhook",   newValue = "Renamed webhook" },
 				{ field = "url",             oldValue = Null,             newValue = Null },
 				{ field = "secret",          oldValue = Null,             newValue = Null },
 				{ field = "eventTypes",      oldValue = "[TEAM_UPDATED]", newValue = "[TEAM_MEMBER_ADDED]" },
@@ -116,6 +123,50 @@ Test.gql("Webhook updates record changes without storing signing secrets or endp
 		WHERE resource_type = 'WEBHOOK'
 	]])
 	assert(row.redacted, "Webhook credentials must not be persisted in activity log data")
+end)
+
+Test.gql("Renaming keeps the UUID-scoped audit history and original name snapshot", function(t)
+	t.addHeader("x-user-email", owner:email())
+	t.query(string.format([[
+		query {
+			node(id: "%s") {
+				... on WebhookSubscription {
+					id name
+					activityLog(first: 10) {
+						nodes {
+							resourceName message
+							... on WebhookCreatedActivityLogEntry { data { name } }
+							... on WebhookUpdatedActivityLogEntry { data { name } }
+						}
+						pageInfo { totalCount }
+					}
+				}
+			}
+		}
+	]], State.webhookID))
+	t.check {
+		data = {
+			node = {
+				id = State.webhookID,
+				name = "Renamed webhook",
+				activityLog = {
+					nodes = {
+						{
+							resourceName = State.webhookResourceName,
+							message = 'Updated webhook "Renamed webhook"',
+							data = { name = "Renamed webhook" },
+						},
+						{
+							resourceName = State.webhookResourceName,
+							message = 'Created webhook "Test webhook"',
+							data = { name = "Test webhook" },
+						},
+					},
+					pageInfo = { totalCount = 2 },
+				},
+			},
+		},
+	}
 end)
 
 Test.gql("Unauthorized webhook mutations do not record successful activity", function(t)
@@ -145,7 +196,7 @@ for _, tt in ipairs({
 	{
 		name = "Create",
 		mutation = "createWebhook",
-		input = [=[teamSlug: "team-owner" url: "http://127.0.0.1:1/failed" secret: "secret" eventTypes: ["*"]]=],
+		input = [=[name: "Test webhook" teamSlug: "team-owner" url: "http://127.0.0.1:1/failed" secret: "test-secret" eventTypes: ["*"]]=],
 		fields = "webhook { id }",
 	},
 	{ name = "Update", mutation = "updateWebhook", input = "enabled: true", fields = "webhook { id }" },
@@ -199,8 +250,15 @@ Test.gql("Deleting a webhook preserves its activity log", function(t)
 	}
 	checkTeamEntry(t, "WEBHOOK_DELETED", {
 		__typename = "WebhookDeletedActivityLogEntry",
-		message = "Deleted webhook",
+		message = 'Deleted webhook "Renamed webhook"',
 		resourceName = State.webhookResourceName,
+		data = { name = "Renamed webhook" },
+	})
+	checkTeamEntry(t, "WEBHOOK_CREATED", {
+		__typename = "WebhookCreatedActivityLogEntry",
+		message = 'Created webhook "Test webhook"',
+		resourceName = State.webhookResourceName,
+		data = { name = "Test webhook" },
 	})
 	local row = Helper.SQLQueryRow("SELECT COUNT(*) AS count FROM activity_log_entries WHERE resource_type = 'WEBHOOK'")
 	assert(tonumber(row.count) == 3, "Deleting a webhook must preserve all three activity log entries")
@@ -211,6 +269,7 @@ Test.gql("Global webhook activity has no owning team", function(t)
 	t.query [[
 		mutation {
 			createWebhook(input: {
+				name: "Test webhook"
 				url: "http://127.0.0.1:1/global"
 				secret: "global-secret"
 				eventTypes: ["TEAM_UPDATED"]
@@ -253,18 +312,19 @@ for _, tt in ipairs({
 }) do
 	Test.gql(tt.name .. " webhook can share an endpoint with other subscriptions", function(t)
 		t.addHeader("x-user-email", owner:email())
-		t.query [[
+		t.query(string.format([[
 			mutation {
 				createWebhook(input: {
+					name: %q
 					teamSlug: "team-owner"
 					url: "http://127.0.0.1:1/global"
-					secret: "secret"
+					secret: "test-secret"
 					eventTypes: ["TEAM_UPDATED"]
 				}) {
 					webhook { id }
 				}
 			}
-		]]
+		]], tt.name))
 		t.check {
 			data = {
 				createWebhook = {

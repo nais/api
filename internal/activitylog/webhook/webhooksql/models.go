@@ -176,15 +176,15 @@ type WebhookEventDelivery struct {
 
 type WebhookSubscription struct {
 	ID                  uuid.UUID
+	Name                string
 	TeamSlug            *slug.Slug
+	SourceTeamSlugs     []slug.Slug
 	Url                 string
 	Secret              string
 	EventTypes          []string
 	Enabled             bool
 	ConsecutiveFailures int32
 	DisabledAt          pgtype.Timestamptz
-	CreatedBy           string
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
-	SourceTeamSlugs     []slug.Slug
 }

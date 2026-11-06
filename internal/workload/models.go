@@ -74,7 +74,24 @@ func (b Base) GetAccessPolicy() *nais_io_v1.AccessPolicy { return b.AccessPolicy
 func (b Base) GetAnnotations() map[string]string         { return b.Annotations }
 func (b Base) GetRolloutCompleteTime() int64             { return b.RolloutCompleteTime }
 func (b Base) GetType() Type                             { return b.Type }
-func (b Base) GetLogging() *nais_io_v1.Logging           { return b.Logging }
+func (b Base) GetLogging() *nais_io_v1.Logging {
+	logging := b.Logging
+	if b.AccessPolicy == nil {
+		return logging
+	}
+
+	if logging == nil {
+		logging = &nais_io_v1.Logging{}
+	}
+
+	for _, rule := range b.AccessPolicy.Outbound.Rules {
+		if rule.Application == "logging" && rule.Namespace == "nais-system" {
+			logging.Destinations = append(logging.Destinations, nais_io_v1.LogDestination{ID: "secure_logs"})
+		}
+	}
+
+	return b.Logging
+}
 
 type ContainerImage struct {
 	Name   string  `json:"name"`
