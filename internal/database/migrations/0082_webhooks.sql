@@ -10,6 +10,7 @@ CREATE TABLE webhook_subscriptions (
 	enabled BOOLEAN NOT NULL DEFAULT TRUE,
 	consecutive_failures INT NOT NULL DEFAULT 0,
 	disabled_at TIMESTAMPTZ,
+	last_test_at TIMESTAMPTZ,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	CONSTRAINT webhook_subscriptions_team_name_key UNIQUE (team_slug, name),
@@ -59,7 +60,7 @@ WHERE
 ;
 
 -- Per-(event, subscription) delivery queue; this is the unit of retry and backoff.
-CREATE TYPE webhook_delivery_status AS ENUM('pending', 'completed', 'failed')
+CREATE TYPE webhook_delivery_status AS ENUM('pending', 'processing', 'completed', 'failed')
 ;
 
 CREATE TABLE webhook_event_deliveries (
@@ -88,16 +89,25 @@ CREATE TABLE webhook_deliveries (
 	subscription_id UUID NOT NULL REFERENCES webhook_subscriptions (id) ON DELETE CASCADE,
 	webhook_event_delivery_id UUID REFERENCES webhook_event_deliveries (id) ON DELETE SET NULL,
 	event_type TEXT NOT NULL,
-	request_body JSONB NOT NULL,
+	request_body BYTEA NOT NULL,
+	request_headers JSONB NOT NULL DEFAULT '{}',
 	response_status INT,
-	response_body TEXT,
+	response_body BYTEA,
+	response_headers JSONB NOT NULL DEFAULT '{}',
+	response_body_truncated BOOLEAN NOT NULL DEFAULT FALSE,
+	error_message TEXT,
 	duration_ms INT NOT NULL,
 	success BOOLEAN NOT NULL,
+	attempt_count INT NOT NULL DEFAULT 1 CHECK (attempt_count > 0),
+	next_retry_at TIMESTAMPTZ,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 )
 ;
 
 CREATE INDEX idx_webhook_deliveries_subscription ON webhook_deliveries (subscription_id, created_at DESC)
+;
+
+CREATE INDEX idx_webhook_deliveries_event_delivery ON webhook_deliveries (webhook_event_delivery_id)
 ;
 
 -- +goose StatementBegin

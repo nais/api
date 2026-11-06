@@ -3,11 +3,73 @@ package webhook
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/slug"
 )
+
+func TestDeliveryBodyText(t *testing.T) {
+	for _, tt := range []struct {
+		name     string
+		body     []byte
+		wantText *string
+	}{
+		{name: "no response"},
+		{name: "empty response", body: []byte{}, wantText: new("")},
+		{name: "text response", body: []byte("hello"), wantText: new("hello")},
+		{name: "binary response", body: []byte{0xff, 0x00}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			request := []byte("{\n  \"test\": true\n}")
+			got := toGraphDelivery(&webhooksql.WebhookDelivery{RequestBody: request, ResponseBody: tt.body})
+			if diff := cmp.Diff(tt.wantText, got.ResponseBody); diff != "" {
+				t.Errorf("unexpected response text (-want +got):\n%s", diff)
+			}
+			if got.RequestBody != string(request) {
+				t.Error("request text changed during conversion")
+			}
+		})
+	}
+}
+
+func TestDeliveryAttemptState(t *testing.T) {
+	retryAt := time.Date(2026, 11, 6, 12, 0, 0, 0, time.UTC)
+	for _, tt := range []struct {
+		name string
+		row  webhooksql.WebhookDelivery
+		want *WebhookDeliveryState
+	}{
+		{
+			name: "successful manual test",
+			row:  webhooksql.WebhookDelivery{EventType: "WEBHOOK_TEST", Success: true, AttemptCount: 1},
+			want: &WebhookDeliveryState{Status: WebhookDeliveryStatusCompleted, AttemptCount: 1},
+		},
+		{
+			name: "failed manual test",
+			row:  webhooksql.WebhookDelivery{EventType: "WEBHOOK_TEST", AttemptCount: 1},
+			want: &WebhookDeliveryState{Status: WebhookDeliveryStatusFailed, AttemptCount: 1},
+		},
+		{
+			name: "failed attempt retains its retry snapshot without a queue record",
+			row: webhooksql.WebhookDelivery{
+				AttemptCount: 2,
+				NextRetryAt:  pgtype.Timestamptz{Time: retryAt, Valid: true},
+			},
+			want: &WebhookDeliveryState{Status: WebhookDeliveryStatusFailed, AttemptCount: 2, NextRetryAt: &retryAt},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := toGraphDelivery(&tt.row)
+			if diff := cmp.Diff(tt.want, got.DeliveryState); diff != "" {
+				t.Errorf("unexpected attempt state (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
 
 func TestValidateSourceTeams(t *testing.T) {
 	owner := slug.Slug("team-owner")

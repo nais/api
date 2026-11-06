@@ -32,16 +32,18 @@ type Querier interface {
 	ListGlobalSubscriptions(ctx context.Context, arg ListGlobalSubscriptionsParams) ([]*ListGlobalSubscriptionsRow, error)
 	ListSubscriptionsByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookSubscription, error)
 	ListSubscriptionsForTeam(ctx context.Context, arg ListSubscriptionsForTeamParams) ([]*ListSubscriptionsForTeamRow, error)
+	MarkDeliveryCompleted(ctx context.Context, id uuid.UUID) error
 	MarkDeliveryFailed(ctx context.Context, id uuid.UUID) error
 	MarkOutboxEventsCompleted(ctx context.Context, ids []uuid.UUID) error
 	PruneDeliveries(ctx context.Context, before pgtype.Timestamptz) error
 	PruneOldEventDeliveries(ctx context.Context, before pgtype.Timestamptz) error
 	// Prunes outbox events whose deliveries have all reached a terminal state (a delete
-	// cascades to webhook_event_deliveries, so pending rows must be excluded).
+	// cascades to webhook_event_deliveries, so pending and processing rows must be excluded).
 	PruneOldOutboxEvents(ctx context.Context, before pgtype.Timestamptz) error
 	// Serialize result bookkeeping for each subscription and report an auto-disable transition only once.
 	RecordDeliveryResult(ctx context.Context, arg RecordDeliveryResultParams) (bool, error)
 	RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error
+	ReserveTestDelivery(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
 	UpdateSubscription(ctx context.Context, arg UpdateSubscriptionParams) (*WebhookSubscription, error)
 }
 

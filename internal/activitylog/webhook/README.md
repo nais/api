@@ -67,6 +67,25 @@ sequenceDiagram
 - **`webhook_event_deliveries`** — one row per `(webhook_event, subscription)` match, created by the dispatcher's fan-out step. This is the actual unit of retry: `status`/`retry_count`/`run_at` here are scoped to a single subscriber's delivery of a single event, so retries never touch other subscribers.
 - **`webhook_deliveries`** — audit log of every actual HTTP delivery attempt, optionally linked back to the `webhook_event_deliveries` row that produced it.
 
+Request and response bodies are stored as `bytea`, preserving the bytes used for signing
+and the bytes read from the response. Responses are limited to 10 KiB, with
+`responseBodyTruncated` identifying truncated captures. Transport/read failures are stored
+separately in `errorMessage`, not mixed into the response body.
+Requests explicitly ask for identity encoding so the HTTP client does not transparently
+decompress response bodies before recording them.
+
+GraphQL exposes the JSON request as `requestBody` and UTF-8 responses as `responseBody`.
+Binary responses have a null `responseBody`, while their exact bytes remain in storage.
+An absent response has a null body; an empty response has an empty string.
+
+Recorded headers preserve multiple values. Requests only retain diagnostic headers:
+Accept, Accept-Encoding, Content-Type, Content-Length, Content-Encoding, User-Agent,
+Date, Retry-After, Server, X-Request-Id, Traceparent, and X-Webhook-Signature.
+Responses retain all headers except known authentication, API-key, token, and cookie
+headers (including authentication challenges, authentication-info, and CSRF tokens).
+Custom response headers can still contain sensitive values; this filtering cannot
+identify arbitrary application-specific secrets.
+
 ### Why two stages?
 
 Subscription matching (event-type wildcards `*`, team scoping) is application logic that
@@ -82,7 +101,10 @@ The dispatcher is started on every API replica (`go webhookDispatcher.Run(ctx)`,
 - Postgres `NOTIFY` on `api_notify` is broadcast to every connection currently `LISTEN`ing on it, so all replicas wake up when new work arrives (plus a 30s poll fallback per replica in case a notification is missed).
 - Both the fan-out claim (`ClaimOutboxEventsForFanout`) and the delivery claim (`ClaimPendingDeliveries`) use `SELECT ... FOR UPDATE SKIP LOCKED`. Concurrent workers or replicas racing on these queries cannot claim the same row in that claim cycle. Each replica adds three delivery workers; retries can still produce duplicate HTTP deliveries.
 - Fan-out (claiming an event, matching subscriptions, inserting delivery rows, marking the event completed) happens in a single DB transaction. `CreateEventDelivery` is idempotent (`ON CONFLICT (webhook_event_id, subscription_id) DO NOTHING`), so an interrupted or repeated fan-out attempt is safe.
-- Delivery marks a `webhook_event_deliveries` row `completed` at claim time, before the HTTP call is made. A replica killed mid-delivery could lose that one delivery without a retry — a known trade-off; a `processing` status with a lease and reaper would close this gap if it becomes a problem in practice.
+- Delivery marks a `webhook_event_deliveries` row `processing` at claim time and only
+  marks it `completed` after success. A replica killed mid-delivery can leave a row
+  stuck in `processing`; automatic recovery still requires a lease and reaper.
+  Active processing rows are excluded from retention cleanup.
 
 ## Retention & cleanup
 
@@ -156,6 +178,23 @@ stable across retries of that specific `(event, subscription)` delivery — it d
 change if a delivery is retried after a failure. Subscribers that need exactly-once
 processing semantics should treat delivery as **at-least-once** and deduplicate on `id`.
 
+The envelope `time` and `data.triggeredAt` contain the originating activity's timestamp,
+not the delivery attempt time. `data.activityLogEntryId` contains its raw UUID, shared
+across subscriptions. Retried requests retain the same event ID, timestamp, and body.
+
+## Manual test events
+
+Creating a subscription does not contact the endpoint. Use
+`testWebhook(input: { id: ... }) { delivery { ... } }` to send a signed
+`io.nais.webhook.test` event. Its data contains `test: true`, the requesting actor,
+and the trigger timestamp; it has no originating activity-log ID.
+
+Tests use the normal HTTP and diagnostic-recording path, but make one attempt, have
+no queue entry or retries, and never increment or reset subscription failure counters.
+They can be sent while a subscription is disabled. The mutation requires update
+permission and is limited atomically in PostgreSQL to one test per subscription per
+30 seconds. Tests are recorded only in the delivery history, not in the activity log.
+
 ## Retry schedule
 
 | Attempt | Delay    |
@@ -168,11 +207,18 @@ processing semantics should treat delivery as **at-least-once** and deduplicate 
 | 6       | 8 hours  |
 | 7       | 12 hours |
 
-After 7 failed attempts the delivery is marked `failed`. After 10 consecutive failures across
+After the initial attempt and 7 failed retries the delivery is marked `failed`. After 10 consecutive failures across
 any deliveries, the subscription is automatically disabled (`enabled = false`, `disabled_at` set).
 Retries and the failure counter are both scoped per subscriber — one broken subscriber
 retrying (and eventually being auto-disabled) has no effect on other subscribers of the
 same events.
+
+Each recorded attempt exposes its own `deliveryState`: `COMPLETED` or `FAILED`,
+the number of attempts made up to that attempt, and any retry time scheduled after
+that failure. Retry times are historical snapshots, not the current queue schedule.
+Later retries, subscription changes, and queue pruning do not alter earlier results.
+Manual tests also have a state, always with one attempt and no retry timestamp.
+Disabled subscriptions pause queued deliveries until re-enabled.
 
 ## Authorisation
 

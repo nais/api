@@ -1,6 +1,8 @@
 package webhook
 
 import (
+	"fmt"
+	"io"
 	"slices"
 	"time"
 
@@ -40,15 +42,61 @@ type (
 )
 
 type WebhookDelivery struct {
-	UUID           uuid.UUID `json:"id"`
-	SubscriptionID uuid.UUID `json:"subscriptionID"`
-	EventType      string    `json:"eventType"`
-	RequestBody    string    `json:"requestBody"`
-	ResponseStatus *int      `json:"responseStatus,omitempty"`
-	ResponseBody   *string   `json:"responseBody,omitempty"`
-	DurationMs     int       `json:"durationMs"`
-	Success        bool      `json:"success"`
-	CreatedAt      time.Time `json:"createdAt"`
+	UUID                  uuid.UUID             `json:"id"`
+	SubscriptionID        uuid.UUID             `json:"subscriptionID"`
+	DeliveryState         *WebhookDeliveryState `json:"deliveryState"`
+	EventType             string                `json:"eventType"`
+	IsTest                bool                  `json:"isTest"`
+	RequestBody           string                `json:"requestBody"`
+	RequestHeaders        []*WebhookHeader      `json:"requestHeaders"`
+	ResponseStatus        *int                  `json:"responseStatus,omitempty"`
+	ResponseBody          *string               `json:"responseBody,omitempty"`
+	ResponseHeaders       []*WebhookHeader      `json:"responseHeaders"`
+	ResponseBodyTruncated bool                  `json:"responseBodyTruncated"`
+	ErrorMessage          *string               `json:"errorMessage,omitempty"`
+	DurationMs            int                   `json:"durationMs"`
+	Success               bool                  `json:"success"`
+	CreatedAt             time.Time             `json:"createdAt"`
+}
+
+type WebhookHeader struct {
+	Name   string   `json:"name"`
+	Values []string `json:"values"`
+}
+
+type WebhookDeliveryState struct {
+	Status       WebhookDeliveryStatus `json:"status"`
+	AttemptCount int                   `json:"attemptCount"`
+	NextRetryAt  *time.Time            `json:"nextRetryAt,omitempty"`
+}
+
+type WebhookDeliveryStatus string
+
+const (
+	WebhookDeliveryStatusCompleted WebhookDeliveryStatus = "COMPLETED"
+	WebhookDeliveryStatusFailed    WebhookDeliveryStatus = "FAILED"
+)
+
+func (s WebhookDeliveryStatus) IsValid() bool {
+	return slices.Contains([]WebhookDeliveryStatus{
+		WebhookDeliveryStatusCompleted, WebhookDeliveryStatusFailed,
+	}, s)
+}
+
+func (s WebhookDeliveryStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprintf(w, "%q", s)
+}
+
+func (s *WebhookDeliveryStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("WebhookDeliveryStatus must be a string")
+	}
+	*s = WebhookDeliveryStatus(str)
+	if !s.IsValid() {
+		return fmt.Errorf("invalid WebhookDeliveryStatus: %q", str)
+	}
+	return nil
 }
 
 func (WebhookDelivery) IsNode() {}
@@ -97,11 +145,22 @@ type DeleteWebhookPayload struct {
 	WebhookID ident.Ident `json:"webhookID"`
 }
 
+type TestWebhookInput struct {
+	ID ident.Ident `json:"id"`
+}
+
+type TestWebhookPayload struct {
+	Delivery *WebhookDelivery `json:"delivery"`
+}
+
 // WebhookEvent is an internal event passed to the dispatcher when an activity log entry is created.
 type WebhookEvent struct {
+	ActivityLogEntryID *uuid.UUID
+	TriggeredAt        time.Time
+	Test               bool
 	// ActivityTypes holds the resolved ActivityLogActivityType values for this event
 	// (e.g. ["TEAM_MEMBER_ADDED"]). Populated by the dispatcher via LookupActivityTypes.
-	// For synthetic events such as "ping", this may be left nil.
+	// For synthetic test events, this may be left nil.
 	ActivityTypes []string
 	// RawEventType is the raw "RESOURCE_TYPE:ACTION" string stored in the outbox.
 	RawEventType string

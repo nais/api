@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
@@ -251,6 +252,11 @@ func newGQLRunner(
 
 	notifierCtx, notifyCancel := context.WithCancel(ctx)
 	notifier := notify.New(pool, log, notify.WithRetries(0))
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://api.example.test", log)
+	if err != nil {
+		notifyCancel()
+		return nil, nil, nil, fmt.Errorf("creating webhook dispatcher: %w", err)
+	}
 	go notifier.Run(notifierCtx)
 
 	contextDependencies, err := api.ConfigureGraph(
@@ -294,7 +300,7 @@ func newGQLRunner(
 		lokiClient,
 		"test-audit-project", // auditLogProjectID for testing
 		"test-location",      // auditLogLocation for testing
-		nil,                  // webhookDispatcher
+		webhookDispatcher,
 		log,
 	)
 	if err != nil {

@@ -24,14 +24,15 @@ import (
 )
 
 const (
-	defaultTimeout    = 10 * time.Second
-	eventBatchSize    = 50
-	deliveryWorkers   = 3
-	pollInterval      = 30 * time.Second
-	disableThreshold  = 10 // auto-disable after 10 consecutive failures
-	userAgentHeader   = "Nais-API-Webhook/1.0"
-	signatureHeader   = "X-Webhook-Signature"
-	contentTypeHeader = "application/cloudevents+json"
+	defaultTimeout      = 10 * time.Second
+	eventBatchSize      = 50
+	deliveryWorkers     = 3
+	pollInterval        = 30 * time.Second
+	disableThreshold    = 10 // auto-disable after 10 consecutive failures
+	userAgentHeader     = "Nais-API-Webhook/1.0"
+	signatureHeader     = "X-Webhook-Signature"
+	contentTypeHeader   = "application/cloudevents+json"
+	maxResponseBodySize = 10 * 1024
 )
 
 // retryBackoffs defines how long to wait before retrying at each retry_count.
@@ -256,20 +257,25 @@ func toWebhookEvent(a *webhooksql.ActivityLogEntry) WebhookEvent {
 	}
 
 	return WebhookEvent{
-		ActivityTypes: activityTypes,
-		RawEventType:  rawEventType,
-		TeamSlug:      teamSlug,
-		Actor:         a.Actor,
-		ResourceType:  a.ResourceType,
-		ResourceName:  a.ResourceName,
-		Environment:   a.Environment,
-		Data:          a.Data,
+		ActivityLogEntryID: &a.ID,
+		TriggeredAt:        a.CreatedAt.Time,
+		ActivityTypes:      activityTypes,
+		RawEventType:       rawEventType,
+		TeamSlug:           teamSlug,
+		Actor:              a.Actor,
+		ResourceType:       a.ResourceType,
+		ResourceName:       a.ResourceName,
+		Environment:        a.Environment,
+		Data:               a.Data,
 	}
 }
 
 func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, del *webhooksql.WebhookEventDelivery, sub *webhooksql.WebhookSubscription, a *webhooksql.ActivityLogEntry) {
 	event := toWebhookEvent(a)
 	if event.isIgnored() {
+		if err := q.MarkDeliveryCompleted(ctx, del.ID); err != nil {
+			d.log.WithError(err).Error("finishing ignored webhook delivery")
+		}
 		return
 	}
 
@@ -286,9 +292,16 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 		return
 	}
 
-	success := d.deliver(ctx, q, sub, eventType, payload, &del.ID)
+	attempt, err := d.deliver(ctx, q, sub, eventType, payload, &del.ID)
+	if err != nil {
+		d.log.WithError(err).Error("recording webhook delivery attempt")
+	}
+	success := attempt != nil && attempt.Success
 
 	if success {
+		if err := q.MarkDeliveryCompleted(ctx, del.ID); err != nil {
+			d.log.WithError(err).Error("marking webhook delivery completed")
+		}
 		d.metrics.processedCounter.Add(ctx, 1, metric.WithAttributes(
 			attribute.String("status", "completed"),
 		))
@@ -301,8 +314,13 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 	if nextRetry <= maxRetryCount {
 		backoff := retryBackoffs[min(nextRetry-1, len(retryBackoffs)-1)]
 		runAt := time.Now().Add(backoff)
+		attemptID := uuid.Nil
+		if attempt != nil {
+			attemptID = attempt.ID
+		}
 		if err := q.RequeueDelivery(ctx, webhooksql.RequeueDeliveryParams{
 			ID:         del.ID,
+			AttemptID:  attemptID,
 			RetryCount: int32(nextRetry),
 			RunAt:      pgtype.Timestamptz{Time: runAt, Valid: true},
 		}); err != nil {
@@ -323,48 +341,55 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 
 // deliver sends a single HTTP delivery attempt to sub and records it in the audit log.
 // deliveryRowID links the audit row back to the originating webhook_event_deliveries row,
-// and is nil for ad hoc deliveries (e.g. Ping) that aren't backed by a queue row.
-func (d *Dispatcher) deliver(ctx context.Context, q webhooksql.Querier, sub *webhooksql.WebhookSubscription, eventType string, payload []byte, deliveryRowID *uuid.UUID) bool {
+// and is nil for manual tests, which never change subscription health.
+func (d *Dispatcher) deliver(ctx context.Context, q webhooksql.Querier, sub *webhooksql.WebhookSubscription, eventType string, payload []byte, deliveryRowID *uuid.UUID) (*webhooksql.WebhookDelivery, error) {
 	signature := SignPayload(sub.Secret, payload)
 
+	start := time.Now()
+	var (
+		responseStatus        *int32
+		responseBody          []byte
+		errorMessage          *string
+		responseBodyTruncated bool
+		requestHeaders        = http.Header{}
+		responseHeaders       = http.Header{}
+		success               bool
+	)
+	statusStr := "network_error"
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, sub.Url, bytes.NewReader(payload))
 	if err != nil {
-		d.log.WithError(err).WithField("subscription_id", sub.ID).Error("creating HTTP request")
-		return false
-	}
-
-	req.Header.Set("Content-Type", contentTypeHeader)
-	req.Header.Set("User-Agent", userAgentHeader)
-	req.Header.Set(signatureHeader, signature)
-
-	start := time.Now()
-	resp, err := d.httpClient.Do(req)
-	durationSeconds := time.Since(start).Seconds()
-	durationMs := int32(durationSeconds * 1000)
-
-	var (
-		responseStatus *int32
-		responseBody   *string
-		success        bool
-	)
-
-	statusStr := "network_error"
-	if err != nil {
-		errMsg := err.Error()
-		responseBody = &errMsg
+		errorMessage = new("Invalid webhook endpoint URL.")
 	} else {
-		defer resp.Body.Close()
-		status := int32(resp.StatusCode)
-		responseStatus = &status
-		statusStr = strconv.Itoa(int(resp.StatusCode))
-		success = resp.StatusCode >= 200 && resp.StatusCode < 300
-
-		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 1024*10)) // 10KB max
-		if readErr == nil {
-			bodyStr := string(body)
-			responseBody = &bodyStr
+		req.Header.Set("Content-Type", contentTypeHeader)
+		req.Header.Set("Accept-Encoding", "identity")
+		req.Header.Set("User-Agent", userAgentHeader)
+		req.Header.Set(signatureHeader, signature)
+		requestHeaders = req.Header.Clone()
+		requestHeaders.Set("Content-Length", strconv.FormatInt(req.ContentLength, 10))
+		resp, err := d.httpClient.Do(req)
+		if err != nil {
+			errorMessage = new("The HTTP request failed before a response could be received.")
+		} else {
+			defer resp.Body.Close()
+			status := int32(resp.StatusCode)
+			responseStatus = &status
+			responseHeaders = resp.Header
+			statusStr = strconv.Itoa(resp.StatusCode)
+			success = resp.StatusCode >= 200 && resp.StatusCode < 300
+			body, readErr := io.ReadAll(io.LimitReader(resp.Body, maxResponseBodySize+1))
+			responseBodyTruncated = len(body) > maxResponseBodySize
+			responseBody = body[:min(len(body), maxResponseBodySize)]
+			if responseBody == nil {
+				responseBody = []byte{}
+			}
+			if readErr != nil {
+				errorMessage = new("The response body could not be read completely.")
+				success = false
+			}
 		}
 	}
+	durationSeconds := time.Since(start).Seconds()
+	durationMs := int32(durationSeconds * 1000)
 
 	successStr := "false"
 	if success {
@@ -382,17 +407,25 @@ func (d *Dispatcher) deliver(ctx context.Context, q webhooksql.Querier, sub *web
 	))
 
 	// Record delivery attempt
-	if _, recordErr := q.CreateDelivery(ctx, webhooksql.CreateDeliveryParams{
+	attempt, recordErr := q.CreateDelivery(ctx, webhooksql.CreateDeliveryParams{
 		SubscriptionID:         sub.ID,
 		WebhookEventDeliveryID: deliveryRowID,
 		EventType:              eventType,
 		RequestBody:            payload,
+		RequestHeaders:         storedRequestHeaders(requestHeaders),
 		ResponseStatus:         responseStatus,
 		ResponseBody:           responseBody,
+		ResponseHeaders:        storedResponseHeaders(responseHeaders),
+		ResponseBodyTruncated:  responseBodyTruncated,
+		ErrorMessage:           errorMessage,
 		DurationMs:             durationMs,
 		Success:                success,
-	}); recordErr != nil {
-		d.log.WithError(recordErr).Error("recording webhook delivery")
+	})
+	if recordErr != nil {
+		return nil, recordErr
+	}
+	if deliveryRowID == nil {
+		return attempt, nil
 	}
 
 	autoDisabled, err := q.RecordDeliveryResult(ctx, webhooksql.RecordDeliveryResultParams{
@@ -409,7 +442,41 @@ func (d *Dispatcher) deliver(ctx context.Context, q webhooksql.Querier, sub *web
 		))
 	}
 
-	return success
+	return attempt, nil
+}
+
+func storedRequestHeaders(headers http.Header) []byte {
+	safe := make(http.Header)
+	for _, name := range []string{
+		"Accept", "Accept-Encoding", "Content-Type", "Content-Length", "Content-Encoding",
+		"User-Agent", "Date", "Retry-After", "Server", "X-Request-Id", "Traceparent",
+		signatureHeader,
+	} {
+		if values := headers.Values(name); len(values) > 0 {
+			safe[http.CanonicalHeaderKey(name)] = values
+		}
+	}
+	data, _ := json.Marshal(safe)
+	return data
+}
+
+func storedResponseHeaders(headers http.Header) []byte {
+	safe := make(http.Header)
+	for name, values := range headers {
+		name = http.CanonicalHeaderKey(name)
+		switch name {
+		case "Authorization", "Proxy-Authorization",
+			"Www-Authenticate", "Proxy-Authenticate",
+			"Authentication-Info", "Proxy-Authentication-Info",
+			"Cookie", "Cookie2", "Set-Cookie", "Set-Cookie2",
+			"Api-Key", "X-Api-Key", "X-Auth-Token", "X-Access-Token",
+			"X-Csrf-Token", "X-Csrftoken", "X-Xsrf-Token":
+			continue
+		}
+		safe[name] = append(safe[name], values...)
+	}
+	data, _ := json.Marshal(safe)
+	return data
 }
 
 // SerializeEventData is a helper to serialize event data to JSON for the webhook payload.
@@ -420,28 +487,21 @@ func SerializeEventData(data any) ([]byte, error) {
 	return json.Marshal(data)
 }
 
-// Ping sends a test ping payload to the given subscription and records the delivery.
-// Used to verify connectivity when a new webhook is registered.
-func (d *Dispatcher) Ping(ctx context.Context, sub *WebhookSubscription) error {
-	pingEvent := WebhookEvent{
-		RawEventType: "ping",
+func (d *Dispatcher) SendTest(ctx context.Context, q webhooksql.Querier, sub *webhooksql.WebhookSubscription, actor string) (*webhooksql.WebhookDelivery, error) {
+	testEvent := WebhookEvent{
+		RawEventType: "WEBHOOK_TEST",
 		TeamSlug:     sub.TeamSlug,
-		Actor:        "system",
-		ResourceType: "webhook",
-		ResourceName: sub.UUID.String(),
+		Actor:        actor,
+		ResourceType: string(ActivityLogEntryResourceTypeWebhook),
+		ResourceName: sub.ID.String(),
+		TriggeredAt:  time.Now().UTC(),
+		Test:         true,
 	}
 
-	payload, err := BuildCloudEvent(d.source, uuid.New().String(), pingEvent)
+	payload, err := BuildCloudEvent(d.source, uuid.New().String(), testEvent)
 	if err != nil {
-		return fmt.Errorf("building ping CloudEvent: %w", err)
+		return nil, fmt.Errorf("building test CloudEvent: %w", err)
 	}
 
-	q := webhooksql.New(d.pool)
-	dbSub := &webhooksql.WebhookSubscription{
-		ID:     sub.UUID,
-		Url:    sub.URL,
-		Secret: sub.Secret,
-	}
-	d.deliver(ctx, q, dbSub, "ping", payload, nil)
-	return nil
+	return d.deliver(ctx, q, sub, "WEBHOOK_TEST", payload, nil)
 }

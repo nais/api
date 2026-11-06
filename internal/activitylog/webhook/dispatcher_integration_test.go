@@ -3,6 +3,7 @@
 package webhook
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -349,6 +350,16 @@ func TestDispatcherIntegration(t *testing.T) {
 		if !auditRows[0].Success {
 			t.Error("expected audit delivery row to record success=true")
 		}
+		if !bytes.Equal(auditRows[0].RequestBody, req.body) {
+			t.Error("stored request body differs from the signed HTTP payload")
+		}
+		states, err := q.ListDeliveriesByIDs(ctx, []uuid.UUID{auditRows[0].ID})
+		if err != nil || len(states) != 1 {
+			t.Fatalf("fetching completed delivery state: %v, %v", states, err)
+		}
+		if states[0].AttemptCount != 1 || states[0].NextRetryAt.Valid || !states[0].Success {
+			t.Errorf("unexpected completed delivery state: %+v", states[0])
+		}
 
 		updatedSub, err := q.GetSubscription(ctx, sub.ID)
 		if err != nil {
@@ -452,6 +463,31 @@ func TestDispatcherIntegration(t *testing.T) {
 		}
 		if auditRows[0].ResponseStatus == nil || *auditRows[0].ResponseStatus != http.StatusInternalServerError {
 			t.Errorf("ResponseStatus = %v, want %d", auditRows[0].ResponseStatus, http.StatusInternalServerError)
+		}
+		states, err := q.ListDeliveriesByIDs(ctx, []uuid.UUID{auditRows[0].ID})
+		if err != nil || len(states) != 1 {
+			t.Fatalf("fetching pending delivery state: %v, %v", states, err)
+		}
+		if states[0].AttemptCount != 1 || !states[0].NextRetryAt.Valid || !states[0].NextRetryAt.Time.Equal(delivery.RunAt.Time) {
+			t.Errorf("unexpected retry state: %+v", states[0])
+		}
+		wantState := toGraphDelivery(states[0]).DeliveryState
+		if _, err := pool.Exec(ctx, `UPDATE webhook_subscriptions SET enabled = FALSE WHERE id = $1`, sub.ID); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := pool.Exec(ctx, `UPDATE webhook_event_deliveries SET run_at = NOW() WHERE id = $1`, delivery.ID); err != nil {
+			t.Fatal(err)
+		}
+		states, err = q.ListDeliveriesByIDs(ctx, []uuid.UUID{auditRows[0].ID})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(wantState, toGraphDelivery(states[0]).DeliveryState); diff != "" {
+			t.Errorf("queue changes altered the attempt's retry snapshot (-want +got):\n%s", diff)
+		}
+		claimed, err := q.ClaimPendingDeliveries(ctx, 1)
+		if err != nil || len(claimed) != 0 {
+			t.Fatalf("disabled subscription was claimed for retry: %v, %v", claimed, err)
 		}
 	})
 
@@ -642,11 +678,21 @@ func TestDispatcherIntegration(t *testing.T) {
 		if del.Status != webhooksql.WebhookDeliveryStatusPending {
 			t.Fatalf("expected delivery to be requeued after first failed attempt, status = %q", del.Status)
 		}
+		recorded, err := q.ListDeliveriesForSubscription(ctx, webhooksql.ListDeliveriesForSubscriptionParams{
+			SubscriptionID: subRow.ID, Limit: 10,
+		})
+		if err != nil || len(recorded) != 1 {
+			t.Fatalf("fetching first attempt: %v, %v", recorded, err)
+		}
+		firstAttempt := toGraphDelivery(&recorded[0].WebhookDelivery)
+		if firstAttempt.DeliveryState.Status != WebhookDeliveryStatusFailed || firstAttempt.DeliveryState.NextRetryAt == nil {
+			t.Fatalf("expected a failed attempt with a retry snapshot: %+v", firstAttempt.DeliveryState)
+		}
 
 		// Simulate the backoff having elapsed, then let the delivery be claimed and
 		// processed again through the normal drain path (rather than calling
 		// processDelivery directly), since ClaimPendingDeliveries is what optimistically
-		// marks a delivery completed at claim time.
+		// marks a delivery processing at claim time.
 		if _, err := pool.Exec(ctx, `UPDATE webhook_event_deliveries SET run_at = NOW() WHERE id = $1`, del.ID); err != nil {
 			t.Fatalf("failed to fast-forward run_at: %v", err)
 		}
@@ -654,6 +700,37 @@ func TestDispatcherIntegration(t *testing.T) {
 		del = fetchDeliveryByID(ctx, t, pool, del.ID)
 		if del.Status != webhooksql.WebhookDeliveryStatusCompleted {
 			t.Fatalf("expected delivery to be completed after second attempt, status = %q", del.Status)
+		}
+		recorded, err = q.ListDeliveriesForSubscription(ctx, webhooksql.ListDeliveriesForSubscriptionParams{
+			SubscriptionID: subRow.ID, Limit: 10,
+		})
+		if err != nil || len(recorded) != 2 {
+			t.Fatalf("fetching both attempts: %v, %v", recorded, err)
+		}
+		for _, row := range recorded {
+			state := toGraphDelivery(&row.WebhookDelivery).DeliveryState
+			switch row.WebhookDelivery.AttemptCount {
+			case 1:
+				if diff := cmp.Diff(firstAttempt.DeliveryState, state); diff != "" {
+					t.Errorf("successful retry altered the failed attempt (-want +got):\n%s", diff)
+				}
+			case 2:
+				if state.Status != WebhookDeliveryStatusCompleted || state.NextRetryAt != nil {
+					t.Errorf("unexpected successful retry state: %+v", state)
+				}
+			default:
+				t.Errorf("unexpected attempt count: %d", row.WebhookDelivery.AttemptCount)
+			}
+		}
+		if _, err := pool.Exec(ctx, `DELETE FROM webhook_event_deliveries WHERE id = $1`, del.ID); err != nil {
+			t.Fatal(err)
+		}
+		prunedAttempt, err := q.GetDelivery(ctx, firstAttempt.UUID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(firstAttempt.DeliveryState, toGraphDelivery(prunedAttempt).DeliveryState); diff != "" {
+			t.Errorf("queue pruning altered the attempt state (-want +got):\n%s", diff)
 		}
 
 		mu.Lock()
@@ -677,12 +754,66 @@ func TestDispatcherIntegration(t *testing.T) {
 		if firstCE.ID != del.ID.String() {
 			t.Errorf("CloudEvent id = %q, want delivery id %q", firstCE.ID, del.ID.String())
 		}
+		if !bytes.Equal(gotBodies[0], gotBodies[1]) {
+			t.Error("CloudEvent payload changed across retries")
+		}
+		if firstCE.Time != entry.CreatedAt.Time.UTC().Format(time.RFC3339Nano) {
+			t.Errorf("CloudEvent time = %q, want activity occurrence time %v", firstCE.Time, entry.CreatedAt.Time)
+		}
+		var data CloudEventData
+		if err := json.Unmarshal(firstCE.Data, &data); err != nil {
+			t.Fatal(err)
+		}
+		if data.ActivityLogEntryID == nil || *data.ActivityLogEntryID != entry.ID || !data.TriggeredAt.Equal(entry.CreatedAt.Time) {
+			t.Errorf("incorrect activity metadata: %+v", data)
+		}
 	})
 
-	t.Run("ping", func(t *testing.T) {
+	t.Run("binary response bytes and safe headers round trip through storage", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		binary := []byte{0xff, 0x00, 0xfe, 0x01}
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Add("X-Request-Id", "one")
+			w.Header().Add("X-Request-Id", "two")
+			w.Header().Set("X-Service-Version", "v2")
+			w.Header().Set("Set-Cookie", "sensitive")
+			w.Header().Set("X-Api-Key", "sensitive")
+			w.Write(binary)
+		}))
+		defer srv.Close()
+		q := webhooksql.New(pool)
+		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name: "Binary response", Url: srv.URL, Secret: "test-secret", EventTypes: []string{"*"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		d := newTestDispatcher(t, pool, log)
+		payload := []byte("{\n  \"test\": true\n}")
+		attempt, err := d.deliver(ctx, q, sub, "WEBHOOK_TEST", payload, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stored, err := q.GetDelivery(ctx, attempt.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(stored.RequestBody, payload) || !bytes.Equal(stored.ResponseBody, binary) {
+			t.Error("body bytes changed during storage")
+		}
+		var headers http.Header
+		if err := json.Unmarshal(stored.ResponseHeaders, &headers); err != nil {
+			t.Fatal(err)
+		}
+		if len(headers.Values("X-Request-Id")) != 2 || headers.Get("X-Service-Version") != "v2" || headers.Get("Set-Cookie") != "" || headers.Get("X-Api-Key") != "" {
+			t.Errorf("unexpected recorded headers: %v", headers)
+		}
+	})
+
+	t.Run("manual test event does not change subscription health", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 
-		srv := newRecordingServer(http.StatusOK)
+		srv := newRecordingServer(http.StatusInternalServerError)
 		defer srv.Close()
 
 		q := webhooksql.New(pool)
@@ -697,9 +828,11 @@ func TestDispatcherIntegration(t *testing.T) {
 		}
 
 		d := newTestDispatcher(t, pool, log)
-		gsub := toGraphSubscription(row)
-		if err := d.Ping(ctx, gsub); err != nil {
-			t.Fatalf("Ping() error = %v", err)
+		if _, err := pool.Exec(ctx, `UPDATE webhook_subscriptions SET enabled = FALSE, consecutive_failures = 9 WHERE id = $1`, row.ID); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := d.SendTest(ctx, q, row, "tester"); err != nil {
+			t.Fatalf("SendTest() error = %v", err)
 		}
 
 		if got := srv.count(); got != 1 {
@@ -708,10 +841,24 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		var ce CloudEvent
 		if err := json.Unmarshal(srv.requestAt(0).body, &ce); err != nil {
-			t.Fatalf("failed to unmarshal ping CloudEvent: %v", err)
+			t.Fatalf("failed to unmarshal test CloudEvent: %v", err)
 		}
-		if ce.Type != "io.nais.ping" {
-			t.Errorf("Type = %q, want %q", ce.Type, "io.nais.ping")
+		if ce.Type != "io.nais.webhook.test" {
+			t.Errorf("Type = %q, want %q", ce.Type, "io.nais.webhook.test")
+		}
+		var data CloudEventData
+		if err := json.Unmarshal(ce.Data, &data); err != nil {
+			t.Fatal(err)
+		}
+		if !data.Test || data.Actor != "tester" || data.ActivityLogEntryID != nil {
+			t.Errorf("unexpected test metadata: %+v", data)
+		}
+		sub, err := q.GetSubscription(ctx, row.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if sub.Enabled || sub.ConsecutiveFailures != 9 {
+			t.Errorf("test changed subscription health: %+v", sub)
 		}
 
 		var deliveryID *uuid.UUID
@@ -720,16 +867,16 @@ func TestDispatcherIntegration(t *testing.T) {
 		err = pool.QueryRow(ctx, `SELECT webhook_event_delivery_id, event_type, success FROM webhook_deliveries WHERE subscription_id = $1`, row.ID).
 			Scan(&deliveryID, &eventType, &success)
 		if err != nil {
-			t.Fatalf("failed to fetch ping audit row: %v", err)
+			t.Fatalf("failed to fetch test audit row: %v", err)
 		}
 		if deliveryID != nil {
 			t.Errorf("webhook_event_delivery_id = %v, want nil", deliveryID)
 		}
-		if eventType != "ping" {
-			t.Errorf("event_type = %q, want %q", eventType, "ping")
+		if eventType != "WEBHOOK_TEST" {
+			t.Errorf("event_type = %q, want %q", eventType, "WEBHOOK_TEST")
 		}
-		if !success {
-			t.Error("expected ping delivery to be recorded as successful")
+		if success {
+			t.Error("expected test delivery to be recorded as failed")
 		}
 	})
 
@@ -997,7 +1144,7 @@ func createAuditDeliveryDirect(ctx context.Context, t *testing.T, pool *pgxpool.
 	var id uuid.UUID
 	err := pool.QueryRow(ctx, `
 		INSERT INTO webhook_deliveries (subscription_id, event_type, request_body, duration_ms, success, created_at)
-		VALUES ($1, 'test', '{}'::jsonb, 1, true, NOW() - $2::INTERVAL)
+		VALUES ($1, 'test', '{}'::bytea, 1, true, NOW() - $2::INTERVAL)
 		RETURNING id
 	`, subscriptionID, age.String()).Scan(&id)
 	if err != nil {

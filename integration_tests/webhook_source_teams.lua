@@ -35,7 +35,10 @@ for _, tt in ipairs({
 					secret: "test-secret"
 					eventTypes: ["*"]
 				}) {
-					webhook { id name teamSlug sourceTeamSlugs hasSecret }
+					webhook {
+						id name teamSlug sourceTeamSlugs hasSecret
+						deliveries(first: 10) { pageInfo { totalCount } }
+					}
 				}
 			}
 		]], tt.name, tt.selection))
@@ -48,6 +51,7 @@ for _, tt in ipairs({
 						teamSlug = "team-owner",
 						sourceTeamSlugs = tt.teams,
 						hasSecret = true,
+						deliveries = { pageInfo = { totalCount = 0 } },
 					},
 				},
 			},
@@ -422,6 +426,236 @@ Test.gql("Updating a webhook to its own trimmed name is allowed", function(t)
 		data = {
 			updateWebhook = {
 				webhook = { id = State.sharedWebhookID, name = "Shared webhook" },
+			},
+		},
+	}
+end)
+
+Test.gql("Testing a webhook requires permission in the owning team", function(t)
+	t.addHeader("x-user-email", otherOwner:email())
+	t.query(string.format([[
+		mutation { testWebhook(input: { id: "%s" }) { delivery { id } } }
+	]], State.secretWebhookID))
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = Contains('webhooks:update'),
+				path = { "testWebhook" },
+			},
+		},
+	}
+end)
+
+Test.gql("Manual tests record failures without retries or changes to subscription health", function(t)
+	t.addHeader("x-user-email", owner:email())
+	local before = Helper.SQLQueryRow(
+		"SELECT COUNT(*) AS count FROM activity_log_entries WHERE resource_type = 'WEBHOOK'")
+	Helper.SQLExec([[
+		UPDATE webhook_subscriptions SET enabled = FALSE, consecutive_failures = 9
+		WHERE url = 'http://127.0.0.1:1/secret-test'
+	]])
+	t.query(string.format([[
+		mutation {
+			testWebhook(input: { id: "%s" }) {
+				delivery {
+					id eventType isTest success errorMessage
+					requestBody requestHeaders { name values }
+					responseBody responseBodyTruncated
+					responseStatus responseHeaders { name values }
+					deliveryState { status nextRetryAt attemptCount }
+				}
+			}
+		}
+	]], State.secretWebhookID))
+	t.check {
+		data = {
+			testWebhook = {
+				delivery = {
+					id = Save("testDeliveryID"),
+					eventType = "WEBHOOK_TEST",
+					isTest = true,
+					success = false,
+					errorMessage = NotNull(),
+					requestBody = NotNull(),
+					requestHeaders = NotNull(),
+					responseBody = Null,
+					responseBodyTruncated = false,
+					responseStatus = Null,
+					responseHeaders = {},
+					deliveryState = { status = "FAILED", nextRetryAt = Null, attemptCount = 1 },
+				},
+			},
+		},
+	}
+	local row = Helper.SQLQueryRow([[
+		SELECT NOT enabled AND consecutive_failures = 9 AS unchanged,
+			(SELECT COUNT(*) FROM webhook_deliveries WHERE subscription_id = webhook_subscriptions.id) AS attempts,
+			(SELECT COUNT(*) FROM webhook_event_deliveries WHERE subscription_id = webhook_subscriptions.id) AS queued
+		FROM webhook_subscriptions WHERE url = 'http://127.0.0.1:1/secret-test'
+	]])
+	assert(row.unchanged, "Manual tests must not affect subscription health")
+	assert(tonumber(row.attempts) == 1 and tonumber(row.queued) == 0,
+		"Manual tests must make exactly one attempt without a retry")
+	local after = Helper.SQLQueryRow(
+		"SELECT COUNT(*) AS count FROM activity_log_entries WHERE resource_type = 'WEBHOOK'")
+	assert(tonumber(before.count) == tonumber(after.count), "Manual tests must not create activity log entries")
+end)
+
+Test.gql("Manual webhook tests are rate limited", function(t)
+	t.addHeader("x-user-email", owner:email())
+	t.query(string.format([[
+		mutation { testWebhook(input: { id: "%s" }) { delivery { id } } }
+	]], State.secretWebhookID))
+	t.check {
+		data = Null,
+		errors = {
+			{
+				locations = NotNull(),
+				message = "Wait at least 30 seconds between webhook tests.",
+				path = { "testWebhook" },
+			},
+		},
+	}
+end)
+
+Test.gql("Delivery diagnostics preserve each attempt's outcome and retry snapshot", function(t)
+	t.addHeader("x-user-email", owner:email())
+	Helper.SQLExec([[
+		INSERT INTO webhook_event_deliveries (webhook_event_id, subscription_id, retry_count, run_at)
+		SELECT event.id, subscription.id, 2, NOW() + INTERVAL '1 minute'
+		FROM webhook_subscriptions subscription
+		JOIN activity_log_entries activity
+			ON activity.resource_type = 'WEBHOOK' AND activity.resource_name = subscription.id::text AND activity.action = 'CREATED'
+		JOIN webhook_events event ON event.activity_log_entries_id = activity.id
+		WHERE subscription.team_slug = 'team-owner' AND subscription.name = 'Shared webhook'
+	]])
+	Helper.SQLExec([[
+		INSERT INTO webhook_deliveries (
+			subscription_id, webhook_event_delivery_id, event_type, request_body,
+			response_status, response_body, duration_ms, success, attempt_count, next_retry_at, created_at
+		)
+		SELECT delivery.subscription_id, delivery.id, 'TEAM_UPDATED', CONVERT_TO('{"test":true}', 'UTF8'),
+			CASE WHEN attempt.n = 1 THEN 200 ELSE 500 END,
+			DECODE('ff0001', 'hex'), 1, attempt.n = 1, 3 - attempt.n,
+			CASE WHEN attempt.n = 2 THEN NOW() - INTERVAL '1 minute' END,
+			NOW() - attempt.n * INTERVAL '1 second'
+		FROM webhook_event_deliveries delivery
+		JOIN webhook_subscriptions subscription ON subscription.id = delivery.subscription_id
+		CROSS JOIN (VALUES (1), (2)) attempt(n)
+		WHERE subscription.team_slug = 'team-owner' AND subscription.name = 'Shared webhook'
+	]])
+	for _, phase in ipairs({
+		{ enabled = true,  status = "pending" },
+		{ enabled = false, status = "processing" },
+		{ enabled = true,  status = "completed" },
+		{ enabled = false, status = "failed" },
+	}) do
+		Helper.SQLExec(string.format([[
+			UPDATE webhook_subscriptions SET enabled = %s
+			WHERE team_slug = 'team-owner' AND name = 'Shared webhook'
+		]], phase.enabled and "TRUE" or "FALSE"))
+		Helper.SQLExec(string.format([[
+			UPDATE webhook_event_deliveries SET status = '%s', retry_count = 7, run_at = NOW()
+			WHERE subscription_id IN (
+				SELECT id FROM webhook_subscriptions WHERE team_slug = 'team-owner' AND name = 'Shared webhook'
+			)
+		]], phase.status))
+		t.query(string.format([[
+			query {
+				node(id: "%s") {
+					... on WebhookSubscription {
+						deliveries(first: 10) {
+							nodes {
+								id requestBody responseBody isTest
+								deliveryState { status attemptCount nextRetryAt }
+							}
+						}
+					}
+				}
+			}
+		]], State.sharedWebhookID))
+		local expected = {
+			{
+				id = Save("successfulAttemptID"),
+				requestBody = '{"test":true}',
+				responseBody = Null,
+				isTest = false,
+				deliveryState = { status = "COMPLETED", attemptCount = 2, nextRetryAt = Null },
+			},
+			{
+				id = Save("failedAttemptID"),
+				requestBody = '{"test":true}',
+				responseBody = Null,
+				isTest = false,
+				deliveryState = { status = "FAILED", attemptCount = 1, nextRetryAt = NotNull() },
+			},
+		}
+		t.check { data = { node = { deliveries = { nodes = expected } } } }
+		t.query(string.format([[
+			query {
+				node(id: "%s") {
+					... on WebhookDelivery {
+						deliveryState { status attemptCount nextRetryAt }
+					}
+				}
+			}
+		]], State.failedAttemptID))
+		t.check {
+			data = {
+				node = {
+					deliveryState = { status = "FAILED", attemptCount = 1, nextRetryAt = NotNull() },
+				},
+			},
+		}
+	end
+	Helper.SQLExec([[
+		DELETE FROM webhook_event_deliveries
+		WHERE subscription_id IN (
+			SELECT id FROM webhook_subscriptions WHERE team_slug = 'team-owner' AND name = 'Shared webhook'
+		)
+	]])
+	t.query(string.format([[
+		query {
+			node(id: "%s") {
+				... on WebhookDelivery {
+					responseBody deliveryState { status attemptCount nextRetryAt } isTest
+				}
+			}
+		}
+	]], State.failedAttemptID))
+	t.check {
+		data = {
+			node = {
+				responseBody = Null,
+				deliveryState = { status = "FAILED", attemptCount = 1, nextRetryAt = NotNull() },
+				isTest = false,
+			},
+		},
+	}
+	t.query(string.format([[
+		query {
+			node(id: "%s") {
+				... on WebhookSubscription {
+					deliveries(first: 10) {
+						nodes { deliveryState { status attemptCount nextRetryAt } }
+						pageInfo { totalCount }
+					}
+				}
+			}
+		}
+	]], State.sharedWebhookID))
+	t.check {
+		data = {
+			node = {
+				deliveries = {
+					nodes = {
+						{ deliveryState = { status = "COMPLETED", attemptCount = 2, nextRetryAt = Null } },
+						{ deliveryState = { status = "FAILED", attemptCount = 1, nextRetryAt = NotNull() } },
+					},
+					pageInfo = { totalCount = 2 },
+				},
 			},
 		},
 	}

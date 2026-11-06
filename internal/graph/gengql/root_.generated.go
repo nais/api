@@ -1702,6 +1702,7 @@ type ComplexityRoot struct {
 		SetTeamMemberRole                func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		StartOpenSearchMaintenance       func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
+		TestWebhook                      func(childComplexity int, input webhook.TestWebhookInput) int
 		TriggerJob                       func(childComplexity int, input job.TriggerJobInput) int
 		UpdateApplication                func(childComplexity int, input application.UpdateApplicationInput) int
 		UpdateConfig                     func(childComplexity int, input config.UpdateConfigInput) int
@@ -3537,6 +3538,10 @@ type ComplexityRoot struct {
 		Unassigned       func(childComplexity int) int
 	}
 
+	TestWebhookPayload struct {
+		Delivery func(childComplexity int) int
+	}
+
 	TokenXAuthIntegration struct {
 		Name func(childComplexity int) int
 	}
@@ -4086,14 +4091,20 @@ type ComplexityRoot struct {
 	}
 
 	WebhookDelivery struct {
-		CreatedAt      func(childComplexity int) int
-		DurationMs     func(childComplexity int) int
-		EventType      func(childComplexity int) int
-		ID             func(childComplexity int) int
-		RequestBody    func(childComplexity int) int
-		ResponseBody   func(childComplexity int) int
-		ResponseStatus func(childComplexity int) int
-		Success        func(childComplexity int) int
+		CreatedAt             func(childComplexity int) int
+		DeliveryState         func(childComplexity int) int
+		DurationMs            func(childComplexity int) int
+		ErrorMessage          func(childComplexity int) int
+		EventType             func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		IsTest                func(childComplexity int) int
+		RequestBody           func(childComplexity int) int
+		RequestHeaders        func(childComplexity int) int
+		ResponseBody          func(childComplexity int) int
+		ResponseBodyTruncated func(childComplexity int) int
+		ResponseHeaders       func(childComplexity int) int
+		ResponseStatus        func(childComplexity int) int
+		Success               func(childComplexity int) int
 	}
 
 	WebhookDeliveryConnection struct {
@@ -4107,12 +4118,23 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	WebhookDeliveryState struct {
+		AttemptCount func(childComplexity int) int
+		NextRetryAt  func(childComplexity int) int
+		Status       func(childComplexity int) int
+	}
+
 	WebhookEventTypeInfo struct {
 		CloudEventType func(childComplexity int) int
 		Description    func(childComplexity int) int
 		Group          func(childComplexity int) int
 		TeamScoped     func(childComplexity int) int
 		Type           func(childComplexity int) int
+	}
+
+	WebhookHeader struct {
+		Name   func(childComplexity int) int
+		Values func(childComplexity int) int
 	}
 
 	WebhookSubscription struct {
@@ -11024,6 +11046,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.StartValkeyMaintenance(childComplexity, args["input"].(servicemaintenance.StartValkeyMaintenanceInput)), true
+
+	case "Mutation.testWebhook":
+		if e.ComplexityRoot.Mutation.TestWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_testWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.TestWebhook(childComplexity, args["input"].(webhook.TestWebhookInput)), true
 
 	case "Mutation.triggerJob":
 		if e.ComplexityRoot.Mutation.TriggerJob == nil {
@@ -19617,6 +19651,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TenantVulnerabilitySummary.Unassigned(childComplexity), true
 
+	case "TestWebhookPayload.delivery":
+		if e.ComplexityRoot.TestWebhookPayload.Delivery == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TestWebhookPayload.Delivery(childComplexity), true
+
 	case "TokenXAuthIntegration.name":
 		if e.ComplexityRoot.TokenXAuthIntegration.Name == nil {
 			break
@@ -21894,12 +21935,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookDelivery.CreatedAt(childComplexity), true
 
+	case "WebhookDelivery.deliveryState":
+		if e.ComplexityRoot.WebhookDelivery.DeliveryState == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.DeliveryState(childComplexity), true
+
 	case "WebhookDelivery.durationMs":
 		if e.ComplexityRoot.WebhookDelivery.DurationMs == nil {
 			break
 		}
 
 		return e.ComplexityRoot.WebhookDelivery.DurationMs(childComplexity), true
+
+	case "WebhookDelivery.errorMessage":
+		if e.ComplexityRoot.WebhookDelivery.ErrorMessage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ErrorMessage(childComplexity), true
 
 	case "WebhookDelivery.eventType":
 		if e.ComplexityRoot.WebhookDelivery.EventType == nil {
@@ -21915,6 +21970,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookDelivery.ID(childComplexity), true
 
+	case "WebhookDelivery.isTest":
+		if e.ComplexityRoot.WebhookDelivery.IsTest == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.IsTest(childComplexity), true
+
 	case "WebhookDelivery.requestBody":
 		if e.ComplexityRoot.WebhookDelivery.RequestBody == nil {
 			break
@@ -21922,12 +21984,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookDelivery.RequestBody(childComplexity), true
 
+	case "WebhookDelivery.requestHeaders":
+		if e.ComplexityRoot.WebhookDelivery.RequestHeaders == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.RequestHeaders(childComplexity), true
+
 	case "WebhookDelivery.responseBody":
 		if e.ComplexityRoot.WebhookDelivery.ResponseBody == nil {
 			break
 		}
 
 		return e.ComplexityRoot.WebhookDelivery.ResponseBody(childComplexity), true
+
+	case "WebhookDelivery.responseBodyTruncated":
+		if e.ComplexityRoot.WebhookDelivery.ResponseBodyTruncated == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseBodyTruncated(childComplexity), true
+
+	case "WebhookDelivery.responseHeaders":
+		if e.ComplexityRoot.WebhookDelivery.ResponseHeaders == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseHeaders(childComplexity), true
 
 	case "WebhookDelivery.responseStatus":
 		if e.ComplexityRoot.WebhookDelivery.ResponseStatus == nil {
@@ -21978,6 +22061,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookDeliveryEdge.Node(childComplexity), true
 
+	case "WebhookDeliveryState.attemptCount":
+		if e.ComplexityRoot.WebhookDeliveryState.AttemptCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryState.AttemptCount(childComplexity), true
+
+	case "WebhookDeliveryState.nextRetryAt":
+		if e.ComplexityRoot.WebhookDeliveryState.NextRetryAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryState.NextRetryAt(childComplexity), true
+
+	case "WebhookDeliveryState.status":
+		if e.ComplexityRoot.WebhookDeliveryState.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryState.Status(childComplexity), true
+
 	case "WebhookEventTypeInfo.cloudEventType":
 		if e.ComplexityRoot.WebhookEventTypeInfo.CloudEventType == nil {
 			break
@@ -22012,6 +22116,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WebhookEventTypeInfo.Type(childComplexity), true
+
+	case "WebhookHeader.name":
+		if e.ComplexityRoot.WebhookHeader.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookHeader.Name(childComplexity), true
+
+	case "WebhookHeader.values":
+		if e.ComplexityRoot.WebhookHeader.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookHeader.Values(childComplexity), true
 
 	case "WebhookSubscription.activityLog":
 		if e.ComplexityRoot.WebhookSubscription.ActivityLog == nil {
@@ -23003,6 +23121,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTenantActivityLogFilter,
 		ec.unmarshalInputTenantIssueFilter,
 		ec.unmarshalInputTenantVulnerabilitySummaryFilter,
+		ec.unmarshalInputTestWebhookInput,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
@@ -37670,11 +37789,29 @@ type WebhookDelivery implements Node {
 	"The CloudEvents JSON payload that was sent."
 	requestBody: String!
 
+	"Recorded diagnostic request headers. Credentials and unapproved custom headers are omitted."
+	requestHeaders: [WebhookHeader!]!
+
 	"The HTTP status code returned by the webhook endpoint. Null if the request failed before receiving a response."
 	responseStatus: Int
 
-	"The response body returned by the webhook endpoint. Null if the request failed."
+	"The response body as UTF-8 text. Null when no response was received or the body is not valid UTF-8."
 	responseBody: String
+
+	"Recorded response headers. Known authentication and cookie headers are omitted."
+	responseHeaders: [WebhookHeader!]!
+
+	"Whether the recorded response body was truncated to the 10 KiB limit."
+	responseBodyTruncated: Boolean!
+
+	"A description of a request or response-read failure, if any."
+	errorMessage: String
+
+	"Whether this is a user-triggered test event. Tests make one attempt and never change subscription health."
+	isTest: Boolean!
+
+	"The recorded result and retry information for this attempt, unaffected by later attempts or queue changes."
+	deliveryState: WebhookDeliveryState!
 
 	"How long the delivery took in milliseconds."
 	durationMs: Int!
@@ -37684,6 +37821,32 @@ type WebhookDelivery implements Node {
 
 	"When the delivery was attempted."
 	createdAt: Time!
+}
+
+"A recorded HTTP header and its values."
+type WebhookHeader {
+	"The HTTP header name."
+	name: String!
+	"All recorded values for this header."
+	values: [String!]!
+}
+
+"The recorded result and retry information for one HTTP delivery attempt."
+type WebhookDeliveryState {
+	"Whether this attempt succeeded or failed, regardless of later retries."
+	status: WebhookDeliveryStatus!
+	"The number of attempts made up to and including this attempt. Manual tests always have one attempt."
+	attemptCount: Int!
+	"The retry time scheduled after this failed attempt, if any. This historical timestamp does not change when the retry runs or the subscription is disabled."
+	nextRetryAt: Time
+}
+
+"The outcome of an individual HTTP delivery attempt."
+enum WebhookDeliveryStatus {
+	"This attempt succeeded."
+	COMPLETED
+	"This attempt failed, whether or not a retry was scheduled."
+	FAILED
 }
 
 "A paginated list of webhook deliveries."
@@ -37774,6 +37937,7 @@ extend type Mutation {
 	The owning team can select source teams without permission from those teams, or subscribe to all teams.
 	By default, a team-owned webhook receives only its own team's events.
 	If no owner team slug is provided, the webhook is global and receives all events (admin only).
+	Creation does not send an HTTP request; use testWebhook to check the endpoint.
 	"""
 	createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
 
@@ -37790,6 +37954,25 @@ extend type Mutation {
 	All associated delivery records will also be deleted.
 	"""
 	deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload!
+
+	"""
+	Send a signed synthetic event to an existing webhook and return the recorded result.
+	Requires permission to update the webhook. Allowed even when the webhook is disabled.
+	Limited to one test per subscription every 30 seconds. Tests are not retried and do not affect automatic disabling.
+	"""
+	testWebhook(input: TestWebhookInput!): TestWebhookPayload!
+}
+
+"Input for sending a webhook test event."
+input TestWebhookInput {
+	"The ID of the webhook subscription to test."
+	id: ID!
+}
+
+"The result of a single manual webhook test."
+type TestWebhookPayload {
+	"The recorded attempt, including failures."
+	delivery: WebhookDelivery!
 }
 
 "Input for creating a new webhook subscription."
@@ -43139,6 +43322,14 @@ func (ec *executionContext) childFields_TenantVulnerabilitySummary(ctx context.C
 	return nil, fmt.Errorf("no field named %q was found under type TenantVulnerabilitySummary", field.Name)
 }
 
+func (ec *executionContext) childFields_TestWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "delivery":
+		return ec.fieldContext_TestWebhookPayload_delivery(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TestWebhookPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_TriggerJobPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "job":
@@ -43813,10 +44004,22 @@ func (ec *executionContext) childFields_WebhookDelivery(ctx context.Context, fie
 		return ec.fieldContext_WebhookDelivery_eventType(ctx, field)
 	case "requestBody":
 		return ec.fieldContext_WebhookDelivery_requestBody(ctx, field)
+	case "requestHeaders":
+		return ec.fieldContext_WebhookDelivery_requestHeaders(ctx, field)
 	case "responseStatus":
 		return ec.fieldContext_WebhookDelivery_responseStatus(ctx, field)
 	case "responseBody":
 		return ec.fieldContext_WebhookDelivery_responseBody(ctx, field)
+	case "responseHeaders":
+		return ec.fieldContext_WebhookDelivery_responseHeaders(ctx, field)
+	case "responseBodyTruncated":
+		return ec.fieldContext_WebhookDelivery_responseBodyTruncated(ctx, field)
+	case "errorMessage":
+		return ec.fieldContext_WebhookDelivery_errorMessage(ctx, field)
+	case "isTest":
+		return ec.fieldContext_WebhookDelivery_isTest(ctx, field)
+	case "deliveryState":
+		return ec.fieldContext_WebhookDelivery_deliveryState(ctx, field)
 	case "durationMs":
 		return ec.fieldContext_WebhookDelivery_durationMs(ctx, field)
 	case "success":
@@ -43849,6 +44052,18 @@ func (ec *executionContext) childFields_WebhookDeliveryEdge(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryEdge", field.Name)
 }
 
+func (ec *executionContext) childFields_WebhookDeliveryState(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "status":
+		return ec.fieldContext_WebhookDeliveryState_status(ctx, field)
+	case "attemptCount":
+		return ec.fieldContext_WebhookDeliveryState_attemptCount(ctx, field)
+	case "nextRetryAt":
+		return ec.fieldContext_WebhookDeliveryState_nextRetryAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryState", field.Name)
+}
+
 func (ec *executionContext) childFields_WebhookEventTypeInfo(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "type":
@@ -43863,6 +44078,16 @@ func (ec *executionContext) childFields_WebhookEventTypeInfo(ctx context.Context
 		return ec.fieldContext_WebhookEventTypeInfo_teamScoped(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WebhookEventTypeInfo", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookHeader(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_WebhookHeader_name(ctx, field)
+	case "values":
+		return ec.fieldContext_WebhookHeader_values(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookHeader", field.Name)
 }
 
 func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
