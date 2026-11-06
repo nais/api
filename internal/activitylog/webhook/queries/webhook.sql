@@ -336,7 +336,8 @@ WITH
 				FROM
 					webhook_event_deliveries
 				WHERE
-					(
+					status IN ('pending', 'processing')
+					AND (
 						(
 							status = 'pending'
 							AND run_at <= NOW()
