@@ -100,13 +100,48 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("SECRET_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_ADDED", activityLogEntryActionAddSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_UPDATED", activityLogEntryActionUpdateSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUE_REMOVED", activityLogEntryActionRemoveSecretValue, activityLogEntryResourceTypeSecret)
-	activitylog.RegisterFilter("SECRET_VALUES_VIEWED", activityLogEntryActionViewSecretValues, activityLogEntryResourceTypeSecret)
+	activitylog.RegisterActivityType(
+		"SECRET_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret is created."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret is deleted."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUE_ADDED",
+		activityLogEntryActionAddSecretValue,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret value is added."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUE_UPDATED",
+		activityLogEntryActionUpdateSecretValue,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret value is updated."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUE_REMOVED",
+		activityLogEntryActionRemoveSecretValue,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when a secret value is removed."),
+	)
+	activitylog.RegisterActivityType(
+		"SECRET_VALUES_VIEWED",
+		activityLogEntryActionViewSecretValues,
+		activityLogEntryResourceTypeSecret,
+		activitylog.WithDescription("Triggered when secret values are viewed."),
+	)
 }
 
 type SecretCreatedActivityLogEntry struct {
@@ -115,44 +150,44 @@ type SecretCreatedActivityLogEntry struct {
 
 type SecretUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretUpdatedActivityLogEntryData
+	Data *SecretUpdatedActivityLogEntryData `json:"data"`
 }
 
 type SecretUpdatedActivityLogEntryData struct {
-	UpdatedFields []*SecretUpdatedActivityLogEntryDataUpdatedField
+	UpdatedFields []*SecretUpdatedActivityLogEntryDataUpdatedField `json:"updatedFields"`
 }
 
 type SecretUpdatedActivityLogEntryDataUpdatedField struct {
-	Field    string
-	OldValue *string
-	NewValue *string
+	Field    string  `json:"field"`
+	OldValue *string `json:"oldValue"`
+	NewValue *string `json:"newValue"`
 }
 
 type SecretValueAddedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueAddedActivityLogEntryData
+	Data *SecretValueAddedActivityLogEntryData `json:"data"`
 }
 
 type SecretValueAddedActivityLogEntryData struct {
-	ValueName string
+	ValueName string `json:"valueName"`
 }
 
 type SecretValueUpdatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueUpdatedActivityLogEntryData
+	Data *SecretValueUpdatedActivityLogEntryData `json:"data"`
 }
 
 type SecretValueUpdatedActivityLogEntryData struct {
-	ValueName string
+	ValueName string `json:"valueName"`
 }
 
 type SecretValueRemovedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValueRemovedActivityLogEntryData
+	Data *SecretValueRemovedActivityLogEntryData `json:"data"`
 }
 
 type SecretValueRemovedActivityLogEntryData struct {
-	ValueName string
+	ValueName string `json:"valueName"`
 }
 
 type SecretDeletedActivityLogEntry struct {
@@ -161,10 +196,10 @@ type SecretDeletedActivityLogEntry struct {
 
 type SecretValuesViewedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
-	Data *SecretValuesViewedActivityLogEntryData
+	Data *SecretValuesViewedActivityLogEntryData `json:"data"`
 }
 
 type SecretValuesViewedActivityLogEntryData struct {
-	Reason      string
-	ElevationID string
+	Reason      string `json:"reason"`
+	ElevationID string `json:"elevationID"`
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/deployment/deploymentactivity"
 	"github.com/nais/api/internal/github/repository"
 	"github.com/nais/api/internal/graph/model"
@@ -560,6 +561,27 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case webhook.WebhookUpdatedActivityLogEntry:
+		return ec._WebhookUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *webhook.WebhookUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookUpdatedActivityLogEntry(ctx, sel, obj)
+	case webhook.WebhookDeletedActivityLogEntry:
+		return ec._WebhookDeletedActivityLogEntry(ctx, sel, &obj)
+	case *webhook.WebhookDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookDeletedActivityLogEntry(ctx, sel, obj)
+	case webhook.WebhookCreatedActivityLogEntry:
+		return ec._WebhookCreatedActivityLogEntry(ctx, sel, &obj)
+	case *webhook.WebhookCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookCreatedActivityLogEntry(ctx, sel, obj)
 	case vulnerability.VulnerabilityUpdatedActivityLogEntry:
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *vulnerability.VulnerabilityUpdatedActivityLogEntry:
@@ -1117,6 +1139,13 @@ func (ec *executionContext) _ActivityLogger(ctx context.Context, sel ast.Selecti
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
+	case webhook.WebhookSubscription:
+		return ec._WebhookSubscription(ctx, sel, &obj)
+	case *webhook.WebhookSubscription:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookSubscription(ctx, sel, obj)
 	case team.Team:
 		return ec._Team(ctx, sel, &obj)
 	case *team.Team:
