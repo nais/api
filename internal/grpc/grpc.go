@@ -21,7 +21,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresBranchWatcher *watchers.PostgresBranchWatcher, log logrus.FieldLogger) error {
+func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresBranchWatcher *watchers.PostgresBranchWatcher, postgresWatcher *watchers.PostgresWatcher, log logrus.FieldLogger) error {
 	log.Info("GRPC serving on ", listenAddress)
 	lis, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -37,7 +37,7 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatab
 	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
 	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
 	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
-	protoapi.RegisterDatabasesServer(s, grpcdatabase.NewServer(sqlDatabaseWatcher, postgresBranchWatcher))
+	protoapi.RegisterDatabasesServer(s, grpcdatabase.NewServer(sqlDatabaseWatcher, postgresBranchWatcher, postgresWatcher))
 	protoapi.RegisterServiceAccountsServer(s, grpcserviceaccount.NewServer(pool))
 
 	g, ctx := errgroup.WithContext(ctx)

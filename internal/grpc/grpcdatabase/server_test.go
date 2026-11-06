@@ -204,6 +204,7 @@ func newServer(t *testing.T, ctx context.Context) *grpcdatabase.Server {
 
 	sqlDatabaseWatcher := sqlinstance.NewDatabaseWatcher(ctx, mgr)
 	postgresBranchWatcher := postgres.NewPostgresBranchWatcher(ctx, mgr)
+	postgresWatcher := postgres.NewPostgresWatcher(ctx, mgr)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -214,5 +215,6 @@ func newServer(t *testing.T, ctx context.Context) *grpcdatabase.Server {
 	return grpcdatabase.NewServer(
 		(*watchers.SqlDatabaseWatcher)(sqlDatabaseWatcher),
 		(*watchers.PostgresBranchWatcher)(postgresBranchWatcher),
+		(*watchers.PostgresWatcher)(postgresWatcher),
 	)
 }

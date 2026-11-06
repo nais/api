@@ -62,6 +62,7 @@ type PostgresBranch struct {
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
 	Configuration   *PostgresConfiguration `json:"configuration,omitempty"`
+	ClusterName     string                 `json:"-"`
 }
 
 type TeamPostgresFilter struct {
@@ -116,7 +117,14 @@ type Postgres struct {
 	HighAvailability    bool                   `json:"highAvailability"`
 	Resources           PostgresResources      `json:"resources"`
 	Labels              []*model.ResourceLabel `json:"labels"`
+	CreatedAt           time.Time              `json:"createdAt"`
+	directClusterName   *string
+	physicalState       PostgresBranchState
+	configuration       *PostgresConfiguration
 }
+
+// PostgresState shares the established database-state semantics with legacy branches.
+type PostgresState = PostgresBranchState
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
 type PostgresResources struct {
@@ -345,7 +353,7 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		verr.Add("postgres", "Postgres must not be empty.")
 	}
 	if i.Branch == "" {
-		verr.Add("branch", "Branch must not be empty.")
+		i.Branch = nais_io_v1.DefaultBranchName
 	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
@@ -471,8 +479,20 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		return nil, fmt.Errorf("converting Postgres: %w", err)
 	}
 	var active *string
+	var clusterName *string
+	state := PostgresBranchStateProgressing
+	var configuration *PostgresConfiguration
 	if obj.Status != nil && obj.Status.ActiveBranch != "" {
 		active = &obj.Status.ActiveBranch
+	}
+	if obj.Status != nil && obj.Status.ClusterName != "" {
+		if len(validation.IsDNS1123Label(obj.Status.ClusterName)) > 0 {
+			return nil, fmt.Errorf("Postgres %q has invalid clusterName %q", obj.Name, obj.Status.ClusterName)
+		}
+		clusterName = new(obj.Status.ClusterName)
+		active = new(nais_io_v1.DefaultBranchName)
+		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
+		configuration = toPostgresConfiguration(obj.Status.Configuration)
 	}
 	quantity := func(value resource.Quantity) *string {
 		if value.IsZero() {
@@ -492,7 +512,9 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
 		},
-		Labels: model.UserLabels(obj.Labels),
+		Labels:    model.UserLabels(obj.Labels),
+		CreatedAt: obj.CreationTimestamp.Time, directClusterName: clusterName,
+		physicalState: state, configuration: configuration,
 	}, nil
 }
 
@@ -600,6 +622,7 @@ type PostgresAccess struct {
 	TeamSlug           slug.Slug           `json:"-"`
 	EnvironmentName    string              `json:"-"`
 	PostgresBranchName string              `json:"postgresBranch"`
+	PostgresName       string              `json:"-"`
 	Username           string              `json:"username"`
 	AccessLevel        PostgresAccessLevel `json:"accessLevel"`
 	ExpiresAt          time.Time           `json:"expiresAt"`

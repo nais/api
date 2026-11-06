@@ -181,7 +181,7 @@ type PostgresParameter {
 	value: String!
 }
 
-"A Postgres whose active branch can change."
+"A managed Postgres database."
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
@@ -191,6 +191,31 @@ type Postgres implements Node {
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
+	"When this Postgres was created."
+	createdAt: Time!
+	"Observed database state; availability does not guarantee successful client connections."
+	state: PostgresState!
+	"Observed PostgreSQL configuration, when available."
+	configuration: PostgresConfiguration
+	"Physical cluster name, when available."
+	clusterName: String
+	"Earliest point in time covered by available backups, when known."
+	earliestRestoreTime: Time
+	"Issues reported for this database."
+	issues(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Order issues."
+		orderBy: IssueOrder
+		"Filter issues."
+		filter: ResourceIssueFilter
+	): IssueConnection!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
 	"Names of PostgreSQL extensions configured for this Postgres."
@@ -228,10 +253,22 @@ type Postgres implements Node {
 	labels: [ResourceLabel!]!
 }
 
+"Observed state of a Postgres database."
+enum PostgresState {
+	"The database reports that it is available."
+	AVAILABLE
+	"The database is being provisioned or reconciled."
+	PROGRESSING
+	"The database reports an error requiring intervention."
+	DEGRADED
+}
+
 "A workload referencing a Postgres and the branch it uses."
 type PostgresWorkload {
 	"The application or job referencing this Postgres."
 	workload: Workload!
+	"The database referenced by this workload."
+	postgres: Postgres!
 	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
 	branch: PostgresBranch!
 }
@@ -714,13 +751,16 @@ type CreatePostgresAccessPayload {
 
 "Input for creating a time-limited personal Postgres access."
 input CreatePostgresAccessInput {
-	"Name of the Postgres containing the branch."
+	"Name of the Postgres to access."
 	postgres: String!
-	"Local name of the branch to access."
-	branch: String!
-	"Team that owns the Postgres branch."
+	"Legacy branch selection. Omit for normal database access."
+	branch: String
+		@deprecated(
+			reason: "Branch selection is being removed. Omit this field to access the database."
+		)
+	"Team that owns the Postgres."
 	teamSlug: Slug!
-	"Environment containing the Postgres branch."
+	"Environment containing the Postgres."
 	environmentName: String!
 	"Privileges requested for the personal database role."
 	accessLevel: PostgresAccessLevel!
@@ -828,7 +868,7 @@ type TeamInventoryCountPostgresBranches {
 	total: Int!
 }
 
-"A time-limited personal access request for a Postgres branch."
+"A time-limited personal access request for a Postgres database."
 type PostgresAccess implements Node {
 	"Opaque ID for this PostgresAccess resource."
 	id: ID!
@@ -838,8 +878,10 @@ type PostgresAccess implements Node {
 	team: Team!
 	"Environment for the access."
 	teamEnvironment: TeamEnvironment!
-	"PostgresBranch selected by this access."
-	postgresBranch: PostgresBranch!
+	"Postgres selected by this access."
+	postgres: Postgres!
+	"Legacy branch view of the database selected by this access."
+	postgresBranch: PostgresBranch! @deprecated(reason: "Use postgres instead.")
 	"Requested access level."
 	accessLevel: PostgresAccessLevel!
 	"Server-controlled expiry for this personal access."

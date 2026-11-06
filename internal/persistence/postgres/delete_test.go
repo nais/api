@@ -263,7 +263,8 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
+	postgresWatcher := NewPostgresWatcher(ctx, mgr)
+	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
 		Postgres: "foobar", Branch: "missing", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,
