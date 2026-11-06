@@ -28076,26 +28076,17 @@ type LogLineLabel {
 }
 `, BuiltIn: false},
 	{Name: "../schema/logging.graphqls", Input: `extend interface Workload {
-	"""
-	Configured log destinations for the workload, including Team Logs when outbound access is configured.
-	Team Logs access does not confirm log delivery and is independent of standard log forwarding.
-	"""
+	"List of log destinations for the workload."
 	logDestinations: [LogDestination!]!
 }
 
 extend type Application {
-	"""
-	Configured log destinations for the application, including Team Logs when outbound access is configured.
-	Team Logs access does not confirm log delivery and is independent of standard log forwarding.
-	"""
+	"List of log destinations for the application."
 	logDestinations: [LogDestination!]!
 }
 
 extend type Job {
-	"""
-	Configured log destinations for the job, including Team Logs when outbound access is configured.
-	Team Logs access does not confirm log delivery and is independent of standard log forwarding.
-	"""
+	"List of log destinations for the job."
 	logDestinations: [LogDestination!]!
 }
 
@@ -28111,7 +28102,6 @@ type LogDestinationLoki implements LogDestination & Node {
 	grafanaURL: String!
 }
 
-"Secure logs selected explicitly, by the environment default, or through configured Team Logs access."
 type LogDestinationSecureLogs implements LogDestination & Node {
 	"The globally unique ID of the log destination."
 	id: ID!
