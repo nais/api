@@ -311,6 +311,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.ValkeyMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.WebhookSubscription.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.WebhookSubscription.Deliveries = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}

@@ -3,12 +3,15 @@ package webhook
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/database"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
@@ -49,12 +52,39 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 		return nil, err
 	}
 
-	row, err := db(ctx).CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-		TeamSlug:   input.TeamSlug,
-		Url:        input.URL,
-		Secret:     input.Secret,
-		EventTypes: input.EventTypes,
-		CreatedBy:  actor.User.Identity(),
+	sourceTeamSlugs := input.SourceTeamSlugs
+	if sourceTeamSlugs == nil && input.TeamSlug != nil {
+		sourceTeamSlugs = []slug.Slug{*input.TeamSlug}
+	}
+	sourceTeamSlugs, err := validateSourceTeams(input.TeamSlug, sourceTeamSlugs)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateSourceTeamsExist(ctx, sourceTeamSlugs); err != nil {
+		return nil, err
+	}
+
+	var row *webhooksql.WebhookSubscription
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		row, err = db(ctx).CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			TeamSlug:        input.TeamSlug,
+			SourceTeamSlugs: sourceTeamSlugs,
+			Url:             input.URL,
+			Secret:          input.Secret,
+			EventTypes:      input.EventTypes,
+			CreatedBy:       actor.User.Identity(),
+		})
+		if err != nil {
+			return err
+		}
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.ActivityLogEntryActionCreated,
+			Actor:        actor.User,
+			ResourceType: ActivityLogEntryResourceTypeWebhook,
+			ResourceName: row.ID.String(),
+			TeamSlug:     row.TeamSlug,
+		})
 	})
 	if err != nil {
 		return nil, fmt.Errorf("creating webhook subscription: %w", err)
@@ -93,12 +123,41 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 		}
 	}
 
-	row, err := db(ctx).UpdateSubscription(ctx, webhooksql.UpdateSubscriptionParams{
-		ID:         uid,
-		Url:        input.URL,
-		Secret:     input.Secret,
-		EventTypes: input.EventTypes,
-		Enabled:    input.Enabled,
+	var sourceTeamSlugs []slug.Slug
+	if input.SourceTeamSlugs != nil {
+		sourceTeamSlugs, err = validateSourceTeams(existing.TeamSlug, input.SourceTeamSlugs)
+		if err != nil {
+			return nil, err
+		}
+		if err := validateSourceTeamsExist(ctx, sourceTeamSlugs); err != nil {
+			return nil, err
+		}
+	}
+
+	var row *webhooksql.WebhookSubscription
+	err = database.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		row, err = db(ctx).UpdateSubscription(ctx, webhooksql.UpdateSubscriptionParams{
+			ID:              uid,
+			SourceTeamSlugs: sourceTeamSlugs,
+			Url:             input.URL,
+			Secret:          input.Secret,
+			EventTypes:      input.EventTypes,
+			Enabled:         input.Enabled,
+		})
+		if err != nil {
+			return err
+		}
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.ActivityLogEntryActionUpdated,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: ActivityLogEntryResourceTypeWebhook,
+			ResourceName: row.ID.String(),
+			TeamSlug:     row.TeamSlug,
+			Data: &WebhookUpdatedActivityLogEntryData{
+				UpdatedFields: webhookUpdatedFields(existing, toGraphSubscription(row)),
+			},
+		})
 	})
 	if err != nil {
 		return nil, fmt.Errorf("updating webhook subscription: %w", err)
@@ -124,7 +183,18 @@ func Delete(ctx context.Context, input DeleteWebhookInput) (*DeleteWebhookPayloa
 		return nil, err
 	}
 
-	if err := db(ctx).DeleteSubscription(ctx, uid); err != nil {
+	if err := database.Transaction(ctx, func(ctx context.Context) error {
+		if err := db(ctx).DeleteSubscription(ctx, uid); err != nil {
+			return err
+		}
+		return activitylog.Create(ctx, activitylog.CreateInput{
+			Action:       activitylog.ActivityLogEntryActionDeleted,
+			Actor:        authz.ActorFromContext(ctx).User,
+			ResourceType: ActivityLogEntryResourceTypeWebhook,
+			ResourceName: existing.UUID.String(),
+			TeamSlug:     existing.TeamSlug,
+		})
+	}); err != nil {
 		return nil, fmt.Errorf("deleting webhook subscription: %w", err)
 	}
 
@@ -204,9 +274,19 @@ func toGraphSubscription(row *webhooksql.WebhookSubscription) *WebhookSubscripti
 		disabledAt = &row.DisabledAt.Time
 	}
 
+	sourceTeamSlugs := row.SourceTeamSlugs
+	// Older instances may still create own-team webhooks during a rolling deployment.
+	if sourceTeamSlugs == nil {
+		sourceTeamSlugs = []slug.Slug{}
+		if row.TeamSlug != nil {
+			sourceTeamSlugs = []slug.Slug{*row.TeamSlug}
+		}
+	}
+
 	return &WebhookSubscription{
 		UUID:                row.ID,
 		TeamSlug:            row.TeamSlug,
+		SourceTeamSlugs:     sourceTeamSlugs,
 		URL:                 row.Url,
 		Secret:              row.Secret,
 		EventTypes:          row.EventTypes,
@@ -217,6 +297,41 @@ func toGraphSubscription(row *webhooksql.WebhookSubscription) *WebhookSubscripti
 		CreatedAt:           row.CreatedAt.Time,
 		UpdatedAt:           row.UpdatedAt.Time,
 	}
+}
+
+func validateSourceTeams(owner *slug.Slug, sourceTeamSlugs []slug.Slug) ([]slug.Slug, error) {
+	if owner == nil {
+		if len(sourceTeamSlugs) > 0 {
+			return nil, apierror.Errorf("Global webhooks cannot select source teams.")
+		}
+		return []slug.Slug{}, nil
+	}
+	result := make([]slug.Slug, 0, len(sourceTeamSlugs))
+	for _, s := range sourceTeamSlugs {
+		if err := s.Validate(); err != nil {
+			return nil, err
+		}
+		if !slices.Contains(result, s) {
+			result = append(result, s)
+		}
+	}
+	return result, nil
+}
+
+func validateSourceTeamsExist(ctx context.Context, sourceTeamSlugs []slug.Slug) error {
+	if len(sourceTeamSlugs) == 0 {
+		return nil
+	}
+	existing, err := db(ctx).ListExistingSourceTeams(ctx, sourceTeamSlugs)
+	if err != nil {
+		return fmt.Errorf("validating webhook source teams: %w", err)
+	}
+	for _, s := range sourceTeamSlugs {
+		if !slices.Contains(existing, s) {
+			return apierror.Errorf("Source team %q does not exist.", s)
+		}
+	}
+	return nil
 }
 
 func toGraphDelivery(row *webhooksql.WebhookDelivery) *WebhookDelivery {
@@ -239,14 +354,6 @@ func toGraphDelivery(row *webhooksql.WebhookDelivery) *WebhookDelivery {
 		Success:        row.Success,
 		CreatedAt:      row.CreatedAt.Time,
 	}
-}
-
-// MaskedSecret returns the secret with all but the last 4 characters masked.
-func MaskedSecret(secret string) string {
-	if len(secret) <= 4 {
-		return "****"
-	}
-	return "****" + secret[len(secret)-4:]
 }
 
 func validateEventTypes(teamSlug *slug.Slug, eventTypes []string) error {

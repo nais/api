@@ -1,13 +1,16 @@
 """
 A webhook subscription that receives HTTP callbacks when activity log events occur.
-Webhooks can be scoped to a specific team or registered globally.
+Team-owned webhooks receive events from selected teams or all teams. Global webhooks also receive global events.
 """
 type WebhookSubscription implements Node {
 	"Globally unique ID of the webhook subscription."
 	id: ID!
 
-	"The team this webhook is scoped to. Null for global webhooks."
+	"The team that owns and manages this webhook. Null for admin-only global webhooks."
 	teamSlug: Slug
+
+	"The teams whose events this webhook receives. Empty means all teams. Team-owned webhooks never receive global events."
+	sourceTeamSlugs: [Slug!]!
 
 	"The URL that will receive webhook HTTP POST requests."
 	url: String!
@@ -33,8 +36,8 @@ type WebhookSubscription implements Node {
 	"When the webhook was last updated."
 	updatedAt: Time!
 
-	"The masked signing secret. Only the last 4 characters are visible."
-	maskedSecret: String!
+	"Whether a signing secret is set. The stored secret is never returned."
+	hasSecret: Boolean!
 
 	"Recent delivery attempts for this webhook."
 	deliveries(
@@ -187,15 +190,16 @@ extend type Mutation {
 	"""
 	Create a new webhook subscription.
 
-	If a team slug is provided, the webhook will only receive events for that team.
-	If no team slug is provided, the webhook is global and receives all events (admin only).
+	The owning team can select source teams without permission from those teams, or subscribe to all teams.
+	By default, a team-owned webhook receives only its own team's events.
+	If no owner team slug is provided, the webhook is global and receives all events (admin only).
 	"""
 	createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
 
 	"""
 	Update an existing webhook subscription.
 
-	Can be used to change the URL, secret, event types, or enabled status.
+	Can be used to change the source teams, URL, secret, event types, or enabled status. Ownership cannot be changed.
 	"""
 	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
 
@@ -209,8 +213,11 @@ extend type Mutation {
 
 "Input for creating a new webhook subscription."
 input CreateWebhookInput {
-	"The team slug to scope this webhook to. Omit for a global webhook."
+	"The team that owns and manages this webhook. Omit for an admin-only global webhook."
 	teamSlug: Slug
+
+	"The teams whose events to receive. Omit or pass null to receive only the owner's events. An empty list selects all teams, excluding global events for team-owned webhooks."
+	sourceTeamSlugs: [Slug!]
 
 	"The URL that will receive webhook HTTP POST requests."
 	url: String!
@@ -233,10 +240,13 @@ input UpdateWebhookInput {
 	"The ID of the webhook subscription to update."
 	id: ID!
 
+	"The teams whose events to receive. Omit or pass null to keep the current selection. An empty list selects all teams, excluding global events for team-owned webhooks."
+	sourceTeamSlugs: [Slug!]
+
 	"The new URL for the webhook. Null to keep the current value."
 	url: String
 
-	"The new secret for signing. Null to keep the current value."
+	"The replacement signing secret. Omit or pass null to keep the current secret. The stored secret is never returned."
 	secret: String
 
 	"The new event types to subscribe to. Null to keep the current value."
@@ -262,4 +272,104 @@ input DeleteWebhookInput {
 type DeleteWebhookPayload {
 	"The ID of the deleted webhook subscription."
 	webhookID: ID!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A webhook subscription."
+	WEBHOOK
+}
+
+extend enum ActivityLogActivityType {
+	"A webhook subscription was created."
+	WEBHOOK_CREATED
+
+	"A webhook subscription was updated."
+	WEBHOOK_UPDATED
+
+	"A webhook subscription was deleted."
+	WEBHOOK_DELETED
+}
+
+"An activity log entry for creating a webhook subscription."
+type WebhookCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who created the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+}
+
+"An activity log entry for updating a webhook subscription."
+type WebhookUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who updated the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+	"The fields changed by the update. Signing secrets and endpoint URL values are never included."
+	data: WebhookUpdatedActivityLogEntryData!
+}
+
+"Details of a webhook subscription update."
+type WebhookUpdatedActivityLogEntryData {
+	"The fields whose values changed. Empty when the update made no changes."
+	updatedFields: [WebhookUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A changed webhook subscription field."
+type WebhookUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+	"The previous value. Null for signing secrets and endpoint URLs."
+	oldValue: String
+	"The replacement value. Null for signing secrets and endpoint URLs."
+	newValue: String
+}
+
+"An activity log entry for deleting a webhook subscription."
+type WebhookDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who deleted the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
 }

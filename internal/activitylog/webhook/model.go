@@ -12,20 +12,23 @@ import (
 )
 
 type WebhookSubscription struct {
-	UUID                uuid.UUID  `json:"id"`
-	TeamSlug            *slug.Slug `json:"teamSlug,omitempty"`
-	URL                 string     `json:"url"`
-	Secret              string     `json:"-"`
-	EventTypes          []string   `json:"eventTypes"`
-	Enabled             bool       `json:"enabled"`
-	ConsecutiveFailures int        `json:"consecutiveFailures"`
-	DisabledAt          *time.Time `json:"disabledAt,omitempty"`
-	CreatedBy           string     `json:"createdBy"`
-	CreatedAt           time.Time  `json:"createdAt"`
-	UpdatedAt           time.Time  `json:"updatedAt"`
+	UUID                uuid.UUID   `json:"id"`
+	TeamSlug            *slug.Slug  `json:"teamSlug,omitempty"`
+	SourceTeamSlugs     []slug.Slug `json:"sourceTeamSlugs"`
+	URL                 string      `json:"url"`
+	Secret              string      `json:"-"`
+	EventTypes          []string    `json:"eventTypes"`
+	Enabled             bool        `json:"enabled"`
+	ConsecutiveFailures int         `json:"consecutiveFailures"`
+	DisabledAt          *time.Time  `json:"disabledAt,omitempty"`
+	CreatedBy           string      `json:"createdBy"`
+	CreatedAt           time.Time   `json:"createdAt"`
+	UpdatedAt           time.Time   `json:"updatedAt"`
 }
 
 func (WebhookSubscription) IsNode() {}
+
+func (WebhookSubscription) IsActivityLogger() {}
 
 func (w WebhookSubscription) ID() ident.Ident {
 	return newSubscriptionIdent(w.UUID)
@@ -60,10 +63,11 @@ type (
 )
 
 type CreateWebhookInput struct {
-	TeamSlug   *slug.Slug `json:"teamSlug,omitempty"`
-	URL        string     `json:"url"`
-	Secret     string     `json:"secret"`
-	EventTypes []string   `json:"eventTypes"`
+	TeamSlug        *slug.Slug  `json:"teamSlug,omitempty"`
+	SourceTeamSlugs []slug.Slug `json:"sourceTeamSlugs,omitempty"`
+	URL             string      `json:"url"`
+	Secret          string      `json:"secret"`
+	EventTypes      []string    `json:"eventTypes"`
 }
 
 type CreateWebhookPayload struct {
@@ -71,11 +75,12 @@ type CreateWebhookPayload struct {
 }
 
 type UpdateWebhookInput struct {
-	ID         ident.Ident `json:"id"`
-	URL        *string     `json:"url,omitempty"`
-	Secret     *string     `json:"secret,omitempty"`
-	EventTypes []string    `json:"eventTypes,omitempty"`
-	Enabled    *bool       `json:"enabled,omitempty"`
+	ID              ident.Ident `json:"id"`
+	SourceTeamSlugs []slug.Slug `json:"sourceTeamSlugs,omitempty"`
+	URL             *string     `json:"url,omitempty"`
+	Secret          *string     `json:"secret,omitempty"`
+	EventTypes      []string    `json:"eventTypes,omitempty"`
+	Enabled         *bool       `json:"enabled,omitempty"`
 }
 
 type UpdateWebhookPayload struct {
@@ -120,10 +125,8 @@ func (w *WebhookSubscription) MatchesEvent(event WebhookEvent) bool {
 		return false
 	}
 
-	// Global webhooks (no team) match all events.
-	// Team-scoped webhooks only match events for that team.
 	if w.TeamSlug != nil {
-		if event.TeamSlug == nil || *w.TeamSlug != *event.TeamSlug {
+		if event.TeamSlug == nil || (len(w.SourceTeamSlugs) > 0 && !slices.Contains(w.SourceTeamSlugs, *event.TeamSlug)) {
 			return false
 		}
 	}

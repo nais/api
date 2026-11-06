@@ -186,4 +186,5 @@ type WebhookSubscription struct {
 	CreatedBy           string
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
+	SourceTeamSlugs     []slug.Slug
 }

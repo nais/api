@@ -38,9 +38,10 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "team-scoped subscription matches same team and type",
 			sub: WebhookSubscription{
-				Enabled:    true,
-				TeamSlug:   &teamA,
-				EventTypes: []string{"TEAM_MEMBER_ADDED"},
+				Enabled:         true,
+				TeamSlug:        &teamA,
+				SourceTeamSlugs: []slug.Slug{teamA},
+				EventTypes:      []string{"TEAM_MEMBER_ADDED"},
 			},
 			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  true,
@@ -48,9 +49,10 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "team-scoped subscription does not match a different team",
 			sub: WebhookSubscription{
-				Enabled:    true,
-				TeamSlug:   &teamA,
-				EventTypes: []string{"*"},
+				Enabled:         true,
+				TeamSlug:        &teamA,
+				SourceTeamSlugs: []slug.Slug{teamA},
+				EventTypes:      []string{"*"},
 			},
 			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
@@ -58,9 +60,10 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "team-scoped subscription does not match event with no team",
 			sub: WebhookSubscription{
-				Enabled:    true,
-				TeamSlug:   &teamA,
-				EventTypes: []string{"*"},
+				Enabled:         true,
+				TeamSlug:        &teamA,
+				SourceTeamSlugs: []slug.Slug{teamA},
+				EventTypes:      []string{"*"},
 			},
 			event: WebhookEvent{TeamSlug: nil, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
@@ -68,9 +71,10 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "subscription event types include one of the event's activity types",
 			sub: WebhookSubscription{
-				Enabled:    true,
-				TeamSlug:   &teamA,
-				EventTypes: []string{"TEAM_MEMBER_REMOVED", "TEAM_MEMBER_ADDED"},
+				Enabled:         true,
+				TeamSlug:        &teamA,
+				SourceTeamSlugs: []slug.Slug{teamA},
+				EventTypes:      []string{"TEAM_MEMBER_REMOVED", "TEAM_MEMBER_ADDED"},
 			},
 			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  true,
@@ -78,11 +82,60 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "subscription event types do not include any of the event's activity types",
 			sub: WebhookSubscription{
-				Enabled:    true,
-				TeamSlug:   &teamA,
-				EventTypes: []string{"TEAM_MEMBER_REMOVED"},
+				Enabled:         true,
+				TeamSlug:        &teamA,
+				SourceTeamSlugs: []slug.Slug{teamA},
+				EventTypes:      []string{"TEAM_MEMBER_REMOVED"},
 			},
 			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
+			want:  false,
+		},
+		{
+			name: "owner can subscribe to another team without subscribing to itself",
+			sub: WebhookSubscription{
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamB}, EventTypes: []string{"*"},
+			},
+			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
+			want:  true,
+		},
+		{
+			name: "owner is not implicitly included in explicit source teams",
+			sub: WebhookSubscription{
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamB}, EventTypes: []string{"*"},
+			},
+			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
+			want:  false,
+		},
+		{
+			name: "multiple source teams match",
+			sub: WebhookSubscription{
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamA, teamB}, EventTypes: []string{"*"},
+			},
+			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
+			want:  true,
+		},
+		{
+			name: "all teams matches another team",
+			sub: WebhookSubscription{
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, EventTypes: []string{"*"},
+			},
+			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
+			want:  true,
+		},
+		{
+			name: "all teams excludes global events",
+			sub: WebhookSubscription{
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, EventTypes: []string{"*"},
+			},
+			event: WebhookEvent{ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
+			want:  false,
+		},
+		{
+			name: "all teams still filters event types",
+			sub: WebhookSubscription{
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, EventTypes: []string{"TEAM_MEMBER_REMOVED"},
+			},
+			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
 		},
 	}

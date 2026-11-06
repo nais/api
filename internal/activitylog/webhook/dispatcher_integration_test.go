@@ -9,21 +9,25 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/activitylogsql"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/database"
 	"github.com/nais/api/internal/database/notify"
 	"github.com/nais/api/internal/slug"
+	"github.com/pressly/goose/v3"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/testcontainers/testcontainers-go"
@@ -47,6 +51,105 @@ func TestDispatcherIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to start postgres container: %v", err)
 	}
+
+	t.Run("source migration preserves legacy subscriptions and rolling deployment inserts", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		sqlDB := stdlib.OpenDBFromPool(pool)
+		defer sqlDB.Close()
+		provider, err := goose.NewProvider(goose.DialectPostgres, sqlDB, os.DirFS("../../database/migrations"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := provider.DownTo(ctx, 82); err != nil {
+			t.Fatal(err)
+		}
+		owner := slug.Slug("team-owner")
+		createTeam(ctx, t, pool, owner.String())
+		legacy, global, rolling := uuid.New(), uuid.New(), uuid.New()
+		insertLegacy := func(id uuid.UUID, team *slug.Slug) {
+			t.Helper()
+			if _, err := pool.Exec(ctx, `
+				INSERT INTO webhook_subscriptions (id, team_slug, url, secret, event_types, created_by)
+				VALUES ($1, $2, 'https://subscriber.example.test', 'secret', ARRAY['*'], 'tester')
+			`, id, team); err != nil {
+				t.Fatal(err)
+			}
+		}
+		insertLegacy(legacy, &owner)
+		insertLegacy(global, nil)
+		if _, err := provider.Up(ctx); err != nil {
+			t.Fatal(err)
+		}
+		insertLegacy(rolling, &owner)
+		q := webhooksql.New(pool)
+		for _, id := range []uuid.UUID{legacy, global, rolling} {
+			row, err := q.GetSubscription(ctx, id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if id == legacy {
+				if diff := cmp.Diff([]slug.Slug{owner}, row.SourceTeamSlugs); diff != "" {
+					t.Errorf("unexpected backfilled sources (-want +got):\n%s", diff)
+				}
+			}
+			sub := toGraphSubscription(row)
+			if !sub.MatchesEvent(WebhookEvent{TeamSlug: &owner}) {
+				t.Errorf("legacy subscription no longer matches own-team events: %+v", sub)
+			}
+			if id == global {
+				if len(sub.SourceTeamSlugs) != 0 || !sub.MatchesEvent(WebhookEvent{}) {
+					t.Errorf("global subscription changed scope: %+v", sub)
+				}
+			} else if diff := cmp.Diff([]slug.Slug{owner}, sub.SourceTeamSlugs); diff != "" {
+				t.Errorf("unexpected migrated sources (-want +got):\n%s", diff)
+			}
+		}
+	})
+
+	t.Run("team owner sources fan out independently of ownership", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		owner, other, unrelated := slug.Slug("team-owner"), slug.Slug("team-other"), slug.Slug("team-unrelated")
+		for _, s := range []slug.Slug{owner, other, unrelated} {
+			createTeam(ctx, t, pool, s.String())
+		}
+		q := webhooksql.New(pool)
+		listed, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			TeamSlug: &owner, SourceTeamSlugs: []slug.Slug{other},
+			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"}, CreatedBy: "tester",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		all, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			TeamSlug: &owner, SourceTeamSlugs: []slug.Slug{},
+			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"}, CreatedBy: "tester",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range []*slug.Slug{&owner, &other, &unrelated, nil} {
+			insertActivityLogEntry(ctx, t, pool, s, "resource")
+		}
+		d := newTestDispatcher(t, pool, log)
+		d.fanOutPendingEvents(ctx)
+		deliveries, err := q.ClaimPendingDeliveries(ctx, 10)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := make(map[uuid.UUID][]slug.Slug)
+		for _, row := range deliveries {
+			if row.ActivityLogEntry.TeamSlug == nil {
+				t.Fatal("team-owned subscription received a global event")
+			}
+			got[row.WebhookSubscription.ID] = append(got[row.WebhookSubscription.ID], slug.Slug(*row.ActivityLogEntry.TeamSlug))
+		}
+		if diff := cmp.Diff(map[uuid.UUID][]slug.Slug{
+			listed.ID: {other},
+			all.ID:    {owner, other, unrelated},
+		}, got, cmpopts.SortSlices(func(a, b slug.Slug) bool { return a < b })); diff != "" {
+			t.Errorf("unexpected fanout (-want +got):\n%s", diff)
+		}
+	})
 
 	t.Run("concurrent delivery results disable once and success does not reenable", func(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)

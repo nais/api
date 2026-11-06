@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/nais/api/internal/slug"
 )
 
 type Querier interface {
@@ -27,6 +28,7 @@ type Querier interface {
 	ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookDelivery, error)
 	ListDeliveriesForSubscription(ctx context.Context, arg ListDeliveriesForSubscriptionParams) ([]*ListDeliveriesForSubscriptionRow, error)
 	ListEnabledSubscriptions(ctx context.Context) ([]*WebhookSubscription, error)
+	ListExistingSourceTeams(ctx context.Context, slugs []slug.Slug) ([]slug.Slug, error)
 	ListGlobalSubscriptions(ctx context.Context, arg ListGlobalSubscriptionsParams) ([]*ListGlobalSubscriptionsRow, error)
 	ListSubscriptionsByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookSubscription, error)
 	ListSubscriptionsForTeam(ctx context.Context, arg ListSubscriptionsForTeamParams) ([]*ListSubscriptionsForTeamRow, error)

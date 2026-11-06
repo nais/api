@@ -4,42 +4,47 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/slug"
 )
+
+func TestValidateSourceTeams(t *testing.T) {
+	owner := slug.Slug("team-owner")
+	other := slug.Slug("team-other")
+	for _, tt := range []struct {
+		name    string
+		owner   *slug.Slug
+		teams   []slug.Slug
+		want    []slug.Slug
+		wantErr bool
+	}{
+		{name: "own team", owner: &owner, teams: []slug.Slug{owner}, want: []slug.Slug{owner}},
+		{name: "other teams without owner", owner: &owner, teams: []slug.Slug{other}, want: []slug.Slug{other}},
+		{name: "deduplicate", owner: &owner, teams: []slug.Slug{other, owner, other}, want: []slug.Slug{other, owner}},
+		{name: "all teams", owner: &owner, teams: []slug.Slug{}, want: []slug.Slug{}},
+		{name: "invalid slug", owner: &owner, teams: []slug.Slug{"!"}, wantErr: true},
+		{name: "legacy global", want: []slug.Slug{}},
+		{name: "global cannot select teams", teams: []slug.Slug{other}, wantErr: true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := validateSourceTeams(tt.owner, tt.teams)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("validateSourceTeams() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr {
+				if diff := cmp.Diff(tt.want, got); diff != "" {
+					t.Errorf("unexpected source teams (-want +got):\n%s", diff)
+				}
+			}
+		})
+	}
+}
 
 func init() {
 	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_RESOURCE")
 	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_GLOBAL_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_RESOURCE", activitylog.GlobalOnly())
 	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_IGNORED_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_IGNORED_RESOURCE", activitylog.IgnoreWebhook())
-}
-
-func TestMaskedSecret(t *testing.T) {
-	tests := []struct {
-		secret string
-		want   string
-	}{
-		{"", "****"},
-		{"a", "****"},
-		{"abcd", "****"},
-		{"abcde", "****bcde"},
-		{"supersecretvalue", "****alue"},
-	}
-
-	for _, tt := range tests {
-		if got := MaskedSecret(tt.secret); got != tt.want {
-			t.Errorf("MaskedSecret(%q) = %q, want %q", tt.secret, got, tt.want)
-		}
-	}
-}
-
-func TestMaskedSecret_NeverLeaksMoreThanLastFourChars(t *testing.T) {
-	secret := "supersecretvalue"
-	masked := MaskedSecret(secret)
-
-	if strings.Contains(masked, secret[:len(secret)-4]) {
-		t.Errorf("masked secret %q leaks part of the original secret %q", masked, secret)
-	}
 }
 
 func TestValidateEventTypes_Wildcard(t *testing.T) {
@@ -96,5 +101,29 @@ func TestValidateEventTypes_GlobalWebhookCanSubscribeToAnyValidType(t *testing.T
 	}
 	if err := validateEventTypes(nil, []string{"WEBHOOK_TEST_QUERIES_GLOBAL_EVENT"}); err != nil {
 		t.Errorf("expected no error for a global-only event type on a global webhook, got: %v", err)
+	}
+}
+
+func TestWebhookUpdatedFields(t *testing.T) {
+	before := &WebhookSubscription{
+		URL: "https://old.example.test/token", Secret: "old-secret",
+		EventTypes: []string{"TEAM_UPDATED"}, SourceTeamSlugs: []slug.Slug{"team-owner"}, Enabled: true,
+	}
+	after := &WebhookSubscription{
+		URL: "https://new.example.test/other-token", Secret: "new-secret",
+		EventTypes: []string{"TEAM_MEMBER_ADDED"}, SourceTeamSlugs: []slug.Slug{}, Enabled: false,
+	}
+	want := []*WebhookUpdatedActivityLogEntryDataUpdatedField{
+		{Field: "url"},
+		{Field: "secret"},
+		{Field: "eventTypes", OldValue: new("[TEAM_UPDATED]"), NewValue: new("[TEAM_MEMBER_ADDED]")},
+		{Field: "sourceTeamSlugs", OldValue: new("[team-owner]"), NewValue: new("[]")},
+		{Field: "enabled", OldValue: new("true"), NewValue: new("false")},
+	}
+	if diff := cmp.Diff(want, webhookUpdatedFields(before, after)); diff != "" {
+		t.Errorf("unexpected updated fields (-want +got):\n%s", diff)
+	}
+	if got := webhookUpdatedFields(before, before); len(got) != 0 {
+		t.Errorf("unchanged webhook produced updated fields: %v", got)
 	}
 }

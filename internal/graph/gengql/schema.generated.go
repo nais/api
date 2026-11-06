@@ -6771,6 +6771,34 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Workload(ctx, sel, obj)
+	case webhook.WebhookUpdatedActivityLogEntry:
+		return ec._WebhookUpdatedActivityLogEntry(ctx, sel, &obj)
+	case *webhook.WebhookUpdatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookUpdatedActivityLogEntry(ctx, sel, obj)
+	case webhook.WebhookSubscription:
+		return ec._WebhookSubscription(ctx, sel, &obj)
+	case *webhook.WebhookSubscription:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookSubscription(ctx, sel, obj)
+	case webhook.WebhookDeletedActivityLogEntry:
+		return ec._WebhookDeletedActivityLogEntry(ctx, sel, &obj)
+	case *webhook.WebhookDeletedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookDeletedActivityLogEntry(ctx, sel, obj)
+	case webhook.WebhookCreatedActivityLogEntry:
+		return ec._WebhookCreatedActivityLogEntry(ctx, sel, &obj)
+	case *webhook.WebhookCreatedActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WebhookCreatedActivityLogEntry(ctx, sel, obj)
 	case issue.VulnerableImageIssue:
 		return ec._VulnerableImageIssue(ctx, sel, &obj)
 	case *issue.VulnerableImageIssue:
@@ -7567,13 +7595,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._WorkloadEvent(ctx, sel, obj)
-	case webhook.WebhookSubscription:
-		return ec._WebhookSubscription(ctx, sel, &obj)
-	case *webhook.WebhookSubscription:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._WebhookSubscription(ctx, sel, obj)
 	case webhook.WebhookDelivery:
 		return ec._WebhookDelivery(ctx, sel, &obj)
 	case *webhook.WebhookDelivery:
