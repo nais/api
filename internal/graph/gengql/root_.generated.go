@@ -564,6 +564,7 @@ type ComplexityRoot struct {
 
 	CVE struct {
 		CVSSScore          func(childComplexity int) int
+		CWEs               func(childComplexity int) int
 		Description        func(childComplexity int) int
 		DetailsLink        func(childComplexity int) int
 		EpssPercentile     func(childComplexity int) int
@@ -594,6 +595,12 @@ type ComplexityRoot struct {
 		ImageCount    func(childComplexity int) int
 		PackageCount  func(childComplexity int) int
 		WorkloadCount func(childComplexity int) int
+	}
+
+	CWE struct {
+		ID   func(childComplexity int) int
+		Link func(childComplexity int) int
+		Name func(childComplexity int) int
 	}
 
 	ChangeDeploymentKeyPayload struct {
@@ -5869,6 +5876,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CVE.CVSSScore(childComplexity), true
 
+	case "CVE.cwes":
+		if e.ComplexityRoot.CVE.CWEs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVE.CWEs(childComplexity), true
+
 	case "CVE.description":
 		if e.ComplexityRoot.CVE.Description == nil {
 			break
@@ -6020,6 +6034,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CVEImpact.WorkloadCount(childComplexity), true
+
+	case "CWE.id":
+		if e.ComplexityRoot.CWE.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CWE.ID(childComplexity), true
+
+	case "CWE.link":
+		if e.ComplexityRoot.CWE.Link == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CWE.Link(childComplexity), true
+
+	case "CWE.name":
+		if e.ComplexityRoot.CWE.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CWE.Name(childComplexity), true
 
 	case "ChangeDeploymentKeyPayload.deploymentKey":
 		if e.ComplexityRoot.ChangeDeploymentKeyPayload.DeploymentKey == nil {
@@ -36385,6 +36420,9 @@ type CVE implements Node {
 	"Description of the CVE."
 	description: String!
 
+	"CWE classifications. Only populated on CVE detail lookups; empty when unavailable."
+	cwes: [CWE!]!
+
 	"Link to the CVE details."
 	detailsLink: String!
 
@@ -36429,6 +36467,18 @@ type CVE implements Node {
 		"Order all matching findings before pagination. Defaults to team ascending."
 		orderBy: CVEWorkloadOrder
 	): WorkloadWithVulnerabilityConnection!
+}
+
+"A Common Weakness Enumeration (CWE) classification."
+type CWE {
+	"Numeric CWE identifier, for example 295 for CWE-295."
+	id: Int!
+
+	"Name of the weakness."
+	name: String!
+
+	"Link to the CWE definition."
+	link: String!
 }
 
 "Ordering options for workloads affected by a CVE."
@@ -38221,6 +38271,8 @@ func (ec *executionContext) childFields_CVE(ctx context.Context, field graphql.C
 		return ec.fieldContext_CVE_title(ctx, field)
 	case "description":
 		return ec.fieldContext_CVE_description(ctx, field)
+	case "cwes":
+		return ec.fieldContext_CVE_cwes(ctx, field)
 	case "detailsLink":
 		return ec.fieldContext_CVE_detailsLink(ctx, field)
 	case "cvssScore":
@@ -38275,6 +38327,18 @@ func (ec *executionContext) childFields_CVEImpact(ctx context.Context, field gra
 		return ec.fieldContext_CVEImpact_packageCount(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CVEImpact", field.Name)
+}
+
+func (ec *executionContext) childFields_CWE(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_CWE_id(ctx, field)
+	case "name":
+		return ec.fieldContext_CWE_name(ctx, field)
+	case "link":
+		return ec.fieldContext_CWE_link(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CWE", field.Name)
 }
 
 func (ec *executionContext) childFields_ChangeDeploymentKeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
