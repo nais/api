@@ -3,8 +3,26 @@ package webhook
 import (
 	"testing"
 
+	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/slug"
 )
+
+func TestTeamWildcardExcludesGlobalOnlyEvents(t *testing.T) {
+	const at activitylog.ActivityLogActivityType = "WEBHOOK_TEST_GLOBAL_ONLY"
+	activitylog.RegisterActivityType(at, activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_GLOBAL_ONLY_RESOURCE", activitylog.GlobalOnly())
+	team := slug.Slug("team")
+	event := WebhookEvent{TeamSlug: &team, ActivityTypes: []string{string(at)}}
+	for _, types := range [][]string{{"*"}, {string(at)}} {
+		sub := WebhookSubscription{Enabled: true, TeamSlug: &team, EventTypes: types}
+		if sub.MatchesEvent(event) {
+			t.Error("team subscription matched a global-only event with a team slug")
+		}
+		sub.TeamSlug = nil
+		if !sub.MatchesEvent(event) {
+			t.Error("global subscription must still match global-only events")
+		}
+	}
+}
 
 func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 	teamA := slug.Slug("team-a")

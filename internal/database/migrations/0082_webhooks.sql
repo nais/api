@@ -29,7 +29,7 @@ EXECUTE FUNCTION set_updated_at ()
 CREATE INDEX idx_webhook_subscriptions_team ON webhook_subscriptions (team_slug)
 ;
 
-CREATE INDEX idx_webhook_subscriptions_global ON webhook_subscriptions (id)
+CREATE INDEX idx_webhook_subscriptions_global ON webhook_subscriptions (created_at DESC)
 WHERE
 	team_slug IS NULL
 ;
@@ -69,6 +69,9 @@ CREATE TABLE webhook_event_deliveries (
 	subscription_id UUID NOT NULL REFERENCES webhook_subscriptions (id) ON DELETE CASCADE,
 	status webhook_delivery_status NOT NULL DEFAULT 'pending',
 	retry_count INT NOT NULL DEFAULT 0,
+	attempt_count INT NOT NULL DEFAULT 0,
+	claim_token UUID NOT NULL DEFAULT GEN_RANDOM_UUID(),
+	lease_expires_at TIMESTAMPTZ,
 	run_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	UNIQUE (webhook_event_id, subscription_id)

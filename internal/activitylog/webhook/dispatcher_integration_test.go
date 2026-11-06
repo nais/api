@@ -522,12 +522,19 @@ func TestDispatcherIntegration(t *testing.T) {
 		}
 		del, subRow, entry := rows[0].WebhookEventDelivery, rows[0].WebhookSubscription, rows[0].ActivityLogEntry
 
-		// Drive the same delivery through every retry attempt directly, bypassing the
-		// run_at gate that ClaimPendingDeliveries would otherwise enforce, so the test
-		// doesn't need to wait on real backoff durations.
 		for i := 0; i <= maxRetryCount; i++ {
 			d.processDelivery(ctx, q, &del, &subRow, &entry)
 			del = fetchDeliveryByID(ctx, t, pool, del.ID)
+			if i < maxRetryCount {
+				if _, err := pool.Exec(ctx, `UPDATE webhook_event_deliveries SET run_at = NOW() WHERE id = $1`, del.ID); err != nil {
+					t.Fatal(err)
+				}
+				rows, err = q.ClaimPendingDeliveries(ctx, 1)
+				if err != nil || len(rows) != 1 {
+					t.Fatalf("claiming retry: %v, %v", rows, err)
+				}
+				del = rows[0].WebhookEventDelivery
+			}
 		}
 
 		if del.Status != webhooksql.WebhookDeliveryStatusFailed {
@@ -537,6 +544,76 @@ func TestDispatcherIntegration(t *testing.T) {
 		auditRows := listAuditDeliveries(ctx, t, pool, sub.ID)
 		if len(auditRows) != maxRetryCount+1 {
 			t.Errorf("expected %d audit delivery rows, got %d", maxRetryCount+1, len(auditRows))
+		}
+	})
+
+	t.Run("expired claims recover and reject stale bookkeeping", func(t *testing.T) {
+		pool := getConnection(ctx, t, container, dsn, log)
+		q := webhooksql.New(pool)
+		if _, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
+			Name: "Lease test", Url: "https://hooks.example.com", Secret: "test-secret", EventTypes: []string{"*"},
+		}); err != nil {
+			t.Fatal(err)
+		}
+		insertActivityLogEntry(ctx, t, pool, nil, "lease-test")
+		d := newTestDispatcher(t, pool, log)
+		d.fanOutPendingEvents(ctx)
+		first, err := q.ClaimPendingDeliveries(ctx, 1)
+		if err != nil || len(first) != 1 {
+			t.Fatalf("claiming first delivery: %v, %v", first, err)
+		}
+		old := first[0].WebhookEventDelivery
+		attemptParams := webhooksql.CreateDeliveryParams{
+			SubscriptionID: old.SubscriptionID, WebhookEventDeliveryID: &old.ID,
+			EventType: "LEASE_TEST", RequestBody: []byte("{}"),
+			RequestHeaders: []byte("{}"), ResponseHeaders: []byte("{}"),
+		}
+		firstAttempt, err := q.CreateDelivery(ctx, attemptParams)
+		if err != nil || firstAttempt.AttemptCount != 1 {
+			t.Fatalf("recording first attempt: %v, %v", firstAttempt, err)
+		}
+		if claimed, err := q.ClaimPendingDeliveries(ctx, 1); err != nil || len(claimed) != 0 {
+			t.Fatalf("active claim was stolen: %v, %v", claimed, err)
+		}
+		if _, err := pool.Exec(ctx, `UPDATE webhook_event_deliveries SET lease_expires_at = NOW() - INTERVAL '1 second' WHERE id = $1`, old.ID); err != nil {
+			t.Fatal(err)
+		}
+		recovered, err := q.ClaimPendingDeliveries(ctx, 1)
+		if err != nil || len(recovered) != 1 {
+			t.Fatalf("recovering expired delivery: %v, %v", recovered, err)
+		}
+		current := recovered[0].WebhookEventDelivery
+		if current.ClaimToken == old.ClaimToken || !current.LeaseExpiresAt.Valid {
+			t.Fatal("recovery must issue a new lease and token")
+		}
+		secondAttempt, err := q.CreateDelivery(ctx, attemptParams)
+		if err != nil || secondAttempt.AttemptCount != 2 {
+			t.Fatalf("recovered claim reused an attempt number: %v, %v", secondAttempt, err)
+		}
+		if err := q.MarkDeliveryCompleted(ctx, webhooksql.MarkDeliveryCompletedParams{ID: old.ID, ClaimToken: old.ClaimToken}); err != nil {
+			t.Fatal(err)
+		}
+		if err := q.MarkDeliveryFailed(ctx, webhooksql.MarkDeliveryFailedParams{ID: old.ID, ClaimToken: old.ClaimToken}); err != nil {
+			t.Fatal(err)
+		}
+		if err := q.RequeueDelivery(ctx, webhooksql.RequeueDeliveryParams{
+			ID: old.ID, ClaimToken: old.ClaimToken, RetryCount: 7,
+			RunAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		}); err != nil {
+			t.Fatal(err)
+		}
+		got := fetchDeliveryByID(ctx, t, pool, old.ID)
+		if got.Status != webhooksql.WebhookDeliveryStatusProcessing || got.RetryCount != current.RetryCount {
+			t.Errorf("stale worker changed the recovered job: %+v", got)
+		}
+		entry := recovered[0].ActivityLogEntry
+		entry.Data = []byte("{")
+		d.processDelivery(ctx, q, &current, &recovered[0].WebhookSubscription, &entry)
+		if got := fetchDeliveryByID(ctx, t, pool, current.ID); got.Status != webhooksql.WebhookDeliveryStatusFailed {
+			t.Errorf("invalid payload left delivery stuck: %+v", got)
+		}
+		if attempts := listAuditDeliveries(ctx, t, pool, recovered[0].WebhookSubscription.ID); len(attempts) != 2 {
+			t.Error("payload construction failure must not invent an HTTP attempt")
 		}
 	})
 
@@ -984,10 +1061,11 @@ func waitForDispatcherCondition(t *testing.T, condition func() bool) {
 
 func newTestDispatcher(t *testing.T, pool *pgxpool.Pool, log logrus.FieldLogger) *Dispatcher {
 	t.Helper()
-	d, err := NewDispatcher(pool, notify.New(pool, log), "https://test.example", log)
+	d, err := NewDispatcher(pool, notify.New(pool, log), "https://test.example", "test-tenant", log)
 	if err != nil {
 		t.Fatalf("failed to create dispatcher: %v", err)
 	}
+	d.httpClient.Transport = http.DefaultTransport
 	return d
 }
 

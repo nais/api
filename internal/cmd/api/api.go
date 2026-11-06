@@ -253,11 +253,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	go notifier.Run(ctx)
 
 	// Webhook dispatcher — drains the webhook_events outbox table on PG NOTIFY
-	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://"+cfg.TenantDomain+"/api", log)
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://"+cfg.TenantDomain+"/api", cfg.Tenant, log)
 	if err != nil {
 		return fmt.Errorf("creating webhook dispatcher: %w", err)
 	}
-	go webhookDispatcher.Run(ctx)
+	wg.Go(func() error {
+		webhookDispatcher.Run(ctx)
+		return nil
+	})
 
 	if !cfg.Fakes.WithFakeKubernetes {
 		k8sClients, err := kubernetes.NewClientSets(clusterConfig)
@@ -494,7 +497,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}()
 
 	select {
-	case <-time.After(10 * time.Second):
+	case <-time.After(30 * time.Second):
 		log.Warn("timed out waiting for graceful shutdown")
 	case err := <-ch:
 		return err

@@ -179,6 +179,9 @@ type WebhookEventDelivery struct {
 	SubscriptionID uuid.UUID
 	Status         WebhookDeliveryStatus
 	RetryCount     int32
+	AttemptCount   int32
+	ClaimToken     uuid.UUID
+	LeaseExpiresAt pgtype.Timestamptz
 	RunAt          pgtype.Timestamptz
 	CreatedAt      pgtype.Timestamptz
 }

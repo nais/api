@@ -37721,7 +37721,7 @@ type WebhookSubscription implements Node {
 	"The teams whose events this webhook receives. Empty means all teams. Team-owned webhooks never receive global events."
 	sourceTeamSlugs: [Slug!]!
 
-	"The URL that will receive webhook HTTP POST requests."
+	"The HTTPS URL that will receive webhook HTTP POST requests. Credentials and fragments are not allowed."
 	url: String!
 
 	"The event types this webhook is subscribed to. Use '*' to subscribe to all events."
@@ -37992,7 +37992,7 @@ input CreateWebhookInput {
 	"The teams whose events to receive. Omit or pass null to receive only the owner's events. An empty list selects all teams, excluding global events for team-owned webhooks."
 	sourceTeamSlugs: [Slug!]
 
-	"The URL that will receive webhook HTTP POST requests."
+	"The HTTPS URL that will receive webhook HTTP POST requests. Credentials and fragments are not allowed."
 	url: String!
 
 	"The required secret used for HMAC-SHA256 signing of webhook payloads. Must contain at least 8 characters."
@@ -38019,7 +38019,7 @@ input UpdateWebhookInput {
 	"The teams whose events to receive. Omit or pass null to keep the current selection. An empty list selects all teams, excluding global events for team-owned webhooks."
 	sourceTeamSlugs: [Slug!]
 
-	"The new URL for the webhook. Null to keep the current value."
+	"The new HTTPS URL for the webhook, without credentials or a fragment. Null to keep the current value."
 	url: String
 
 	"The replacement signing secret, containing at least 8 characters. Omit or pass null to keep the current secret. The stored secret is never returned."

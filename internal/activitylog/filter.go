@@ -70,7 +70,7 @@ var eventTypeInfos = map[ActivityLogActivityType]WebhookEventTypeInfo{}
 // groupPrefixes maps known multi-word prefixes to their display group names.
 var groupPrefixes = map[string]string{
 	"SERVICE_ACCOUNT":             "Service Account",
-	"GENERIC_KUBERNETES_RESOURCE": "Kubernetes",
+	"GENERIC_KUBERNETES_RESOURCE": "Resources",
 	"OPENSEARCH":                  "OpenSearch",
 	"JOB_RUN":                     "Job",
 }
@@ -101,7 +101,8 @@ func autoGroupAndDescription(at ActivityLogActivityType) (description, group str
 		}
 	}
 
-	words := strings.Split(strings.ToLower(s), "_")
+	displayName := strings.Replace(s, "GENERIC_KUBERNETES_RESOURCE", "RESOURCE", 1)
+	words := strings.Split(strings.ToLower(displayName), "_")
 	description = strings.Join(words, " ")
 	// Title-case first word only for sentence-style description
 	if len(description) > 0 {
@@ -203,19 +204,24 @@ func RegisterActivityType(activityType ActivityLogActivityType, action ActivityL
 	}
 
 	desc, grp := autoGroupAndDescription(activityType)
-	info := &WebhookEventTypeInfo{
-		Type:           activityType,
-		CloudEventType: CloudEventType(activityType),
-		Description:    desc,
-		Group:          grp,
-		TeamScoped:     true,
+	info, registered := eventTypeInfos[activityType]
+	if !registered {
+		info = WebhookEventTypeInfo{
+			Type: activityType, CloudEventType: CloudEventType(activityType),
+			Description: desc, Group: grp, TeamScoped: true,
+		}
 	}
 
 	for _, opt := range opts {
-		opt(info)
+		before := info
+		opt(&info)
+		if registered && ((before.Description != desc && info.Description != before.Description) ||
+			(before.Group != grp && info.Group != before.Group)) {
+			panic("conflicting activity type metadata: " + string(activityType))
+		}
 	}
 
-	eventTypeInfos[activityType] = *info
+	eventTypeInfos[activityType] = info
 }
 
 func rebuildReverseFilters() {

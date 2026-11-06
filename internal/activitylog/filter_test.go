@@ -154,7 +154,7 @@ func TestAutoGroupAndDescription(t *testing.T) {
 	}{
 		{"TEAM_MEMBER_ADDED", "Team"},
 		{"SERVICE_ACCOUNT_CREATED", "Service Account"},
-		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "Kubernetes"},
+		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "Resources"},
 		{"OPENSEARCH_CREATED", "OpenSearch"},
 		{"JOB_RUN_DELETED", "Job"},
 	}
@@ -165,6 +165,23 @@ func TestAutoGroupAndDescription(t *testing.T) {
 			t.Errorf("autoGroupAndDescription(%q) group = %q, want %q", tt.in, group, tt.wantGroup)
 		}
 	}
+}
+
+func TestRegisterActivityTypePreservesMetadata(t *testing.T) {
+	const at ActivityLogActivityType = "FILTER_TEST_PRESERVE_METADATA"
+	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_A",
+		WithDescription("Custom description"), WithGroup("Custom group"), GlobalOnly(), IgnoreWebhook())
+	before := eventTypeInfos[at]
+	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_B")
+	if got := eventTypeInfos[at]; got != before {
+		t.Errorf("re-registration changed metadata: got %+v, want %+v", got, before)
+	}
+	defer func() {
+		if recover() == nil {
+			t.Error("conflicting descriptions must be rejected")
+		}
+	}()
+	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_C", WithDescription("Conflicting description"))
 }
 
 func TestRegisterActivityType_CustomOptions(t *testing.T) {
