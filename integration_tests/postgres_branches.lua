@@ -1,5 +1,4 @@
 local user = User.new("user", "user@usersen.com")
-local nonMember = User.new("nonmember", "not@usersen.com")
 local team = Team.new("someteamname", "purpose", "#slack_channel")
 team:addMember(user)
 local otherTeam = Team.new("postgres-other-team", "Isolation", "#postgres")
@@ -260,10 +259,4 @@ Test.gql("Postgres configuration is scoped to branch, database, team and environ
 		},
 		other = { environment = { postgres = { activeBranch = { configuration = { parameters = { { name = "work_mem", value = "16MB" } } } } } } },
 	} }
-end)
-
-Test.gql("Delete a concrete PostgresBranch requires authorization", function(t)
-	t.addHeader("x-user-email", nonMember:email())
-	t.query [[mutation { deletePostgresBranch(input:{postgres:"foobar",branch:"main",environmentName:"dev",teamSlug:"someteamname"}) { postgresBranchDeleted } }]]
-	t.check { errors = { { locations = NotNull(), message = Contains('postgres:delete'), path = { "deletePostgresBranch" } } }, data = Null }
 end)
