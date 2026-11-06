@@ -294,7 +294,6 @@ func newGQLRunner(
 		lokiClient,
 		"test-audit-project", // auditLogProjectID for testing
 		"test-location",      // auditLogLocation for testing
-		false,                // keep legacy Postgres branch writes enabled
 		log,
 	)
 	if err != nil {

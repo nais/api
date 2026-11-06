@@ -46,7 +46,7 @@ func TestPostgresSearchRegistrationIndexAndConversion(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("Postgres watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, nil, postgresWatcher, "", "", "nav", mgr.GetDynamicClients(), false)
+	ctx = NewLoaderContext(ctx, nil, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	client := &searchRegistration{clients: make(map[search.SearchType]search.Searchable)}
 	AddSearchPostgres(client, postgresWatcher)
 	searchable, ok := client.clients["POSTGRES"]

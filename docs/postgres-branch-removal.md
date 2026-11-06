@@ -1,9 +1,11 @@
-# Postgres branch removal: compatibility release
+# Postgres field preservation and branch removal
 
-This is the first compatibility step towards independent Postgres databases. It
-does not migrate database ownership, remove CRDs, or change the GraphQL schema.
+## Scope of this API change
 
-## Preserve newer operator fields
+The current change only fixes field preservation in `updatePostgres`. It does not
+remove branches, change the GraphQL schema, migrate database ownership or add a
+rollout flag. Existing branch operations and personal access keep their current
+behavior. This fix can be reviewed and deployed independently.
 
 `updatePostgres` keeps the original Kubernetes resource and applies only fields
 that actually changed through the API: user labels, high availability, individual
@@ -12,32 +14,45 @@ unrequested resource settings, metadata and status are not reconstructed from th
 API's pinned Go types. Resource version is retained; Kubernetes conflicts are
 returned rather than retried with stale intent.
 
-Deploy this release to every API replica before introducing new operator-owned
-spec fields. An older API replica can still lose those fields during an update.
+Deploy the fix to every API replica before relying on newer operator-owned spec
+fields. It is useful independently of branch removal and does not itself require
+an ownership migration or CLI update.
 
-## Freeze the legacy branch lifecycle
+## Planned branch removal: coordinated maintenance window
 
-Set the Helm/Fasit value `postgres.branchWritesDisabled: true`, or the environment
-variable `POSTGRES_BRANCH_WRITES_DISABLED=true` when running the API directly.
-The default is `false`, preserving existing behavior until the rollout is ready.
+The deployment has only a few test databases. Their data must be preserved, but
+database management can stop during the change. We are therefore not building
+old/new API projections, a virtual `main`, dual access forms or a long-running
+compatibility rollout.
 
-With the freeze enabled, `createPostgresBranch`, `activatePostgresBranch` and
-`deletePostgresBranch` return a user-visible error before any Kubernetes access or
-successful activity logging. Their schema and authorization checks are unchanged;
-old browser tabs and CLI versions get an explicit rejection, not a successful
-no-op or an operation on a different resource.
+Build and test the branch-free pgrator/API/Console/CLI combination before the
+window. Agree its shared resource contract, then publish the types/schema needed
+to generate its clients. The complete branch-free API is a separate breaking
+change; do not deploy it into the running branch-based stack on its own.
 
-The freeze applies to all environments served by this API deployment. It does not
-block database/branch reads, personal access, normal Postgres creation/updates or
-whole-Postgres deletion (which retains its existing safety checks).
+During the window:
 
-This is startup configuration, not an instantaneous distributed lock. Complete
-the rollout to all replicas, let in-flight branch requests finish, and recheck
-the main-only inventory before starting any ownership migration. Direct Kubernetes
-writers and GitOps are not fenced by this API setting. A separate per-database
-migration lock and the actual ownership-transfer protocol are later steps.
+1. Suspend Postgres management requests, new personal access and competing
+   Kubernetes/GitOps writers. Wait for in-flight work and confirm access cleanup.
+2. Stop old pgrator Postgres reconciliation before changing resource ownership.
+3. Convert the test databases once, preserving Postgres and cluster identities,
+   storage, poolers, roles/certificates, IAM and backup archives. Transfer both
+   ownerReferences and ownership annotations; do not use normal branch deletion.
+4. Install the new schemas/RBAC and start the new operator, then the branch-free
+   API, updated workload integration and Console. Publish/use the matching CLI.
+5. Verify the new combination and only then reopen Postgres management.
 
-Keep the freeze enabled while branches are being removed. Disabling it only
-restores the legacy API operations; it does not reverse any database migration.
-Do not roll back to an older API after new operator fields have been persisted
-without confirming that its writes preserve them.
+Relay keeps its existing transport and RelayAccess contract where the deployed
+baseline is sufficient. Old Console tabs must reload and old CLI versions are not
+supported after the window. Historic activity entries remain historic; their
+schema/representation is not a live branch compatibility layer.
+
+Remove the branch CRD only after verifying that no objects, controller owners,
+finalizers or running consumers depend on it. Keep a metadata inventory and a
+tested reverse-transfer/redeployment procedure: an old image alone is not a safe
+rollback after ownership has changed. No live database operations are performed
+by this API patch.
+
+The earlier `postgres.branchWritesDisabled` / `POSTGRES_BRANCH_WRITES_DISABLED`
+setting from the initial branch-removal draft has been removed. Do not rely on
+that setting to establish a maintenance window.

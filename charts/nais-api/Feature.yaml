@@ -228,12 +228,6 @@ values:
     config:
       type: int
 
-  postgres.branchWritesDisabled:
-    displayName: Disable Postgres branch changes
-    description: Freeze legacy branch creation, activation and deletion during the transition to independent databases. Reads and personal access remain available.
-    config:
-      type: bool
-
   zitadel.idpID:
     displayName: Zitadel IDP ID
     description: Global IDP ID in Zitadel to point user logins to

@@ -42,27 +42,3 @@ func TestLoggingDestinationsConfig(t *testing.T) {
 		})
 	}
 }
-
-func TestPostgresBranchWriteFreezeConfig(t *testing.T) {
-	for _, tt := range []struct {
-		name    string
-		values  map[string]string
-		want    bool
-		wantErr bool
-	}{
-		{name: "enabled by default"},
-		{name: "explicitly enabled", values: map[string]string{"POSTGRES_BRANCH_WRITES_DISABLED": "false"}},
-		{name: "disabled for rollout", values: map[string]string{"POSTGRES_BRANCH_WRITES_DISABLED": "true"}, want: true},
-		{name: "invalid boolean", values: map[string]string{"POSTGRES_BRANCH_WRITES_DISABLED": "invalid"}, wantErr: true},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			cfg, err := NewConfig(t.Context(), envconfig.MapLookuper(tt.values))
-			if (err != nil) != tt.wantErr {
-				t.Fatalf("NewConfig() error = %v, wantErr %t", err, tt.wantErr)
-			}
-			if !tt.wantErr && cfg.PostgresBranchWritesDisabled != tt.want {
-				t.Errorf("branch writes disabled = %t, want %t", cfg.PostgresBranchWritesDisabled, tt.want)
-			}
-		})
-	}
-}

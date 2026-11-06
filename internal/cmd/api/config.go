@@ -188,10 +188,6 @@ type Config struct {
 	// configuration value is only used by the nav.no tenant.
 	ReplaceEnvironmentNames map[string]string `env:"REPLACE_ENVIRONMENT_NAMES, noinit"`
 
-	// PostgresBranchWritesDisabled freezes the legacy branch lifecycle while
-	// leaving database management, reads and personal access available.
-	PostgresBranchWritesDisabled bool `env:"POSTGRES_BRANCH_WRITES_DISABLED"`
-
 	PubSub pubSubConfig
 
 	K8s                k8sConfig

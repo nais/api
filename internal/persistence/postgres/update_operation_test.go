@@ -58,7 +58,7 @@ func TestPostgresUpdateKeepsOptimisticConcurrency(t *testing.T) {
 			if !mgr.WaitForReady(wait) {
 				t.Fatal("watchers did not synchronize")
 			}
-			ctx := NewLoaderContext(t.Context(), branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients(), true)
+			ctx := NewLoaderContext(t.Context(), branchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 			ctx = authz.ContextWithActor(ctx, &user.User{Email: "user@example.com"}, nil)
 			writes := 0
 			client.PrependReactor("update", "postgres", func(action k8stesting.Action) (bool, runtime.Object, error) {

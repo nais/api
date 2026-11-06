@@ -41,9 +41,6 @@ func Delete(ctx context.Context, input DeletePostgresBranchInput) (*DeletePostgr
 	if err := input.Validate(ctx); err != nil {
 		return nil, err
 	}
-	if err := ensureBranchWritesEnabled(ctx); err != nil {
-		return nil, err
-	}
 
 	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName)
 	if err != nil {

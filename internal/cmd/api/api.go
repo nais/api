@@ -334,7 +334,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		lokiClient,
 		cfg.AuditLog.ProjectID,
 		cfg.AuditLog.Location,
-		cfg.PostgresBranchWritesDisabled,
 		log.WithField("subsystem", "http"),
 	)
 	if err != nil {
