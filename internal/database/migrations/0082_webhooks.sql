@@ -78,9 +78,9 @@ CREATE TABLE webhook_event_deliveries (
 )
 ;
 
-CREATE INDEX idx_webhook_event_deliveries_pending ON webhook_event_deliveries (run_at ASC)
+CREATE INDEX idx_webhook_event_deliveries_active ON webhook_event_deliveries (run_at ASC)
 WHERE
-	status = 'pending'
+	status IN ('pending', 'processing')
 ;
 
 CREATE INDEX idx_webhook_event_deliveries_event ON webhook_event_deliveries (webhook_event_id)
