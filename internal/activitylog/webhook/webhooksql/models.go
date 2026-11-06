@@ -14,9 +14,10 @@ import (
 type WebhookDeliveryStatus string
 
 const (
-	WebhookDeliveryStatusPending   WebhookDeliveryStatus = "pending"
-	WebhookDeliveryStatusCompleted WebhookDeliveryStatus = "completed"
-	WebhookDeliveryStatusFailed    WebhookDeliveryStatus = "failed"
+	WebhookDeliveryStatusPending    WebhookDeliveryStatus = "pending"
+	WebhookDeliveryStatusProcessing WebhookDeliveryStatus = "processing"
+	WebhookDeliveryStatusCompleted  WebhookDeliveryStatus = "completed"
+	WebhookDeliveryStatusFailed     WebhookDeliveryStatus = "failed"
 )
 
 func (e *WebhookDeliveryStatus) Scan(src interface{}) error {
@@ -57,6 +58,7 @@ func (ns NullWebhookDeliveryStatus) Value() (driver.Value, error) {
 func (e WebhookDeliveryStatus) Valid() bool {
 	switch e {
 	case WebhookDeliveryStatusPending,
+		WebhookDeliveryStatusProcessing,
 		WebhookDeliveryStatusCompleted,
 		WebhookDeliveryStatusFailed:
 		return true
@@ -67,6 +69,7 @@ func (e WebhookDeliveryStatus) Valid() bool {
 func AllWebhookDeliveryStatusValues() []WebhookDeliveryStatus {
 	return []WebhookDeliveryStatus{
 		WebhookDeliveryStatusPending,
+		WebhookDeliveryStatusProcessing,
 		WebhookDeliveryStatusCompleted,
 		WebhookDeliveryStatusFailed,
 	}
@@ -150,10 +153,16 @@ type WebhookDelivery struct {
 	WebhookEventDeliveryID *uuid.UUID
 	EventType              string
 	RequestBody            []byte
+	RequestHeaders         []byte
 	ResponseStatus         *int32
-	ResponseBody           *string
+	ResponseBody           []byte
+	ResponseHeaders        []byte
+	ResponseBodyTruncated  bool
+	ErrorMessage           *string
 	DurationMs             int32
 	Success                bool
+	AttemptCount           int32
+	NextRetryAt            pgtype.Timestamptz
 	CreatedAt              pgtype.Timestamptz
 }
 
@@ -185,6 +194,7 @@ type WebhookSubscription struct {
 	Enabled             bool
 	ConsecutiveFailures int32
 	DisabledAt          pgtype.Timestamptz
+	LastTestAt          pgtype.Timestamptz
 	CreatedAt           pgtype.Timestamptz
 	UpdatedAt           pgtype.Timestamptz
 }

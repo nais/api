@@ -77,7 +77,7 @@ WITH
 	claimed_deliveries AS (
 		UPDATE webhook_event_deliveries
 		SET
-			status = 'completed'
+			status = 'processing'
 		WHERE
 			id IN (
 				SELECT
@@ -87,6 +87,15 @@ WITH
 				WHERE
 					status = 'pending'
 					AND run_at <= NOW()
+					AND EXISTS (
+						SELECT
+							1
+						FROM
+							webhook_subscriptions
+						WHERE
+							webhook_subscriptions.id = webhook_event_deliveries.subscription_id
+							AND webhook_subscriptions.enabled
+					)
 				ORDER BY
 					run_at ASC
 				LIMIT
@@ -99,7 +108,7 @@ WITH
 	)
 SELECT
 	webhook_event_deliveries.id, webhook_event_deliveries.webhook_event_id, webhook_event_deliveries.subscription_id, webhook_event_deliveries.status, webhook_event_deliveries.retry_count, webhook_event_deliveries.run_at, webhook_event_deliveries.created_at,
-	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
+	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.last_test_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
 	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment, activity_log_entries.github_actor_claims, activity_log_entries.kubernetes_audit_uid
 FROM
 	claimed_deliveries webhook_event_deliveries
@@ -143,6 +152,7 @@ func (q *Queries) ClaimPendingDeliveries(ctx context.Context, batchSize int32) (
 			&i.WebhookSubscription.Enabled,
 			&i.WebhookSubscription.ConsecutiveFailures,
 			&i.WebhookSubscription.DisabledAt,
+			&i.WebhookSubscription.LastTestAt,
 			&i.WebhookSubscription.CreatedAt,
 			&i.WebhookSubscription.UpdatedAt,
 			&i.ActivityLogEntry.ID,
@@ -174,10 +184,15 @@ INSERT INTO
 		webhook_event_delivery_id,
 		event_type,
 		request_body,
+		request_headers,
 		response_status,
 		response_body,
+		response_headers,
+		response_body_truncated,
+		error_message,
 		duration_ms,
-		success
+		success,
+		attempt_count
 	)
 VALUES
 	(
@@ -188,10 +203,25 @@ VALUES
 		$5,
 		$6,
 		$7,
-		$8
+		$8,
+		$9,
+		$10,
+		$11,
+		$12,
+		COALESCE(
+			(
+				SELECT
+					retry_count + 1
+				FROM
+					webhook_event_deliveries
+				WHERE
+					id = $2
+			),
+			1
+		)
 	)
 RETURNING
-	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
+	id, subscription_id, webhook_event_delivery_id, event_type, request_body, request_headers, response_status, response_body, response_headers, response_body_truncated, error_message, duration_ms, success, attempt_count, next_retry_at, created_at
 `
 
 type CreateDeliveryParams struct {
@@ -199,8 +229,12 @@ type CreateDeliveryParams struct {
 	WebhookEventDeliveryID *uuid.UUID
 	EventType              string
 	RequestBody            []byte
+	RequestHeaders         []byte
 	ResponseStatus         *int32
-	ResponseBody           *string
+	ResponseBody           []byte
+	ResponseHeaders        []byte
+	ResponseBodyTruncated  bool
+	ErrorMessage           *string
 	DurationMs             int32
 	Success                bool
 }
@@ -211,8 +245,12 @@ func (q *Queries) CreateDelivery(ctx context.Context, arg CreateDeliveryParams) 
 		arg.WebhookEventDeliveryID,
 		arg.EventType,
 		arg.RequestBody,
+		arg.RequestHeaders,
 		arg.ResponseStatus,
 		arg.ResponseBody,
+		arg.ResponseHeaders,
+		arg.ResponseBodyTruncated,
+		arg.ErrorMessage,
 		arg.DurationMs,
 		arg.Success,
 	)
@@ -223,10 +261,16 @@ func (q *Queries) CreateDelivery(ctx context.Context, arg CreateDeliveryParams) 
 		&i.WebhookEventDeliveryID,
 		&i.EventType,
 		&i.RequestBody,
+		&i.RequestHeaders,
 		&i.ResponseStatus,
 		&i.ResponseBody,
+		&i.ResponseHeaders,
+		&i.ResponseBodyTruncated,
+		&i.ErrorMessage,
 		&i.DurationMs,
 		&i.Success,
+		&i.AttemptCount,
+		&i.NextRetryAt,
 		&i.CreatedAt,
 	)
 	return &i, err
@@ -270,7 +314,7 @@ VALUES
 		$6
 	)
 RETURNING
-	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, created_at, updated_at
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
 `
 
 type CreateSubscriptionParams struct {
@@ -303,6 +347,7 @@ func (q *Queries) CreateSubscription(ctx context.Context, arg CreateSubscription
 		&i.Enabled,
 		&i.ConsecutiveFailures,
 		&i.DisabledAt,
+		&i.LastTestAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -322,7 +367,7 @@ func (q *Queries) DeleteSubscription(ctx context.Context, id uuid.UUID) error {
 
 const getDelivery = `-- name: GetDelivery :one
 SELECT
-	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
+	id, subscription_id, webhook_event_delivery_id, event_type, request_body, request_headers, response_status, response_body, response_headers, response_body_truncated, error_message, duration_ms, success, attempt_count, next_retry_at, created_at
 FROM
 	webhook_deliveries
 WHERE
@@ -338,10 +383,16 @@ func (q *Queries) GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelive
 		&i.WebhookEventDeliveryID,
 		&i.EventType,
 		&i.RequestBody,
+		&i.RequestHeaders,
 		&i.ResponseStatus,
 		&i.ResponseBody,
+		&i.ResponseHeaders,
+		&i.ResponseBodyTruncated,
+		&i.ErrorMessage,
 		&i.DurationMs,
 		&i.Success,
+		&i.AttemptCount,
+		&i.NextRetryAt,
 		&i.CreatedAt,
 	)
 	return &i, err
@@ -386,7 +437,7 @@ func (q *Queries) GetQueueSizeByStatus(ctx context.Context) ([]*GetQueueSizeBySt
 
 const getSubscription = `-- name: GetSubscription :one
 SELECT
-	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, created_at, updated_at
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
 FROM
 	webhook_subscriptions
 WHERE
@@ -407,6 +458,7 @@ func (q *Queries) GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSu
 		&i.Enabled,
 		&i.ConsecutiveFailures,
 		&i.DisabledAt,
+		&i.LastTestAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -415,7 +467,7 @@ func (q *Queries) GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSu
 
 const listDeliveriesByIDs = `-- name: ListDeliveriesByIDs :many
 SELECT
-	id, subscription_id, webhook_event_delivery_id, event_type, request_body, response_status, response_body, duration_ms, success, created_at
+	id, subscription_id, webhook_event_delivery_id, event_type, request_body, request_headers, response_status, response_body, response_headers, response_body_truncated, error_message, duration_ms, success, attempt_count, next_retry_at, created_at
 FROM
 	webhook_deliveries
 WHERE
@@ -439,10 +491,16 @@ func (q *Queries) ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*
 			&i.WebhookEventDeliveryID,
 			&i.EventType,
 			&i.RequestBody,
+			&i.RequestHeaders,
 			&i.ResponseStatus,
 			&i.ResponseBody,
+			&i.ResponseHeaders,
+			&i.ResponseBodyTruncated,
+			&i.ErrorMessage,
 			&i.DurationMs,
 			&i.Success,
+			&i.AttemptCount,
+			&i.NextRetryAt,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -457,7 +515,7 @@ func (q *Queries) ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*
 
 const listDeliveriesForSubscription = `-- name: ListDeliveriesForSubscription :many
 SELECT
-	webhook_deliveries.id, webhook_deliveries.subscription_id, webhook_deliveries.webhook_event_delivery_id, webhook_deliveries.event_type, webhook_deliveries.request_body, webhook_deliveries.response_status, webhook_deliveries.response_body, webhook_deliveries.duration_ms, webhook_deliveries.success, webhook_deliveries.created_at,
+	webhook_deliveries.id, webhook_deliveries.subscription_id, webhook_deliveries.webhook_event_delivery_id, webhook_deliveries.event_type, webhook_deliveries.request_body, webhook_deliveries.request_headers, webhook_deliveries.response_status, webhook_deliveries.response_body, webhook_deliveries.response_headers, webhook_deliveries.response_body_truncated, webhook_deliveries.error_message, webhook_deliveries.duration_ms, webhook_deliveries.success, webhook_deliveries.attempt_count, webhook_deliveries.next_retry_at, webhook_deliveries.created_at,
 	COUNT(*) OVER () AS total_count
 FROM
 	webhook_deliveries
@@ -497,10 +555,16 @@ func (q *Queries) ListDeliveriesForSubscription(ctx context.Context, arg ListDel
 			&i.WebhookDelivery.WebhookEventDeliveryID,
 			&i.WebhookDelivery.EventType,
 			&i.WebhookDelivery.RequestBody,
+			&i.WebhookDelivery.RequestHeaders,
 			&i.WebhookDelivery.ResponseStatus,
 			&i.WebhookDelivery.ResponseBody,
+			&i.WebhookDelivery.ResponseHeaders,
+			&i.WebhookDelivery.ResponseBodyTruncated,
+			&i.WebhookDelivery.ErrorMessage,
 			&i.WebhookDelivery.DurationMs,
 			&i.WebhookDelivery.Success,
+			&i.WebhookDelivery.AttemptCount,
+			&i.WebhookDelivery.NextRetryAt,
 			&i.WebhookDelivery.CreatedAt,
 			&i.TotalCount,
 		); err != nil {
@@ -516,7 +580,7 @@ func (q *Queries) ListDeliveriesForSubscription(ctx context.Context, arg ListDel
 
 const listEnabledSubscriptions = `-- name: ListEnabledSubscriptions :many
 SELECT
-	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, created_at, updated_at
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
 FROM
 	webhook_subscriptions
 WHERE
@@ -545,6 +609,7 @@ func (q *Queries) ListEnabledSubscriptions(ctx context.Context) ([]*WebhookSubsc
 			&i.Enabled,
 			&i.ConsecutiveFailures,
 			&i.DisabledAt,
+			&i.LastTestAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -591,7 +656,7 @@ func (q *Queries) ListExistingSourceTeams(ctx context.Context, slugs []slug.Slug
 
 const listGlobalSubscriptions = `-- name: ListGlobalSubscriptions :many
 SELECT
-	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
+	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.last_test_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
 	COUNT(*) OVER () AS total_count
 FROM
 	webhook_subscriptions
@@ -635,6 +700,7 @@ func (q *Queries) ListGlobalSubscriptions(ctx context.Context, arg ListGlobalSub
 			&i.WebhookSubscription.Enabled,
 			&i.WebhookSubscription.ConsecutiveFailures,
 			&i.WebhookSubscription.DisabledAt,
+			&i.WebhookSubscription.LastTestAt,
 			&i.WebhookSubscription.CreatedAt,
 			&i.WebhookSubscription.UpdatedAt,
 			&i.TotalCount,
@@ -651,7 +717,7 @@ func (q *Queries) ListGlobalSubscriptions(ctx context.Context, arg ListGlobalSub
 
 const listSubscriptionsByIDs = `-- name: ListSubscriptionsByIDs :many
 SELECT
-	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, created_at, updated_at
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
 FROM
 	webhook_subscriptions
 WHERE
@@ -680,6 +746,7 @@ func (q *Queries) ListSubscriptionsByIDs(ctx context.Context, ids []uuid.UUID) (
 			&i.Enabled,
 			&i.ConsecutiveFailures,
 			&i.DisabledAt,
+			&i.LastTestAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -695,7 +762,7 @@ func (q *Queries) ListSubscriptionsByIDs(ctx context.Context, ids []uuid.UUID) (
 
 const listSubscriptionsForTeam = `-- name: ListSubscriptionsForTeam :many
 SELECT
-	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
+	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.last_test_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
 	COUNT(*) OVER () AS total_count
 FROM
 	webhook_subscriptions
@@ -740,6 +807,7 @@ func (q *Queries) ListSubscriptionsForTeam(ctx context.Context, arg ListSubscrip
 			&i.WebhookSubscription.Enabled,
 			&i.WebhookSubscription.ConsecutiveFailures,
 			&i.WebhookSubscription.DisabledAt,
+			&i.WebhookSubscription.LastTestAt,
 			&i.WebhookSubscription.CreatedAt,
 			&i.WebhookSubscription.UpdatedAt,
 			&i.TotalCount,
@@ -752,6 +820,19 @@ func (q *Queries) ListSubscriptionsForTeam(ctx context.Context, arg ListSubscrip
 		return nil, err
 	}
 	return items, nil
+}
+
+const markDeliveryCompleted = `-- name: MarkDeliveryCompleted :exec
+UPDATE webhook_event_deliveries
+SET
+	status = 'completed'
+WHERE
+	id = $1
+`
+
+func (q *Queries) MarkDeliveryCompleted(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, markDeliveryCompleted, id)
+	return err
 }
 
 const markDeliveryFailed = `-- name: MarkDeliveryFailed :exec
@@ -815,12 +896,12 @@ WHERE
 			webhook_event_deliveries
 		WHERE
 			webhook_event_deliveries.webhook_event_id = webhook_events.id
-			AND webhook_event_deliveries.status = 'pending'
+			AND webhook_event_deliveries.status IN ('pending', 'processing')
 	)
 `
 
 // Prunes outbox events whose deliveries have all reached a terminal state (a delete
-// cascades to webhook_event_deliveries, so pending rows must be excluded).
+// cascades to webhook_event_deliveries, so pending and processing rows must be excluded).
 func (q *Queries) PruneOldOutboxEvents(ctx context.Context, before pgtype.Timestamptz) error {
 	_, err := q.db.Exec(ctx, pruneOldOutboxEvents, before)
 	return err
@@ -882,24 +963,79 @@ func (q *Queries) RecordDeliveryResult(ctx context.Context, arg RecordDeliveryRe
 }
 
 const requeueDelivery = `-- name: RequeueDelivery :exec
-UPDATE webhook_event_deliveries
+WITH
+	requeued AS (
+		UPDATE webhook_event_deliveries
+		SET
+			status = 'pending',
+			retry_count = $2,
+			run_at = $3
+		WHERE
+			webhook_event_deliveries.id = $4
+		RETURNING
+			webhook_event_deliveries.id,
+			webhook_event_deliveries.run_at
+	)
+UPDATE webhook_deliveries
 SET
-	status = 'pending',
-	retry_count = $1,
-	run_at = $2
+	next_retry_at = requeued.run_at
+FROM
+	requeued
 WHERE
-	id = $3
+	webhook_deliveries.id = $1
+	AND webhook_deliveries.webhook_event_delivery_id = requeued.id
 `
 
 type RequeueDeliveryParams struct {
+	AttemptID  uuid.UUID
 	RetryCount int32
 	RunAt      pgtype.Timestamptz
 	ID         uuid.UUID
 }
 
 func (q *Queries) RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error {
-	_, err := q.db.Exec(ctx, requeueDelivery, arg.RetryCount, arg.RunAt, arg.ID)
+	_, err := q.db.Exec(ctx, requeueDelivery,
+		arg.AttemptID,
+		arg.RetryCount,
+		arg.RunAt,
+		arg.ID,
+	)
 	return err
+}
+
+const reserveTestDelivery = `-- name: ReserveTestDelivery :one
+UPDATE webhook_subscriptions
+SET
+	last_test_at = NOW()
+WHERE
+	id = $1
+	AND (
+		last_test_at IS NULL
+		OR last_test_at <= NOW() - INTERVAL '30 seconds'
+	)
+RETURNING
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
+`
+
+func (q *Queries) ReserveTestDelivery(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
+	row := q.db.QueryRow(ctx, reserveTestDelivery, id)
+	var i WebhookSubscription
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TeamSlug,
+		&i.SourceTeamSlugs,
+		&i.Url,
+		&i.Secret,
+		&i.EventTypes,
+		&i.Enabled,
+		&i.ConsecutiveFailures,
+		&i.DisabledAt,
+		&i.LastTestAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
 }
 
 const updateSubscription = `-- name: UpdateSubscription :one
@@ -917,7 +1053,7 @@ SET
 WHERE
 	id = $7
 RETURNING
-	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, created_at, updated_at
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
 `
 
 type UpdateSubscriptionParams struct {
@@ -952,6 +1088,7 @@ func (q *Queries) UpdateSubscription(ctx context.Context, arg UpdateSubscription
 		&i.Enabled,
 		&i.ConsecutiveFailures,
 		&i.DisabledAt,
+		&i.LastTestAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

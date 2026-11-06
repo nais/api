@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 )
 
@@ -22,22 +23,25 @@ type CloudEvent struct {
 
 // CloudEventData is the data payload within a CloudEvent.
 type CloudEventData struct {
-	Actor        string          `json:"actor"`
-	ResourceType string          `json:"resourceType"`
-	ResourceName string          `json:"resourceName"`
-	TeamSlug     *string         `json:"teamSlug,omitempty"`
-	Environment  *string         `json:"environment,omitempty"`
-	Data         json.RawMessage `json:"data,omitempty"`
+	ActivityLogEntryID *uuid.UUID      `json:"activityLogEntryId,omitempty"`
+	TriggeredAt        time.Time       `json:"triggeredAt"`
+	Test               bool            `json:"test,omitempty"`
+	Actor              string          `json:"actor"`
+	ResourceType       string          `json:"resourceType"`
+	ResourceName       string          `json:"resourceName"`
+	TeamSlug           *string         `json:"teamSlug,omitempty"`
+	Environment        *string         `json:"environment,omitempty"`
+	Data               json.RawMessage `json:"data,omitempty"`
 }
 
 // cloudEventTypeFromEvent returns the CloudEvents-spec type for an event.
 // If the event has resolved ActivityTypes, the first one is used; otherwise the raw
-// event type is lowercased and dot-separated (e.g. "ping" → "io.nais.ping").
+// event type is lowercased and dot-separated.
 func cloudEventTypeFromEvent(event WebhookEvent) string {
 	if len(event.ActivityTypes) > 0 {
 		return activitylog.CloudEventType(activitylog.ActivityLogActivityType(event.ActivityTypes[0]))
 	}
-	// Synthetic events (e.g. "ping") — just prefix with io.nais.
+	// Synthetic test events use the same io.nais prefix.
 	lower := strings.ToLower(event.RawEventType)
 	dotted := strings.ReplaceAll(lower, "_", ".")
 	return "io.nais." + dotted
@@ -48,6 +52,9 @@ func cloudEventTypeFromEvent(event WebhookEvent) string {
 // id must be stable across redeliveries of the same logical (event, subscriber) delivery
 // attempt.
 func BuildCloudEvent(source, id string, event WebhookEvent) ([]byte, error) {
+	if event.TriggeredAt.IsZero() {
+		event.TriggeredAt = time.Now().UTC()
+	}
 	var teamSlug *string
 	if event.TeamSlug != nil {
 		s := event.TeamSlug.String()
@@ -55,12 +62,15 @@ func BuildCloudEvent(source, id string, event WebhookEvent) ([]byte, error) {
 	}
 
 	eventData := CloudEventData{
-		Actor:        event.Actor,
-		ResourceType: event.ResourceType,
-		ResourceName: event.ResourceName,
-		TeamSlug:     teamSlug,
-		Environment:  event.Environment,
-		Data:         event.Data,
+		ActivityLogEntryID: event.ActivityLogEntryID,
+		TriggeredAt:        event.TriggeredAt.UTC(),
+		Test:               event.Test,
+		Actor:              event.Actor,
+		ResourceType:       event.ResourceType,
+		ResourceName:       event.ResourceName,
+		TeamSlug:           teamSlug,
+		Environment:        event.Environment,
+		Data:               event.Data,
 	}
 
 	dataBytes, err := json.Marshal(eventData)
@@ -79,7 +89,7 @@ func BuildCloudEvent(source, id string, event WebhookEvent) ([]byte, error) {
 		Source:          source,
 		Type:            cloudEventTypeFromEvent(event),
 		Subject:         subject,
-		Time:            time.Now().UTC().Format(time.RFC3339),
+		Time:            event.TriggeredAt.UTC().Format(time.RFC3339Nano),
 		DataContentType: "application/json",
 		Data:            dataBytes,
 	}

@@ -2,14 +2,17 @@ package webhook
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
@@ -108,16 +111,35 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 		return nil, fmt.Errorf("creating webhook subscription: %w", err)
 	}
 
-	sub := toGraphSubscription(row)
-
-	if d := fromContext(ctx).dispatcher; d != nil {
-		// Ping errors are non-fatal and already recorded as a delivery entry
-		_ = d.Ping(ctx, sub)
-	}
-
 	return &CreateWebhookPayload{
-		Webhook: sub,
+		Webhook: toGraphSubscription(row),
 	}, nil
+}
+
+func TestWebhook(ctx context.Context, input TestWebhookInput) (*TestWebhookPayload, error) {
+	sub, err := GetSubscriptionByIdent(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := authz.CanUpdateWebhook(ctx, sub.TeamSlug); err != nil {
+		return nil, err
+	}
+	d := fromContext(ctx).dispatcher
+	if d == nil {
+		return nil, apierror.Errorf("Webhook delivery is not available.")
+	}
+	row, err := db(ctx).ReserveTestDelivery(ctx, sub.UUID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, apierror.Errorf("Wait at least 30 seconds between webhook tests.")
+	}
+	if err != nil {
+		return nil, err
+	}
+	attempt, err := d.SendTest(ctx, db(ctx), row, authz.ActorFromContext(ctx).User.Identity())
+	if err != nil {
+		return nil, fmt.Errorf("sending webhook test event: %w", err)
+	}
+	return &TestWebhookPayload{Delivery: toGraphDelivery(attempt)}, nil
 }
 
 func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayload, error) {
@@ -380,17 +402,56 @@ func toGraphDelivery(row *webhooksql.WebhookDelivery) *WebhookDelivery {
 		respStatus = &s
 	}
 
-	return &WebhookDelivery{
-		UUID:           row.ID,
-		SubscriptionID: row.SubscriptionID,
-		EventType:      row.EventType,
-		RequestBody:    body,
-		ResponseStatus: respStatus,
-		ResponseBody:   row.ResponseBody,
-		DurationMs:     int(row.DurationMs),
-		Success:        row.Success,
-		CreatedAt:      row.CreatedAt.Time,
+	var responseBody *string
+	if row.ResponseBody != nil && utf8.Valid(row.ResponseBody) {
+		responseBody = new(string(row.ResponseBody))
 	}
+
+	state := &WebhookDeliveryState{
+		Status:       WebhookDeliveryStatusFailed,
+		AttemptCount: int(row.AttemptCount),
+	}
+	if row.Success {
+		state.Status = WebhookDeliveryStatusCompleted
+	}
+	if row.NextRetryAt.Valid {
+		state.NextRetryAt = &row.NextRetryAt.Time
+	}
+
+	return &WebhookDelivery{
+		UUID:                  row.ID,
+		SubscriptionID:        row.SubscriptionID,
+		DeliveryState:         state,
+		EventType:             row.EventType,
+		IsTest:                row.EventType == "WEBHOOK_TEST" && row.WebhookEventDeliveryID == nil,
+		RequestBody:           body,
+		RequestHeaders:        toGraphHeaders(row.RequestHeaders),
+		ResponseStatus:        respStatus,
+		ResponseBody:          responseBody,
+		ResponseHeaders:       toGraphHeaders(row.ResponseHeaders),
+		ResponseBodyTruncated: row.ResponseBodyTruncated,
+		ErrorMessage:          row.ErrorMessage,
+		DurationMs:            int(row.DurationMs),
+		Success:               row.Success,
+		CreatedAt:             row.CreatedAt.Time,
+	}
+}
+
+func toGraphHeaders(data []byte) []*WebhookHeader {
+	var headers http.Header
+	if err := json.Unmarshal(data, &headers); err != nil {
+		return []*WebhookHeader{}
+	}
+	names := make([]string, 0, len(headers))
+	for name := range headers {
+		names = append(names, name)
+	}
+	slices.Sort(names)
+	result := make([]*WebhookHeader, 0, len(names))
+	for _, name := range names {
+		result = append(result, &WebhookHeader{Name: name, Values: headers[name]})
+	}
+	return result
 }
 
 func validateEventTypes(teamSlug *slug.Slug, eventTypes []string) error {

@@ -23,6 +23,10 @@ func (r *mutationResolver) DeleteWebhook(ctx context.Context, input webhook.Dele
 	return webhook.Delete(ctx, input)
 }
 
+func (r *mutationResolver) TestWebhook(ctx context.Context, input webhook.TestWebhookInput) (*webhook.TestWebhookPayload, error) {
+	return webhook.TestWebhook(ctx, input)
+}
+
 func (r *queryResolver) GlobalWebhooks(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*webhook.WebhookSubscription], error) {
 	if err := authz.RequireGlobalAdmin(ctx); err != nil {
 		return nil, err

@@ -45,6 +45,20 @@ WHERE
 	id = @id
 ;
 
+-- name: ReserveTestDelivery :one
+UPDATE webhook_subscriptions
+SET
+	last_test_at = NOW()
+WHERE
+	id = @id
+	AND (
+		last_test_at IS NULL
+		OR last_test_at <= NOW() - INTERVAL '30 seconds'
+	)
+RETURNING
+	*
+;
+
 -- name: GetSubscription :one
 SELECT
 	*
@@ -168,10 +182,15 @@ INSERT INTO
 		webhook_event_delivery_id,
 		event_type,
 		request_body,
+		request_headers,
 		response_status,
 		response_body,
+		response_headers,
+		response_body_truncated,
+		error_message,
 		duration_ms,
-		success
+		success,
+		attempt_count
 	)
 VALUES
 	(
@@ -179,10 +198,25 @@ VALUES
 		sqlc.narg(webhook_event_delivery_id),
 		@event_type,
 		@request_body,
+		@request_headers,
 		@response_status,
 		@response_body,
+		@response_headers,
+		@response_body_truncated,
+		sqlc.narg(error_message),
 		@duration_ms,
-		@success
+		@success,
+		COALESCE(
+			(
+				SELECT
+					retry_count + 1
+				FROM
+					webhook_event_deliveries
+				WHERE
+					id = sqlc.narg(webhook_event_delivery_id)
+			),
+			1
+		)
 	)
 RETURNING
 	*
@@ -273,7 +307,7 @@ WITH
 	claimed_deliveries AS (
 		UPDATE webhook_event_deliveries
 		SET
-			status = 'completed'
+			status = 'processing'
 		WHERE
 			id IN (
 				SELECT
@@ -283,6 +317,15 @@ WITH
 				WHERE
 					status = 'pending'
 					AND run_at <= NOW()
+					AND EXISTS (
+						SELECT
+							1
+						FROM
+							webhook_subscriptions
+						WHERE
+							webhook_subscriptions.id = webhook_event_deliveries.subscription_id
+							AND webhook_subscriptions.enabled
+					)
 				ORDER BY
 					run_at ASC
 				LIMIT
@@ -305,13 +348,27 @@ FROM
 ;
 
 -- name: RequeueDelivery :exec
-UPDATE webhook_event_deliveries
+WITH
+	requeued AS (
+		UPDATE webhook_event_deliveries
+		SET
+			status = 'pending',
+			retry_count = @retry_count,
+			run_at = @run_at
+		WHERE
+			webhook_event_deliveries.id = @id
+		RETURNING
+			webhook_event_deliveries.id,
+			webhook_event_deliveries.run_at
+	)
+UPDATE webhook_deliveries
 SET
-	status = 'pending',
-	retry_count = @retry_count,
-	run_at = @run_at
+	next_retry_at = requeued.run_at
+FROM
+	requeued
 WHERE
-	id = @id
+	webhook_deliveries.id = @attempt_id
+	AND webhook_deliveries.webhook_event_delivery_id = requeued.id
 ;
 
 -- name: MarkDeliveryFailed :exec
@@ -322,9 +379,17 @@ WHERE
 	id = @id
 ;
 
+-- name: MarkDeliveryCompleted :exec
+UPDATE webhook_event_deliveries
+SET
+	status = 'completed'
+WHERE
+	id = @id
+;
+
 -- name: PruneOldOutboxEvents :exec
 -- Prunes outbox events whose deliveries have all reached a terminal state (a delete
--- cascades to webhook_event_deliveries, so pending rows must be excluded).
+-- cascades to webhook_event_deliveries, so pending and processing rows must be excluded).
 DELETE FROM webhook_events
 WHERE
 	webhook_events.created_at < @before
@@ -336,7 +401,7 @@ WHERE
 			webhook_event_deliveries
 		WHERE
 			webhook_event_deliveries.webhook_event_id = webhook_events.id
-			AND webhook_event_deliveries.status = 'pending'
+			AND webhook_event_deliveries.status IN ('pending', 'processing')
 	)
 ;
 

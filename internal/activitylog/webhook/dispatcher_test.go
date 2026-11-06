@@ -1,19 +1,122 @@
 package webhook
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 )
+
+func TestDeliverPreservesDiagnosticsAndDoesNotChangeTestHealth(t *testing.T) {
+	for _, tt := range []struct {
+		name      string
+		body      []byte
+		status    int
+		truncated bool
+	}{
+		{name: "binary response", body: []byte{0xff, 0x00, 0xfe}, status: http.StatusOK},
+		{name: "failed response", body: []byte("failed"), status: http.StatusInternalServerError},
+		{name: "truncated response", body: bytes.Repeat([]byte("x"), maxResponseBodySize+1), status: http.StatusOK, truncated: true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			q := newWorkerTestQueries(0)
+			payload := []byte("{\n  \"test\": true\n}")
+			d := newWorkerTestDispatcher(t, q, func(req *http.Request) (*http.Response, error) {
+				if got, want := req.Header.Get(signatureHeader), SignPayload("test-secret", payload); got != want {
+					t.Errorf("signature = %q, want %q", got, want)
+				}
+				response := workerTestResponse(tt.status)
+				response.Body = io.NopCloser(bytes.NewReader(tt.body))
+				response.Header.Add("X-Request-Id", "one")
+				response.Header.Add("X-Request-Id", "two")
+				response.Header.Set("X-Service-Version", "v2")
+				response.Header.Set("Set-Cookie", "sensitive")
+				response.Header.Set("X-Api-Key", "sensitive")
+				return response, nil
+			})
+			sub := &webhooksql.WebhookSubscription{ID: uuid.New(), Url: "https://example.test", Secret: "test-secret"}
+			attempt, err := d.deliver(t.Context(), q, sub, "WEBHOOK_TEST", payload, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(attempt.RequestBody, payload) || !bytes.Equal(attempt.ResponseBody, tt.body[:min(len(tt.body), maxResponseBodySize)]) {
+				t.Error("recorded body bytes differ from the request or response")
+			}
+			if attempt.ResponseBodyTruncated != tt.truncated || attempt.Success != (tt.status == http.StatusOK) {
+				t.Errorf("unexpected attempt result: %+v", attempt)
+			}
+			var headers http.Header
+			if err := json.Unmarshal(attempt.ResponseHeaders, &headers); err != nil {
+				t.Fatal(err)
+			}
+			if values := headers.Values("X-Request-Id"); len(values) != 2 || values[0] != "one" || values[1] != "two" {
+				t.Errorf("multi-valued headers were not preserved: %v", headers)
+			}
+			if len(headers) != 2 || headers.Get("X-Service-Version") != "v2" {
+				t.Errorf("unexpected recorded response headers: %v", headers)
+			}
+			if len(q.results) != 0 || len(q.requeued) != 0 {
+				t.Fatal("manual test changed subscription health or scheduled a retry")
+			}
+		})
+	}
+}
+
+func TestStoredRequestHeadersOmitsCredentials(t *testing.T) {
+	headers := make(http.Header)
+	for _, name := range []string{"Authorization", "Proxy-Authorization", "Cookie", "Set-Cookie", "X-Api-Key"} {
+		headers.Set(name, "sensitive")
+	}
+	headers.Set("Content-Type", "application/json")
+	var got http.Header
+	if err := json.Unmarshal(storedRequestHeaders(headers), &got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got.Get("Content-Type") != "application/json" {
+		t.Errorf("unexpected stored headers: %v", got)
+	}
+}
+
+func TestStoredResponseHeaders(t *testing.T) {
+	headers := http.Header{
+		"Content-Type":    {"application/json"},
+		"x-service-debug": {"one", "two"},
+	}
+	for _, name := range []string{
+		"Authorization", "Proxy-Authorization", "WWW-Authenticate", "Proxy-Authenticate",
+		"Authentication-Info", "Proxy-Authentication-Info",
+		"Cookie", "Cookie2", "Set-Cookie", "Set-Cookie2",
+		"Api-Key", "X-Api-Key", "X-Auth-Token", "X-Access-Token",
+		"X-CSRF-Token", "X-CSRFToken", "X-XSRF-Token",
+	} {
+		headers[strings.ToLower(name)] = []string{"sensitive"}
+		headers[strings.ToUpper(name)] = []string{"sensitive"}
+	}
+	var got http.Header
+	if err := json.Unmarshal(storedResponseHeaders(headers), &got); err != nil {
+		t.Fatal(err)
+	}
+	want := http.Header{
+		"Content-Type":    {"application/json"},
+		"X-Service-Debug": {"one", "two"},
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("unexpected stored response headers (-want +got):\n%s", diff)
+	}
+}
 
 func TestProcessDelivery_SkipsNewlyIgnoredQueuedEvent(t *testing.T) {
 	const activityType = "WEBHOOK_TEST_QUEUED_IGNORED_EVENT"
@@ -28,8 +131,8 @@ func TestProcessDelivery_SkipsNewlyIgnoredQueuedEvent(t *testing.T) {
 	for _, eventTypes := range [][]string{{"*"}, {activityType}} {
 		for _, retryCount := range []int32{0, 1} {
 			d := &Dispatcher{}
-			// Ignored deliveries must return before using HTTP, database, or metrics dependencies.
-			d.processDelivery(t.Context(), nil,
+			// Ignored deliveries only finish queue bookkeeping, without HTTP or metrics.
+			d.processDelivery(t.Context(), newWorkerTestQueries(0),
 				&webhooksql.WebhookEventDelivery{RetryCount: retryCount},
 				&webhooksql.WebhookSubscription{EventTypes: eventTypes, Enabled: true},
 				entry,
@@ -213,8 +316,17 @@ func (q *workerTestQueries) ClaimPendingDeliveries(ctx context.Context, batchSiz
 	return []*webhooksql.ClaimPendingDeliveriesRow{row}, nil
 }
 
-func (q *workerTestQueries) CreateDelivery(ctx context.Context, _ webhooksql.CreateDeliveryParams) (*webhooksql.WebhookDelivery, error) {
-	return &webhooksql.WebhookDelivery{}, ctx.Err()
+func (q *workerTestQueries) CreateDelivery(ctx context.Context, arg webhooksql.CreateDeliveryParams) (*webhooksql.WebhookDelivery, error) {
+	return &webhooksql.WebhookDelivery{
+		ID: uuid.New(), Success: arg.Success, RequestBody: arg.RequestBody,
+		RequestHeaders: arg.RequestHeaders, ResponseHeaders: arg.ResponseHeaders,
+		ResponseBody: arg.ResponseBody, ResponseBodyTruncated: arg.ResponseBodyTruncated,
+		ErrorMessage: arg.ErrorMessage,
+	}, ctx.Err()
+}
+
+func (q *workerTestQueries) MarkDeliveryCompleted(ctx context.Context, _ uuid.UUID) error {
+	return ctx.Err()
 }
 
 func (q *workerTestQueries) RecordDeliveryResult(ctx context.Context, arg webhooksql.RecordDeliveryResultParams) (bool, error) {
