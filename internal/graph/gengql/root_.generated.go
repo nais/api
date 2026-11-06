@@ -4055,6 +4055,30 @@ type ComplexityRoot struct {
 		Workload        func(childComplexity int) int
 	}
 
+	WebhookCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	WebhookDeletedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
 	WebhookDelivery struct {
 		CreatedAt      func(childComplexity int) int
 		DurationMs     func(childComplexity int) int
@@ -4086,6 +4110,7 @@ type ComplexityRoot struct {
 	}
 
 	WebhookSubscription struct {
+		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		ConsecutiveFailures func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
 		CreatedBy           func(childComplexity int) int
@@ -4093,8 +4118,9 @@ type ComplexityRoot struct {
 		DisabledAt          func(childComplexity int) int
 		Enabled             func(childComplexity int) int
 		EventTypes          func(childComplexity int) int
+		HasSecret           func(childComplexity int) int
 		ID                  func(childComplexity int) int
-		MaskedSecret        func(childComplexity int) int
+		SourceTeamSlugs     func(childComplexity int) int
 		TeamSlug            func(childComplexity int) int
 		URL                 func(childComplexity int) int
 		UpdatedAt           func(childComplexity int) int
@@ -4109,6 +4135,29 @@ type ComplexityRoot struct {
 	WebhookSubscriptionEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	WebhookUpdatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	WebhookUpdatedActivityLogEntryData struct {
+		UpdatedFields func(childComplexity int) int
+	}
+
+	WebhookUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
 	}
 
 	WorkloadConnection struct {
@@ -21684,6 +21733,132 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerableImageIssue.Workload(childComplexity), true
 
+	case "WebhookCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
 	case "WebhookDelivery.createdAt":
 		if e.ComplexityRoot.WebhookDelivery.CreatedAt == nil {
 			break
@@ -21810,6 +21985,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookEventTypeInfo.Type(childComplexity), true
 
+	case "WebhookSubscription.activityLog":
+		if e.ComplexityRoot.WebhookSubscription.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_WebhookSubscription_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
 	case "WebhookSubscription.consecutiveFailures":
 		if e.ComplexityRoot.WebhookSubscription.ConsecutiveFailures == nil {
 			break
@@ -21864,6 +22051,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookSubscription.EventTypes(childComplexity), true
 
+	case "WebhookSubscription.hasSecret":
+		if e.ComplexityRoot.WebhookSubscription.HasSecret == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.HasSecret(childComplexity), true
+
 	case "WebhookSubscription.id":
 		if e.ComplexityRoot.WebhookSubscription.ID == nil {
 			break
@@ -21871,12 +22065,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookSubscription.ID(childComplexity), true
 
-	case "WebhookSubscription.maskedSecret":
-		if e.ComplexityRoot.WebhookSubscription.MaskedSecret == nil {
+	case "WebhookSubscription.sourceTeamSlugs":
+		if e.ComplexityRoot.WebhookSubscription.SourceTeamSlugs == nil {
 			break
 		}
 
-		return e.ComplexityRoot.WebhookSubscription.MaskedSecret(childComplexity), true
+		return e.ComplexityRoot.WebhookSubscription.SourceTeamSlugs(childComplexity), true
 
 	case "WebhookSubscription.teamSlug":
 		if e.ComplexityRoot.WebhookSubscription.TeamSlug == nil {
@@ -21933,6 +22127,104 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WebhookSubscriptionEdge.Node(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryData.updatedFields":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
 	case "WorkloadConnection.edges":
 		if e.ComplexityRoot.WorkloadConnection.Edges == nil {
@@ -23035,6 +23327,26 @@ extend type ServiceAccount implements ActivityLogger {
 		"""
 		Filter items.
 		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type WebhookSubscription implements ActivityLogger {
+	"Activity log for this webhook subscription, scoped to its unique identifier."
+	activityLog(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter activity log entries for this subscription."
 		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
@@ -37240,14 +37552,17 @@ enum SBOMStatus {
 `, BuiltIn: false},
 	{Name: "../schema/webhooks.graphqls", Input: `"""
 A webhook subscription that receives HTTP callbacks when activity log events occur.
-Webhooks can be scoped to a specific team or registered globally.
+Team-owned webhooks receive events from selected teams or all teams. Global webhooks also receive global events.
 """
 type WebhookSubscription implements Node {
 	"Globally unique ID of the webhook subscription."
 	id: ID!
 
-	"The team this webhook is scoped to. Null for global webhooks."
+	"The team that owns and manages this webhook. Null for admin-only global webhooks."
 	teamSlug: Slug
+
+	"The teams whose events this webhook receives. Empty means all teams. Team-owned webhooks never receive global events."
+	sourceTeamSlugs: [Slug!]!
 
 	"The URL that will receive webhook HTTP POST requests."
 	url: String!
@@ -37273,8 +37588,8 @@ type WebhookSubscription implements Node {
 	"When the webhook was last updated."
 	updatedAt: Time!
 
-	"The masked signing secret. Only the last 4 characters are visible."
-	maskedSecret: String!
+	"Whether a signing secret is set. The stored secret is never returned."
+	hasSecret: Boolean!
 
 	"Recent delivery attempts for this webhook."
 	deliveries(
@@ -37427,15 +37742,16 @@ extend type Mutation {
 	"""
 	Create a new webhook subscription.
 
-	If a team slug is provided, the webhook will only receive events for that team.
-	If no team slug is provided, the webhook is global and receives all events (admin only).
+	The owning team can select source teams without permission from those teams, or subscribe to all teams.
+	By default, a team-owned webhook receives only its own team's events.
+	If no owner team slug is provided, the webhook is global and receives all events (admin only).
 	"""
 	createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
 
 	"""
 	Update an existing webhook subscription.
 
-	Can be used to change the URL, secret, event types, or enabled status.
+	Can be used to change the source teams, URL, secret, event types, or enabled status. Ownership cannot be changed.
 	"""
 	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
 
@@ -37449,8 +37765,11 @@ extend type Mutation {
 
 "Input for creating a new webhook subscription."
 input CreateWebhookInput {
-	"The team slug to scope this webhook to. Omit for a global webhook."
+	"The team that owns and manages this webhook. Omit for an admin-only global webhook."
 	teamSlug: Slug
+
+	"The teams whose events to receive. Omit or pass null to receive only the owner's events. An empty list selects all teams, excluding global events for team-owned webhooks."
+	sourceTeamSlugs: [Slug!]
 
 	"The URL that will receive webhook HTTP POST requests."
 	url: String!
@@ -37473,10 +37792,13 @@ input UpdateWebhookInput {
 	"The ID of the webhook subscription to update."
 	id: ID!
 
+	"The teams whose events to receive. Omit or pass null to keep the current selection. An empty list selects all teams, excluding global events for team-owned webhooks."
+	sourceTeamSlugs: [Slug!]
+
 	"The new URL for the webhook. Null to keep the current value."
 	url: String
 
-	"The new secret for signing. Null to keep the current value."
+	"The replacement signing secret. Omit or pass null to keep the current secret. The stored secret is never returned."
 	secret: String
 
 	"The new event types to subscribe to. Null to keep the current value."
@@ -37502,6 +37824,106 @@ input DeleteWebhookInput {
 type DeleteWebhookPayload {
 	"The ID of the deleted webhook subscription."
 	webhookID: ID!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A webhook subscription."
+	WEBHOOK
+}
+
+extend enum ActivityLogActivityType {
+	"A webhook subscription was created."
+	WEBHOOK_CREATED
+
+	"A webhook subscription was updated."
+	WEBHOOK_UPDATED
+
+	"A webhook subscription was deleted."
+	WEBHOOK_DELETED
+}
+
+"An activity log entry for creating a webhook subscription."
+type WebhookCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who created the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+}
+
+"An activity log entry for updating a webhook subscription."
+type WebhookUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who updated the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+	"The fields changed by the update. Signing secrets and endpoint URL values are never included."
+	data: WebhookUpdatedActivityLogEntryData!
+}
+
+"Details of a webhook subscription update."
+type WebhookUpdatedActivityLogEntryData {
+	"The fields whose values changed. Empty when the update made no changes."
+	updatedFields: [WebhookUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A changed webhook subscription field."
+type WebhookUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+	"The previous value. Null for signing secrets and endpoint URLs."
+	oldValue: String
+	"The replacement value. Null for signing secrets and endpoint URLs."
+	newValue: String
+}
+
+"An activity log entry for deleting a webhook subscription."
+type WebhookDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who deleted the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
 }
 `, BuiltIn: false},
 	{Name: "../schema/workload_events.graphqls", Input: `extend interface Workload {
@@ -43393,6 +43815,8 @@ func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context,
 		return ec.fieldContext_WebhookSubscription_id(ctx, field)
 	case "teamSlug":
 		return ec.fieldContext_WebhookSubscription_teamSlug(ctx, field)
+	case "sourceTeamSlugs":
+		return ec.fieldContext_WebhookSubscription_sourceTeamSlugs(ctx, field)
 	case "url":
 		return ec.fieldContext_WebhookSubscription_url(ctx, field)
 	case "eventTypes":
@@ -43409,10 +43833,12 @@ func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context,
 		return ec.fieldContext_WebhookSubscription_createdAt(ctx, field)
 	case "updatedAt":
 		return ec.fieldContext_WebhookSubscription_updatedAt(ctx, field)
-	case "maskedSecret":
-		return ec.fieldContext_WebhookSubscription_maskedSecret(ctx, field)
+	case "hasSecret":
+		return ec.fieldContext_WebhookSubscription_hasSecret(ctx, field)
 	case "deliveries":
 		return ec.fieldContext_WebhookSubscription_deliveries(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_WebhookSubscription_activityLog(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscription", field.Name)
 }
@@ -43437,6 +43863,26 @@ func (ec *executionContext) childFields_WebhookSubscriptionEdge(ctx context.Cont
 		return ec.fieldContext_WebhookSubscriptionEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscriptionEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "updatedFields":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookUpdatedActivityLogEntryDataUpdatedField", field.Name)
 }
 
 func (ec *executionContext) childFields_WorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

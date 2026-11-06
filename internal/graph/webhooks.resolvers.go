@@ -54,8 +54,8 @@ func (r *teamResolver) Webhooks(ctx context.Context, obj *team.Team, first *int,
 	return webhook.ListForTeam(ctx, obj.Slug, page)
 }
 
-func (r *webhookSubscriptionResolver) MaskedSecret(ctx context.Context, obj *webhook.WebhookSubscription) (string, error) {
-	return webhook.MaskedSecret(obj.Secret), nil
+func (r *webhookSubscriptionResolver) HasSecret(ctx context.Context, obj *webhook.WebhookSubscription) (bool, error) {
+	return obj.Secret != "", nil
 }
 
 func (r *webhookSubscriptionResolver) Deliveries(ctx context.Context, obj *webhook.WebhookSubscription, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*webhook.WebhookDelivery], error) {

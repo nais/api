@@ -1,9 +1,17 @@
 -- name: CreateSubscription :one
 INSERT INTO
-	webhook_subscriptions (team_slug, url, secret, event_types, created_by)
+	webhook_subscriptions (
+		team_slug,
+		source_team_slugs,
+		url,
+		secret,
+		event_types,
+		created_by
+	)
 VALUES
 	(
 		@team_slug,
+		@source_team_slugs::slug[],
 		@url,
 		@secret,
 		@event_types,
@@ -19,6 +27,10 @@ SET
 	url = COALESCE(sqlc.narg(url), url),
 	secret = COALESCE(sqlc.narg(secret), secret),
 	event_types = COALESCE(sqlc.narg(event_types), event_types),
+	source_team_slugs = COALESCE(
+		sqlc.narg(source_team_slugs)::slug[],
+		source_team_slugs
+	),
 	enabled = COALESCE(sqlc.narg(enabled), enabled)
 WHERE
 	id = @id
@@ -93,6 +105,17 @@ WHERE
 	enabled = TRUE
 ORDER BY
 	created_at DESC
+;
+
+-- name: ListExistingSourceTeams :many
+SELECT
+	slug
+FROM
+	teams
+WHERE
+	slug = ANY (@slugs::slug[])
+ORDER BY
+	slug
 ;
 
 -- name: RecordDeliveryResult :one
