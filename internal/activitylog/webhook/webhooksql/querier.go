@@ -18,6 +18,7 @@ type Querier interface {
 	// Claims per-(event, subscription) delivery rows for processing, using the same
 	// FOR UPDATE SKIP LOCKED pattern as ClaimOutboxEventsForFanout.
 	ClaimPendingDeliveries(ctx context.Context, batchSize int32) ([]*ClaimPendingDeliveriesRow, error)
+	// Allocate attempt numbers atomically, including after an expired claim is recovered.
 	CreateDelivery(ctx context.Context, arg CreateDeliveryParams) (*WebhookDelivery, error)
 	CreateEventDelivery(ctx context.Context, arg CreateEventDeliveryParams) error
 	CreateSubscription(ctx context.Context, arg CreateSubscriptionParams) (*WebhookSubscription, error)
@@ -25,6 +26,7 @@ type Querier interface {
 	GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelivery, error)
 	GetQueueSizeByStatus(ctx context.Context) ([]*GetQueueSizeByStatusRow, error)
 	GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
+	GetSubscriptionForUpdate(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error)
 	ListDeliveriesByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookDelivery, error)
 	ListDeliveriesForSubscription(ctx context.Context, arg ListDeliveriesForSubscriptionParams) ([]*ListDeliveriesForSubscriptionRow, error)
 	ListEnabledSubscriptions(ctx context.Context) ([]*WebhookSubscription, error)
@@ -32,8 +34,8 @@ type Querier interface {
 	ListGlobalSubscriptions(ctx context.Context, arg ListGlobalSubscriptionsParams) ([]*ListGlobalSubscriptionsRow, error)
 	ListSubscriptionsByIDs(ctx context.Context, ids []uuid.UUID) ([]*WebhookSubscription, error)
 	ListSubscriptionsForTeam(ctx context.Context, arg ListSubscriptionsForTeamParams) ([]*ListSubscriptionsForTeamRow, error)
-	MarkDeliveryCompleted(ctx context.Context, id uuid.UUID) error
-	MarkDeliveryFailed(ctx context.Context, id uuid.UUID) error
+	MarkDeliveryCompleted(ctx context.Context, arg MarkDeliveryCompletedParams) error
+	MarkDeliveryFailed(ctx context.Context, arg MarkDeliveryFailedParams) error
 	MarkOutboxEventsCompleted(ctx context.Context, ids []uuid.UUID) error
 	PruneDeliveries(ctx context.Context, before pgtype.Timestamptz) error
 	PruneOldEventDeliveries(ctx context.Context, before pgtype.Timestamptz) error

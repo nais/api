@@ -31,7 +31,7 @@ for _, tt in ipairs({
 					name: "  %s  "
 					teamSlug: "team-owner"
 					%s
-					url: "http://127.0.0.1:1/webhook"
+					url: "https://webhook.example.invalid/webhook"
 					secret: "test-secret"
 					eventTypes: ["*"]
 				}) {
@@ -70,7 +70,7 @@ for _, tt in ipairs({
 		local input
 		if tt.mutation == "createWebhook" then
 			input = string.format([[
-				name: %q teamSlug: "team-owner" url: "http://127.0.0.1:1/webhook"
+				name: %q teamSlug: "team-owner" url: "https://webhook.example.invalid/webhook"
 				secret: "test-secret" eventTypes: ["*"]
 			]], tt.value)
 		else
@@ -185,7 +185,7 @@ Test.gql("All teams still requires authorization in the owner team", function(t)
 				name: "Test webhook"
 				teamSlug: "team-owner"
 				sourceTeamSlugs: []
-				url: "http://127.0.0.1:1/webhook"
+				url: "https://webhook.example.invalid/webhook"
 				secret: "test-secret"
 				eventTypes: ["*"]
 			}) {
@@ -211,7 +211,7 @@ Test.gql("Legacy admin global webhooks remain global", function(t)
 		mutation {
 			createWebhook(input: {
 				name: "Test webhook"
-				url: "http://127.0.0.1:1/webhook"
+				url: "https://webhook.example.invalid/webhook"
 				secret: "test-secret"
 				eventTypes: ["*"]
 			}) {
@@ -239,7 +239,7 @@ Test.gql("Accept an eight-character signing secret", function(t)
 			createWebhook(input: {
 				name: "Test webhook"
 				teamSlug: "team-owner"
-				url: "http://127.0.0.1:1/secret-test"
+				url: "https://webhook.example.invalid/secret-test"
 				secret: "12345678"
 				eventTypes: ["*"]
 			}) {
@@ -283,7 +283,7 @@ for _, tt in ipairs({
 		local row = Helper.SQLQueryRow([[
 			SELECT secret = $1 AS matches
 			FROM webhook_subscriptions
-			WHERE url = 'http://127.0.0.1:1/secret-test'
+			WHERE url = 'https://webhook.example.invalid/secret-test'
 		]], "replacement-secret")
 		assert(row.matches, "Stored signing secret was not preserved or replaced correctly")
 	end)
@@ -301,7 +301,7 @@ for _, tt in ipairs({
 			if mutation == "createWebhook" then
 				input = [=[
 					name: "Rejected secret" teamSlug: "team-owner"
-					url: "http://127.0.0.1:1/rejected-secret" eventTypes: ["*"]
+					url: "https://webhook.example.invalid/rejected-secret" eventTypes: ["*"]
 				]=]
 			else
 				input = string.format('id: "%s"', State.secretWebhookID)
@@ -324,7 +324,7 @@ for _, tt in ipairs({
 			local row = Helper.SQLQueryRow([[
 				SELECT secret = 'replacement-secret' AS matches
 				FROM webhook_subscriptions
-				WHERE url = 'http://127.0.0.1:1/secret-test'
+				WHERE url = 'https://webhook.example.invalid/secret-test'
 			]])
 			assert(row.matches, "Rejected secrets must not replace the stored secret")
 		end)
@@ -343,7 +343,7 @@ for _, tt in ipairs({
 					name: "Shared webhook"
 					teamSlug: "%s"
 					sourceTeamSlugs: ["team-other"]
-					url: "http://127.0.0.1:1/shared"
+					url: "https://webhook.example.invalid/shared"
 					secret: "test-secret"
 					eventTypes: ["*"]
 				}) {
@@ -373,7 +373,7 @@ for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
 		local input
 		if mutation == "createWebhook" then
 			input = [=[
-				teamSlug: "team-owner" sourceTeamSlugs: [] url: "http://127.0.0.1:1/duplicate"
+				teamSlug: "team-owner" sourceTeamSlugs: [] url: "https://webhook.example.invalid/duplicate"
 				secret: "test-secret" eventTypes: ["*"]
 			]=]
 		else
@@ -454,7 +454,7 @@ Test.gql("Manual tests record failures without retries or changes to subscriptio
 		"SELECT COUNT(*) AS count FROM activity_log_entries WHERE resource_type = 'WEBHOOK'")
 	Helper.SQLExec([[
 		UPDATE webhook_subscriptions SET enabled = FALSE, consecutive_failures = 9
-		WHERE url = 'http://127.0.0.1:1/secret-test'
+		WHERE url = 'https://webhook.example.invalid/secret-test'
 	]])
 	t.query(string.format([[
 		mutation {
@@ -493,7 +493,7 @@ Test.gql("Manual tests record failures without retries or changes to subscriptio
 		SELECT NOT enabled AND consecutive_failures = 9 AS unchanged,
 			(SELECT COUNT(*) FROM webhook_deliveries WHERE subscription_id = webhook_subscriptions.id) AS attempts,
 			(SELECT COUNT(*) FROM webhook_event_deliveries WHERE subscription_id = webhook_subscriptions.id) AS queued
-		FROM webhook_subscriptions WHERE url = 'http://127.0.0.1:1/secret-test'
+		FROM webhook_subscriptions WHERE url = 'https://webhook.example.invalid/secret-test'
 	]])
 	assert(row.unchanged, "Manual tests must not affect subscription health")
 	assert(tonumber(row.attempts) == 1 and tonumber(row.queued) == 0,

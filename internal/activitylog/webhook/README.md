@@ -102,9 +102,10 @@ The dispatcher is started on every API replica (`go webhookDispatcher.Run(ctx)`,
 - Both the fan-out claim (`ClaimOutboxEventsForFanout`) and the delivery claim (`ClaimPendingDeliveries`) use `SELECT ... FOR UPDATE SKIP LOCKED`. Concurrent workers or replicas racing on these queries cannot claim the same row in that claim cycle. Each replica adds three delivery workers; retries can still produce duplicate HTTP deliveries.
 - Fan-out (claiming an event, matching subscriptions, inserting delivery rows, marking the event completed) happens in a single DB transaction. `CreateEventDelivery` is idempotent (`ON CONFLICT (webhook_event_id, subscription_id) DO NOTHING`), so an interrupted or repeated fan-out attempt is safe.
 - Delivery marks a `webhook_event_deliveries` row `processing` at claim time and only
-  marks it `completed` after success. A replica killed mid-delivery can leave a row
-  stuck in `processing`; automatic recovery still requires a lease and reaper.
-  Active processing rows are excluded from retention cleanup.
+  marks it `completed` after success. Claims expire after one minute and can then
+  be reclaimed by another worker. A new claim token prevents the previous worker
+  from completing or rescheduling the reclaimed job. Active processing rows are
+  excluded from retention cleanup.
 
 ## Retention & cleanup
 
@@ -222,11 +223,27 @@ Disabled subscriptions pause queued deliveries until re-enabled.
 
 ## Authorisation
 
+Reads of subscriptions, delivery diagnostics, and subscription activity logs require
+the owning team's webhook-update permission. Global subscriptions require admin access.
+The same checks apply to direct node lookups.
+
 | Action              | Allowed                                    |
 | ------------------- | ------------------------------------------ |
 | Team-scoped webhook | Team owner                                 |
 | Global webhook      | Admin (Go-level check, not a DB role)      |
 | Update / delete     | Owner of the subscription's team, or admin |
+
+## Endpoint policy
+
+Endpoints must use HTTPS hostnames without URL credentials or fragments. Redirects
+are recorded as failed HTTP attempts, not followed. Each connection resolves and
+checks all destination addresses, then connects directly to an approved address
+without a second DNS lookup or an environment-configured proxy.
+
+Public destinations are allowed. Private addresses are allowed only for hostnames
+under `intern.<tenant>.cloud.nais.io`, such as
+`myapp.intern.mytenant.cloud.nais.io`. Loopback, link-local, metadata, and other
+reserved destinations remain blocked even for these internal ingress names.
 
 ## Monitoring & Metrics
 
@@ -245,11 +262,11 @@ The webhook domain exports telemetry using native OpenTelemetry metrics under th
 2. **High webhook delivery failure rate**:
 
    ```promql
-   sum(rate(webhook_deliveries_total{success="false"}[5m])) / sum(rate(webhook_deliveries_total[5m])) * 100 > 10
+   sum(rate(nais_api_webhook_deliveries_total{success="false"}[5m])) / sum(rate(nais_api_webhook_deliveries_total[5m])) * 100 > 10
    ```
 
 3. **Auto-disabled subscriptions rate**:
 
    ```promql
-   sum(rate(webhook_subscriptions_auto_disabled_total[1h])) > 0
+   sum(rate(nais_api_webhook_subscriptions_auto_disabled_total[1h])) > 0
    ```

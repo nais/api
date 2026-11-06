@@ -61,7 +61,7 @@ type Dispatcher struct {
 }
 
 // NewDispatcher creates a new webhook dispatcher that drains events from the outbox table.
-func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string, log logrus.FieldLogger) (*Dispatcher, error) {
+func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source, tenant string, log logrus.FieldLogger) (*Dispatcher, error) {
 	q := webhooksql.New(pool)
 	m, err := newWebhookMetrics(q)
 	if err != nil {
@@ -69,15 +69,13 @@ func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string,
 	}
 
 	d := &Dispatcher{
-		pool:     pool,
-		queries:  q,
-		notifier: notifier,
-		log:      log.WithField("subsystem", "webhook_dispatcher"),
-		source:   source,
-		httpClient: &http.Client{
-			Timeout: defaultTimeout,
-		},
-		metrics: m,
+		pool:       pool,
+		queries:    q,
+		notifier:   notifier,
+		log:        log.WithField("subsystem", "webhook_dispatcher"),
+		source:     source,
+		httpClient: newWebhookHTTPClient(tenant),
+		metrics:    m,
 	}
 	for i := range d.wakeups {
 		d.wakeups[i] = make(chan struct{}, 1)
@@ -273,7 +271,7 @@ func toWebhookEvent(a *webhooksql.ActivityLogEntry) WebhookEvent {
 func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, del *webhooksql.WebhookEventDelivery, sub *webhooksql.WebhookSubscription, a *webhooksql.ActivityLogEntry) {
 	event := toWebhookEvent(a)
 	if event.isIgnored() {
-		if err := q.MarkDeliveryCompleted(ctx, del.ID); err != nil {
+		if err := q.MarkDeliveryCompleted(ctx, webhooksql.MarkDeliveryCompletedParams{ID: del.ID, ClaimToken: del.ClaimToken}); err != nil {
 			d.log.WithError(err).Error("finishing ignored webhook delivery")
 		}
 		return
@@ -289,6 +287,9 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 	payload, err := BuildCloudEvent(d.source, del.ID.String(), event)
 	if err != nil {
 		d.log.WithError(err).Error("building CloudEvent payload")
+		if err := q.MarkDeliveryFailed(ctx, webhooksql.MarkDeliveryFailedParams{ID: del.ID, ClaimToken: del.ClaimToken}); err != nil {
+			d.log.WithError(err).Error("marking invalid webhook delivery failed")
+		}
 		return
 	}
 
@@ -299,7 +300,7 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 	success := attempt != nil && attempt.Success
 
 	if success {
-		if err := q.MarkDeliveryCompleted(ctx, del.ID); err != nil {
+		if err := q.MarkDeliveryCompleted(ctx, webhooksql.MarkDeliveryCompletedParams{ID: del.ID, ClaimToken: del.ClaimToken}); err != nil {
 			d.log.WithError(err).Error("marking webhook delivery completed")
 		}
 		d.metrics.processedCounter.Add(ctx, 1, metric.WithAttributes(
@@ -320,6 +321,7 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 		}
 		if err := q.RequeueDelivery(ctx, webhooksql.RequeueDeliveryParams{
 			ID:         del.ID,
+			ClaimToken: del.ClaimToken,
 			AttemptID:  attemptID,
 			RetryCount: int32(nextRetry),
 			RunAt:      pgtype.Timestamptz{Time: runAt, Valid: true},
@@ -330,7 +332,7 @@ func (d *Dispatcher) processDelivery(ctx context.Context, q webhooksql.Querier, 
 			attribute.String("status", "requeued"),
 		))
 	} else {
-		if err := q.MarkDeliveryFailed(ctx, del.ID); err != nil {
+		if err := q.MarkDeliveryFailed(ctx, webhooksql.MarkDeliveryFailedParams{ID: del.ID, ClaimToken: del.ClaimToken}); err != nil {
 			d.log.WithError(err).Error("marking webhook delivery as failed")
 		}
 		d.metrics.processedCounter.Add(ctx, 1, metric.WithAttributes(

@@ -77,7 +77,9 @@ WITH
 	claimed_deliveries AS (
 		UPDATE webhook_event_deliveries
 		SET
-			status = 'processing'
+			status = 'processing',
+			claim_token = GEN_RANDOM_UUID(),
+			lease_expires_at = NOW() + INTERVAL '1 minute'
 		WHERE
 			id IN (
 				SELECT
@@ -85,8 +87,16 @@ WITH
 				FROM
 					webhook_event_deliveries
 				WHERE
-					status = 'pending'
-					AND run_at <= NOW()
+					(
+						(
+							status = 'pending'
+							AND run_at <= NOW()
+						)
+						OR (
+							status = 'processing'
+							AND lease_expires_at <= NOW()
+						)
+					)
 					AND EXISTS (
 						SELECT
 							1
@@ -104,10 +114,10 @@ WITH
 					SKIP LOCKED
 			)
 		RETURNING
-			id, webhook_event_id, subscription_id, status, retry_count, run_at, created_at
+			id, webhook_event_id, subscription_id, status, retry_count, attempt_count, claim_token, lease_expires_at, run_at, created_at
 	)
 SELECT
-	webhook_event_deliveries.id, webhook_event_deliveries.webhook_event_id, webhook_event_deliveries.subscription_id, webhook_event_deliveries.status, webhook_event_deliveries.retry_count, webhook_event_deliveries.run_at, webhook_event_deliveries.created_at,
+	webhook_event_deliveries.id, webhook_event_deliveries.webhook_event_id, webhook_event_deliveries.subscription_id, webhook_event_deliveries.status, webhook_event_deliveries.retry_count, webhook_event_deliveries.attempt_count, webhook_event_deliveries.claim_token, webhook_event_deliveries.lease_expires_at, webhook_event_deliveries.run_at, webhook_event_deliveries.created_at,
 	webhook_subscriptions.id, webhook_subscriptions.name, webhook_subscriptions.team_slug, webhook_subscriptions.source_team_slugs, webhook_subscriptions.url, webhook_subscriptions.secret, webhook_subscriptions.event_types, webhook_subscriptions.enabled, webhook_subscriptions.consecutive_failures, webhook_subscriptions.disabled_at, webhook_subscriptions.last_test_at, webhook_subscriptions.created_at, webhook_subscriptions.updated_at,
 	activity_log_entries.id, activity_log_entries.created_at, activity_log_entries.actor, activity_log_entries.action, activity_log_entries.resource_type, activity_log_entries.resource_name, activity_log_entries.team_slug, activity_log_entries.data, activity_log_entries.environment, activity_log_entries.github_actor_claims, activity_log_entries.kubernetes_audit_uid
 FROM
@@ -140,6 +150,9 @@ func (q *Queries) ClaimPendingDeliveries(ctx context.Context, batchSize int32) (
 			&i.WebhookEventDelivery.SubscriptionID,
 			&i.WebhookEventDelivery.Status,
 			&i.WebhookEventDelivery.RetryCount,
+			&i.WebhookEventDelivery.AttemptCount,
+			&i.WebhookEventDelivery.ClaimToken,
+			&i.WebhookEventDelivery.LeaseExpiresAt,
 			&i.WebhookEventDelivery.RunAt,
 			&i.WebhookEventDelivery.CreatedAt,
 			&i.WebhookSubscription.ID,
@@ -178,6 +191,16 @@ func (q *Queries) ClaimPendingDeliveries(ctx context.Context, batchSize int32) (
 }
 
 const createDelivery = `-- name: CreateDelivery :one
+WITH
+	numbered_delivery AS (
+		UPDATE webhook_event_deliveries
+		SET
+			attempt_count = webhook_event_deliveries.attempt_count + 1
+		WHERE
+			webhook_event_deliveries.id = $2
+		RETURNING
+			webhook_event_deliveries.attempt_count
+	)
 INSERT INTO
 	webhook_deliveries (
 		subscription_id,
@@ -211,11 +234,9 @@ VALUES
 		COALESCE(
 			(
 				SELECT
-					retry_count + 1
+					numbered_delivery.attempt_count
 				FROM
-					webhook_event_deliveries
-				WHERE
-					id = $2
+					numbered_delivery
 			),
 			1
 		)
@@ -239,6 +260,7 @@ type CreateDeliveryParams struct {
 	Success                bool
 }
 
+// Allocate attempt numbers atomically, including after an expired claim is recovered.
 func (q *Queries) CreateDelivery(ctx context.Context, arg CreateDeliveryParams) (*WebhookDelivery, error) {
 	row := q.db.QueryRow(ctx, createDelivery,
 		arg.SubscriptionID,
@@ -446,6 +468,37 @@ WHERE
 
 func (q *Queries) GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
 	row := q.db.QueryRow(ctx, getSubscription, id)
+	var i WebhookSubscription
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.TeamSlug,
+		&i.SourceTeamSlugs,
+		&i.Url,
+		&i.Secret,
+		&i.EventTypes,
+		&i.Enabled,
+		&i.ConsecutiveFailures,
+		&i.DisabledAt,
+		&i.LastTestAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
+const getSubscriptionForUpdate = `-- name: GetSubscriptionForUpdate :one
+SELECT
+	id, name, team_slug, source_team_slugs, url, secret, event_types, enabled, consecutive_failures, disabled_at, last_test_at, created_at, updated_at
+FROM
+	webhook_subscriptions
+WHERE
+	id = $1
+FOR UPDATE
+`
+
+func (q *Queries) GetSubscriptionForUpdate(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
+	row := q.db.QueryRow(ctx, getSubscriptionForUpdate, id)
 	var i WebhookSubscription
 	err := row.Scan(
 		&i.ID,
@@ -825,26 +878,42 @@ func (q *Queries) ListSubscriptionsForTeam(ctx context.Context, arg ListSubscrip
 const markDeliveryCompleted = `-- name: MarkDeliveryCompleted :exec
 UPDATE webhook_event_deliveries
 SET
-	status = 'completed'
+	status = 'completed',
+	lease_expires_at = NULL
 WHERE
 	id = $1
+	AND claim_token = $2
+	AND status = 'processing'
 `
 
-func (q *Queries) MarkDeliveryCompleted(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, markDeliveryCompleted, id)
+type MarkDeliveryCompletedParams struct {
+	ID         uuid.UUID
+	ClaimToken uuid.UUID
+}
+
+func (q *Queries) MarkDeliveryCompleted(ctx context.Context, arg MarkDeliveryCompletedParams) error {
+	_, err := q.db.Exec(ctx, markDeliveryCompleted, arg.ID, arg.ClaimToken)
 	return err
 }
 
 const markDeliveryFailed = `-- name: MarkDeliveryFailed :exec
 UPDATE webhook_event_deliveries
 SET
-	status = 'failed'
+	status = 'failed',
+	lease_expires_at = NULL
 WHERE
 	id = $1
+	AND claim_token = $2
+	AND status = 'processing'
 `
 
-func (q *Queries) MarkDeliveryFailed(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, markDeliveryFailed, id)
+type MarkDeliveryFailedParams struct {
+	ID         uuid.UUID
+	ClaimToken uuid.UUID
+}
+
+func (q *Queries) MarkDeliveryFailed(ctx context.Context, arg MarkDeliveryFailedParams) error {
+	_, err := q.db.Exec(ctx, markDeliveryFailed, arg.ID, arg.ClaimToken)
 	return err
 }
 
@@ -968,10 +1037,13 @@ WITH
 		UPDATE webhook_event_deliveries
 		SET
 			status = 'pending',
+			lease_expires_at = NULL,
 			retry_count = $2,
 			run_at = $3
 		WHERE
 			webhook_event_deliveries.id = $4
+			AND webhook_event_deliveries.claim_token = $5
+			AND webhook_event_deliveries.status = 'processing'
 		RETURNING
 			webhook_event_deliveries.id,
 			webhook_event_deliveries.run_at
@@ -991,6 +1063,7 @@ type RequeueDeliveryParams struct {
 	RetryCount int32
 	RunAt      pgtype.Timestamptz
 	ID         uuid.UUID
+	ClaimToken uuid.UUID
 }
 
 func (q *Queries) RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams) error {
@@ -999,6 +1072,7 @@ func (q *Queries) RequeueDelivery(ctx context.Context, arg RequeueDeliveryParams
 		arg.RetryCount,
 		arg.RunAt,
 		arg.ID,
+		arg.ClaimToken,
 	)
 	return err
 }

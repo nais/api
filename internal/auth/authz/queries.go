@@ -360,6 +360,13 @@ func CanCreateWebhook(ctx context.Context, teamSlug *slug.Slug) error {
 	return requireAuthorization(ctx, "webhooks:create", teamSlug)
 }
 
+func CanReadWebhook(ctx context.Context, teamSlug *slug.Slug) error {
+	if teamSlug == nil {
+		return RequireGlobalAdmin(ctx)
+	}
+	return CanUpdateWebhook(ctx, teamSlug)
+}
+
 func CanUpdateWebhook(ctx context.Context, teamSlug *slug.Slug) error {
 	return requireAuthorization(ctx, "webhooks:update", teamSlug)
 }

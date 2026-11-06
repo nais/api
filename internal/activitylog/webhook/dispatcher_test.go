@@ -319,13 +319,14 @@ func (q *workerTestQueries) ClaimPendingDeliveries(ctx context.Context, batchSiz
 func (q *workerTestQueries) CreateDelivery(ctx context.Context, arg webhooksql.CreateDeliveryParams) (*webhooksql.WebhookDelivery, error) {
 	return &webhooksql.WebhookDelivery{
 		ID: uuid.New(), Success: arg.Success, RequestBody: arg.RequestBody,
+		ResponseStatus: arg.ResponseStatus,
 		RequestHeaders: arg.RequestHeaders, ResponseHeaders: arg.ResponseHeaders,
 		ResponseBody: arg.ResponseBody, ResponseBodyTruncated: arg.ResponseBodyTruncated,
 		ErrorMessage: arg.ErrorMessage,
 	}, ctx.Err()
 }
 
-func (q *workerTestQueries) MarkDeliveryCompleted(ctx context.Context, _ uuid.UUID) error {
+func (q *workerTestQueries) MarkDeliveryCompleted(ctx context.Context, _ webhooksql.MarkDeliveryCompletedParams) error {
 	return ctx.Err()
 }
 
@@ -347,10 +348,10 @@ func (q *workerTestQueries) RequeueDelivery(_ context.Context, arg webhooksql.Re
 	return nil
 }
 
-func (q *workerTestQueries) MarkDeliveryFailed(_ context.Context, id uuid.UUID) error {
+func (q *workerTestQueries) MarkDeliveryFailed(_ context.Context, arg webhooksql.MarkDeliveryFailedParams) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	q.failed = append(q.failed, id)
+	q.failed = append(q.failed, arg.ID)
 	return nil
 }
 
@@ -363,7 +364,7 @@ func (f workerRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error
 func newWorkerTestDispatcher(t *testing.T, q *workerTestQueries, transport workerRoundTripFunc) *Dispatcher {
 	t.Helper()
 	log, _ := logrustest.NewNullLogger()
-	d, err := NewDispatcher(nil, nil, "https://api.example.test", log)
+	d, err := NewDispatcher(nil, nil, "https://api.example.test", "test-tenant", log)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -190,6 +190,11 @@ func (w *WebhookSubscription) MatchesEvent(event WebhookEvent) bool {
 		if event.TeamSlug == nil || (len(w.SourceTeamSlugs) > 0 && !slices.Contains(w.SourceTeamSlugs, *event.TeamSlug)) {
 			return false
 		}
+		for _, at := range event.ActivityTypes {
+			if !activitylog.IsTeamScoped(activitylog.ActivityLogActivityType(at)) {
+				return false
+			}
+		}
 	}
 
 	for _, subType := range w.EventTypes {

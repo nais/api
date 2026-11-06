@@ -115,6 +115,9 @@ func (r *valkeyResolver) ActivityLog(ctx context.Context, obj *valkey.Valkey, fi
 }
 
 func (r *webhookSubscriptionResolver) ActivityLog(ctx context.Context, obj *webhook.WebhookSubscription, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error) {
+	if _, err := webhook.GetSubscription(ctx, obj.UUID); err != nil {
+		return nil, err
+	}
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err

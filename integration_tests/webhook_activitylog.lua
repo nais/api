@@ -45,7 +45,7 @@ Test.gql("Creating a webhook records the actor, owner and subscription identifie
 			createWebhook(input: {
 				name: "Test webhook"
 				teamSlug: "team-owner"
-				url: "http://127.0.0.1:1/old-url-token"
+				url: "https://webhook.example.invalid/old-url-token"
 				secret: "old-signing-secret"
 				eventTypes: ["TEAM_UPDATED"]
 			}) {
@@ -81,7 +81,7 @@ Test.gql("Webhook updates record changes without storing signing secrets or endp
 			updateWebhook(input: {
 				id: "%s"
 				name: "Renamed webhook"
-				url: "http://127.0.0.1:1/new-url-token"
+				url: "https://webhook.example.invalid/new-url-token"
 				secret: "new-signing-secret"
 				eventTypes: ["TEAM_MEMBER_ADDED"]
 				sourceTeamSlugs: []
@@ -196,7 +196,7 @@ for _, tt in ipairs({
 	{
 		name = "Create",
 		mutation = "createWebhook",
-		input = [=[name: "Test webhook" teamSlug: "team-owner" url: "http://127.0.0.1:1/failed" secret: "test-secret" eventTypes: ["*"]]=],
+		input = [=[name: "Test webhook" teamSlug: "team-owner" url: "https://webhook.example.invalid/failed" secret: "test-secret" eventTypes: ["*"]]=],
 		fields = "webhook { id }",
 	},
 	{ name = "Update", mutation = "updateWebhook", input = "enabled: true", fields = "webhook { id }" },
@@ -270,7 +270,7 @@ Test.gql("Global webhook activity has no owning team", function(t)
 		mutation {
 			createWebhook(input: {
 				name: "Test webhook"
-				url: "http://127.0.0.1:1/global"
+				url: "https://webhook.example.invalid/global"
 				secret: "global-secret"
 				eventTypes: ["TEAM_UPDATED"]
 			}) {
@@ -317,7 +317,7 @@ for _, tt in ipairs({
 				createWebhook(input: {
 					name: %q
 					teamSlug: "team-owner"
-					url: "http://127.0.0.1:1/global"
+					url: "https://webhook.example.invalid/global"
 					secret: "test-secret"
 					eventTypes: ["TEAM_UPDATED"]
 				}) {
@@ -484,3 +484,136 @@ for _, key in ipairs({ "primaryWebhookID", "siblingWebhookID", "globalWebhookID"
 		}
 	end)
 end
+
+Test.gql("Prepare delivery node authorization fixtures", function(t)
+	t.addHeader("x-user-email", admin:email())
+	Helper.SQLExec([[
+		INSERT INTO webhook_deliveries (subscription_id, event_type, request_body, duration_ms, success)
+		SELECT id, 'WEBHOOK_TEST', '{}'::bytea, 1, FALSE FROM webhook_subscriptions
+	]])
+	for _, key in ipairs({ "primaryWebhookID", "globalWebhookID" }) do
+		t.query(string.format([[
+			query {
+				node(id: "%s") {
+					... on WebhookSubscription { deliveries(first: 10) { nodes { id } } }
+				}
+			}
+		]], State[key]))
+		t.check {
+			data = { node = { deliveries = { nodes = { { id = Save(key .. "DeliveryID") } } } } },
+		}
+	end
+end)
+
+for _, key in ipairs({ "primaryWebhookID", "primaryWebhookIDDeliveryID", "globalWebhookID", "globalWebhookIDDeliveryID" }) do
+	Test.gql("Outsiders cannot read webhook node " .. key, function(t)
+		t.addHeader("x-user-email", outsider:email())
+		t.query(string.format([[
+			query {
+				node(id: "%s") {
+					... on WebhookSubscription { url activityLog(first: 1) { nodes { id } } }
+					... on WebhookDelivery { requestBody responseBody requestHeaders { name values } }
+				}
+			}
+		]], State[key]))
+		t.check {
+			data = { node = Null },
+			errors = { { message = NotNull(), locations = NotNull(), path = { "node" } } },
+		}
+	end)
+end
+
+Test.gql("Outsiders cannot enumerate a team's webhook diagnostics", function(t)
+	t.addHeader("x-user-email", outsider:email())
+	t.query [[
+		query { team(slug: "team-owner") { webhooks(first: 10) { nodes { url } } } }
+	]]
+	t.check {
+		data = Null,
+		errors = { { message = NotNull(), locations = NotNull(), path = { "team", "webhooks" } } },
+	}
+end)
+
+Test.gql("Audit updates use the locked database row instead of a cached before-image", function(t)
+	t.addHeader("x-user-email", owner:email())
+	t.query [[
+		mutation {
+			createWebhook(input: {
+				name: "Audit before"
+				teamSlug: "team-owner"
+				url: "https://hooks.example.com/audit"
+				secret: "test-secret"
+				eventTypes: ["TEAM_UPDATED"]
+			}) { webhook { id } }
+		}
+	]]
+	t.check { data = { createWebhook = { webhook = { id = Save("auditWebhookID") } } } }
+	t.query(string.format([[
+		mutation {
+			rename: updateWebhook(input: { id: "%s", name: "Audit after" }) { webhook { id } }
+			disable: updateWebhook(input: { id: "%s", enabled: false }) { webhook { id } }
+		}
+	]], State.auditWebhookID, State.auditWebhookID))
+	t.check {
+		data = {
+			rename = { webhook = { id = State.auditWebhookID } },
+			disable = { webhook = { id = State.auditWebhookID } },
+		},
+	}
+	t.query(string.format([[
+		query {
+			node(id: "%s") {
+				... on WebhookSubscription {
+					activityLog(first: 1, filter: { activityTypes: [WEBHOOK_UPDATED] }) {
+						nodes { ... on WebhookUpdatedActivityLogEntry { data { updatedFields { field oldValue newValue } } } }
+					}
+				}
+			}
+		}
+	]], State.auditWebhookID))
+	t.check {
+		data = {
+			node = {
+				activityLog = {
+					nodes = { { data = { updatedFields = { { field = "enabled", oldValue = "true", newValue = "false" } } } } },
+				},
+			},
+		},
+	}
+end)
+
+for _, url in ipairs({ "http://hooks.example.com", "https://127.0.0.1", "https://user:password@hooks.example.com" }) do
+	for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
+		Test.gql(mutation .. " rejects unsafe URL " .. url, function(t)
+			t.addHeader("x-user-email", owner:email())
+			local input = string.format('id: "%s", url: %q', State.primaryWebhookID, url)
+			if mutation == "createWebhook" then
+				input = string.format(
+					'name: "Unsafe URL", teamSlug: "team-owner", url: %q, secret: "test-secret", eventTypes: ["*"]', url)
+			end
+			t.query(string.format("mutation { %s(input: { %s }) { webhook { id } } }", mutation, input))
+			t.check {
+				data = Null,
+				errors = { { message = NotNull(), locations = NotNull(), path = { mutation } } },
+			}
+		end)
+	end
+end
+
+Test.gql("Tenant internal ingress URLs can be registered", function(t)
+	t.addHeader("x-user-email", owner:email())
+	t.query [[
+		mutation {
+			createWebhook(input: {
+				name: "Internal ingress", teamSlug: "team-owner",
+				url: "https://myapp.intern.dev-nais.cloud.nais.io/events",
+				secret: "test-secret", eventTypes: ["*"]
+			}) { webhook { url } }
+		}
+	]]
+	t.check {
+		data = {
+			createWebhook = { webhook = { url = "https://myapp.intern.dev-nais.cloud.nais.io/events" } },
+		},
+	}
+end)

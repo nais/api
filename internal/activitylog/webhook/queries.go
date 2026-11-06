@@ -25,7 +25,14 @@ import (
 )
 
 func GetSubscription(ctx context.Context, id uuid.UUID) (*WebhookSubscription, error) {
-	return fromContext(ctx).subscriptionLoader.Load(ctx, id)
+	sub, err := fromContext(ctx).subscriptionLoader.Load(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if err := authz.CanReadWebhook(ctx, sub.TeamSlug); err != nil {
+		return nil, err
+	}
+	return sub, nil
 }
 
 func GetSubscriptionByIdent(ctx context.Context, id ident.Ident) (*WebhookSubscription, error) {
@@ -37,7 +44,14 @@ func GetSubscriptionByIdent(ctx context.Context, id ident.Ident) (*WebhookSubscr
 }
 
 func GetDelivery(ctx context.Context, id uuid.UUID) (*WebhookDelivery, error) {
-	return fromContext(ctx).deliveryLoader.Load(ctx, id)
+	delivery, err := fromContext(ctx).deliveryLoader.Load(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := GetSubscription(ctx, delivery.SubscriptionID); err != nil {
+		return nil, err
+	}
+	return delivery, nil
 }
 
 func GetDeliveryByIdent(ctx context.Context, id ident.Ident) (*WebhookDelivery, error) {
@@ -62,6 +76,10 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 
 	if utf8.RuneCountInString(input.Secret) < 8 {
 		return nil, apierror.Errorf("Webhook secret must be at least 8 characters.")
+	}
+
+	if err := validateWebhookURL(input.URL); err != nil {
+		return nil, apierror.Errorf("%s", err)
 	}
 
 	if err := validateEventTypes(input.TeamSlug, input.EventTypes); err != nil {
@@ -148,7 +166,7 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 		return nil, err
 	}
 
-	existing, err := GetSubscription(ctx, uid)
+	existing, err := fromContext(ctx).subscriptionLoader.Load(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -167,6 +185,12 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 
 	if input.Secret != nil && utf8.RuneCountInString(*input.Secret) < 8 {
 		return nil, apierror.Errorf("Webhook secret must be at least 8 characters.")
+	}
+
+	if input.URL != nil {
+		if err := validateWebhookURL(*input.URL); err != nil {
+			return nil, apierror.Errorf("%s", err)
+		}
 	}
 
 	if input.EventTypes != nil {
@@ -188,7 +212,10 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 
 	var row *webhooksql.WebhookSubscription
 	err = database.Transaction(ctx, func(ctx context.Context) error {
-		var err error
+		before, err := db(ctx).GetSubscriptionForUpdate(ctx, uid)
+		if err != nil {
+			return err
+		}
 		row, err = db(ctx).UpdateSubscription(ctx, webhooksql.UpdateSubscriptionParams{
 			ID:              uid,
 			Name:            input.Name,
@@ -209,7 +236,7 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 			TeamSlug:     row.TeamSlug,
 			Data: &WebhookUpdatedActivityLogEntryData{
 				Name:          row.Name,
-				UpdatedFields: webhookUpdatedFields(existing, toGraphSubscription(row)),
+				UpdatedFields: webhookUpdatedFields(toGraphSubscription(before), toGraphSubscription(row)),
 			},
 		})
 	})
@@ -232,7 +259,7 @@ func Delete(ctx context.Context, input DeleteWebhookInput) (*DeleteWebhookPayloa
 		return nil, err
 	}
 
-	existing, err := GetSubscription(ctx, uid)
+	existing, err := fromContext(ctx).subscriptionLoader.Load(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -242,6 +269,10 @@ func Delete(ctx context.Context, input DeleteWebhookInput) (*DeleteWebhookPayloa
 	}
 
 	if err := database.Transaction(ctx, func(ctx context.Context) error {
+		before, err := db(ctx).GetSubscriptionForUpdate(ctx, uid)
+		if err != nil {
+			return err
+		}
 		if err := db(ctx).DeleteSubscription(ctx, uid); err != nil {
 			return err
 		}
@@ -251,7 +282,7 @@ func Delete(ctx context.Context, input DeleteWebhookInput) (*DeleteWebhookPayloa
 			ResourceType: ActivityLogEntryResourceTypeWebhook,
 			ResourceName: existing.UUID.String(),
 			TeamSlug:     existing.TeamSlug,
-			Data:         &WebhookActivityLogEntryData{Name: existing.Name},
+			Data:         &WebhookActivityLogEntryData{Name: before.Name},
 		})
 	}); err != nil {
 		return nil, fmt.Errorf("deleting webhook subscription: %w", err)
@@ -263,6 +294,9 @@ func Delete(ctx context.Context, input DeleteWebhookInput) (*DeleteWebhookPayloa
 }
 
 func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination) (*WebhookSubscriptionConnection, error) {
+	if err := authz.CanReadWebhook(ctx, &teamSlug); err != nil {
+		return nil, err
+	}
 	q := db(ctx)
 
 	rows, err := q.ListSubscriptionsForTeam(ctx, webhooksql.ListSubscriptionsForTeamParams{
@@ -285,6 +319,9 @@ func ListForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagin
 }
 
 func ListGlobal(ctx context.Context, page *pagination.Pagination) (*WebhookSubscriptionConnection, error) {
+	if err := authz.RequireGlobalAdmin(ctx); err != nil {
+		return nil, err
+	}
 	q := db(ctx)
 
 	rows, err := q.ListGlobalSubscriptions(ctx, webhooksql.ListGlobalSubscriptionsParams{
@@ -306,6 +343,9 @@ func ListGlobal(ctx context.Context, page *pagination.Pagination) (*WebhookSubsc
 }
 
 func ListDeliveries(ctx context.Context, subscriptionID uuid.UUID, page *pagination.Pagination) (*WebhookDeliveryConnection, error) {
+	if _, err := GetSubscription(ctx, subscriptionID); err != nil {
+		return nil, err
+	}
 	q := db(ctx)
 
 	rows, err := q.ListDeliveriesForSubscription(ctx, webhooksql.ListDeliveriesForSubscriptionParams{

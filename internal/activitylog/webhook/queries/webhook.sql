@@ -79,6 +79,16 @@ ORDER BY
 	created_at DESC
 ;
 
+-- name: GetSubscriptionForUpdate :one
+SELECT
+	*
+FROM
+	webhook_subscriptions
+WHERE
+	id = @id
+FOR UPDATE
+;
+
 -- name: ListSubscriptionsForTeam :many
 SELECT
 	sqlc.embed(webhook_subscriptions),
@@ -176,6 +186,17 @@ RETURNING
 ;
 
 -- name: CreateDelivery :one
+-- Allocate attempt numbers atomically, including after an expired claim is recovered.
+WITH
+	numbered_delivery AS (
+		UPDATE webhook_event_deliveries
+		SET
+			attempt_count = webhook_event_deliveries.attempt_count + 1
+		WHERE
+			webhook_event_deliveries.id = sqlc.narg(webhook_event_delivery_id)
+		RETURNING
+			webhook_event_deliveries.attempt_count
+	)
 INSERT INTO
 	webhook_deliveries (
 		subscription_id,
@@ -209,11 +230,9 @@ VALUES
 		COALESCE(
 			(
 				SELECT
-					retry_count + 1
+					numbered_delivery.attempt_count
 				FROM
-					webhook_event_deliveries
-				WHERE
-					id = sqlc.narg(webhook_event_delivery_id)
+					numbered_delivery
 			),
 			1
 		)
@@ -307,7 +326,9 @@ WITH
 	claimed_deliveries AS (
 		UPDATE webhook_event_deliveries
 		SET
-			status = 'processing'
+			status = 'processing',
+			claim_token = GEN_RANDOM_UUID(),
+			lease_expires_at = NOW() + INTERVAL '1 minute'
 		WHERE
 			id IN (
 				SELECT
@@ -315,8 +336,16 @@ WITH
 				FROM
 					webhook_event_deliveries
 				WHERE
-					status = 'pending'
-					AND run_at <= NOW()
+					(
+						(
+							status = 'pending'
+							AND run_at <= NOW()
+						)
+						OR (
+							status = 'processing'
+							AND lease_expires_at <= NOW()
+						)
+					)
 					AND EXISTS (
 						SELECT
 							1
@@ -353,10 +382,13 @@ WITH
 		UPDATE webhook_event_deliveries
 		SET
 			status = 'pending',
+			lease_expires_at = NULL,
 			retry_count = @retry_count,
 			run_at = @run_at
 		WHERE
 			webhook_event_deliveries.id = @id
+			AND webhook_event_deliveries.claim_token = @claim_token
+			AND webhook_event_deliveries.status = 'processing'
 		RETURNING
 			webhook_event_deliveries.id,
 			webhook_event_deliveries.run_at
@@ -374,17 +406,23 @@ WHERE
 -- name: MarkDeliveryFailed :exec
 UPDATE webhook_event_deliveries
 SET
-	status = 'failed'
+	status = 'failed',
+	lease_expires_at = NULL
 WHERE
 	id = @id
+	AND claim_token = @claim_token
+	AND status = 'processing'
 ;
 
 -- name: MarkDeliveryCompleted :exec
 UPDATE webhook_event_deliveries
 SET
-	status = 'completed'
+	status = 'completed',
+	lease_expires_at = NULL
 WHERE
 	id = @id
+	AND claim_token = @claim_token
+	AND status = 'processing'
 ;
 
 -- name: PruneOldOutboxEvents :exec
