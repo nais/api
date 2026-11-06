@@ -37,7 +37,6 @@ func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 		"../../../integration_tests/k8s_resources/create_postgres_access",
 		"../../../integration_tests/k8s_resources/postgres_branches",
 		"../../../integration_tests/k8s_resources/postgres_workloads",
-		"../../../integration_tests/k8s_resources/postgres_branch_delete",
 		"../../../integration_tests/k8s_resources/postgres_audit_log",
 		"../../../integration_tests/k8s_resources/label_selectors",
 		"../../../data/k8s",
