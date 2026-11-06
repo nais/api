@@ -8,10 +8,10 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewPackageContext(ctx context.Context, tenantName string, defaultLogDestinations []SupportedLogDestination) context.Context {
+func NewPackageContext(ctx context.Context, tenantName string, environmentDestinations EnvironmentDestinations) context.Context {
 	return context.WithValue(ctx, loadersKey, &loaders{
-		tenantName:             tenantName,
-		defaultLogDestinations: defaultLogDestinations,
+		tenantName:              tenantName,
+		environmentDestinations: environmentDestinations,
 	})
 }
 
@@ -20,6 +20,6 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	tenantName             string
-	defaultLogDestinations []SupportedLogDestination
+	tenantName              string
+	environmentDestinations EnvironmentDestinations
 }

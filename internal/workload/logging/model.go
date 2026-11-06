@@ -2,6 +2,7 @@ package logging
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -11,6 +12,22 @@ import (
 )
 
 type SupportedLogDestination string
+
+type EnvironmentDestinations map[string]SupportedLogDestination
+
+func (d *EnvironmentDestinations) UnmarshalJSON(data []byte) error {
+	if len(data) == 0 || string(data) == "null" {
+		return nil
+	}
+
+	var destinations map[string]SupportedLogDestination
+	if err := json.Unmarshal(data, &destinations); err != nil {
+		return fmt.Errorf("unmarshalling log destinations: %w", err)
+	}
+
+	*d = destinations
+	return nil
+}
 
 const (
 	Loki       SupportedLogDestination = "loki"

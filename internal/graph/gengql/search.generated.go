@@ -188,7 +188,7 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "types", "teams"}
+	fieldsInOrder := [...]string{"query", "types", "teamScope", "teams"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -209,6 +209,13 @@ func (ec *executionContext) unmarshalInputSearchFilter(ctx context.Context, obj 
 				return it, err
 			}
 			it.Types = data
+		case "teamScope":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamScope"))
+			data, err := ec.unmarshalOTeamScopeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚋteamscopeᚐTeamScopeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamScope = data
 		case "teams":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teams"))
 			data, err := ec.unmarshalOSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx, v)

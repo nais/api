@@ -1,0 +1,45 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-environment-logs
+spec:
+  image: example.com/app:latest
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app-enabled-logs
+spec:
+  image: example.com/app:latest
+  observability:
+    logging:
+      enabled: true
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-environment-logs
+spec:
+  image: example.com/job:latest
+  schedule: "0 * * * *"
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: job-enabled-logs
+spec:
+  image: example.com/job:latest
+  schedule: "0 * * * *"
+  accessPolicy:
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
+  observability:
+    logging:
+      enabled: true

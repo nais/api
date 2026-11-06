@@ -59,7 +59,7 @@ func NewComplexityRoot() ComplexityRoot {
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.CVE.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int {
+	c.CVE.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter, orderBy *vulnerability.CVEWorkloadOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Config.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
@@ -143,16 +143,22 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Postgres.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.PostgresBranch.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.PostgresBranch.Workloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
-	c.Query.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
+	c.Query.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Cves = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Deployments = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Query.Issues = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Query.Reconcilers = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

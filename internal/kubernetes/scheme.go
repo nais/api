@@ -57,6 +57,7 @@ func NewScheme() (*runtime.Scheme, error) {
 	}{
 		{"nais.io", "v1alpha1", "RelayAccess"},
 		{"postgresql.cnpg.io", "v1", "Cluster"},
+		{"apiextensions.k8s.io", "v1", "CustomResourceDefinition"},
 	} {
 		version := schema.GroupVersion{Group: gv.group, Version: gv.version}
 		scheme.AddKnownTypeWithName(version.WithKind(gv.kind), &unstructured.Unstructured{})

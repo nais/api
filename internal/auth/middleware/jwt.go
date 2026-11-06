@@ -136,10 +136,8 @@ func JWTAuthentication(ctx context.Context, issuer, audience string, zitadelOrgI
 	if len(zitadelOrgIDs) == 0 {
 		return nil, errors.New("at least one zitadel organization ID is required")
 	}
-	for _, orgID := range zitadelOrgIDs {
-		if orgID == "" {
-			return nil, errors.New("zitadel organization ID cannot be empty")
-		}
+	if slices.Contains(zitadelOrgIDs, "") {
+		return nil, errors.New("zitadel organization ID cannot be empty")
 	}
 
 	client, err := client.Discover(ctx, issuer, http.DefaultClient)

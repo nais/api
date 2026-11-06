@@ -154,7 +154,7 @@ Test.gql("Valkey with issues", function(t)
 							nodes = {
 								{
 									__typename = "ValkeyIssue",
-									message = "Your valkey service valkey-myteam-name reports: error message from aiven",
+									message = "Your valkey service name reports: error message from aiven",
 									severity = "CRITICAL",
 								},
 							},
@@ -197,7 +197,7 @@ Test.gql("Opensearch with issues", function(t)
 							nodes = {
 								{
 									__typename = "OpenSearchIssue",
-									message = "Your opensearch service opensearch-myteam-name reports: error message from aiven",
+									message = "Your opensearch service name reports: error message from aiven",
 									severity = "CRITICAL",
 								},
 							},

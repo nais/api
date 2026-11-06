@@ -1,12 +1,56 @@
 package issue
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/issue/issuesql"
+	"github.com/nais/api/internal/slug"
 )
+
+func TestTeamFacets(t *testing.T) {
+	rows := []*issuesql.FacetsForIssuesRow{
+		{Team: "unknown", FilteredCount: 100},
+		{Team: "filtered-out", TeamExists: true, FilteredCount: 0},
+		{Team: "highest", TeamExists: true, FilteredCount: 5},
+		{Team: "highest", TeamExists: true, FilteredCount: 8},
+	}
+	for i := teamFacetLimit + 1; i >= 0; i-- {
+		rows = append(rows, &issuesql.FacetsForIssuesRow{Team: fmt.Sprintf("team-%02d", i), TeamExists: true, FilteredCount: 2})
+	}
+	facets := buildFacets(rows)
+	if len(facets.Teams) != teamFacetLimit {
+		t.Fatalf("got %d team facets, want %d", len(facets.Teams), teamFacetLimit)
+	}
+	if facets.Teams[0].TeamSlug != "highest" || facets.Teams[0].Count != 13 {
+		t.Fatalf("expected aggregated highest count first, got %+v", facets.Teams[0])
+	}
+	for i, item := range facets.Teams[1:] {
+		if want := slug.Slug(fmt.Sprintf("team-%02d", i)); item.TeamSlug != want || item.Count != 2 {
+			t.Errorf("team facet %d = %+v, want %s with count 2", i+1, item, want)
+		}
+	}
+}
+
+func TestUnknownTeamPreservesOtherFacets(t *testing.T) {
+	got := buildFacets([]*issuesql.FacetsForIssuesRow{{
+		Team: "unknown", Severity: "CRITICAL", ResourceType: "APPLICATION",
+		Env: "prod", IssueType: "DEPRECATED_INGRESS", FilteredCount: 3,
+	}})
+	want := &IssueFacets{
+		Teams:         []IssueTeamFacetItem{},
+		Severities:    []IssueSeverityFacetItem{{Severity: SeverityCritical, Count: 3}},
+		ResourceTypes: []IssueResourceTypeFacetItem{{ResourceType: ResourceTypeApplication, Count: 3}},
+		Environments:  []model.StringFacetItem{{Value: "prod", Count: 3}},
+		IssueTypes:    []IssueTypeFacetItem{{IssueType: IssueTypeDeprecatedIngress, Count: 3}},
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Errorf("facets (-want +got):\n%s", diff)
+	}
+}
 
 func TestBuildFacets(t *testing.T) {
 	rows := []*issuesql.FacetsForIssuesRow{

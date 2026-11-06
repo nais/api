@@ -45,6 +45,7 @@ export default [
 							"TeamInventoryCountApplications",
 							"ApplicationManifest",
 							"ApplicationResources",
+							"CVEImpact",
 						],
 						suffixes: ["Payload", "Connection", "Edge", "Status"],
 					},

@@ -45,3 +45,13 @@ func TestCanDeleteTeamRejectsServiceAccounts(t *testing.T) {
 		t.Fatalf("expected unauthorized error, got %v", err)
 	}
 }
+
+func TestCanGrantPostgresAccessRejectsServiceAccounts(t *testing.T) {
+	actor := authz.NewMockAuthenticatedUser(t)
+	actor.EXPECT().IsServiceAccount().Return(true).Once()
+
+	ctx := authz.ContextWithActor(context.Background(), actor, nil)
+	if err := authz.CanGrantPostgresAccess(ctx, "some-team"); !errors.Is(err, authz.ErrUnauthorized) {
+		t.Fatalf("expected unauthorized error, got %v", err)
+	}
+}

@@ -73,7 +73,7 @@ func TestToPostgres(t *testing.T) {
 	obj := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "nais.io/v1", "kind": "Postgres",
 		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
-		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
+		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "extensions": []any{map[string]any{"name": "pg_trgm"}, map[string]any{"name": "uuid-ossp"}}, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
 		"status":   map[string]any{"activeBranch": "restored"},
 	}}
 	got, err := toPostgres(obj, "dev")
@@ -83,8 +83,46 @@ func TestToPostgres(t *testing.T) {
 	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
+	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {
+		t.Errorf("extensions = %v, want [pg_trgm uuid-ossp]", got.Extensions)
+	}
 	if got.Resources.CPU == nil || *got.Resources.CPU != "100m" || got.Resources.Memory == nil || *got.Resources.Memory != "2Gi" || got.Resources.DiskSize == nil || *got.Resources.DiskSize != "10Gi" {
 		t.Errorf("unexpected Postgres resources: %+v", got.Resources)
+	}
+}
+
+func TestToPostgresWithoutExtensions(t *testing.T) {
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+		"spec":     map[string]any{"majorVersion": "17"},
+	}}
+	got, err := toPostgres(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Extensions == nil || len(got.Extensions) != 0 {
+		t.Errorf("extensions = %v, want an empty list", got.Extensions)
+	}
+}
+
+func TestToPostgresPreservesExtensionNames(t *testing.T) {
+	names := []string{"pgaudit", "uuid-ossp", "postgis", "timescaledb", "future_extension"}
+	extensions := make([]any, 0, len(names))
+	for _, name := range names {
+		extensions = append(extensions, map[string]any{"name": name})
+	}
+	obj := &unstructured.Unstructured{Object: map[string]any{
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+		"spec":     map[string]any{"majorVersion": "18", "extensions": extensions},
+	}}
+	got, err := toPostgres(obj, "dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got.Extensions, names) {
+		t.Errorf("extensions = %v, want %v", got.Extensions, names)
 	}
 }
 

@@ -65,6 +65,7 @@ type ResolverRoot interface {
 	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
+	AvailableValues() AvailableValuesResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
 	Bucket() BucketResolver
@@ -89,6 +90,7 @@ type ResolverRoot interface {
 	InstanceGroup() InstanceGroupResolver
 	InvalidSpecIssue() InvalidSpecIssueResolver
 	IssueConnection() IssueConnectionResolver
+	IssueTeamFacetItem() IssueTeamFacetItemResolver
 	Job() JobResolver
 	JobConnection() JobConnectionResolver
 	JobRun() JobRunResolver
@@ -109,6 +111,7 @@ type ResolverRoot interface {
 	PostgresAccess() PostgresAccessResolver
 	PostgresBranch() PostgresBranchResolver
 	PostgresBranchConnection() PostgresBranchConnectionResolver
+	PostgresBranchIssue() PostgresBranchIssueResolver
 	PostgresConnection() PostgresConnectionResolver
 	PostgresWorkload() PostgresWorkloadResolver
 	PrometheusAlert() PrometheusAlertResolver
@@ -453,6 +456,18 @@ type ComplexityRoot struct {
 		LogURL func(childComplexity int) int
 	}
 
+	AvailableValueOptions struct {
+		DefaultValues func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Values        func(childComplexity int) int
+	}
+
+	AvailableValues struct {
+		ID                    func(childComplexity int) int
+		PostgresExtensions    func(childComplexity int) int
+		PostgresMajorVersions func(childComplexity int) int
+	}
+
 	BigQueryDataset struct {
 		Access          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int
 		CascadingDelete func(childComplexity int) int
@@ -561,7 +576,7 @@ type ComplexityRoot struct {
 		RiskAssessment     func(childComplexity int) int
 		Severity           func(childComplexity int) int
 		Title              func(childComplexity int) int
-		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter) int
+		Workloads          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.CVEWorkloadsFilter, orderBy *vulnerability.CVEWorkloadOrder) int
 	}
 
 	CVEConnection struct {
@@ -573,6 +588,12 @@ type ComplexityRoot struct {
 	CVEEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	CVEImpact struct {
+		ImageCount    func(childComplexity int) int
+		PackageCount  func(childComplexity int) int
+		WorkloadCount func(childComplexity int) int
 	}
 
 	ChangeDeploymentKeyPayload struct {
@@ -954,11 +975,12 @@ type ComplexityRoot struct {
 	}
 
 	Environment struct {
-		ID            func(childComplexity int) int
-		Metrics       func(childComplexity int, input metrics.MetricsQueryInput) int
-		Name          func(childComplexity int) int
-		OIDCIssuerURL func(childComplexity int) int
-		Workloads     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
+		AvailableValues func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Metrics         func(childComplexity int, input metrics.MetricsQueryInput) int
+		Name            func(childComplexity int) int
+		OIDCIssuerURL   func(childComplexity int) int
+		Workloads       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) int
 	}
 
 	EnvironmentConnection struct {
@@ -1220,6 +1242,7 @@ type ComplexityRoot struct {
 		IssueTypes    func(childComplexity int) int
 		ResourceTypes func(childComplexity int) int
 		Severities    func(childComplexity int) int
+		Teams         func(childComplexity int) int
 	}
 
 	IssueResourceTypeFacetItem struct {
@@ -1230,6 +1253,11 @@ type ComplexityRoot struct {
 	IssueSeverityFacetItem struct {
 		Count    func(childComplexity int) int
 		Severity func(childComplexity int) int
+	}
+
+	IssueTeamFacetItem struct {
+		Count func(childComplexity int) int
+		Team  func(childComplexity int) int
 	}
 
 	IssueTypeFacetItem struct {
@@ -1917,6 +1945,7 @@ type ComplexityRoot struct {
 		Branch              func(childComplexity int, name string) int
 		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
 		DesiredActiveBranch func(childComplexity int) int
+		Extensions          func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
 		Labels              func(childComplexity int) int
@@ -1953,9 +1982,11 @@ type ComplexityRoot struct {
 	}
 
 	PostgresBranch struct {
+		Configuration       func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
 		EarliestRestoreTime func(childComplexity int) int
 		ID                  func(childComplexity int) int
+		Issues              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Labels              func(childComplexity int) int
 		Name                func(childComplexity int) int
 		Postgres            func(childComplexity int) int
@@ -2028,9 +2059,21 @@ type ComplexityRoot struct {
 		States       func(childComplexity int) int
 	}
 
+	PostgresBranchIssue struct {
+		Branch          func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+	}
+
 	PostgresBranchStateFacetItem struct {
 		Count func(childComplexity int) int
 		State func(childComplexity int) int
+	}
+
+	PostgresConfiguration struct {
+		Parameters func(childComplexity int) int
 	}
 
 	PostgresConnection struct {
@@ -2089,6 +2132,11 @@ type ComplexityRoot struct {
 	PostgresGrantAccessActivityLogEntryData struct {
 		Grantee func(childComplexity int) int
 		Until   func(childComplexity int) int
+	}
+
+	PostgresParameter struct {
+		Name  func(childComplexity int) int
+		Value func(childComplexity int) int
 	}
 
 	PostgresPersonalAccessConnectionActivityLogEntry struct {
@@ -2194,7 +2242,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
 		CVE                       func(childComplexity int, identifier string) int
 		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
 		CurrentUnitPrices         func(childComplexity int) int
@@ -2204,6 +2252,7 @@ type ComplexityRoot struct {
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
+		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
 		Me                        func(childComplexity int) int
 		Node                      func(childComplexity int, id ident.Ident) int
 		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -2220,7 +2269,7 @@ type ComplexityRoot struct {
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
-		VulnerabilitySummary      func(childComplexity int) int
+		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
 	}
 
 	ReanalyzeVulnerabilitiesPayload struct {
@@ -4155,6 +4204,7 @@ type ComplexityRoot struct {
 
 	WorkloadWithVulnerabilityConnection struct {
 		Edges    func(childComplexity int) int
+		Impact   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -5428,6 +5478,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.AuditLog.LogURL(childComplexity), true
 
+	case "AvailableValueOptions.defaultValues":
+		if e.ComplexityRoot.AvailableValueOptions.DefaultValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.DefaultValues(childComplexity), true
+
+	case "AvailableValueOptions.id":
+		if e.ComplexityRoot.AvailableValueOptions.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.ID(childComplexity), true
+
+	case "AvailableValueOptions.values":
+		if e.ComplexityRoot.AvailableValueOptions.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValueOptions.Values(childComplexity), true
+
+	case "AvailableValues.id":
+		if e.ComplexityRoot.AvailableValues.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.ID(childComplexity), true
+
+	case "AvailableValues.postgresExtensions":
+		if e.ComplexityRoot.AvailableValues.PostgresExtensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.PostgresExtensions(childComplexity), true
+
+	case "AvailableValues.postgresMajorVersions":
+		if e.ComplexityRoot.AvailableValues.PostgresMajorVersions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AvailableValues.PostgresMajorVersions(childComplexity), true
+
 	case "BigQueryDataset.access":
 		if e.ComplexityRoot.BigQueryDataset.Access == nil {
 			break
@@ -5877,7 +5969,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.CVEWorkloadsFilter)), true
+		return e.ComplexityRoot.CVE.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*vulnerability.CVEWorkloadsFilter), args["orderBy"].(*vulnerability.CVEWorkloadOrder)), true
 
 	case "CVEConnection.edges":
 		if e.ComplexityRoot.CVEConnection.Edges == nil {
@@ -5913,6 +6005,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CVEEdge.Node(childComplexity), true
+
+	case "CVEImpact.imageCount":
+		if e.ComplexityRoot.CVEImpact.ImageCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVEImpact.ImageCount(childComplexity), true
+
+	case "CVEImpact.packageCount":
+		if e.ComplexityRoot.CVEImpact.PackageCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVEImpact.PackageCount(childComplexity), true
+
+	case "CVEImpact.workloadCount":
+		if e.ComplexityRoot.CVEImpact.WorkloadCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CVEImpact.WorkloadCount(childComplexity), true
 
 	case "ChangeDeploymentKeyPayload.deploymentKey":
 		if e.ComplexityRoot.ChangeDeploymentKeyPayload.DeploymentKey == nil {
@@ -7261,6 +7374,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.EntraIDAuthIntegration.Name(childComplexity), true
 
+	case "Environment.availableValues":
+		if e.ComplexityRoot.Environment.AvailableValues == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Environment.AvailableValues(childComplexity), true
+
 	case "Environment.id":
 		if e.ComplexityRoot.Environment.ID == nil {
 			break
@@ -8419,6 +8539,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.IssueFacets.Severities(childComplexity), true
 
+	case "IssueFacets.teams":
+		if e.ComplexityRoot.IssueFacets.Teams == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueFacets.Teams(childComplexity), true
+
 	case "IssueResourceTypeFacetItem.count":
 		if e.ComplexityRoot.IssueResourceTypeFacetItem.Count == nil {
 			break
@@ -8446,6 +8573,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.IssueSeverityFacetItem.Severity(childComplexity), true
+
+	case "IssueTeamFacetItem.count":
+		if e.ComplexityRoot.IssueTeamFacetItem.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueTeamFacetItem.Count(childComplexity), true
+
+	case "IssueTeamFacetItem.team":
+		if e.ComplexityRoot.IssueTeamFacetItem.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.IssueTeamFacetItem.Team(childComplexity), true
 
 	case "IssueTypeFacetItem.count":
 		if e.ComplexityRoot.IssueTypeFacetItem.Count == nil {
@@ -11993,6 +12134,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
 
+	case "Postgres.extensions":
+		if e.ComplexityRoot.Postgres.Extensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Extensions(childComplexity), true
+
 	case "Postgres.highAvailability":
 		if e.ComplexityRoot.Postgres.HighAvailability == nil {
 			break
@@ -12187,6 +12335,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
 
+	case "PostgresBranch.configuration":
+		if e.ComplexityRoot.PostgresBranch.Configuration == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Configuration(childComplexity), true
+
 	case "PostgresBranch.createdAt":
 		if e.ComplexityRoot.PostgresBranch.CreatedAt == nil {
 			break
@@ -12207,6 +12362,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranch.ID(childComplexity), true
+
+	case "PostgresBranch.issues":
+		if e.ComplexityRoot.PostgresBranch.Issues == nil {
+			break
+		}
+
+		args, err := ec.field_PostgresBranch_issues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.PostgresBranch.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
 
 	case "PostgresBranch.labels":
 		if e.ComplexityRoot.PostgresBranch.Labels == nil {
@@ -12556,6 +12723,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranchFacets.States(childComplexity), true
 
+	case "PostgresBranchIssue.branch":
+		if e.ComplexityRoot.PostgresBranchIssue.Branch == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.Branch(childComplexity), true
+
+	case "PostgresBranchIssue.id":
+		if e.ComplexityRoot.PostgresBranchIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.ID(childComplexity), true
+
+	case "PostgresBranchIssue.message":
+		if e.ComplexityRoot.PostgresBranchIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.Message(childComplexity), true
+
+	case "PostgresBranchIssue.severity":
+		if e.ComplexityRoot.PostgresBranchIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.Severity(childComplexity), true
+
+	case "PostgresBranchIssue.teamEnvironment":
+		if e.ComplexityRoot.PostgresBranchIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBranchIssue.TeamEnvironment(childComplexity), true
+
 	case "PostgresBranchStateFacetItem.count":
 		if e.ComplexityRoot.PostgresBranchStateFacetItem.Count == nil {
 			break
@@ -12569,6 +12771,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
+
+	case "PostgresConfiguration.parameters":
+		if e.ComplexityRoot.PostgresConfiguration.Parameters == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresConfiguration.Parameters(childComplexity), true
 
 	case "PostgresConnection.edges":
 		if e.ComplexityRoot.PostgresConnection.Edges == nil {
@@ -12828,6 +13037,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
+
+	case "PostgresParameter.name":
+		if e.ComplexityRoot.PostgresParameter.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresParameter.Name(childComplexity), true
+
+	case "PostgresParameter.value":
+		if e.ComplexityRoot.PostgresParameter.Value == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresParameter.Value(childComplexity), true
 
 	case "PostgresPersonalAccessConnectionActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresPersonalAccessConnectionActivityLogEntry.Actor == nil {
@@ -13280,7 +13503,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+		return e.ComplexityRoot.Query.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.TenantActivityLogFilter)), true
 
 	case "Query.cve":
 		if e.ComplexityRoot.Query.CVE == nil {
@@ -13379,6 +13602,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.ImageVulnerabilityHistory(childComplexity, args["from"].(scalar.Date)), true
+
+	case "Query.issues":
+		if e.ComplexityRoot.Query.Issues == nil {
+			break
+		}
+
+		args, err := ec.field_Query_issues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.TenantIssueFilter)), true
 
 	case "Query.me":
 		if e.ComplexityRoot.Query.Me == nil {
@@ -13567,7 +13802,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			break
 		}
 
-		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity), true
+		args, err := ec.field_Query_vulnerabilitySummary_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter)), true
 
 	case "ReanalyzeVulnerabilitiesPayload.numImages":
 		if e.ComplexityRoot.ReanalyzeVulnerabilitiesPayload.NumImages == nil {
@@ -21965,6 +22205,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Edges(childComplexity), true
 
+	case "WorkloadWithVulnerabilityConnection.impact":
+		if e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Impact == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Impact(childComplexity), true
+
 	case "WorkloadWithVulnerabilityConnection.nodes":
 		if e.ComplexityRoot.WorkloadWithVulnerabilityConnection.Nodes == nil {
 			break
@@ -22019,6 +22266,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputBucketOrder,
 		ec.unmarshalInputCVEFilter,
 		ec.unmarshalInputCVEOrder,
+		ec.unmarshalInputCVEWorkloadOrder,
 		ec.unmarshalInputCVEWorkloadsFilter,
 		ec.unmarshalInputChangeDeploymentKeyInput,
 		ec.unmarshalInputConfigFilter,
@@ -22114,8 +22362,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamOrder,
 		ec.unmarshalInputTeamPostgresFilter,
 		ec.unmarshalInputTeamRepositoryFilter,
+		ec.unmarshalInputTeamScopeInput,
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
+		ec.unmarshalInputTenantActivityLogFilter,
+		ec.unmarshalInputTenantIssueFilter,
 		ec.unmarshalInputTenantVulnerabilitySummaryFilter,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
@@ -22267,7 +22518,7 @@ var sources = []*ast.Source{
 		"""
 		Filter items.
 		"""
-		filter: ActivityLogFilter
+		filter: TenantActivityLogFilter
 	): ActivityLogEntryConnection!
 }
 
@@ -22479,6 +22730,7 @@ extend type ServiceAccount implements ActivityLogger {
 	): ActivityLogEntryConnection!
 }
 
+"Filtering options for activity log entries."
 input ActivityLogFilter {
 	"""
 	Only include entries whose activity type matches one of these values.
@@ -22506,6 +22758,27 @@ input ActivityLogFilter {
 	Only include entries created before this timestamp.
 	When combined with other fields in this input, entries must match this filter as well as the other selected filters.
 	"""
+	to: Time
+}
+
+"Filtering options for activity log entries across teams."
+input TenantActivityLogFilter {
+	"Filter by team selection. Excludes entries without a team."
+	teamScope: TeamScopeInput
+
+	"Only include entries matching these activity types."
+	activityTypes: [ActivityLogActivityType!]
+
+	"Only include entries matching these resource types."
+	resourceTypes: [ActivityLogEntryResourceType!]
+
+	"Only include entries in these environments."
+	environments: [String!]
+
+	"Only include entries created at or after this timestamp."
+	from: Time
+
+	"Only include entries created before this timestamp."
 	to: Time
 }
 
@@ -24111,6 +24384,43 @@ type RoleEdge {
 	A cursor for use in pagination.
 	"""
 	cursor: Cursor!
+}
+`, BuiltIn: false},
+	{Name: "../schema/available_values.graphqls", Input: `extend type Environment {
+	"""
+	Available configuration values accepted in this environment.
+	"""
+	availableValues: AvailableValues!
+}
+
+"""
+Available configuration values for an environment, updated as platform capabilities change.
+"""
+type AvailableValues implements Node {
+	"""
+	The globally unique ID of this environment's available configuration values.
+	"""
+	id: ID!
+}
+
+"""
+Allowed string values and the default selection for a setting in an environment.
+"""
+type AvailableValueOptions implements Node {
+	"""
+	The globally unique ID of these configuration options.
+	"""
+	id: ID!
+	"""
+	The values accepted for this setting.
+	"""
+	values: [String!]!
+	"""
+	The default selection. Null when no default is declared; an empty list means
+	an explicitly empty default. Scalar settings have at most one default value;
+	settings accepting multiple values may have several.
+	"""
+	defaultValues: [String!]
 }
 `, BuiltIn: false},
 	{Name: "../schema/bigquery.graphqls", Input: `extend type Team {
@@ -26068,12 +26378,37 @@ enum InstanceGroupValueSourceKind {
 	SPEC
 
 	"""
-	The value was injected by the Nais platform (naiserator), not defined by the user.
+	The value was injected by the Nais platform, not defined by the user.
 	"""
 	NAIS
 }
 `, BuiltIn: false},
-	{Name: "../schema/issues.graphqls", Input: `extend type Team {
+	{Name: "../schema/issues.graphqls", Input: `extend type Query {
+	"""
+	Issues across teams in the tenant, ordered by severity unless otherwise specified.
+	"""
+	issues(
+		"Get the first n items in the connection. This can be used in combination with the after parameter."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection. This can be used in combination with the before parameter."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Ordering options for items returned from the connection."
+		orderBy: IssueOrder
+
+		"Filtering options for items returned from the connection."
+		filter: TenantIssueFilter
+	): IssueConnection!
+}
+
+extend type Team {
 	"Issues that affects the team."
 	issues(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -26104,7 +26439,29 @@ input IssueOrder {
 	direction: OrderDirection!
 }
 
+"Filtering options for issues."
 input IssueFilter {
+	"Filter by resource name."
+	resourceName: String
+
+	"Filter by resource type."
+	resourceType: ResourceType
+
+	"Filter by environment."
+	environments: [String!]
+
+	"Filter by severity."
+	severity: Severity
+
+	"Filter by issue type."
+	issueType: IssueType
+}
+
+"Filtering options for issues across teams."
+input TenantIssueFilter {
+	"Filter by team selection."
+	teamScope: TeamScopeInput
+
 	"Filter by resource name."
 	resourceName: String
 
@@ -26163,6 +26520,9 @@ type IssueConnection {
 Facets for issues, providing distribution counts across different dimensions.
 """
 type IssueFacets {
+	"Up to 25 teams with matching issues, ordered by count descending, then team slug."
+	teams: [IssueTeamFacetItem!]!
+
 	"""
 	Distribution of issues by environment.
 	"""
@@ -26182,6 +26542,17 @@ type IssueFacets {
 	Distribution of issues by issue type.
 	"""
 	issueTypes: [IssueTypeFacetItem!]!
+}
+
+"""
+A single facet item for teams.
+"""
+type IssueTeamFacetItem {
+	"The team."
+	team: Team!
+
+	"Number of matching issues."
+	count: Int!
 }
 
 """
@@ -26281,6 +26652,8 @@ enum Severity {
 }
 
 enum ResourceType {
+	"A branch of a Postgres database."
+	POSTGRES_BRANCH
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -26290,6 +26663,8 @@ enum ResourceType {
 }
 
 enum IssueType {
+	"Raised when a Postgres branch has reported a failure."
+	POSTGRES_BRANCH
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -26418,6 +26793,20 @@ type ValkeyIssue implements Issue & Node {
 
 	valkey: Valkey!
 	event: String!
+}
+
+"A failure reported by a Postgres branch, including inactive branches."
+type PostgresBranchIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"Team environment containing the affected branch."
+	teamEnvironment: TeamEnvironment!
+	"Severity of the reported failure."
+	severity: Severity!
+	"Description of the reported failure."
+	message: String!
+	"The branch that reported the failure."
+	branch: PostgresBranch!
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {
@@ -28546,7 +28935,20 @@ type WorkloadLogLine {
 	instance: String!
 }
 `, BuiltIn: false},
-	{Name: "../schema/postgres.graphqls", Input: `extend type Team {
+	{Name: "../schema/postgres.graphqls", Input: `extend type AvailableValues {
+	"""
+	PostgreSQL major versions accepted when creating a database in this environment.
+	Returns an error if the available versions cannot be determined.
+	"""
+	postgresMajorVersions: AvailableValueOptions!
+	"""
+	PostgreSQL extensions accepted when creating or updating a Postgres in this environment.
+	Returns an error if the available values cannot be determined.
+	"""
+	postgresExtensions: AvailableValueOptions!
+}
+
+extend type Team {
 	"Postgres databases owned by the team, including those without branches."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -28661,6 +29063,8 @@ type PostgresBranch implements Persistence & Node {
 	createdAt: Time!
 	"Earliest time the branch can currently be restored from its archived backups."
 	earliestRestoreTime: Time
+	"Configured PostgreSQL settings for this branch. Null until configuration is available."
+	configuration: PostgresConfiguration
 	team: Team!
 	teamEnvironment: TeamEnvironment!
 	"Postgres owning this PostgresBranch."
@@ -28681,8 +29085,37 @@ type PostgresBranch implements Persistence & Node {
 	): WorkloadConnection!
 	"Current observed state of the branch."
 	state: PostgresBranchState!
+	"Issues affecting this branch."
+	issues(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Ordering options for the issues."
+		orderBy: IssueOrder
+		"Filtering options for the issues."
+		filter: ResourceIssueFilter
+	): IssueConnection!
 	"User-defined labels on this branch."
 	labels: [ResourceLabel!]!
+}
+
+"Configured PostgreSQL settings for a branch."
+type PostgresConfiguration {
+	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit default values are not included."
+	parameters: [PostgresParameter!]!
+}
+
+"An explicitly configured PostgreSQL parameter."
+type PostgresParameter {
+	"PostgreSQL parameter name, including any extension prefix."
+	name: String!
+	"Unmodified configured value, including units when specified."
+	value: String!
 }
 
 "A Postgres whose active branch can change."
@@ -28697,11 +29130,13 @@ type Postgres implements Node {
 	name: String!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
+	"Names of PostgreSQL extensions configured for this Postgres."
+	extensions: [String!]!
 	"Whether high availability is configured."
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Branch requested for activation; may differ from the observed active branch while reconciliation runs."
+	"Branch requested for activation; may differ from the active branch while activation is in progress."
 	desiredActiveBranch: String
 	"Currently observed active branch, if selected."
 	activeBranch: PostgresBranch
@@ -28826,7 +29261,7 @@ type PostgresResources {
 	diskSize: String
 }
 
-"Reconciliation and observed health of a PostgresBranch."
+"Provisioning state and observed health of a PostgresBranch."
 enum PostgresBranchState {
 	"The branch is healthy and ready."
 	AVAILABLE
@@ -28929,7 +29364,7 @@ type PostgresGrantAccessActivityLogEntryData {
 	until: Time!
 }
 
-"An audit-log entry for personal Postgres access created through the API broker."
+"An audit-log entry for personal Postgres access creation."
 type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -29164,7 +29599,7 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_GRANT_ACCESS
 	"""
-	A personal Postgres access was created through the API broker
+	A personal Postgres access was created
 	"""
 	POSTGRES_PERSONAL_ACCESS_CREATED
 	"""
@@ -29188,7 +29623,7 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	EXPERIMENTAL: DO NOT USE
-	Create time-limited personal access to a NAIS Postgres branch through the brokered PostgresAccess and relay flow.
+	Create time-limited personal access to a Postgres branch.
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
@@ -29238,8 +29673,15 @@ enum PostgresAccessLevel {
 	READ
 	"Read and modify existing data."
 	READWRITE
-	"Read, modify, and create database objects where supported."
+	"Read and modify data and create objects in public, without database ownership."
 	READWRITECREATE
+		@deprecated(
+			reason: "This level will be removed in a future API change. Until then, it remains available with unchanged privileges. ADMIN grants broader database-owner privileges."
+		)
+	"Administer the application database through membership in its owner role, with the same database privileges as workload admin but without PostgreSQL superuser privileges."
+	ADMIN
+	"Monitor and maintain the PostgreSQL instance through pg_monitor and pg_maintain, without granting application data access or database ownership."
+	MAINTAIN
 }
 
 "Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
@@ -29264,7 +29706,7 @@ type CreatePostgresBranchPayload {
 	postgresBranch: PostgresBranch!
 }
 
-"Request a branch for normal workloads; pgrator activates it once its cluster is ready."
+"Request a branch for normal workloads. It becomes active once its database is ready."
 input ActivatePostgresBranchInput {
 	"Name of the owning Postgres."
 	postgres: String!
@@ -29276,7 +29718,7 @@ input ActivatePostgresBranchInput {
 	teamSlug: Slug!
 }
 
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while reconciling."
+"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
 type ActivatePostgresBranchPayload {
 	"Postgres with desired and observed branch selection."
 	postgres: Postgres!
@@ -29343,7 +29785,7 @@ type PostgresAccess implements Node {
 	state: PostgresAccessState!
 	"Human-readable message for the current state."
 	message: String
-	"Name of the controller-owned relay mapping, once created. Contains no credential."
+	"Connection routing identifier, once available. Contains no credential."
 	relayAccess: String
 	"""
 	EXPERIMENTAL: DO NOT USE
@@ -29352,13 +29794,13 @@ type PostgresAccess implements Node {
 	connection: PostgresAccessConnectionDetails
 }
 
-"High-level reconciliation state of a personal Postgres access."
+"Current state of a personal Postgres access."
 enum PostgresAccessState {
-	"The controller has not finished provisioning the access."
+	"The access is being prepared."
 	PENDING
 	"The access and its connection materials are ready."
 	READY
-	"The controller cannot provision the requested access."
+	"The requested access could not be prepared."
 	FAILED
 	"The server-controlled expiry time has passed."
 	EXPIRED
@@ -29390,8 +29832,10 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
 	majorVersion: String!
+	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions."
+	extensions: [String!]
 	"Add a third instance and enable synchronous replication. Defaults to false."
 	highAvailability: Boolean
 	"Requested CPU, for example '100m'. If omitted, the platform default is used."
@@ -29426,6 +29870,8 @@ input UpdatePostgresInput {
 	memory: String
 	"Requested disk size, for example '10Gi'."
 	diskSize: String
+	"The complete set of extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions. When omitted or null, existing extensions are left unchanged; use an empty list to remove all configured extensions."
+	extensions: [String!]
 	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
 	labels: [ResourceLabelInput!]
 }
@@ -30151,9 +30597,14 @@ input SearchFilter {
 	types: [SearchType!]
 
 	"""
+	Team selection. An empty query defaults to memberships when no selection is supplied.
+	"""
+	teamScope: TeamScopeInput
+
+	"""
 	Teams to search in. If not specified, all teams will be searched.
 	"""
-	teams: [Slug!]
+	teams: [Slug!] @deprecated(reason: "Use teamScope.teamSlugs instead.")
 }
 
 """
@@ -32787,8 +33238,8 @@ extend type Mutation {
 	The user creating the team will be granted team ownership, unless the user is a service account, in which case the
 	team will not get an initial owner. To add one or more owners to the team, refer to the ` + "`" + `addTeamOwners` + "`" + ` mutation.
 
-	Creation of a team will also create external resources for the team, which will be managed by the Nais API
-	reconcilers. This will be done asynchronously.
+	Creation of a team will also create external resources for the team. These resources are managed by the platform
+	and are created asynchronously.
 
 	Refer to the [official Nais documentation](https://docs.nais.io/explanations/team/) for more information regarding
 	Nais teams.
@@ -32859,7 +33310,7 @@ The team type represents a team on the [Nais platform](https://nais.io/).
 
 Learn more about what Nais teams are and what they can be used for in the [official Nais documentation](https://docs.nais.io/explanations/team/).
 
-External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by [Nais API reconcilers](https://github.com/nais/api-reconcilers).
+External resources (e.g. entraIDGroupID, gitHubTeamSlug) are managed by the platform.
 """
 type Team implements Node {
 	"The globally unique ID of the team."
@@ -33554,9 +34005,29 @@ type TeamGoogleArtifactRegistry {
 }
 
 """
+Combine explicit teams and viewer memberships without changing access permissions. Omit both to select any team.
+"""
+input TeamScopeInput {
+	"""
+	Add these teams to the selection. An empty list adds none.
+	"""
+	teamSlugs: [Slug!]
+
+	"""
+	Add the authenticated user's memberships when true. Identities without memberships add none.
+	"""
+	memberOfViewer: Boolean
+}
+
+"""
 Input for filtering teams.
 """
 input TeamFilter {
+	"""
+	Filter by team selection.
+	"""
+	teamScope: TeamScopeInput
+
 	"""
 	Filter teams by the existence of workloads.
 	"""
@@ -34214,7 +34685,7 @@ type User implements Node {
 	name: String!
 
 	"""
-	The external ID of the user. This value is managed by the Nais API user synchronization.
+	The external ID of the user. This value is managed by the platform.
 	"""
 	externalID: String!
 
@@ -35348,7 +35819,10 @@ extend type Query {
 	): ImageVulnerabilityHistory!
 
 	"Get the vulnerability summary for the tenant."
-	vulnerabilitySummary: TenantVulnerabilitySummary!
+	vulnerabilitySummary(
+		"Filter the aggregate."
+		filter: TenantVulnerabilitySummaryFilter
+	): TenantVulnerabilitySummary!
 
 	"List per-workload vulnerability summaries across all teams."
 	vulnerabilitySummaries(
@@ -35399,8 +35873,11 @@ extend type Query {
 	): CVEConnection!
 }
 
-"Filter active CVEs by their calculated risk assessment."
+"Filter active CVEs."
 input CVEFilter {
+	"Only include CVEs affecting the selected teams."
+	teamScope: TeamScopeInput
+
 	"Operational priority. URGENT requires workload context and currently returns no CVEs."
 	priority: CVEPriority
 }
@@ -35564,11 +36041,14 @@ extend type ContainerImage {
 }
 
 extend type Team {
-	vulnerabilitySummary(filter: TeamVulnerabilitySummaryFilter): TeamVulnerabilitySummary!
+	vulnerabilitySummary(
+		"Filter the aggregate by environment, priority, KEV or user labels."
+		filter: TeamVulnerabilitySummaryFilter
+	): TeamVulnerabilitySummary!
 
 	"Fetch vulnerability summaries for workloads in the team."
 	vulnerabilitySummaries(
-		"Filter vulnerability summaries by environment."
+		"Filter workload vulnerability summaries by environment, priority, KEV or user labels."
 		filter: TeamVulnerabilitySummaryFilter
 
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
@@ -35617,6 +36097,12 @@ Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
 	"""
+	Match all user-label filters for team vulnerability summaries and their aggregate.
+	An omitted value matches any value; an empty string matches only an empty value.
+	"""
+	labels: [LabelFilter!]
+
+	"""
 	Only return vulnerability summaries for the given environment.
 	"""
 	environmentName: String
@@ -35645,6 +36131,12 @@ input TeamVulnerabilitySummaryFilter {
 Input for filtering vulnerability summaries across all teams.
 """
 input TenantVulnerabilitySummaryFilter {
+	"Filter by team selection."
+	teamScope: TeamScopeInput
+
+	"Only include workloads in this environment."
+	environmentName: String
+
 	"""
 	Only return vulnerability summaries whose highest priority is exactly one of
 	the given values. URGENT is workload-contextual and cannot be resolved at
@@ -35953,7 +36445,7 @@ type CVE implements Node {
 	"Risk and threat intelligence signals used to prioritize the CVE."
 	riskAssessment: VulnerabilityRiskAssessment!
 
-	"Affected workloads"
+	"Affected workloads within the team selection of the CVE list, when applicable."
 	workloads(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -35967,18 +36459,64 @@ type CVE implements Node {
 		"Get items before this cursor."
 		before: Cursor
 
-		"Filter workloads. When teamSlugs is set only workloads belonging to those teams are returned."
+		"Further filter affected workloads."
 		filter: CVEWorkloadsFilter
+
+		"Order all matching findings before pagination. Defaults to team ascending."
+		orderBy: CVEWorkloadOrder
 	): WorkloadWithVulnerabilityConnection!
 }
 
-"Filter for workloads affected by a CVE. When teamSlugs is provided only workloads belonging to those teams are returned."
+"Ordering options for workloads affected by a CVE."
+input CVEWorkloadOrder {
+	"The field to order findings by."
+	field: CVEWorkloadOrderField!
+	"The direction to order findings by."
+	direction: OrderDirection!
+}
+
+"Fields available for ordering workloads affected by a CVE."
+enum CVEWorkloadOrderField {
+	"Workload name."
+	WORKLOAD
+	"Container image name and tag."
+	IMAGE
+	"Affected package name."
+	PACKAGE
+	"Owning team."
+	TEAM
+	"Workload environment."
+	ENVIRONMENT
+	"Whether the finding is suppressed."
+	SUPPRESSED
+}
+
+"Distinct affected resources across the entire filtered selection, including suppressed findings."
+type CVEImpact {
+	"Number of distinct workloads, regardless of how many packages are affected."
+	workloadCount: Int!
+	"Number of distinct container image references, identified by name and tag."
+	imageCount: Int!
+	"Number of distinct affected package identifiers."
+	packageCount: Int!
+}
+
+"Filter workloads affected by a CVE."
 input CVEWorkloadsFilter {
-	"Team identifiers used to limit results to workloads owned by those teams."
-	teamSlugs: [Slug!]
+	"Filter by team selection. Combined with teamSlugs, only teams matching both are included."
+	teamScope: TeamScopeInput
+
+	"Only include workloads in this environment."
+	environmentName: String
+
+	"Only include workloads owned by these teams."
+	teamSlugs: [Slug!] @deprecated(reason: "Use teamScope.teamSlugs instead.")
 }
 
 type WorkloadWithVulnerabilityConnection {
+	"Distinct affected resource counts across all matching findings, not just this page. Null when the counts are unavailable, such as on a page past the last finding."
+	impact: CVEImpact
+
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
 
@@ -36284,7 +36822,7 @@ type TeamVulnerabilitySummary {
 	"Timestamp of the last update of the vulnerability summary."
 	lastUpdated: Time
 
-	"Trend of vulnerability status for the team."
+	"Trend of vulnerability status for the whole team. Not affected by the vulnerabilitySummary filter."
 	riskScoreTrend: TeamVulnerabilityRiskScoreTrend!
 }
 
@@ -37527,6 +38065,30 @@ func (ec *executionContext) childFields_AuditLog(ctx context.Context, field grap
 	return nil, fmt.Errorf("no field named %q was found under type AuditLog", field.Name)
 }
 
+func (ec *executionContext) childFields_AvailableValueOptions(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValueOptions_id(ctx, field)
+	case "values":
+		return ec.fieldContext_AvailableValueOptions_values(ctx, field)
+	case "defaultValues":
+		return ec.fieldContext_AvailableValueOptions_defaultValues(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValueOptions", field.Name)
+}
+
+func (ec *executionContext) childFields_AvailableValues(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_AvailableValues_id(ctx, field)
+	case "postgresMajorVersions":
+		return ec.fieldContext_AvailableValues_postgresMajorVersions(ctx, field)
+	case "postgresExtensions":
+		return ec.fieldContext_AvailableValues_postgresExtensions(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type AvailableValues", field.Name)
+}
+
 func (ec *executionContext) childFields_BigQueryDataset(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -37761,6 +38323,18 @@ func (ec *executionContext) childFields_CVEEdge(ctx context.Context, field graph
 		return ec.fieldContext_CVEEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CVEEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_CVEImpact(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "workloadCount":
+		return ec.fieldContext_CVEImpact_workloadCount(ctx, field)
+	case "imageCount":
+		return ec.fieldContext_CVEImpact_imageCount(ctx, field)
+	case "packageCount":
+		return ec.fieldContext_CVEImpact_packageCount(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CVEImpact", field.Name)
 }
 
 func (ec *executionContext) childFields_ChangeDeploymentKeyPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38359,6 +38933,8 @@ func (ec *executionContext) childFields_Environment(ctx context.Context, field g
 		return ec.fieldContext_Environment_name(ctx, field)
 	case "oidcIssuerURL":
 		return ec.fieldContext_Environment_oidcIssuerURL(ctx, field)
+	case "availableValues":
+		return ec.fieldContext_Environment_availableValues(ctx, field)
 	case "metrics":
 		return ec.fieldContext_Environment_metrics(ctx, field)
 	case "workloads":
@@ -38771,6 +39347,8 @@ func (ec *executionContext) childFields_IssueEdge(ctx context.Context, field gra
 
 func (ec *executionContext) childFields_IssueFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "teams":
+		return ec.fieldContext_IssueFacets_teams(ctx, field)
 	case "environments":
 		return ec.fieldContext_IssueFacets_environments(ctx, field)
 	case "severities":
@@ -38801,6 +39379,16 @@ func (ec *executionContext) childFields_IssueSeverityFacetItem(ctx context.Conte
 		return ec.fieldContext_IssueSeverityFacetItem_count(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type IssueSeverityFacetItem", field.Name)
+}
+
+func (ec *executionContext) childFields_IssueTeamFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_IssueTeamFacetItem_team(ctx, field)
+	case "count":
+		return ec.fieldContext_IssueTeamFacetItem_count(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type IssueTeamFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_IssueTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -39631,6 +40219,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_name(ctx, field)
 	case "majorVersion":
 		return ec.fieldContext_Postgres_majorVersion(ctx, field)
+	case "extensions":
+		return ec.fieldContext_Postgres_extensions(ctx, field)
 	case "highAvailability":
 		return ec.fieldContext_Postgres_highAvailability(ctx, field)
 	case "resources":
@@ -39711,6 +40301,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_createdAt(ctx, field)
 	case "earliestRestoreTime":
 		return ec.fieldContext_PostgresBranch_earliestRestoreTime(ctx, field)
+	case "configuration":
+		return ec.fieldContext_PostgresBranch_configuration(ctx, field)
 	case "team":
 		return ec.fieldContext_PostgresBranch_team(ctx, field)
 	case "teamEnvironment":
@@ -39721,6 +40313,8 @@ func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBranch_workloads(ctx, field)
 	case "state":
 		return ec.fieldContext_PostgresBranch_state(ctx, field)
+	case "issues":
+		return ec.fieldContext_PostgresBranch_issues(ctx, field)
 	case "labels":
 		return ec.fieldContext_PostgresBranch_labels(ctx, field)
 	}
@@ -39785,6 +40379,14 @@ func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "parameters":
+		return ec.fieldContext_PostgresConfiguration_parameters(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresConfiguration", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -39825,6 +40427,16 @@ func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(
 		return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresParameter(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_PostgresParameter_name(ctx, field)
+	case "value":
+		return ec.fieldContext_PostgresParameter_value(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresParameter", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -42471,6 +43083,8 @@ func (ec *executionContext) childFields_WorkloadWithVulnerability(ctx context.Co
 
 func (ec *executionContext) childFields_WorkloadWithVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "impact":
+		return ec.fieldContext_WorkloadWithVulnerabilityConnection_impact(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_WorkloadWithVulnerabilityConnection_pageInfo(ctx, field)
 	case "edges":

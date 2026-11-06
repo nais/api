@@ -79,8 +79,7 @@ unleash:
 replicas: 2
 
 logging:
-  loki: false
-  secure_logs: false
+  destinations: ""
 
 zitadel:
   domain:

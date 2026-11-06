@@ -44,11 +44,32 @@ func GetByIdent(ctx context.Context, id ident.Ident) (Issue, error) {
 }
 
 func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, scope *IssueScope, filter *IssueFilter) (*IssueConnection, error) {
+	return listIssues(ctx, teamSlug, page, orderBy, scope, filter, nil)
+}
+
+func ListForTenant(ctx context.Context, page *pagination.Pagination, orderBy *IssueOrder, filter *TenantIssueFilter) (*IssueConnection, error) {
+	var issueFilter *IssueFilter
+	var teams []slug.Slug
+	if filter != nil {
+		issueFilter = &filter.IssueFilter
+		teams = filter.TeamScope.Resolve(ctx)
+	}
+	return listIssues(ctx, "", page, orderBy, nil, issueFilter, teams)
+}
+
+func listIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, orderBy *IssueOrder, scope *IssueScope, filter *IssueFilter, teams []slug.Slug) (*IssueConnection, error) {
+	connection := &IssueConnection{
+		teamSlug:  teamSlug,
+		teamSlugs: teams,
+		scope:     scope,
+		filter:    filter,
+	}
 	params := issuesql.ListIssuesParams{
-		Team:    teamSlug.String(),
-		Offset:  page.Offset(),
-		Limit:   page.Limit(),
-		OrderBy: orderBy.String(),
+		Team:      teamSlug.String(),
+		TeamSlugs: teams,
+		Offset:    page.Offset(),
+		Limit:     page.Limit(),
+		OrderBy:   orderBy.String(),
 	}
 
 	if scope != nil {
@@ -79,6 +100,14 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 	var total int64
 	if len(ret) > 0 {
 		total = ret[0].TotalCount
+	} else {
+		facets, err := ComputeFacets(ctx, connection)
+		if err != nil {
+			return nil, err
+		}
+		for _, severity := range facets.Severities {
+			total += int64(severity.Count)
+		}
 	}
 
 	conn, err := pagination.NewConvertConnectionWithError(ret, page, total, func(from *issuesql.ListIssuesRow) (Issue, error) {
@@ -100,12 +129,8 @@ func ListIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		return nil, err
 	}
 
-	return &IssueConnection{
-		Connection: *conn,
-		teamSlug:   teamSlug,
-		scope:      scope,
-		filter:     filter,
-	}, nil
+	connection.Connection = *conn
+	return connection, nil
 }
 
 func convert(issue *issuesql.Issue) (Issue, error) {
@@ -120,6 +145,8 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 	}
 
 	switch IssueType(issue.IssueType) {
+	case IssueTypePostgresBranch:
+		return &PostgresBranchIssue{Base: base}, nil
 	case IssueTypeOpenSearch:
 		d, err := unmarshal[AivenIssueDetails](issue.IssueDetails)
 		if err != nil {

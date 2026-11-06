@@ -3,6 +3,7 @@ package logging
 import (
 	"context"
 
+	"github.com/nais/api/internal/environmentmapper"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/workload"
@@ -11,21 +12,18 @@ import (
 
 func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 	logging := wl.GetLogging()
-	if logging == nil {
-		logging = &nais_io_v1.Logging{
-			Enabled: true,
+	var logDestinations []nais_io_v1.LogDestination
+	if logging == nil || logging.Enabled {
+		if logging != nil {
+			logDestinations = logging.Destinations
 		}
-
-		for _, dl := range fromContext(ctx).defaultLogDestinations {
-			logging.Destinations = append(logging.Destinations, nais_io_v1.LogDestination{
-				ID: string(dl),
-			})
+		if len(logDestinations) == 0 {
+			destination := fromContext(ctx).environmentDestinations[environmentmapper.ClusterName(wl.GetEnvironmentName())]
+			if destination == "" {
+				destination = Loki
+			}
+			logDestinations = []nais_io_v1.LogDestination{{ID: string(destination)}}
 		}
-	}
-
-	if !logging.Enabled {
-		// Log destinations are disabled
-		return []LogDestination{}
 	}
 
 	base := logDestinationBase{
@@ -35,11 +33,13 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 		WorkloadName:    wl.GetName(),
 	}
 
-	var destinations []LogDestination
-	for _, logDestination := range logging.Destinations {
+	destinations := make([]LogDestination, 0, len(logDestinations)+1)
+	hasSecureLogs := false
+	for _, logDestination := range logDestinations {
 		switch SupportedLogDestination(logDestination.ID) {
 		case SecureLogs:
 			destinations = append(destinations, LogDestinationSecureLogs{base})
+			hasSecureLogs = true
 		case Loki:
 			destinations = append(destinations, LogDestinationLoki{base})
 		default:
@@ -50,13 +50,30 @@ func FromWorkload(ctx context.Context, wl workload.Workload) []LogDestination {
 			})
 		}
 	}
-
-	// If no destinations are defined, default to Loki
-	if len(logging.Destinations) == 0 {
-		destinations = append(destinations, LogDestinationLoki{base})
+	if !hasSecureLogs && allowsTeamLogs(wl) {
+		destinations = append(destinations, LogDestinationSecureLogs{base})
 	}
 
 	return destinations
+}
+
+func allowsTeamLogs(wl workload.Workload) bool {
+	policy := wl.GetAccessPolicy()
+	if policy == nil || policy.Outbound == nil {
+		return false
+	}
+
+	clusterName := environmentmapper.ClusterName(wl.GetEnvironmentName())
+	for _, rule := range policy.Outbound.Rules {
+		namespace := rule.Namespace
+		if namespace == "" {
+			namespace = wl.GetTeamSlug().String()
+		}
+		if rule.Application == "logging" && namespace == "nais-system" && rule.MatchesCluster(clusterName) {
+			return true
+		}
+	}
+	return false
 }
 
 func getByIdent(ctx context.Context, id ident.Ident) (LogDestination, error) {

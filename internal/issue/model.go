@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 )
 
 type Issue interface {
@@ -47,6 +48,15 @@ type ValkeyIssue struct {
 func (ValkeyIssue) IsIssue() {}
 
 func (ValkeyIssue) IsNode() {}
+
+// PostgresBranchIssue reports a failure on a Postgres branch.
+type PostgresBranchIssue struct {
+	Base
+}
+
+func (PostgresBranchIssue) IsIssue() {}
+
+func (PostgresBranchIssue) IsNode() {}
 
 type SqlInstanceVersionIssue struct {
 	Base
@@ -120,12 +130,13 @@ func (DeprecatedIngressIssue) IsNode() {}
 type ResourceType string
 
 const (
-	ResourceTypeOpensearch  ResourceType = "OPENSEARCH"
-	ResourceTypeValkey      ResourceType = "VALKEY"
-	ResourceTypeSQLInstance ResourceType = "SQLINSTANCE"
-	ResourceTypeApplication ResourceType = "APPLICATION"
-	ResourceTypeJob         ResourceType = "JOB"
-	ResourceTypeUnleash     ResourceType = "UNLEASH"
+	ResourceTypeOpensearch     ResourceType = "OPENSEARCH"
+	ResourceTypeValkey         ResourceType = "VALKEY"
+	ResourceTypeSQLInstance    ResourceType = "SQLINSTANCE"
+	ResourceTypeApplication    ResourceType = "APPLICATION"
+	ResourceTypeJob            ResourceType = "JOB"
+	ResourceTypeUnleash        ResourceType = "UNLEASH"
+	ResourceTypePostgresBranch ResourceType = "POSTGRES_BRANCH"
 )
 
 var AllResourceType = []ResourceType{
@@ -135,11 +146,12 @@ var AllResourceType = []ResourceType{
 	ResourceTypeApplication,
 	ResourceTypeJob,
 	ResourceTypeUnleash,
+	ResourceTypePostgresBranch,
 }
 
 func (e ResourceType) IsValid() bool {
 	switch e {
-	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash:
+	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash, ResourceTypePostgresBranch:
 		return true
 	}
 	return false
@@ -210,6 +222,7 @@ const (
 	IssueTypeExternalIngressUrgentVulnerability IssueType = "EXTERNAL_INGRESS_URGENT_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel              IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop             IssueType = "APPLICATION_RESTART_LOOP"
+	IssueTypePostgresBranch                     IssueType = "POSTGRES_BRANCH"
 )
 
 var AllIssueType = []IssueType{
@@ -229,6 +242,7 @@ var AllIssueType = []IssueType{
 	IssueTypeExternalIngressUrgentVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
+	IssueTypePostgresBranch,
 }
 
 func (e IssueType) IsValid() bool {
@@ -239,7 +253,7 @@ func (e IssueType) IsValid() bool {
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM,
 		IssueTypeExternalIngressUrgentVulnerability, IssueTypeUnleashReleaseChannel,
-		IssueTypeApplicationRestartLoop:
+		IssueTypeApplicationRestartLoop, IssueTypePostgresBranch:
 		return true
 	}
 	return false
@@ -279,20 +293,23 @@ type IssueScope struct {
 type IssueConnection struct {
 	pagination.Connection[Issue]
 
-	teamSlug slug.Slug
-	scope    *IssueScope
-	filter   *IssueFilter
+	teamSlug  slug.Slug
+	teamSlugs []slug.Slug
+	scope     *IssueScope
+	filter    *IssueFilter
 }
 
-func (c *IssueConnection) GetTeamSlug() slug.Slug  { return c.teamSlug }
-func (c *IssueConnection) GetScope() *IssueScope   { return c.scope }
-func (c *IssueConnection) GetFilter() *IssueFilter { return c.filter }
-
 type IssueFacets struct {
+	Teams         []IssueTeamFacetItem         `json:"teams"`
 	Environments  []model.StringFacetItem      `json:"environments"`
 	Severities    []IssueSeverityFacetItem     `json:"severities"`
 	ResourceTypes []IssueResourceTypeFacetItem `json:"resourceTypes"`
 	IssueTypes    []IssueTypeFacetItem         `json:"issueTypes"`
+}
+
+type IssueTeamFacetItem struct {
+	TeamSlug slug.Slug `json:"-"`
+	Count    int       `json:"count"`
 }
 
 type IssueSeverityFacetItem struct {
@@ -536,6 +553,11 @@ type IssueFilter struct {
 	Environments []string `json:"environments,omitempty"`
 
 	ResourceIssueFilter
+}
+
+type TenantIssueFilter struct {
+	IssueFilter
+	TeamScope *teamscope.TeamScopeInput `json:"teamScope,omitempty"`
 }
 
 // ApplicationRestartLoopIssueDetails holds details about a restart loop issue.

@@ -3,7 +3,7 @@ pin = true
 lockfile = true
 
 [tools]
-go = "1.26.7"
+go = "1.26.10"
 helm = "4.1.0"
 node = "24"
 protoc = "29.3"

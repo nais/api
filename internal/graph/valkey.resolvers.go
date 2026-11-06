@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"strings"
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/gengql"
@@ -105,7 +106,7 @@ func (r *valkeyResolver) Issues(ctx context.Context, obj *valkey.Valkey, first *
 	}
 
 	scope := &issue.IssueScope{
-		ResourceName: obj.Name,
+		ResourceName: strings.TrimPrefix(obj.Name, valkey.NamePrefix(obj.TeamSlug)),
 		ResourceType: issue.ResourceTypeValkey,
 		Env:          obj.EnvironmentName,
 	}

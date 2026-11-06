@@ -307,6 +307,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("create loki client: %w", err)
 	}
 
+	lokiProxy, err := loki.NewProxy(cfg.Logging.LokiQuerierAddress, log.WithField("subsystem", "loki_proxy"))
+	if err != nil {
+		return fmt.Errorf("create loki proxy: %w", err)
+	}
+
 	contextDependencies, err := ConfigureGraph(
 		ctx,
 		cfg.Fakes,
@@ -324,7 +329,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		hookdClient,
 		cfg.Unleash,
 		cfg.K8s.AllClusterNames(),
-		cfg.Logging.DefaultLogDestinations(),
+		cfg.Logging.Destinations,
 		notifier,
 		lokiClient,
 		cfg.AuditLog.ProjectID,
@@ -347,6 +352,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 			githubOIDCMiddleware,
 			authHandler,
 			graphHandler,
+			lokiProxy,
 			contextDependencies,
 			log.WithField("subsystem", "http"),
 		)
@@ -393,7 +399,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresBranchWatcher, log.WithField("subsystem", "grpc")); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresBranchWatcher, watchers.AppWatcher, watchers.JobWatcher, log.WithField("subsystem", "grpc")); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}

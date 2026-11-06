@@ -21,6 +21,7 @@ import (
 // region    ************************** generated!.gotpl **************************
 
 type EnvironmentResolver interface {
+	AvailableValues(ctx context.Context, obj *environment.Environment) (*environment.AvailableValues, error)
 	Metrics(ctx context.Context, obj *environment.Environment, input metrics.MetricsQueryInput) (*metrics.MetricsQueryResult, error)
 	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
 }
@@ -164,6 +165,38 @@ func (ec *executionContext) _Environment_oidcIssuerURL(ctx context.Context, fiel
 }
 func (ec *executionContext) fieldContext_Environment_oidcIssuerURL(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Environment", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Environment_availableValues(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Environment_availableValues(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Environment().AvailableValues(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *environment.AvailableValues) graphql.Marshaler {
+			return ec.marshalNAvailableValues2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋenvironmentᚐAvailableValues(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Environment_availableValues(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Environment",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AvailableValues(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _Environment_metrics(ctx context.Context, field graphql.CollectedField, obj *environment.Environment) (ret graphql.Marshaler) {
@@ -477,6 +510,42 @@ func (ec *executionContext) _Environment(ctx context.Context, sel ast.SelectionS
 			}
 		case "oidcIssuerURL":
 			out.Values[i] = ec._Environment_oidcIssuerURL(ctx, field, obj)
+		case "availableValues":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Environment_availableValues(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "metrics":
 			field := field
 

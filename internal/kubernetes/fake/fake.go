@@ -169,7 +169,7 @@ func ParseResource(scheme *runtime.Scheme, b []byte, ns string) (v runtime.Objec
 		panic(fmt.Errorf("unknown group version: %q", r.GetObjectKind().GroupVersionKind().GroupVersion()))
 	}
 
-	if ns != "" {
+	if ns != "" && r.GetKind() != "CustomResourceDefinition" {
 		r.SetNamespace(ns)
 		lbls := r.GetLabels()
 		if lbls == nil {

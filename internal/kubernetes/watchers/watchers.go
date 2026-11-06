@@ -3,6 +3,7 @@ package watchers
 import (
 	"context"
 
+	"github.com/nais/api/internal/kubernetes/crd"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/bucket"
@@ -54,6 +55,7 @@ type (
 )
 
 type Watchers struct {
+	AvailableValues       *crd.Catalog
 	AppWatcher            *AppWatcher
 	JobWatcher            *JobWatcher
 	RunWatcher            *RunWatcher
@@ -85,6 +87,7 @@ func SetupWatchers(
 	unleashEnabled bool,
 ) *Watchers {
 	ret := &Watchers{
+		AvailableValues:       crd.NewWatcher(ctx, watcherMgr),
 		AppWatcher:            application.NewWatcher(ctx, watcherMgr),
 		JobWatcher:            job.NewWatcher(ctx, watcherMgr),
 		RunWatcher:            job.NewRunWatcher(ctx, watcherMgr),

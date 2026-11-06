@@ -86,6 +86,21 @@ values:
         {{ eachOf $tenantEnvs "name" | sortAlpha | join "," }}
         {{ end }}
 
+  logging.destinations:
+    displayName: Log destinations
+    description: JSON map of tenant and legacy environment names to log destination strings, preferring and defaulting to loki.
+    computed:
+      template: |
+        {{- $result := dict -}}
+        {{- range $env := .Envs -}}
+          {{- $destination := "loki" -}}
+          {{- if and (not $env.logging_loki_default_flow) $env.logging_team_logs_default_flow -}}
+            {{- $destination = "secure_logs" -}}
+          {{- end -}}
+          {{- $_ := set $result $env.name $destination -}}
+        {{- end -}}
+        {{- toJSON $result | quote -}}
+
   resources.cpu:
     displayName: CPU request
     description: The expected amount of CPU the container can use
