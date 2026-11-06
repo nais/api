@@ -40,6 +40,10 @@ func init() {
 		return model.MatchesLabelFilters(v.GetLabels(), filter.Labels)
 	})
 
+	SortFilter.RegisterFilter(func(ctx context.Context, v Workload, filter *TeamWorkloadsFilter) bool {
+		return filter.Name == nil || strings.Contains(strings.ToLower(v.GetName()), strings.ToLower(strings.TrimSpace(*filter.Name)))
+	})
+
 	SortFilterEnvironment.RegisterSort("NAME", func(ctx context.Context, a, b Workload) int {
 		return strings.Compare(a.GetName(), b.GetName())
 	}, "TEAM_SLUG")
