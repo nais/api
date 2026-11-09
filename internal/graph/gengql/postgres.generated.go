@@ -68,7 +68,6 @@ type PostgresConnectionResolver interface {
 	Facets(ctx context.Context, obj *pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter]) (*postgres.PostgresFacets, error)
 }
 type PostgresWorkloadResolver interface {
-	Postgres(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.Postgres, error)
 	Branch(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.PostgresBranch, error)
 }
 
@@ -5221,7 +5220,7 @@ func (ec *executionContext) _PostgresWorkload_postgres(ctx context.Context, fiel
 			return ec.fieldContext_PostgresWorkload_postgres(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.PostgresWorkload().Postgres(ctx, obj)
+			return obj.Postgres, nil
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *postgres.Postgres) graphql.Marshaler {
@@ -5235,8 +5234,8 @@ func (ec *executionContext) fieldContext_PostgresWorkload_postgres(_ context.Con
 	fc = &graphql.FieldContext{
 		Object:     "PostgresWorkload",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Postgres(ctx, field)
 		},
@@ -9215,41 +9214,10 @@ func (ec *executionContext) _PostgresWorkload(ctx context.Context, sel ast.Selec
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "postgres":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._PostgresWorkload_postgres(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._PostgresWorkload_postgres(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "branch":
 			field := field
 

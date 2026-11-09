@@ -80,9 +80,9 @@ type (
 )
 
 type PostgresWorkload struct {
-	Workload     workload.Workload `json:"workload"`
-	PostgresName string            `json:"-"`
-	BranchName   string            `json:"-"`
+	Workload   workload.Workload `json:"workload"`
+	Postgres   *Postgres         `json:"postgres"`
+	BranchName string            `json:"-"`
 }
 
 type PostgresUserRole string
@@ -352,9 +352,6 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	if i.Postgres == "" {
 		verr.Add("postgres", "Postgres must not be empty.")
 	}
-	if i.Branch == "" {
-		i.Branch = nais_io_v1.DefaultBranchName
-	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
 	}
@@ -371,7 +368,7 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		verr.Add("ttl", "%s", err)
 	}
 
-	if i.Postgres == "" || i.Branch == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
+	if i.Postgres == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
 		return verr
 	}
 
@@ -382,8 +379,13 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		} else {
 			verr.Add("branch", "%s", err)
 		}
-	} else if instance.State != PostgresBranchStateAvailable {
-		verr.Add("branch", "Postgres branch %q is not available.", i.Branch)
+	} else {
+		// Keep the choice made from the fresh parent for readiness and the
+		// eventual immutable access resource, rather than resolving it again.
+		i.Branch = instance.Name
+		if instance.State != PostgresBranchStateAvailable {
+			verr.Add("branch", "Postgres branch %q is not available.", i.Branch)
+		}
 	}
 
 	return verr

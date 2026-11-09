@@ -173,6 +173,11 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		if len(workloads) != 2 || workloads[0].Workload.GetName() != "consumer" || workloads[1].Workload.GetName() != "scheduled-reader" {
 			t.Errorf("aggregate workloads for %q = %+v", pg.Name, workloads)
 		}
+		for _, current := range workloads {
+			if current.Postgres != pg {
+				t.Error("workload did not retain the resolved parent; nested Postgres fields must not trigger another lookup")
+			}
+		}
 	}
 	if workloads := WorkloadsForPostgres(ctx, &Postgres{Name: "unreferenced", TeamSlug: team, EnvironmentName: "dev"}); len(workloads) != 0 {
 		t.Errorf("unreferenced Postgres workloads = %+v", workloads)

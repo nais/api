@@ -42,11 +42,14 @@ func PhysicalClusterName(ctx context.Context, pg *Postgres) (*string, error) {
 }
 
 func legacyPhysicalBranch(ctx context.Context, pg *Postgres) (*PostgresBranch, error) {
-	name := nais_io_v1.DefaultBranchName
-	if pg.ActiveBranch != nil {
-		name = *pg.ActiveBranch
+	return legacyBranch(ctx, pg.TeamSlug.String(), pg.EnvironmentName, pg.Name, observedBranchName(pg))
+}
+
+func observedBranchName(pg *Postgres) string {
+	if pg.directClusterName == nil && pg.ActiveBranch != nil && *pg.ActiveBranch != "" {
+		return *pg.ActiveBranch
 	}
-	return legacyBranch(ctx, pg.TeamSlug.String(), pg.EnvironmentName, pg.Name, name)
+	return nais_io_v1.DefaultBranchName
 }
 
 // PostgresEarliestRestoreTime uses the same physical target as database status,

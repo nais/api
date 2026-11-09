@@ -227,10 +227,7 @@ func selectedBranchName(instance *Postgres, use liberatorv1.PostgresUse) string 
 	if use.Branch != "" {
 		return use.Branch
 	}
-	if instance.ActiveBranch != nil {
-		return *instance.ActiveBranch
-	}
-	return nais_io_v1.DefaultBranchName
+	return observedBranchName(instance)
 }
 
 func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
@@ -476,6 +473,9 @@ func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environment
 	pg, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
 	if err != nil {
 		return nil, err
+	}
+	if branchName == "" {
+		branchName = observedBranchName(pg)
 	}
 	instance, err := BranchForPostgres(ctx, pg, branchName)
 	if err != nil {
@@ -834,7 +834,7 @@ func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWo
 				break
 			}
 		}
-		ret = append(ret, &PostgresWorkload{Workload: current, PostgresName: postgres.Name, BranchName: branchName})
+		ret = append(ret, &PostgresWorkload{Workload: current, Postgres: postgres, BranchName: branchName})
 	}
 	return ret
 }

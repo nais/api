@@ -252,12 +252,8 @@ func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination
 	return &postgres.PostgresFacets{AllInstances: obj.GetAllItems(), FilteredInstances: filtered}, nil
 }
 
-func (r *postgresWorkloadResolver) Postgres(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.Postgres, error) {
-	return postgres.GetPostgres(ctx, obj.Workload.GetTeamSlug(), obj.Workload.GetEnvironmentName(), obj.PostgresName)
-}
-
 func (r *postgresWorkloadResolver) Branch(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranch(ctx, obj.Workload.GetTeamSlug(), obj.Workload.GetEnvironmentName(), obj.PostgresName, obj.BranchName)
+	return postgres.BranchForPostgres(ctx, obj.Postgres, obj.BranchName)
 }
 
 func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {

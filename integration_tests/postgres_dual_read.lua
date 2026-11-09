@@ -51,6 +51,17 @@ Test.gql("Workload queries resolve a virtual main without omitting the database"
 	} } } } } } }
 end)
 
+Test.gql("Workload nodes reuse the already resolved parent Postgres", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-dual-read-team") { environment(name: "dev") { postgres(name: "orders") {
+		id workloads { nodes { postgres { id name state } workload { ... on Application { name } } } }
+	} } } }]]
+	t.check { data = { team = { environment = { postgres = {
+		id = State.directPostgresID,
+		workloads = { nodes = { { postgres = { id = State.directPostgresID, name = "orders", state = "AVAILABLE" }, workload = { name = "consumer" } } } },
+	} } } } }
+end)
+
 Test.gql("Personal access can omit branch before and after direct ownership", function(t)
 	t.addHeader("x-user-email", user:email())
 	for _, postgresName in ipairs({ "foobar", "orders" }) do
