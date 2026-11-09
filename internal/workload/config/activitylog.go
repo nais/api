@@ -40,19 +40,19 @@ func init() {
 		"CONFIG_CREATED",
 		activitylog.ActivityLogEntryActionCreated,
 		activityLogEntryResourceTypeConfig,
-		activitylog.WithDescription("Triggered when a config is created."),
+		"Triggered when a config is created.",
 	)
 	activitylog.RegisterActivityType(
 		"CONFIG_UPDATED",
 		activitylog.ActivityLogEntryActionUpdated,
 		activityLogEntryResourceTypeConfig,
-		activitylog.WithDescription("Triggered when a config is updated."),
+		"Triggered when a config is updated.",
 	)
 	activitylog.RegisterActivityType(
 		"CONFIG_DELETED",
 		activitylog.ActivityLogEntryActionDeleted,
 		activityLogEntryResourceTypeConfig,
-		activitylog.WithDescription("Triggered when a config is deleted."),
+		"Triggered when a config is deleted.",
 	)
 }
 

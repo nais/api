@@ -60,31 +60,31 @@ func init() {
 		"VALKEY_CREATED",
 		activitylog.ActivityLogEntryActionCreated,
 		ActivityLogEntryResourceTypeValkey,
-		activitylog.WithDescription("Triggered when a Valkey is created."),
+		"Triggered when a Valkey is created.",
 	)
 	activitylog.RegisterActivityType(
 		"VALKEY_UPDATED",
 		activitylog.ActivityLogEntryActionUpdated,
 		ActivityLogEntryResourceTypeValkey,
-		activitylog.WithDescription("Triggered when a Valkey is updated."),
+		"Triggered when a Valkey is updated.",
 	)
 	activitylog.RegisterActivityType(
 		"VALKEY_DELETED",
 		activitylog.ActivityLogEntryActionDeleted,
 		ActivityLogEntryResourceTypeValkey,
-		activitylog.WithDescription("Triggered when a Valkey is deleted."),
+		"Triggered when a Valkey is deleted.",
 	)
 	activitylog.RegisterActivityType(
 		"VALKEY_MAINTENANCE_STARTED",
 		servicemaintenanceal.ActivityLogEntryActionMaintenanceStarted,
 		ActivityLogEntryResourceTypeValkey,
-		activitylog.WithDescription("Triggered when service maintenance is started for a Valkey."),
+		"Triggered when service maintenance is started for a Valkey.",
 	)
 	activitylog.RegisterActivityType(
 		"VALKEY_CREDENTIALS_CREATED",
 		activitylog.ActivityLogEntryActionCredentialsCreated,
 		ActivityLogEntryResourceTypeValkey,
-		activitylog.WithDescription("Triggered when credentials are created for a Valkey."),
+		"Triggered when credentials are created for a Valkey.",
 	)
 }
 

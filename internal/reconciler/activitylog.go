@@ -48,22 +48,22 @@ func init() {
 		"RECONCILER_ENABLED",
 		activityLogEntryActionEnableReconciler,
 		ActivityLogEntryResourceTypeReconciler,
+		"Triggered when a reconciler is enabled.",
 		activitylog.GlobalOnly(),
-		activitylog.WithDescription("Triggered when a reconciler is enabled."),
 	)
 	activitylog.RegisterActivityType(
 		"RECONCILER_DISABLED",
 		activityLogEntryActionDisableReconciler,
 		ActivityLogEntryResourceTypeReconciler,
+		"Triggered when a reconciler is disabled.",
 		activitylog.GlobalOnly(),
-		activitylog.WithDescription("Triggered when a reconciler is disabled."),
 	)
 	activitylog.RegisterActivityType(
 		"RECONCILER_CONFIGURED",
 		activityLogEntryActionConfigureReconciler,
 		ActivityLogEntryResourceTypeReconciler,
+		"Triggered when a reconciler's configuration is updated.",
 		activitylog.GlobalOnly(),
-		activitylog.WithDescription("Triggered when a reconciler's configuration is updated."),
 	)
 }
 

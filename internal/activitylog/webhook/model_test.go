@@ -9,7 +9,7 @@ import (
 
 func TestTeamWildcardExcludesGlobalOnlyEvents(t *testing.T) {
 	const at activitylog.ActivityLogActivityType = "WEBHOOK_TEST_GLOBAL_ONLY"
-	activitylog.RegisterActivityType(at, activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_GLOBAL_ONLY_RESOURCE", activitylog.GlobalOnly())
+	activitylog.RegisterActivityType(at, activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_GLOBAL_ONLY_RESOURCE", "Test activity.", activitylog.GlobalOnly())
 	team := slug.Slug("team")
 	event := WebhookEvent{TeamSlug: &team, ActivityTypes: []string{string(at)}}
 	for _, types := range [][]string{{"*"}, {string(at)}} {

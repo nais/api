@@ -49,19 +49,19 @@ func init() {
 		"WEBHOOK_CREATED",
 		activitylog.ActivityLogEntryActionCreated,
 		ActivityLogEntryResourceTypeWebhook,
-		activitylog.WithDescription("Triggered when a webhook subscription is created."),
+		"Triggered when a webhook subscription is created.",
 	)
 	activitylog.RegisterActivityType(
 		"WEBHOOK_UPDATED",
 		activitylog.ActivityLogEntryActionUpdated,
 		ActivityLogEntryResourceTypeWebhook,
-		activitylog.WithDescription("Triggered when a webhook subscription is updated."),
+		"Triggered when a webhook subscription is updated.",
 	)
 	activitylog.RegisterActivityType(
 		"WEBHOOK_DELETED",
 		activitylog.ActivityLogEntryActionDeleted,
 		ActivityLogEntryResourceTypeWebhook,
-		activitylog.WithDescription("Triggered when a webhook subscription is deleted."),
+		"Triggered when a webhook subscription is deleted.",
 	)
 }
 

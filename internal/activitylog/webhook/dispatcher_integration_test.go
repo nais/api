@@ -38,7 +38,7 @@ const (
 )
 
 func init() {
-	activitylog.RegisterActivityType(testActivityType, activitylog.ActivityLogEntryActionCreated, testResourceType)
+	activitylog.RegisterActivityType(testActivityType, activitylog.ActivityLogEntryActionCreated, testResourceType, "Test activity.")
 }
 
 func TestDispatcherIntegration(t *testing.T) {

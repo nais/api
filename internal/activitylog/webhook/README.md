@@ -118,7 +118,8 @@ The dispatcher is started on every API replica (`go webhookDispatcher.Run(ctx)`,
 
 Event types are driven by `activitylog.RegisterActivityType` calls throughout the codebase.
 Registered activity types are available as subscribable event types unless marked with
-`activitylog.IgnoreWebhook()`. Option functions allow customising descriptions, grouping, or scope.
+`activitylog.IgnoreWebhook()`. A description is required after the resource type.
+Option functions allow customising grouping or scope.
 
 ```go
 // Any domain package's init():
@@ -126,7 +127,7 @@ activitylog.RegisterActivityType(
     "TEAM_MEMBER_ADDED",
     activitylog.ActivityLogEntryActionAdded,
     resourceType,
-    activitylog.WithDescription("A user was added to the team"), // Custom description
+    "A user was added to the team",
     activitylog.WithGroup("Team"),                               // Custom UI grouping
 )
 
@@ -135,6 +136,7 @@ activitylog.RegisterActivityType(
     "RECONCILER_ENABLED",
     action,
     resourceType,
+    "Triggered when a reconciler is enabled.",
     activitylog.GlobalOnly(),
 )
 ```

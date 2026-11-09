@@ -104,43 +104,43 @@ func init() {
 		"SECRET_CREATED",
 		activitylog.ActivityLogEntryActionCreated,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when a secret is created."),
+		"Triggered when a secret is created.",
 	)
 	activitylog.RegisterActivityType(
 		"SECRET_UPDATED",
 		activitylog.ActivityLogEntryActionUpdated,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when a secret is updated."),
+		"Triggered when a secret is updated.",
 	)
 	activitylog.RegisterActivityType(
 		"SECRET_DELETED",
 		activitylog.ActivityLogEntryActionDeleted,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when a secret is deleted."),
+		"Triggered when a secret is deleted.",
 	)
 	activitylog.RegisterActivityType(
 		"SECRET_VALUE_ADDED",
 		activityLogEntryActionAddSecretValue,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when a secret value is added."),
+		"Triggered when a secret value is added.",
 	)
 	activitylog.RegisterActivityType(
 		"SECRET_VALUE_UPDATED",
 		activityLogEntryActionUpdateSecretValue,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when a secret value is updated."),
+		"Triggered when a secret value is updated.",
 	)
 	activitylog.RegisterActivityType(
 		"SECRET_VALUE_REMOVED",
 		activityLogEntryActionRemoveSecretValue,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when a secret value is removed."),
+		"Triggered when a secret value is removed.",
 	)
 	activitylog.RegisterActivityType(
 		"SECRET_VALUES_VIEWED",
 		activityLogEntryActionViewSecretValues,
 		activityLogEntryResourceTypeSecret,
-		activitylog.WithDescription("Triggered when secret values are viewed."),
+		"Triggered when secret values are viewed.",
 	)
 }
 

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/sirupsen/logrus"
 )
 
 type filter struct {
@@ -35,13 +34,6 @@ type WebhookEventTypeInfo struct {
 }
 
 type ActivityTypeOption func(*WebhookEventTypeInfo)
-
-// WithDescription sets a custom description for the event type.
-func WithDescription(desc string) ActivityTypeOption {
-	return func(info *WebhookEventTypeInfo) {
-		info.Description = desc
-	}
-}
 
 // WithGroup sets a custom group label for the event type.
 func WithGroup(group string) ActivityTypeOption {
@@ -75,9 +67,8 @@ var groupPrefixes = map[string]string{
 	"JOB_RUN":                     "Job",
 }
 
-// autoGroupAndDescription derives a display group and description from an activity type name.
-// Example: "TEAM_MEMBER_ADDED" → group "Team", description "Team member added".
-func autoGroupAndDescription(at ActivityLogActivityType) (description, group string) {
+// autoGroup derives a display group from an activity type name.
+func autoGroup(at ActivityLogActivityType) string {
 	s := string(at)
 
 	// Check multi-word prefix overrides first (longest match wins)
@@ -90,25 +81,11 @@ func autoGroupAndDescription(at ActivityLogActivityType) (description, group str
 		}
 	}
 	if longestGroup != "" {
-		group = longestGroup
-	} else {
-		// Single-word group: first token, title-cased
-		before, _, ok := strings.Cut(s, "_")
-		if !ok {
-			group = titleCase(s)
-		} else {
-			group = titleCase(before)
-		}
+		return longestGroup
 	}
 
-	displayName := strings.Replace(s, "GENERIC_KUBERNETES_RESOURCE", "RESOURCE", 1)
-	words := strings.Split(strings.ToLower(displayName), "_")
-	description = strings.Join(words, " ")
-	// Title-case first word only for sentence-style description
-	if len(description) > 0 {
-		description = strings.ToUpper(description[:1]) + description[1:]
-	}
-	return
+	before, _, _ := strings.Cut(s, "_")
+	return titleCase(before)
 }
 
 func titleCase(s string) string {
@@ -129,21 +106,8 @@ func CloudEventType(at ActivityLogActivityType) string {
 // KnownEventTypes returns metadata for all registered activity log event types, suitable
 // for exposing as a webhook event type catalogue.
 func KnownEventTypes() []WebhookEventTypeInfo {
-	result := make([]WebhookEventTypeInfo, 0, len(knownFilters))
-	for at := range knownFilters {
-		info, ok := eventTypeInfos[at]
-		if !ok {
-			logrus.WithField("activity_type", at).Warn("activity type registered without webhook event type info; using auto-generated description and group")
-			desc, grp := autoGroupAndDescription(at)
-			info = WebhookEventTypeInfo{
-				Type:           at,
-				CloudEventType: CloudEventType(at),
-				Description:    desc,
-				Group:          grp,
-				TeamScoped:     true,
-			}
-		}
-
+	result := make([]WebhookEventTypeInfo, 0, len(eventTypeInfos))
+	for _, info := range eventTypeInfos {
 		if info.ignoreWebhook {
 			continue
 		}
@@ -182,8 +146,8 @@ func IsValidActivityType(at string) bool {
 }
 
 // RegisterActivityType registers an activity log activity type, configuring its action,
-// resourceType mapping, and optional webhook options.
-func RegisterActivityType(activityType ActivityLogActivityType, action ActivityLogEntryAction, resourceType ActivityLogEntryResourceType, opts ...ActivityTypeOption) {
+// resourceType mapping, description, and optional webhook options.
+func RegisterActivityType(activityType ActivityLogActivityType, action ActivityLogEntryAction, resourceType ActivityLogEntryResourceType, description string, opts ...ActivityTypeOption) {
 	if f, ok := knownFilters[activityType]; ok {
 		if f.action == action {
 			f.resourceType = append(f.resourceType, resourceType)
@@ -203,20 +167,24 @@ func RegisterActivityType(activityType ActivityLogActivityType, action ActivityL
 		rebuildReverseFilters()
 	}
 
-	desc, grp := autoGroupAndDescription(activityType)
+	grp := autoGroup(activityType)
 	info, registered := eventTypeInfos[activityType]
 	if !registered {
 		info = WebhookEventTypeInfo{
-			Type: activityType, CloudEventType: CloudEventType(activityType),
-			Description: desc, Group: grp, TeamScoped: true,
+			Type:           activityType,
+			CloudEventType: CloudEventType(activityType),
+			Description:    description,
+			Group:          grp,
+			TeamScoped:     true,
 		}
+	} else if info.Description != description {
+		panic("conflicting activity type metadata: " + string(activityType))
 	}
 
 	for _, opt := range opts {
 		before := info
 		opt(&info)
-		if registered && ((before.Description != desc && info.Description != before.Description) ||
-			(before.Group != grp && info.Group != before.Group)) {
+		if registered && before.Group != grp && info.Group != before.Group {
 			panic("conflicting activity type metadata: " + string(activityType))
 		}
 	}

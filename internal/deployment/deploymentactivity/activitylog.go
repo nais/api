@@ -27,7 +27,7 @@ func init() {
 		"TEAM_DEPLOY_KEY_UPDATED",
 		activitylog.ActivityLogEntryActionUpdated,
 		ActivityLogEntryResourceTypeDeployKey,
-		activitylog.WithDescription("Triggered when a team's deployment key is rotated."),
+		"Triggered when a team's deployment key is rotated.",
 	)
 }
 

@@ -43,9 +43,9 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterActivityType("UNLEASH_INSTANCE_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeUnleash, activitylog.IgnoreWebhook())
-	activitylog.RegisterActivityType("UNLEASH_INSTANCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeUnleash, activitylog.IgnoreWebhook())
-	activitylog.RegisterActivityType("UNLEASH_INSTANCE_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeUnleash, activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType("UNLEASH_INSTANCE_CREATED", activitylog.ActivityLogEntryActionCreated, activityLogEntryResourceTypeUnleash, "Triggered when an Unleash instance is created.", activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType("UNLEASH_INSTANCE_UPDATED", activitylog.ActivityLogEntryActionUpdated, activityLogEntryResourceTypeUnleash, "Triggered when an Unleash instance is updated.", activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType("UNLEASH_INSTANCE_DELETED", activitylog.ActivityLogEntryActionDeleted, activityLogEntryResourceTypeUnleash, "Triggered when an Unleash instance is deleted.", activitylog.IgnoreWebhook())
 }
 
 type UnleashInstanceCreatedActivityLogEntry struct {

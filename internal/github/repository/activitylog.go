@@ -31,13 +31,13 @@ func init() {
 		"REPOSITORY_ADDED",
 		activitylog.ActivityLogEntryActionAdded,
 		activityLogEntryResourceTypeRepository,
-		activitylog.WithDescription("Triggered when a repository is added to a team."),
+		"Triggered when a repository is added to a team.",
 	)
 	activitylog.RegisterActivityType(
 		"REPOSITORY_REMOVED",
 		activitylog.ActivityLogEntryActionRemoved,
 		activityLogEntryResourceTypeRepository,
-		activitylog.WithDescription("Triggered when a repository is removed from a team."),
+		"Triggered when a repository is removed from a team.",
 	)
 }
 

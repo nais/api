@@ -10,7 +10,7 @@ import (
 )
 
 func init() {
-	activitylog.RegisterActivityType("WEBHOOK_TEST_CLOUDEVENTS_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_CLOUDEVENTS_RESOURCE")
+	activitylog.RegisterActivityType("WEBHOOK_TEST_CLOUDEVENTS_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_CLOUDEVENTS_RESOURCE", "Test activity.")
 }
 
 func TestBuildCloudEvent_Envelope(t *testing.T) {

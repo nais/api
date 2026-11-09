@@ -121,12 +121,12 @@ func TestStoredResponseHeaders(t *testing.T) {
 func TestProcessDelivery_SkipsNewlyIgnoredQueuedEvent(t *testing.T) {
 	const activityType = "WEBHOOK_TEST_QUEUED_IGNORED_EVENT"
 	const resourceType = "WEBHOOK_TEST_QUEUED_IGNORED_RESOURCE"
-	activitylog.RegisterActivityType(activityType, activitylog.ActivityLogEntryActionCreated, resourceType)
+	activitylog.RegisterActivityType(activityType, activitylog.ActivityLogEntryActionCreated, resourceType, "Test activity.")
 	entry := &webhooksql.ActivityLogEntry{
 		ResourceType: resourceType,
 		Action:       string(activitylog.ActivityLogEntryActionCreated),
 	}
-	activitylog.RegisterActivityType(activityType, activitylog.ActivityLogEntryActionCreated, resourceType, activitylog.IgnoreWebhook())
+	activitylog.RegisterActivityType(activityType, activitylog.ActivityLogEntryActionCreated, resourceType, "Test activity.", activitylog.IgnoreWebhook())
 
 	for _, eventTypes := range [][]string{{"*"}, {activityType}} {
 		for _, retryCount := range []int32{0, 1} {

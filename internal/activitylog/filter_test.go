@@ -8,7 +8,7 @@ import (
 func TestRegisterActivityType_PanicsOnConflictingAction(t *testing.T) {
 	const activityType ActivityLogActivityType = "FILTER_TEST_CONFLICT"
 
-	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_A")
+	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_A", "Test activity.")
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -16,16 +16,16 @@ func TestRegisterActivityType_PanicsOnConflictingAction(t *testing.T) {
 		}
 	}()
 
-	RegisterActivityType(activityType, ActivityLogEntryActionUpdated, "FILTER_TEST_RESOURCE_A")
+	RegisterActivityType(activityType, ActivityLogEntryActionUpdated, "FILTER_TEST_RESOURCE_A", "Test activity.")
 }
 
 func TestRegisterActivityType_MergesResourceTypes(t *testing.T) {
 	const activityType ActivityLogActivityType = "FILTER_TEST_MERGE"
 
-	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_B")
-	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_C")
+	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_B", "Test activity.")
+	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_C", "Test activity.")
 	// Registering the same resource type again must not create a duplicate entry.
-	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_B")
+	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_B", "Test activity.")
 
 	typesB := LookupActivityTypes("FILTER_TEST_RESOURCE_B", string(ActivityLogEntryActionCreated))
 	typesC := LookupActivityTypes("FILTER_TEST_RESOURCE_C", string(ActivityLogEntryActionCreated))
@@ -53,8 +53,8 @@ func TestKnownEventTypes_ExcludesIgnoreWebhook(t *testing.T) {
 	const visible ActivityLogActivityType = "FILTER_TEST_VISIBLE"
 	const hidden ActivityLogActivityType = "FILTER_TEST_HIDDEN"
 
-	RegisterActivityType(visible, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_D")
-	RegisterActivityType(hidden, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_D", IgnoreWebhook())
+	RegisterActivityType(visible, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_D", "Test activity.")
+	RegisterActivityType(hidden, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_D", "Test activity.", IgnoreWebhook())
 
 	all := KnownEventTypes()
 
@@ -76,8 +76,8 @@ func TestIsTeamScoped(t *testing.T) {
 	const teamScoped ActivityLogActivityType = "FILTER_TEST_TEAM_SCOPED"
 	const globalOnly ActivityLogActivityType = "FILTER_TEST_GLOBAL_ONLY"
 
-	RegisterActivityType(teamScoped, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_E")
-	RegisterActivityType(globalOnly, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_E", GlobalOnly())
+	RegisterActivityType(teamScoped, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_E", "Test activity.")
+	RegisterActivityType(globalOnly, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_E", "Test activity.", GlobalOnly())
 
 	if !IsTeamScoped(teamScoped) {
 		t.Errorf("expected %q to be team-scoped by default", teamScoped)
@@ -93,8 +93,8 @@ func TestIsTeamScoped(t *testing.T) {
 func TestIsIgnoredForWebhook(t *testing.T) {
 	const visible ActivityLogActivityType = "FILTER_TEST_WEBHOOK_VISIBLE"
 	const ignored ActivityLogActivityType = "FILTER_TEST_WEBHOOK_IGNORED"
-	RegisterActivityType(visible, ActivityLogEntryActionCreated, "FILTER_TEST_WEBHOOK_VISIBLE_RESOURCE")
-	RegisterActivityType(ignored, ActivityLogEntryActionCreated, "FILTER_TEST_WEBHOOK_IGNORED_RESOURCE", IgnoreWebhook())
+	RegisterActivityType(visible, ActivityLogEntryActionCreated, "FILTER_TEST_WEBHOOK_VISIBLE_RESOURCE", "Test activity.")
+	RegisterActivityType(ignored, ActivityLogEntryActionCreated, "FILTER_TEST_WEBHOOK_IGNORED_RESOURCE", "Test activity.", IgnoreWebhook())
 
 	for _, tt := range []struct {
 		activityType ActivityLogActivityType
@@ -118,7 +118,7 @@ func TestIsIgnoredForWebhook(t *testing.T) {
 
 func TestIsValidActivityType(t *testing.T) {
 	const activityType ActivityLogActivityType = "FILTER_TEST_VALID"
-	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_F")
+	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_F", "Test activity.")
 
 	if !IsValidActivityType("*") {
 		t.Error(`expected "*" to be valid`)
@@ -147,7 +147,7 @@ func TestCloudEventType(t *testing.T) {
 	}
 }
 
-func TestAutoGroupAndDescription(t *testing.T) {
+func TestAutoGroup(t *testing.T) {
 	tests := []struct {
 		in        ActivityLogActivityType
 		wantGroup string
@@ -160,19 +160,26 @@ func TestAutoGroupAndDescription(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		_, group := autoGroupAndDescription(tt.in)
+		group := autoGroup(tt.in)
 		if group != tt.wantGroup {
-			t.Errorf("autoGroupAndDescription(%q) group = %q, want %q", tt.in, group, tt.wantGroup)
+			t.Errorf("autoGroup(%q) = %q, want %q", tt.in, group, tt.wantGroup)
 		}
 	}
 }
 
 func TestRegisterActivityTypePreservesMetadata(t *testing.T) {
 	const at ActivityLogActivityType = "FILTER_TEST_PRESERVE_METADATA"
-	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_A",
-		WithDescription("Custom description"), WithGroup("Custom group"), GlobalOnly(), IgnoreWebhook())
+	RegisterActivityType(
+		at,
+		ActivityLogEntryActionCreated,
+		"FILTER_METADATA_A",
+		"Custom description",
+		WithGroup("Custom group"),
+		GlobalOnly(),
+		IgnoreWebhook(),
+	)
 	before := eventTypeInfos[at]
-	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_B")
+	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_B", "Custom description")
 	if got := eventTypeInfos[at]; got != before {
 		t.Errorf("re-registration changed metadata: got %+v, want %+v", got, before)
 	}
@@ -181,14 +188,17 @@ func TestRegisterActivityTypePreservesMetadata(t *testing.T) {
 			t.Error("conflicting descriptions must be rejected")
 		}
 	}()
-	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_C", WithDescription("Conflicting description"))
+	RegisterActivityType(at, ActivityLogEntryActionCreated, "FILTER_METADATA_C", "Conflicting description")
 }
 
 func TestRegisterActivityType_CustomOptions(t *testing.T) {
 	const activityType ActivityLogActivityType = "FILTER_TEST_CUSTOM"
 
-	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_G",
-		WithDescription("custom description"),
+	RegisterActivityType(
+		activityType,
+		ActivityLogEntryActionCreated,
+		"FILTER_TEST_RESOURCE_G",
+		"custom description",
 		WithGroup("Custom Group"),
 	)
 

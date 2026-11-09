@@ -45,13 +45,13 @@ func init() {
 		"KAFKA_CREDENTIALS_CREATED",
 		activitylog.ActivityLogEntryActionCredentialsCreated,
 		ActivityLogEntryResourceTypeKafkaTopic,
-		activitylog.WithDescription("Triggered when temporary Kafka credentials are created."),
+		"Triggered when temporary Kafka credentials are created.",
 	)
 	activitylog.RegisterActivityType(
 		"KAFKA_TOPIC_UPDATED",
 		activitylog.ActivityLogEntryActionUpdated,
 		ActivityLogEntryResourceTypeKafkaTopic,
-		activitylog.WithDescription("Triggered when access grants for a Kafka topic are updated."),
+		"Triggered when access grants for a Kafka topic are updated.",
 	)
 }
 
