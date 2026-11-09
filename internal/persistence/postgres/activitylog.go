@@ -22,16 +22,66 @@ const (
 func init() {
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypePostgres, transformPostgresActivityLogEntry)
 
-	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CREATED", activityLogEntryActionCreatePersonalAccess, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CONNECTION", activityLogEntryActionGetPersonalAccessConnection, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETION_REQUESTED", activityLogEntryActionDeletionRequested, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_CREATED", activityLogEntryActionBranchCreated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_ACTIVATED", activityLogEntryActionBranchActivated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_DELETED", activityLogEntryActionBranchDeleted, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterActivityType(
+		"POSTGRES_GRANT_ACCESS",
+		activityLogEntryActionGrantAccess,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when temporary access to Postgres is granted.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_PERSONAL_ACCESS_CREATED",
+		activityLogEntryActionCreatePersonalAccess,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when personal access to a Postgres branch is requested.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_PERSONAL_ACCESS_CONNECTION",
+		activityLogEntryActionGetPersonalAccessConnection,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when connection details for personal Postgres access are retrieved.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres instance is created.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres instance is updated.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is deleted (legacy event without a branch name).",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_DELETION_REQUESTED",
+		activityLogEntryActionDeletionRequested,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when deletion of a Postgres instance is requested; cleanup is pending.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_CREATED",
+		activityLogEntryActionBranchCreated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is created.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_ACTIVATED",
+		activityLogEntryActionBranchActivated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is activated.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_DELETED",
+		activityLogEntryActionBranchDeleted,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is deleted.",
+	)
 }
 
 func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {

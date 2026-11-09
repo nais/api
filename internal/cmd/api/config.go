@@ -205,6 +205,7 @@ type Config struct {
 }
 
 type Fakes struct {
+	WithInsecureWebhookURLs      bool `env:"WITH_INSECURE_WEBHOOK_URLS"`
 	WithInsecureUserHeader       bool `env:"WITH_INSECURE_USER_HEADER"`
 	WithFakeAivenClient          bool `env:"WITH_FAKE_AIVEN_CLIENT"`
 	WithFakeKubernetes           bool `env:"WITH_FAKE_KUBERNETES"`
