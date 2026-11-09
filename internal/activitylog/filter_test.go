@@ -120,8 +120,8 @@ func TestIsValidActivityType(t *testing.T) {
 	const activityType ActivityLogActivityType = "FILTER_TEST_VALID"
 	RegisterActivityType(activityType, ActivityLogEntryActionCreated, "FILTER_TEST_RESOURCE_F", "Test activity.")
 
-	if !IsValidActivityType("*") {
-		t.Error(`expected "*" to be valid`)
+	if IsValidActivityType("*") {
+		t.Error(`expected "*" to be invalid`)
 	}
 	if !IsValidActivityType(string(activityType)) {
 		t.Errorf("expected %q to be valid", activityType)

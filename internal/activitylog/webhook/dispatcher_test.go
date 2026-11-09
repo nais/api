@@ -128,13 +128,17 @@ func TestProcessDelivery_SkipsNewlyIgnoredQueuedEvent(t *testing.T) {
 	}
 	activitylog.RegisterActivityType(activityType, activitylog.ActivityLogEntryActionCreated, resourceType, "Test activity.", activitylog.IgnoreWebhook())
 
-	for _, eventTypes := range [][]string{{"*"}, {activityType}} {
+	for _, allEvents := range []bool{true, false} {
+		sub := &webhooksql.WebhookSubscription{AllEvents: allEvents, Enabled: true}
+		if !allEvents {
+			sub.EventTypes = []string{activityType}
+		}
 		for _, retryCount := range []int32{0, 1} {
 			d := &Dispatcher{}
 			// Ignored deliveries only finish queue bookkeeping, without HTTP or metrics.
 			d.processDelivery(t.Context(), newWorkerTestQueries(0),
 				&webhooksql.WebhookEventDelivery{RetryCount: retryCount},
-				&webhooksql.WebhookSubscription{EventTypes: eventTypes, Enabled: true},
+				sub,
 				entry,
 			)
 		}

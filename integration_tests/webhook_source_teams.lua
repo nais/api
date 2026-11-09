@@ -33,7 +33,7 @@ for _, tt in ipairs({
 					%s
 					url: "https://webhook.example.invalid/webhook"
 					secret: "test-secret"
-					eventTypes: ["*"]
+					events: { allEvents: true }
 				}) {
 					webhook {
 						id name teamSlug sourceTeamSlugs hasSecret
@@ -71,7 +71,7 @@ for _, tt in ipairs({
 		if tt.mutation == "createWebhook" then
 			input = string.format([[
 				name: %q teamSlug: "team-owner" url: "https://webhook.example.invalid/webhook"
-				secret: "test-secret" eventTypes: ["*"]
+				secret: "test-secret" events: { allEvents: true }
 			]], tt.value)
 		else
 			input = string.format('id: "%s" name: %q', State.webhookID, tt.value)
@@ -187,7 +187,7 @@ Test.gql("All teams still requires authorization in the owner team", function(t)
 				sourceTeamSlugs: []
 				url: "https://webhook.example.invalid/webhook"
 				secret: "test-secret"
-				eventTypes: ["*"]
+				events: { allEvents: true }
 			}) {
 				webhook { id }
 			}
@@ -213,7 +213,7 @@ Test.gql("Legacy admin global webhooks remain global", function(t)
 				name: "Test webhook"
 				url: "https://webhook.example.invalid/webhook"
 				secret: "test-secret"
-				eventTypes: ["*"]
+				events: { allEvents: true }
 			}) {
 				webhook { teamSlug sourceTeamSlugs hasSecret }
 			}
@@ -241,7 +241,7 @@ Test.gql("Accept an eight-character signing secret", function(t)
 				teamSlug: "team-owner"
 				url: "https://webhook.example.invalid/secret-test"
 				secret: "12345678"
-				eventTypes: ["*"]
+				events: { allEvents: true }
 			}) {
 				webhook { id hasSecret }
 			}
@@ -301,7 +301,7 @@ for _, tt in ipairs({
 			if mutation == "createWebhook" then
 				input = [=[
 					name: "Rejected secret" teamSlug: "team-owner"
-					url: "https://webhook.example.invalid/rejected-secret" eventTypes: ["*"]
+					url: "https://webhook.example.invalid/rejected-secret" events: { allEvents: true }
 				]=]
 			else
 				input = string.format('id: "%s"', State.secretWebhookID)
@@ -345,7 +345,7 @@ for _, tt in ipairs({
 					sourceTeamSlugs: ["team-other"]
 					url: "https://webhook.example.invalid/shared"
 					secret: "test-secret"
-					eventTypes: ["*"]
+					events: { allEvents: true }
 				}) {
 					webhook { id name teamSlug }
 				}
@@ -374,7 +374,7 @@ for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
 		if mutation == "createWebhook" then
 			input = [=[
 				teamSlug: "team-owner" sourceTeamSlugs: [] url: "https://webhook.example.invalid/duplicate"
-				secret: "test-secret" eventTypes: ["*"]
+				secret: "test-secret" events: { allEvents: true }
 			]=]
 		else
 			input = string.format('id: "%s"', State.webhookID)
@@ -660,3 +660,89 @@ Test.gql("Delivery diagnostics preserve each attempt's outcome and retry snapsho
 		},
 	}
 end)
+
+Test.gql("Create an all-events subscription without an event list", function(t)
+	t.addHeader("x-user-email", owner:email())
+	t.query [[
+		mutation {
+			createWebhook(input: {
+				name: "Event selection", teamSlug: "team-owner",
+				url: "https://hooks.example.com", secret: "test-secret", events: { allEvents: true }
+			}) { webhook { id allEvents eventTypes } }
+		}
+	]]
+	t.check {
+		data = { createWebhook = { webhook = {
+			id = Save("eventSelectionWebhookID"), allEvents = true, eventTypes = {},
+		} } },
+	}
+end)
+
+for _, tt in ipairs({
+	{ name = "Explicit events replace all events",         input = 'events: { eventTypes: ["TEAM_UPDATED"] }', allEvents = false, eventTypes = { "TEAM_UPDATED" } },
+	{ name = "Unrelated updates preserve explicit events", input = 'name: "Event selection renamed"',          allEvents = false, eventTypes = { "TEAM_UPDATED" } },
+	{ name = "All events clears the explicit list",        input = "events: { allEvents: true }",              allEvents = true,  eventTypes = {} },
+	{ name = "Unrelated updates preserve all events",      input = "enabled: false",                           allEvents = true,  eventTypes = {} },
+	{ name = "Null events preserves selection",            input = "events: null",                             allEvents = true,  eventTypes = {} },
+}) do
+	Test.gql(tt.name, function(t)
+		t.addHeader("x-user-email", owner:email())
+		t.query(string.format([[
+			mutation {
+				updateWebhook(input: { id: "%s", %s }) { webhook { allEvents eventTypes } }
+			}
+		]], State.eventSelectionWebhookID, tt.input))
+		t.check { data = { updateWebhook = { webhook = {
+			allEvents = tt.allEvents, eventTypes = tt.eventTypes,
+		} } } }
+	end)
+end
+
+for _, tt in ipairs({
+	{ name = "False allEvents", input = "events: { allEvents: false }",  message = "allEvents must be true" },
+	{ name = "Empty list",      input = "events: { eventTypes: [] }",    message = "Select at least one event type" },
+	{ name = "Legacy wildcard", input = 'events: { eventTypes: ["*"] }', message = "invalid event type" },
+}) do
+	for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
+		Test.gql(mutation .. " rejects " .. tt.name, function(t)
+			t.addHeader("x-user-email", owner:email())
+			local input = string.format('id: "%s", %s', State.eventSelectionWebhookID, tt.input)
+			if mutation == "createWebhook" then
+				input =
+					'name: "Invalid selection", teamSlug: "team-owner", url: "https://hooks.example.com", secret: "test-secret", ' ..
+					tt.input
+			end
+
+			t.query(string.format("mutation { %s(input: { %s }) { webhook { id } } }", mutation, input))
+			t.check {
+				data = Null,
+				errors = { { message = Contains(tt.message), locations = NotNull(), path = { mutation } } },
+			}
+		end)
+	end
+end
+
+for _, tt in ipairs({
+	{ name = "Both fields",                 selection = '{ allEvents: true, eventTypes: ["TEAM_UPDATED"] }', message = "must specify exactly one key" },
+	{ name = "Both fields with empty list", selection = "{ allEvents: true, eventTypes: [] }",               message = "must specify exactly one key" },
+	{ name = "Both fields with null",       selection = "{ allEvents: true, eventTypes: null }",             message = "must specify exactly one key" },
+	{ name = "Neither field",               selection = "{}",                                                message = "must specify exactly one key" },
+	{ name = "Null field",                  selection = "{ allEvents: null }",                               message = "must be non-null" },
+}) do
+	for _, mutation in ipairs({ "createWebhook", "updateWebhook" }) do
+		Test.gql(mutation .. " enforces oneOf for " .. tt.name, function(t)
+			t.addHeader("x-user-email", owner:email())
+			local input = string.format('id: "%s", events: %s', State.eventSelectionWebhookID, tt.selection)
+			if mutation == "createWebhook" then
+				input =
+					'name: "Invalid oneOf", teamSlug: "team-owner", url: "https://hooks.example.com", secret: "test-secret", events: ' ..
+					tt.selection
+			end
+			t.query(string.format("mutation { %s(input: { %s }) { webhook { id } } }", mutation, input))
+			t.check {
+				data = Null,
+				errors = { { message = Contains(tt.message), locations = NotNull(), extensions = Ignore() } },
+			}
+		end)
+	end
+end

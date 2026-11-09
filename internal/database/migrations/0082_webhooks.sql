@@ -6,7 +6,8 @@ CREATE TABLE webhook_subscriptions (
 	source_team_slugs slug[],
 	url TEXT NOT NULL,
 	secret TEXT NOT NULL CHECK (CHAR_LENGTH(secret) >= 8),
-	event_types TEXT[] NOT NULL,
+	event_types TEXT[] NOT NULL DEFAULT '{}',
+	all_events BOOLEAN NOT NULL DEFAULT FALSE,
 	enabled BOOLEAN NOT NULL DEFAULT TRUE,
 	consecutive_failures INT NOT NULL DEFAULT 0,
 	disabled_at TIMESTAMPTZ,
@@ -14,6 +15,17 @@ CREATE TABLE webhook_subscriptions (
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	CONSTRAINT webhook_subscriptions_team_name_key UNIQUE (team_slug, name),
+	CONSTRAINT webhook_subscription_event_selection CHECK (
+		(
+			all_events
+			AND CARDINALITY(event_types) = 0
+		)
+		OR (
+			NOT all_events
+			AND CARDINALITY(event_types) > 0
+		)
+	),
+	CONSTRAINT webhook_subscription_no_wildcard CHECK (NOT ('*' = ANY (event_types))),
 	CONSTRAINT webhook_subscription_source_teams CHECK (
 		team_slug IS NOT NULL
 		OR COALESCE(CARDINALITY(source_team_slugs), 0) = 0

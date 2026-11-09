@@ -56,15 +56,18 @@ func TestIgnoredEventTypes(t *testing.T) {
 				event.ActivityTypes = append(event.ActivityTypes, string(at))
 			}
 			for _, teamSlug := range []*slug.Slug{nil, &team} {
-				for _, eventTypes := range [][]string{{"*"}, {string(tt.activityType)}} {
+				for _, allEvents := range []bool{true, false} {
 					sub := webhook.WebhookSubscription{
 						Enabled:         true,
 						TeamSlug:        teamSlug,
 						SourceTeamSlugs: []slug.Slug{team},
-						EventTypes:      eventTypes,
+						AllEvents:       allEvents,
+					}
+					if !allEvents {
+						sub.EventTypes = []string{string(tt.activityType)}
 					}
 					if sub.MatchesEvent(event) {
-						t.Errorf("ignored event matched subscription: team=%v, types=%v", teamSlug, eventTypes)
+						t.Errorf("ignored event matched subscription: team=%v, allEvents=%v", teamSlug, allEvents)
 					}
 				}
 			}

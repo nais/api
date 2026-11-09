@@ -82,7 +82,8 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 		return nil, apierror.Errorf("%s", err)
 	}
 
-	if err := validateEventTypes(input.TeamSlug, input.EventTypes); err != nil {
+	allEvents, eventTypes, err := validateEventSelection(input.TeamSlug, input.Events)
+	if err != nil {
 		return nil, err
 	}
 
@@ -90,7 +91,7 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 	if sourceTeamSlugs == nil && input.TeamSlug != nil {
 		sourceTeamSlugs = []slug.Slug{*input.TeamSlug}
 	}
-	sourceTeamSlugs, err := validateSourceTeams(input.TeamSlug, sourceTeamSlugs)
+	sourceTeamSlugs, err = validateSourceTeams(input.TeamSlug, sourceTeamSlugs)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +108,8 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 			SourceTeamSlugs: sourceTeamSlugs,
 			Url:             input.URL,
 			Secret:          input.Secret,
-			EventTypes:      input.EventTypes,
+			EventTypes:      eventTypes,
+			AllEvents:       allEvents,
 		})
 		if err != nil {
 			return err
@@ -197,10 +199,15 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 		}
 	}
 
-	if input.EventTypes != nil {
-		if err := validateEventTypes(existing.TeamSlug, input.EventTypes); err != nil {
+	var allEvents *bool
+	var eventTypes []string
+	if input.Events != nil {
+		selectedAll, selectedTypes, err := validateEventSelection(existing.TeamSlug, input.Events)
+		if err != nil {
 			return nil, err
 		}
+		allEvents = &selectedAll
+		eventTypes = selectedTypes
 	}
 
 	var sourceTeamSlugs []slug.Slug
@@ -226,7 +233,8 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 			SourceTeamSlugs: sourceTeamSlugs,
 			Url:             input.URL,
 			Secret:          input.Secret,
-			EventTypes:      input.EventTypes,
+			EventTypes:      eventTypes,
+			AllEvents:       allEvents,
 			Enabled:         input.Enabled,
 		})
 		if err != nil {
@@ -394,6 +402,7 @@ func toGraphSubscription(row *webhooksql.WebhookSubscription) *WebhookSubscripti
 		URL:                 row.Url,
 		Secret:              row.Secret,
 		EventTypes:          row.EventTypes,
+		AllEvents:           row.AllEvents,
 		Enabled:             row.Enabled,
 		ConsecutiveFailures: int(row.ConsecutiveFailures),
 		DisabledAt:          disabledAt,
@@ -506,11 +515,31 @@ func validateEventTypes(teamSlug *slug.Slug, eventTypes []string) error {
 		if activitylog.IsIgnoredForWebhook(activitylog.ActivityLogActivityType(et)) {
 			return apierror.Errorf("event type %q is excluded from webhooks", et)
 		}
-		if teamSlug != nil && et != "*" {
+		if teamSlug != nil {
 			if !activitylog.IsTeamScoped(activitylog.ActivityLogActivityType(et)) {
 				return apierror.Errorf("event type %q is global-only and cannot be subscribed to by a team-scoped webhook", et)
 			}
 		}
 	}
 	return nil
+}
+
+func validateEventSelection(teamSlug *slug.Slug, selection *WebhookEventSelection) (bool, []string, error) {
+	if selection == nil || selection.AllEvents.IsSet() == selection.EventTypes.IsSet() {
+		return false, nil, apierror.Errorf("Select exactly one of allEvents or eventTypes.")
+	}
+	if selection.AllEvents.IsSet() {
+		if selection.AllEvents.Value() == nil || !*selection.AllEvents.Value() {
+			return false, nil, apierror.Errorf("allEvents must be true.")
+		}
+		return true, []string{}, nil
+	}
+	eventTypes := selection.EventTypes.Value()
+	if len(eventTypes) == 0 {
+		return false, nil, apierror.Errorf("Select at least one event type.")
+	}
+	if err := validateEventTypes(teamSlug, eventTypes); err != nil {
+		return false, nil, err
+	}
+	return false, eventTypes, nil
 }

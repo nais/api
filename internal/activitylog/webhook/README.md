@@ -88,7 +88,7 @@ identify arbitrary application-specific secrets.
 
 ### Why two stages?
 
-Subscription matching (event-type wildcards `*`, team scoping) is application logic that
+Subscription matching (all-event selection, team scoping) is application logic that
 lives in Go (`activitylog.RegisterActivityType`/`MatchesEvent`), so it can't be done by the
 trigger. The trigger only records that an event happened; the dispatcher fans it out into
 one delivery row per matching subscription, and retry/backoff bookkeeping happens at that
@@ -143,10 +143,16 @@ activitylog.RegisterActivityType(
 
 The `webhookEventTypes` GraphQL query exposes the full catalogue with descriptions, groups, and `teamScoped` status.
 
-Subscription `event_types` accepts activity type names (e.g. `TEAM_MEMBER_ADDED`) or `*` for all events. If a team-scoped webhook tries to subscribe to a `GlobalOnly` event type, creation/update will fail validation.
+Set `events: { allEvents: true }` to receive all available event types within the webhook's scope,
+or provide `events: { eventTypes: ["TEAM_MEMBER_ADDED"] }` with a non-empty list.
+`WebhookEventSelection @oneOf` requires exactly one non-null field. False, empty lists,
+and `"*"` are rejected.
+Creation requires `events`; on update, it replaces the selection.
+Omitting `events` or passing null on update preserves the current selection. Team-scoped webhooks cannot
+explicitly select `GlobalOnly` event types and never receive them through `allEvents`.
 
 `IgnoreWebhook()` excludes an event type from the catalogue and rejects explicit
-subscriptions. Ignored events are never delivered, including through wildcard or existing
+subscriptions. Ignored events are never delivered, including through all-event or existing
 subscriptions. Already queued deliveries and retries are also skipped if their event type
 is ignored. Activity log entries remain available through the activity log.
 

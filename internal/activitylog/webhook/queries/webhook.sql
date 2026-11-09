@@ -6,7 +6,8 @@ INSERT INTO
 		source_team_slugs,
 		url,
 		secret,
-		event_types
+		event_types,
+		all_events
 	)
 VALUES
 	(
@@ -15,7 +16,8 @@ VALUES
 		@source_team_slugs::slug[],
 		@url,
 		@secret,
-		@event_types
+		COALESCE(@event_types::TEXT[], '{}'),
+		@all_events
 	)
 RETURNING
 	*
@@ -28,6 +30,7 @@ SET
 	url = COALESCE(sqlc.narg(url), url),
 	secret = COALESCE(sqlc.narg(secret), secret),
 	event_types = COALESCE(sqlc.narg(event_types), event_types),
+	all_events = COALESCE(sqlc.narg(all_events), all_events),
 	source_team_slugs = COALESCE(
 		sqlc.narg(source_team_slugs)::slug[],
 		source_team_slugs

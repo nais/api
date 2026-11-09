@@ -58,8 +58,8 @@ func TestDispatcherIntegration(t *testing.T) {
 		insertSubscription := func(id uuid.UUID, team *slug.Slug) {
 			t.Helper()
 			if _, err := pool.Exec(ctx, `
-				INSERT INTO webhook_subscriptions (id, name, team_slug, url, secret, event_types)
-				VALUES ($1, $2, $3, 'https://subscriber.example.test', 'test-secret', ARRAY['*'])
+				INSERT INTO webhook_subscriptions (id, name, team_slug, url, secret, all_events)
+				VALUES ($1, $2, $3, 'https://subscriber.example.test', 'test-secret', TRUE)
 			`, id, id.String(), team); err != nil {
 				t.Fatal(err)
 			}
@@ -96,7 +96,7 @@ func TestDispatcherIntegration(t *testing.T) {
 		listed, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
 			Name:     "Test webhook",
 			TeamSlug: &owner, SourceTeamSlugs: []slug.Slug{other},
-			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"},
+			Url: "https://subscriber.example.test", Secret: "test-secret", AllEvents: true,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -104,7 +104,7 @@ func TestDispatcherIntegration(t *testing.T) {
 		all, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
 			Name:     "All teams",
 			TeamSlug: &owner, SourceTeamSlugs: []slug.Slug{},
-			Url: "https://subscriber.example.test", Secret: "test-secret", EventTypes: []string{"*"},
+			Url: "https://subscriber.example.test", Secret: "test-secret", AllEvents: true,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -139,7 +139,7 @@ func TestDispatcherIntegration(t *testing.T) {
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
 			Name: "Test webhook",
 			Url:  "https://subscriber.example.test", Secret: "test-secret",
-			EventTypes: []string{"*"},
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -213,7 +213,7 @@ func TestDispatcherIntegration(t *testing.T) {
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
 			Name: "Test webhook",
 			Url:  "https://subscriber.example.test", Secret: "test-secret",
-			EventTypes: []string{"*"},
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -296,10 +296,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -378,10 +378,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -418,10 +418,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -499,10 +499,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -551,7 +551,7 @@ func TestDispatcherIntegration(t *testing.T) {
 		pool := getConnection(ctx, t, container, dsn, log)
 		q := webhooksql.New(pool)
 		if _, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name: "Lease test", Url: "https://hooks.example.com", Secret: "test-secret", EventTypes: []string{"*"},
+			Name: "Lease test", Url: "https://hooks.example.com", Secret: "test-secret", AllEvents: true,
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -625,10 +625,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -667,19 +667,19 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		healthySub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        healthySrv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       healthySrv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create healthy subscription: %v", err)
 		}
 		failingSub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        failingSrv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       failingSrv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create failing subscription: %v", err)
@@ -727,10 +727,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		if _, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		}); err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
 		}
@@ -860,7 +860,7 @@ func TestDispatcherIntegration(t *testing.T) {
 		defer srv.Close()
 		q := webhooksql.New(pool)
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name: "Binary response", Url: srv.URL, Secret: "test-secret", EventTypes: []string{"*"},
+			Name: "Binary response", Url: srv.URL, Secret: "test-secret", AllEvents: true,
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -895,10 +895,10 @@ func TestDispatcherIntegration(t *testing.T) {
 
 		q := webhooksql.New(pool)
 		row, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        srv.URL,
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       srv.URL,
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
@@ -962,19 +962,19 @@ func TestDispatcherIntegration(t *testing.T) {
 		q := webhooksql.New(pool)
 
 		sub, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        "https://example.invalid",
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       "https://example.invalid",
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create subscription: %v", err)
 		}
 		sub2, err := q.CreateSubscription(ctx, webhooksql.CreateSubscriptionParams{
-			Name:       "Test webhook",
-			Url:        "https://example.invalid/2",
-			Secret:     "test-secret",
-			EventTypes: []string{"*"},
+			Name:      "Test webhook",
+			Url:       "https://example.invalid/2",
+			Secret:    "test-secret",
+			AllEvents: true,
 		})
 		if err != nil {
 			t.Fatalf("failed to create second subscription: %v", err)

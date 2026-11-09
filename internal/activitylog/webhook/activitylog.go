@@ -118,6 +118,13 @@ func webhookUpdatedFields(before, after *WebhookSubscription) []*WebhookUpdatedA
 			NewValue: new(fmt.Sprint(after.EventTypes)),
 		})
 	}
+	if before.AllEvents != after.AllEvents {
+		fields = append(fields, &WebhookUpdatedActivityLogEntryDataUpdatedField{
+			Field:    "allEvents",
+			OldValue: new(strconv.FormatBool(before.AllEvents)),
+			NewValue: new(strconv.FormatBool(after.AllEvents)),
+		})
+	}
 	if !slices.Equal(before.SourceTeamSlugs, after.SourceTeamSlugs) {
 		fields = append(fields, &WebhookUpdatedActivityLogEntryDataUpdatedField{
 			Field:    "sourceTeamSlugs",

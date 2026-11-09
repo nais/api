@@ -150,11 +150,8 @@ func IsIgnoredForWebhook(at ActivityLogActivityType) bool {
 	return eventTypeInfos[at].ignoreWebhook
 }
 
-// IsValidActivityType returns true if the event type is '*' or a registered activity type.
+// IsValidActivityType returns true if the event type is a registered activity type.
 func IsValidActivityType(at string) bool {
-	if at == "*" {
-		return true
-	}
 	_, ok := knownFilters[ActivityLogActivityType(at)]
 	return ok
 }

@@ -4139,6 +4139,7 @@ type ComplexityRoot struct {
 
 	WebhookSubscription struct {
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		AllEvents           func(childComplexity int) int
 		ConsecutiveFailures func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
 		Deliveries          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -22143,6 +22144,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WebhookSubscription.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
 
+	case "WebhookSubscription.allEvents":
+		if e.ComplexityRoot.WebhookSubscription.AllEvents == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.AllEvents(childComplexity), true
+
 	case "WebhookSubscription.consecutiveFailures":
 		if e.ComplexityRoot.WebhookSubscription.ConsecutiveFailures == nil {
 			break
@@ -23149,6 +23157,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
+		ec.unmarshalInputWebhookEventSelection,
 		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
@@ -37724,7 +37733,10 @@ type WebhookSubscription implements Node {
 	"The HTTPS URL that will receive webhook HTTP POST requests. Credentials and fragments are not allowed."
 	url: String!
 
-	"The event types this webhook is subscribed to. Use '*' to subscribe to all events."
+	"Whether this webhook receives all available event types within its scope."
+	allEvents: Boolean!
+
+	"The event types this webhook receives. Empty when allEvents is true."
 	eventTypes: [String!]!
 
 	"Whether the webhook is currently enabled."
@@ -37981,6 +37993,15 @@ type TestWebhookPayload {
 	delivery: WebhookDelivery!
 }
 
+"Choose exactly one way to select webhook events."
+input WebhookEventSelection @oneOf {
+	"Receive all available event types within the webhook's scope. Must be true."
+	allEvents: Boolean
+
+	"The event types to receive. Must contain at least one event type."
+	eventTypes: [String!]
+}
+
 "Input for creating a new webhook subscription."
 input CreateWebhookInput {
 	"The required display name of the webhook, unique within the owning team. Leading and trailing whitespace is removed; blank names are not allowed."
@@ -37998,8 +38019,8 @@ input CreateWebhookInput {
 	"The required secret used for HMAC-SHA256 signing of webhook payloads. Must contain at least 8 characters."
 	secret: String!
 
-	"The event types to subscribe to. Use '*' to subscribe to all events."
-	eventTypes: [String!]!
+	"The events this webhook receives. Select all events or a non-empty list of event types."
+	events: WebhookEventSelection!
 }
 
 "Payload returned after creating a webhook."
@@ -38025,8 +38046,8 @@ input UpdateWebhookInput {
 	"The replacement signing secret, containing at least 8 characters. Omit or pass null to keep the current secret. The stored secret is never returned."
 	secret: String
 
-	"The new event types to subscribe to. Null to keep the current value."
-	eventTypes: [String!]
+	"The replacement event selection. Omit or pass null to keep the current selection."
+	events: WebhookEventSelection
 
 	"Whether the webhook should be enabled. Null to keep the current value."
 	enabled: Boolean
@@ -44108,6 +44129,8 @@ func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context,
 		return ec.fieldContext_WebhookSubscription_sourceTeamSlugs(ctx, field)
 	case "url":
 		return ec.fieldContext_WebhookSubscription_url(ctx, field)
+	case "allEvents":
+		return ec.fieldContext_WebhookSubscription_allEvents(ctx, field)
 	case "eventTypes":
 		return ec.fieldContext_WebhookSubscription_eventTypes(ctx, field)
 	case "enabled":

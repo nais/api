@@ -49,7 +49,7 @@ Test.gql("Creating a webhook records the actor, owner and subscription identifie
 				teamSlug: "team-owner"
 				url: "https://webhook.example.invalid/old-url-token"
 				secret: "old-signing-secret"
-				eventTypes: ["TEAM_UPDATED"]
+				events: { eventTypes: ["TEAM_UPDATED"] }
 			}) {
 				webhook { id }
 			}
@@ -85,7 +85,7 @@ Test.gql("Webhook updates record changes without storing signing secrets or endp
 				name: "Renamed webhook"
 				url: "https://webhook.example.invalid/new-url-token"
 				secret: "new-signing-secret"
-				eventTypes: ["TEAM_MEMBER_ADDED"]
+				events: { eventTypes: ["TEAM_MEMBER_ADDED"] }
 				sourceTeamSlugs: []
 				enabled: false
 			}) {
@@ -198,7 +198,7 @@ for _, tt in ipairs({
 	{
 		name = "Create",
 		mutation = "createWebhook",
-		input = [=[name: "Test webhook" teamSlug: "team-owner" url: "https://webhook.example.invalid/failed" secret: "test-secret" eventTypes: ["*"]]=],
+		input = [=[name: "Test webhook" teamSlug: "team-owner" url: "https://webhook.example.invalid/failed" secret: "test-secret" events: { allEvents: true }]=],
 		fields = "webhook { id }",
 	},
 	{ name = "Update", mutation = "updateWebhook", input = "enabled: true", fields = "webhook { id }" },
@@ -274,7 +274,7 @@ Test.gql("Global webhook activity has no owning team", function(t)
 				name: "Test webhook"
 				url: "https://webhook.example.invalid/global"
 				secret: "global-secret"
-				eventTypes: ["TEAM_UPDATED"]
+				events: { eventTypes: ["TEAM_UPDATED"] }
 			}) {
 				webhook { id }
 			}
@@ -321,7 +321,7 @@ for _, tt in ipairs({
 					teamSlug: "team-owner"
 					url: "https://webhook.example.invalid/global"
 					secret: "test-secret"
-					eventTypes: ["TEAM_UPDATED"]
+					events: { eventTypes: ["TEAM_UPDATED"] }
 				}) {
 					webhook { id }
 				}
@@ -561,7 +561,7 @@ for _, tt in ipairs({
 		local selection = "webhook { id }"
 		if tt.mutation == "createWebhook" then
 			input =
-			[=[name: "Member webhook", teamSlug: "team-owner", url: "https://hooks.example.com", secret: "test-secret", eventTypes: ["*"]]=]
+			[=[name: "Member webhook", teamSlug: "team-owner", url: "https://hooks.example.com", secret: "test-secret", events: { allEvents: true }]=]
 		elseif tt.mutation == "updateWebhook" then
 			input = input .. ", enabled: true"
 		elseif tt.mutation == "deleteWebhook" then
@@ -621,7 +621,7 @@ Test.gql("Audit updates use the locked database row instead of a cached before-i
 				teamSlug: "team-owner"
 				url: "https://hooks.example.com/audit"
 				secret: "test-secret"
-				eventTypes: ["TEAM_UPDATED"]
+				events: { eventTypes: ["TEAM_UPDATED"] }
 			}) { webhook { id } }
 		}
 	]]
@@ -667,7 +667,8 @@ for _, url in ipairs({ "http://hooks.example.com", "https://127.0.0.1", "https:/
 			local input = string.format('id: "%s", url: %q', State.primaryWebhookID, url)
 			if mutation == "createWebhook" then
 				input = string.format(
-					'name: "Unsafe URL", teamSlug: "team-owner", url: %q, secret: "test-secret", eventTypes: ["*"]', url)
+					'name: "Unsafe URL", teamSlug: "team-owner", url: %q, secret: "test-secret", events: { allEvents: true }',
+					url)
 			end
 			t.query(string.format("mutation { %s(input: { %s }) { webhook { id } } }", mutation, input))
 			t.check {
@@ -685,7 +686,7 @@ Test.gql("Tenant internal ingress URLs can be registered", function(t)
 			createWebhook(input: {
 				name: "Internal ingress", teamSlug: "team-owner",
 				url: "https://myapp.intern.dev-nais.cloud.nais.io/events",
-				secret: "test-secret", eventTypes: ["*"]
+				secret: "test-secret", events: { allEvents: true }
 			}) { webhook { url } }
 		}
 	]]

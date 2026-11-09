@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
@@ -21,6 +22,7 @@ type WebhookSubscription struct {
 	URL                 string      `json:"url"`
 	Secret              string      `json:"-"`
 	EventTypes          []string    `json:"eventTypes"`
+	AllEvents           bool        `json:"allEvents"`
 	Enabled             bool        `json:"enabled"`
 	ConsecutiveFailures int         `json:"consecutiveFailures"`
 	DisabledAt          *time.Time  `json:"disabledAt,omitempty"`
@@ -110,13 +112,18 @@ type (
 	WebhookDeliveryEdge       = pagination.Edge[*WebhookDelivery]
 )
 
+type WebhookEventSelection struct {
+	AllEvents  graphql.Omittable[*bool]    `json:"allEvents,omitzero"`
+	EventTypes graphql.Omittable[[]string] `json:"eventTypes,omitzero"`
+}
+
 type CreateWebhookInput struct {
-	Name            string      `json:"name"`
-	TeamSlug        *slug.Slug  `json:"teamSlug,omitempty"`
-	SourceTeamSlugs []slug.Slug `json:"sourceTeamSlugs,omitempty"`
-	URL             string      `json:"url"`
-	Secret          string      `json:"secret"`
-	EventTypes      []string    `json:"eventTypes"`
+	Name            string                 `json:"name"`
+	TeamSlug        *slug.Slug             `json:"teamSlug,omitempty"`
+	SourceTeamSlugs []slug.Slug            `json:"sourceTeamSlugs,omitempty"`
+	URL             string                 `json:"url"`
+	Secret          string                 `json:"secret"`
+	Events          *WebhookEventSelection `json:"events"`
 }
 
 type CreateWebhookPayload struct {
@@ -124,13 +131,13 @@ type CreateWebhookPayload struct {
 }
 
 type UpdateWebhookInput struct {
-	ID              ident.Ident `json:"id"`
-	Name            *string     `json:"name,omitempty"`
-	SourceTeamSlugs []slug.Slug `json:"sourceTeamSlugs,omitempty"`
-	URL             *string     `json:"url,omitempty"`
-	Secret          *string     `json:"secret,omitempty"`
-	EventTypes      []string    `json:"eventTypes,omitempty"`
-	Enabled         *bool       `json:"enabled,omitempty"`
+	ID              ident.Ident            `json:"id"`
+	Name            *string                `json:"name,omitempty"`
+	SourceTeamSlugs []slug.Slug            `json:"sourceTeamSlugs,omitempty"`
+	URL             *string                `json:"url,omitempty"`
+	Secret          *string                `json:"secret,omitempty"`
+	Events          *WebhookEventSelection `json:"events,omitempty"`
+	Enabled         *bool                  `json:"enabled,omitempty"`
 }
 
 type UpdateWebhookPayload struct {
@@ -197,10 +204,10 @@ func (w *WebhookSubscription) MatchesEvent(event WebhookEvent) bool {
 		}
 	}
 
+	if w.AllEvents {
+		return true
+	}
 	for _, subType := range w.EventTypes {
-		if subType == "*" {
-			return true
-		}
 		if slices.Contains(event.ActivityTypes, subType) {
 			return true
 		}

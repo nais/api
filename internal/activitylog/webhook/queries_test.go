@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/go-cmp/cmp"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
@@ -111,14 +112,45 @@ func init() {
 	activitylog.RegisterActivityType("WEBHOOK_TEST_QUERIES_IGNORED_EVENT", activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_QUERIES_IGNORED_RESOURCE", "Test activity.", activitylog.IgnoreWebhook())
 }
 
-func TestValidateEventTypes_Wildcard(t *testing.T) {
+func TestValidateEventSelection(t *testing.T) {
 	team := slug.Slug("my-team")
-
-	if err := validateEventTypes(&team, []string{"*"}); err != nil {
-		t.Errorf("expected wildcard to always be valid for team-scoped webhooks, got error: %v", err)
-	}
-	if err := validateEventTypes(nil, []string{"*"}); err != nil {
-		t.Errorf("expected wildcard to always be valid for global webhooks, got error: %v", err)
+	for _, tt := range []struct {
+		name      string
+		selection *WebhookEventSelection
+		wantAll   bool
+		wantTypes []string
+		wantErr   bool
+	}{
+		{"all events", &WebhookEventSelection{AllEvents: graphql.OmittableOf(new(true))}, true, []string{}, false},
+		{"explicit events", &WebhookEventSelection{EventTypes: graphql.OmittableOf([]string{"WEBHOOK_TEST_QUERIES_EVENT"})}, false, []string{"WEBHOOK_TEST_QUERIES_EVENT"}, false},
+		{"both fields", &WebhookEventSelection{AllEvents: graphql.OmittableOf(new(true)), EventTypes: graphql.OmittableOf([]string{"WEBHOOK_TEST_QUERIES_EVENT"})}, false, nil, true},
+		{"both with empty list", &WebhookEventSelection{AllEvents: graphql.OmittableOf(new(true)), EventTypes: graphql.OmittableOf([]string{})}, false, nil, true},
+		{"both with null", &WebhookEventSelection{AllEvents: graphql.OmittableOf(new(true)), EventTypes: graphql.OmittableOf[[]string](nil)}, false, nil, true},
+		{"null all events", &WebhookEventSelection{AllEvents: graphql.OmittableOf[*bool](nil)}, false, nil, true},
+		{"null list", &WebhookEventSelection{EventTypes: graphql.OmittableOf[[]string](nil)}, false, nil, true},
+		{"false", &WebhookEventSelection{AllEvents: graphql.OmittableOf(new(false))}, false, nil, true},
+		{"false with list", &WebhookEventSelection{AllEvents: graphql.OmittableOf(new(false)), EventTypes: graphql.OmittableOf([]string{"WEBHOOK_TEST_QUERIES_EVENT"})}, false, nil, true},
+		{"missing selection", nil, false, nil, true},
+		{"no fields", &WebhookEventSelection{}, false, nil, true},
+		{"empty list", &WebhookEventSelection{EventTypes: graphql.OmittableOf([]string{})}, false, nil, true},
+		{"wildcard", &WebhookEventSelection{EventTypes: graphql.OmittableOf([]string{"*"})}, false, nil, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, teamSlug := range []*slug.Slug{nil, &team} {
+				all, types, err := validateEventSelection(teamSlug, tt.selection)
+				if (err != nil) != tt.wantErr {
+					t.Fatalf("validateEventSelection() error = %v, wantErr %v", err, tt.wantErr)
+				}
+				if !tt.wantErr {
+					if all != tt.wantAll {
+						t.Errorf("allEvents = %v, want %v", all, tt.wantAll)
+					}
+					if diff := cmp.Diff(tt.wantTypes, types); diff != "" {
+						t.Errorf("eventTypes mismatch (-want +got):\n%s", diff)
+					}
+				}
+			}
+		})
 	}
 }
 
@@ -148,7 +180,7 @@ func TestValidateEventTypes_IgnoredActivityType(t *testing.T) {
 	for _, teamSlug := range []*slug.Slug{nil, &team} {
 		for _, eventTypes := range [][]string{
 			{"WEBHOOK_TEST_QUERIES_IGNORED_EVENT"},
-			{"*", "WEBHOOK_TEST_QUERIES_IGNORED_EVENT"},
+			{"WEBHOOK_TEST_QUERIES_EVENT", "WEBHOOK_TEST_QUERIES_IGNORED_EVENT"},
 		} {
 			err := validateEventTypes(teamSlug, eventTypes)
 			if err == nil || !strings.Contains(err.Error(), "excluded from webhooks") {
@@ -192,13 +224,14 @@ func TestWebhookUpdatedFields(t *testing.T) {
 	after := &WebhookSubscription{
 		Name: "Renamed webhook",
 		URL:  "https://new.example.test/other-token", Secret: "new-secret",
-		EventTypes: []string{"TEAM_MEMBER_ADDED"}, SourceTeamSlugs: []slug.Slug{}, Enabled: false,
+		AllEvents: true, EventTypes: []string{}, SourceTeamSlugs: []slug.Slug{}, Enabled: false,
 	}
 	want := []*WebhookUpdatedActivityLogEntryDataUpdatedField{
 		{Field: "name", OldValue: new("Original webhook"), NewValue: new("Renamed webhook")},
 		{Field: "url"},
 		{Field: "secret"},
-		{Field: "eventTypes", OldValue: new("[TEAM_UPDATED]"), NewValue: new("[TEAM_MEMBER_ADDED]")},
+		{Field: "eventTypes", OldValue: new("[TEAM_UPDATED]"), NewValue: new("[]")},
+		{Field: "allEvents", OldValue: new("false"), NewValue: new("true")},
 		{Field: "sourceTeamSlugs", OldValue: new("[team-owner]"), NewValue: new("[]")},
 		{Field: "enabled", OldValue: new("true"), NewValue: new("false")},
 	}

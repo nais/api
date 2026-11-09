@@ -7,13 +7,16 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-func TestTeamWildcardExcludesGlobalOnlyEvents(t *testing.T) {
+func TestTeamAllEventsExcludesGlobalOnlyEvents(t *testing.T) {
 	const at activitylog.ActivityLogActivityType = "WEBHOOK_TEST_GLOBAL_ONLY"
 	activitylog.RegisterActivityType(at, activitylog.ActivityLogEntryActionCreated, "WEBHOOK_TEST_GLOBAL_ONLY_RESOURCE", "Test activity.", activitylog.GlobalOnly())
 	team := slug.Slug("team")
 	event := WebhookEvent{TeamSlug: &team, ActivityTypes: []string{string(at)}}
-	for _, types := range [][]string{{"*"}, {string(at)}} {
-		sub := WebhookSubscription{Enabled: true, TeamSlug: &team, EventTypes: types}
+	for _, allEvents := range []bool{true, false} {
+		sub := WebhookSubscription{Enabled: true, TeamSlug: &team, AllEvents: allEvents}
+		if !allEvents {
+			sub.EventTypes = []string{string(at)}
+		}
 		if sub.MatchesEvent(event) {
 			t.Error("team subscription matched a global-only event with a team slug")
 		}
@@ -37,18 +40,18 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "disabled subscription never matches",
 			sub: WebhookSubscription{
-				Enabled:    false,
-				EventTypes: []string{"*"},
+				Enabled:   false,
+				AllEvents: true,
 			},
 			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
 		},
 		{
-			name: "global wildcard subscription matches any event",
+			name: "global all-events subscription matches any event",
 			sub: WebhookSubscription{
-				Enabled:    true,
-				TeamSlug:   nil,
-				EventTypes: []string{"*"},
+				Enabled:   true,
+				TeamSlug:  nil,
+				AllEvents: true,
 			},
 			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  true,
@@ -70,7 +73,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 				Enabled:         true,
 				TeamSlug:        &teamA,
 				SourceTeamSlugs: []slug.Slug{teamA},
-				EventTypes:      []string{"*"},
+				AllEvents:       true,
 			},
 			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
@@ -81,7 +84,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 				Enabled:         true,
 				TeamSlug:        &teamA,
 				SourceTeamSlugs: []slug.Slug{teamA},
-				EventTypes:      []string{"*"},
+				AllEvents:       true,
 			},
 			event: WebhookEvent{TeamSlug: nil, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
@@ -111,7 +114,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "owner can subscribe to another team without subscribing to itself",
 			sub: WebhookSubscription{
-				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamB}, EventTypes: []string{"*"},
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamB}, AllEvents: true,
 			},
 			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  true,
@@ -119,7 +122,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "owner is not implicitly included in explicit source teams",
 			sub: WebhookSubscription{
-				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamB}, EventTypes: []string{"*"},
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamB}, AllEvents: true,
 			},
 			event: WebhookEvent{TeamSlug: &teamA, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,
@@ -127,7 +130,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "multiple source teams match",
 			sub: WebhookSubscription{
-				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamA, teamB}, EventTypes: []string{"*"},
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{teamA, teamB}, AllEvents: true,
 			},
 			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  true,
@@ -135,7 +138,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "all teams matches another team",
 			sub: WebhookSubscription{
-				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, EventTypes: []string{"*"},
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, AllEvents: true,
 			},
 			event: WebhookEvent{TeamSlug: &teamB, ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  true,
@@ -143,7 +146,7 @@ func TestWebhookSubscription_MatchesEvent(t *testing.T) {
 		{
 			name: "all teams excludes global events",
 			sub: WebhookSubscription{
-				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, EventTypes: []string{"*"},
+				Enabled: true, TeamSlug: &teamA, SourceTeamSlugs: []slug.Slug{}, AllEvents: true,
 			},
 			event: WebhookEvent{ActivityTypes: []string{"TEAM_MEMBER_ADDED"}},
 			want:  false,

@@ -194,6 +194,7 @@ type WebhookSubscription struct {
 	Url                 string
 	Secret              string
 	EventTypes          []string
+	AllEvents           bool
 	Enabled             bool
 	ConsecutiveFailures int32
 	DisabledAt          pgtype.Timestamptz

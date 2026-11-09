@@ -1607,6 +1607,29 @@ func (ec *executionContext) fieldContext_WebhookSubscription_url(_ context.Conte
 	return graphql.NewScalarFieldContext("WebhookSubscription", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _WebhookSubscription_allEvents(ctx context.Context, field graphql.CollectedField, obj *webhook.WebhookSubscription) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WebhookSubscription_allEvents(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.AllEvents, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WebhookSubscription_allEvents(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WebhookSubscription", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
 func (ec *executionContext) _WebhookSubscription_eventTypes(ctx context.Context, field graphql.CollectedField, obj *webhook.WebhookSubscription) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2394,7 +2417,7 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "teamSlug", "sourceTeamSlugs", "url", "secret", "eventTypes"}
+	fieldsInOrder := [...]string{"name", "teamSlug", "sourceTeamSlugs", "url", "secret", "events"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2436,13 +2459,13 @@ func (ec *executionContext) unmarshalInputCreateWebhookInput(ctx context.Context
 				return it, err
 			}
 			it.Secret = data
-		case "eventTypes":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventTypes"))
-			data, err := ec.unmarshalNString2ᚕstringᚄ(ctx, v)
+		case "events":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("events"))
+			data, err := ec.unmarshalNWebhookEventSelection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookEventSelection(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.EventTypes = data
+			it.Events = data
 		}
 	}
 	return it, nil
@@ -2519,7 +2542,7 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "sourceTeamSlugs", "url", "secret", "eventTypes", "enabled"}
+	fieldsInOrder := [...]string{"id", "name", "sourceTeamSlugs", "url", "secret", "events", "enabled"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -2561,13 +2584,13 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 				return it, err
 			}
 			it.Secret = data
-		case "eventTypes":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventTypes"))
-			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+		case "events":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("events"))
+			data, err := ec.unmarshalOWebhookEventSelection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookEventSelection(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.EventTypes = data
+			it.Events = data
 		case "enabled":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -2575,6 +2598,43 @@ func (ec *executionContext) unmarshalInputUpdateWebhookInput(ctx context.Context
 				return it, err
 			}
 			it.Enabled = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputWebhookEventSelection(ctx context.Context, obj any) (webhook.WebhookEventSelection, error) {
+	var it webhook.WebhookEventSelection
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"allEvents", "eventTypes"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "allEvents":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allEvents"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AllEvents = graphql.OmittableOf(data)
+		case "eventTypes":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("eventTypes"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EventTypes = graphql.OmittableOf(data)
 		}
 	}
 	return it, nil
@@ -3303,6 +3363,11 @@ func (ec *executionContext) _WebhookSubscription(ctx context.Context, sel ast.Se
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "allEvents":
+			out.Values[i] = ec._WebhookSubscription_allEvents(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "eventTypes":
 			out.Values[i] = ec._WebhookSubscription_eventTypes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3886,6 +3951,11 @@ func (ec *executionContext) marshalNWebhookDeliveryStatus2githubᚗcomᚋnaisᚋ
 	return v
 }
 
+func (ec *executionContext) unmarshalNWebhookEventSelection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookEventSelection(ctx context.Context, v any) (*webhook.WebhookEventSelection, error) {
+	res, err := ec.unmarshalInputWebhookEventSelection(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNWebhookEventTypeInfo2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚐWebhookEventTypeInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*activitylog.WebhookEventTypeInfo) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
@@ -4032,6 +4102,14 @@ func (ec *executionContext) marshalNWebhookUpdatedActivityLogEntryDataUpdatedFie
 		return graphql.Null
 	}
 	return ec._WebhookUpdatedActivityLogEntryDataUpdatedField(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOWebhookEventSelection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋactivitylogᚋwebhookᚐWebhookEventSelection(ctx context.Context, v any) (*webhook.WebhookEventSelection, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputWebhookEventSelection(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 // endregion ***************************** type.gotpl *****************************
