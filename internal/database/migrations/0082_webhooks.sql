@@ -86,6 +86,9 @@ WHERE
 CREATE INDEX idx_webhook_event_deliveries_event ON webhook_event_deliveries (webhook_event_id)
 ;
 
+CREATE INDEX idx_webhook_event_deliveries_subscription ON webhook_event_deliveries (subscription_id)
+;
+
 -- Audit log of every actual HTTP delivery attempt.
 CREATE TABLE webhook_deliveries (
 	id UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),

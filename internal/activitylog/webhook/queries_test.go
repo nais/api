@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
 )
 
@@ -120,9 +122,24 @@ func TestValidateEventTypes_Wildcard(t *testing.T) {
 	}
 }
 
-func TestValidateEventTypes_UnknownActivityType(t *testing.T) {
-	if err := validateEventTypes(nil, []string{"WEBHOOK_TEST_QUERIES_UNKNOWN"}); err == nil {
-		t.Error("expected an error for an unknown activity type")
+func TestValidateEventTypes_UserFacingErrors(t *testing.T) {
+	team := slug.Slug("my-team")
+	for _, tt := range []struct {
+		name      string
+		teamSlug  *slug.Slug
+		eventType string
+	}{
+		{"unknown", nil, "WEBHOOK_TEST_QUERIES_UNKNOWN"},
+		{"excluded", nil, "WEBHOOK_TEST_QUERIES_IGNORED_EVENT"},
+		{"global-only", &team, "WEBHOOK_TEST_QUERIES_GLOBAL_EVENT"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateEventTypes(tt.teamSlug, []string{tt.eventType})
+			var apiErr apierror.Error
+			if !errors.As(err, &apiErr) {
+				t.Fatalf("expected a user-facing API error, got %v", err)
+			}
+		})
 	}
 }
 
