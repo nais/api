@@ -138,6 +138,13 @@ func TestCloudEventType(t *testing.T) {
 	}{
 		{"TEAM_MEMBER_ADDED", "io.nais.team.member.added"},
 		{"POSTGRES_DELETED", "io.nais.postgres.deleted"},
+		{"SERVICE_ACCOUNT_CREATED", "io.nais.service_account.created"},
+		{"SERVICE_ACCOUNT_TOKEN_CREATED", "io.nais.service_account.token.created"},
+		{"SERVICE_ACCOUNT", "io.nais.service_account"},
+		{"SERVICE_ACCOUNTING_CREATED", "io.nais.service.accounting.created"},
+		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "io.nais.resource.created"},
+		{"GENERIC_KUBERNETES_RESOURCE", "io.nais.resource"},
+		{"GENERIC_KUBERNETES_RESOURCES_CREATED", "io.nais.generic.kubernetes.resources.created"},
 	}
 
 	for _, tt := range tests {

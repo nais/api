@@ -62,9 +62,15 @@ var eventTypeInfos = map[ActivityLogActivityType]WebhookEventTypeInfo{}
 // groupPrefixes maps known multi-word prefixes to their display group names.
 var groupPrefixes = map[string]string{
 	"SERVICE_ACCOUNT":             "Service Account",
-	"GENERIC_KUBERNETES_RESOURCE": "Resources",
+	"GENERIC_KUBERNETES_RESOURCE": "Kubernetes resources",
 	"OPENSEARCH":                  "OpenSearch",
 	"JOB_RUN":                     "Job",
+}
+
+// cloudEventTypeGroupPrefixes maps activity type prefixes to CloudEvents group names.
+var cloudEventTypeGroupPrefixes = map[string]string{
+	"SERVICE_ACCOUNT":             "service_account",
+	"GENERIC_KUBERNETES_RESOURCE": "kubernetes_resource",
 }
 
 // autoGroup derives a display group from an activity type name.
@@ -98,9 +104,17 @@ func titleCase(s string) string {
 // CloudEventType converts an ActivityLogActivityType to a CloudEvents-spec type string.
 // Example: "TEAM_MEMBER_ADDED" → "io.nais.team.member.added".
 func CloudEventType(at ActivityLogActivityType) string {
-	lower := strings.ToLower(string(at))
-	dotted := strings.ReplaceAll(lower, "_", ".")
-	return "io.nais." + dotted
+	s := string(at)
+	prefix := ""
+	group := ""
+	for candidate, mappedGroup := range cloudEventTypeGroupPrefixes {
+		if (s == candidate || strings.HasPrefix(s, candidate+"_")) && len(candidate) > len(prefix) {
+			prefix = candidate
+			group = mappedGroup
+		}
+	}
+	suffix := strings.ReplaceAll(strings.ToLower(s[len(prefix):]), "_", ".")
+	return "io.nais." + group + suffix
 }
 
 // KnownEventTypes returns metadata for all registered activity log event types, suitable

@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,15 +35,12 @@ type CloudEventData struct {
 
 // cloudEventTypeFromEvent returns the CloudEvents-spec type for an event.
 // If the event has resolved ActivityTypes, the first one is used; otherwise the raw
-// event type is lowercased and dot-separated.
+// event type uses the same type mapping.
 func cloudEventTypeFromEvent(event WebhookEvent) string {
 	if len(event.ActivityTypes) > 0 {
 		return activitylog.CloudEventType(activitylog.ActivityLogActivityType(event.ActivityTypes[0]))
 	}
-	// Synthetic test events use the same io.nais prefix.
-	lower := strings.ToLower(event.RawEventType)
-	dotted := strings.ReplaceAll(lower, "_", ".")
-	return "io.nais." + dotted
+	return activitylog.CloudEventType(activitylog.ActivityLogActivityType(event.RawEventType))
 }
 
 // BuildCloudEvent creates a CloudEvents 1.0 envelope from a webhook event.

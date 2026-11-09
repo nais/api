@@ -172,7 +172,13 @@ it to a CloudEvents-spec type string:
 ```
 TEAM_MEMBER_ADDED  →  io.nais.team.member.added
 POSTGRES_DELETED   →  io.nais.postgres.deleted
+SERVICE_ACCOUNT_CREATED → io.nais.service_account.created
+GENERIC_KUBERNETES_RESOURCE_CREATED → io.nais.resource.created
 ```
+
+`cloudEventTypeGroupPrefixes` maps activity type prefixes to CloudEvents group names,
+allowing compound names to retain underscores or be renamed.
+The remaining event name is dot-separated. The longest matching prefix wins.
 
 ### Idempotency / deduplication
 

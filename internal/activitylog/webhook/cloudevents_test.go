@@ -114,12 +114,17 @@ func TestBuildCloudEvent_SubjectWithoutTeam(t *testing.T) {
 }
 
 func TestCloudEventTypeFromEvent_SyntheticEventFallsBackToRawType(t *testing.T) {
-	event := WebhookEvent{
-		RawEventType: "WEBHOOK_TEST",
-	}
-
-	if got := cloudEventTypeFromEvent(event); got != "io.nais.webhook.test" {
-		t.Errorf("cloudEventTypeFromEvent() = %q, want %q", got, "io.nais.webhook.test")
+	for _, tt := range []struct {
+		rawType string
+		want    string
+	}{
+		{"WEBHOOK_TEST", "io.nais.webhook.test"},
+		{"SERVICE_ACCOUNT_CREATED", "io.nais.service_account.created"},
+	} {
+		event := WebhookEvent{RawEventType: tt.rawType}
+		if got := cloudEventTypeFromEvent(event); got != tt.want {
+			t.Errorf("cloudEventTypeFromEvent(%q) = %q, want %q", tt.rawType, got, tt.want)
+		}
 	}
 }
 

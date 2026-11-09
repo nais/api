@@ -112,7 +112,7 @@ func init() {
 		"GENERIC_KUBERNETES_RESOURCE_CREATED",
 		activitylog.ActivityLogEntryActionCreated,
 		ActivityLogEntryResourceTypeApplication,
-		"Triggered when an auxiliary resource is created.",
+		"Triggered when a Kubernetes resource is applied.",
 	)
 	activitylog.RegisterActivityType(
 		"APPLICATION_UPDATED",
