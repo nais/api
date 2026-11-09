@@ -368,7 +368,7 @@ func (f workerRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error
 func newWorkerTestDispatcher(t *testing.T, q *workerTestQueries, transport workerRoundTripFunc) *Dispatcher {
 	t.Helper()
 	log, _ := logrustest.NewNullLogger()
-	d, err := NewDispatcher(nil, nil, "https://api.example.test", "test-tenant", log)
+	d, err := NewDispatcher(nil, nil, "https://api.example.test", "test-tenant", false, log)
 	if err != nil {
 		t.Fatal(err)
 	}

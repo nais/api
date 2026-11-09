@@ -50,18 +50,19 @@ var maxRetryCount = len(retryBackoffs)
 
 // Dispatcher processes webhook events from the outbox table and delivers them to subscribers.
 type Dispatcher struct {
-	pool       *pgxpool.Pool
-	queries    webhooksql.Querier
-	notifier   *notify.Notifier
-	log        logrus.FieldLogger
-	source     string
-	httpClient *http.Client
-	metrics    *webhookMetrics
-	wakeups    [deliveryWorkers]chan struct{}
+	pool              *pgxpool.Pool
+	queries           webhooksql.Querier
+	notifier          *notify.Notifier
+	log               logrus.FieldLogger
+	source            string
+	httpClient        *http.Client
+	allowInsecureURLs bool
+	metrics           *webhookMetrics
+	wakeups           [deliveryWorkers]chan struct{}
 }
 
 // NewDispatcher creates a new webhook dispatcher that drains events from the outbox table.
-func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source, tenant string, log logrus.FieldLogger) (*Dispatcher, error) {
+func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source, tenant string, allowInsecureURLs bool, log logrus.FieldLogger) (*Dispatcher, error) {
 	q := webhooksql.New(pool)
 	m, err := newWebhookMetrics(q)
 	if err != nil {
@@ -69,13 +70,14 @@ func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source, tenant
 	}
 
 	d := &Dispatcher{
-		pool:       pool,
-		queries:    q,
-		notifier:   notifier,
-		log:        log.WithField("subsystem", "webhook_dispatcher"),
-		source:     source,
-		httpClient: newWebhookHTTPClient(tenant),
-		metrics:    m,
+		pool:              pool,
+		queries:           q,
+		notifier:          notifier,
+		log:               log.WithField("subsystem", "webhook_dispatcher"),
+		source:            source,
+		httpClient:        newWebhookHTTPClient(tenant, allowInsecureURLs),
+		allowInsecureURLs: allowInsecureURLs,
+		metrics:           m,
 	}
 	for i := range d.wakeups {
 		d.wakeups[i] = make(chan struct{}, 1)

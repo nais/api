@@ -142,8 +142,8 @@ func TestCloudEventType(t *testing.T) {
 		{"SERVICE_ACCOUNT_TOKEN_CREATED", "io.nais.service_account.token.created"},
 		{"SERVICE_ACCOUNT", "io.nais.service_account"},
 		{"SERVICE_ACCOUNTING_CREATED", "io.nais.service.accounting.created"},
-		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "io.nais.resource.created"},
-		{"GENERIC_KUBERNETES_RESOURCE", "io.nais.resource"},
+		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "io.nais.kubernetes_resource.created"},
+		{"GENERIC_KUBERNETES_RESOURCE", "io.nais.kubernetes_resource"},
 		{"GENERIC_KUBERNETES_RESOURCES_CREATED", "io.nais.generic.kubernetes.resources.created"},
 	}
 
@@ -161,7 +161,7 @@ func TestAutoGroup(t *testing.T) {
 	}{
 		{"TEAM_MEMBER_ADDED", "Team"},
 		{"SERVICE_ACCOUNT_CREATED", "Service Account"},
-		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "Resources"},
+		{"GENERIC_KUBERNETES_RESOURCE_CREATED", "Kubernetes resources"},
 		{"OPENSEARCH_CREATED", "OpenSearch"},
 		{"JOB_RUN_DELETED", "Job"},
 	}

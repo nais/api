@@ -11,8 +11,14 @@ import (
 	"strings"
 )
 
-func validateWebhookURL(raw string) error {
+func validateWebhookURL(raw string, allowInsecure bool) error {
 	u, err := url.Parse(raw)
+	if allowInsecure {
+		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" || u.User != nil || u.Fragment != "" {
+			return errors.New("webhook URL must be an HTTP or HTTPS URL without credentials or a fragment")
+		}
+		return nil
+	}
 	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.Fragment != "" {
 		return errors.New("webhook URL must be an HTTPS URL without credentials or a fragment")
 	}
@@ -21,6 +27,10 @@ func validateWebhookURL(raw string) error {
 		return errors.New("webhook URL must use a hostname, not a local address or IP literal")
 	}
 	return nil
+}
+
+func (d *Dispatcher) validateURL(raw string) error {
+	return validateWebhookURL(raw, d != nil && d.allowInsecureURLs)
 }
 
 type destinationPolicy struct {
@@ -92,17 +102,18 @@ func (p destinationPolicy) dialContext(ctx context.Context, network, address str
 }
 
 type webhookTransport struct {
-	transport *http.Transport
+	transport         *http.Transport
+	allowInsecureURLs bool
 }
 
 func (t webhookTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	if err := validateWebhookURL(req.URL.String()); err != nil {
+	if err := validateWebhookURL(req.URL.String(), t.allowInsecureURLs); err != nil {
 		return nil, err
 	}
 	return t.transport.RoundTrip(req)
 }
 
-func newWebhookHTTPClient(tenant string) *http.Client {
+func newWebhookHTTPClient(tenant string, allowInsecureURLs bool) *http.Client {
 	policy := destinationPolicy{
 		lookup: net.DefaultResolver.LookupNetIP,
 		dial:   (&net.Dialer{Timeout: defaultTimeout}).DialContext,
@@ -112,10 +123,12 @@ func newWebhookHTTPClient(tenant string) *http.Client {
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = nil
-	transport.DialContext = policy.dialContext
+	if !allowInsecureURLs {
+		transport.DialContext = policy.dialContext
+	}
 	return &http.Client{
 		Timeout:       defaultTimeout,
-		Transport:     webhookTransport{transport: transport},
+		Transport:     webhookTransport{transport: transport, allowInsecureURLs: allowInsecureURLs},
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 	}
 }

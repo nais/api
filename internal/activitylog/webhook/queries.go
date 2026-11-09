@@ -78,7 +78,7 @@ func Create(ctx context.Context, input CreateWebhookInput) (*CreateWebhookPayloa
 		return nil, apierror.Errorf("Webhook secret must be at least 8 characters.")
 	}
 
-	if err := validateWebhookURL(input.URL); err != nil {
+	if err := fromContext(ctx).dispatcher.validateURL(input.URL); err != nil {
 		return nil, apierror.Errorf("%s", err)
 	}
 
@@ -194,7 +194,7 @@ func Update(ctx context.Context, input UpdateWebhookInput) (*UpdateWebhookPayloa
 	}
 
 	if input.URL != nil {
-		if err := validateWebhookURL(*input.URL); err != nil {
+		if err := fromContext(ctx).dispatcher.validateURL(*input.URL); err != nil {
 			return nil, apierror.Errorf("%s", err)
 		}
 	}

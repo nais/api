@@ -1061,7 +1061,7 @@ func waitForDispatcherCondition(t *testing.T, condition func() bool) {
 
 func newTestDispatcher(t *testing.T, pool *pgxpool.Pool, log logrus.FieldLogger) *Dispatcher {
 	t.Helper()
-	d, err := NewDispatcher(pool, notify.New(pool, log), "https://test.example", "test-tenant", log)
+	d, err := NewDispatcher(pool, notify.New(pool, log), "https://test.example", "test-tenant", false, log)
 	if err != nil {
 		t.Fatalf("failed to create dispatcher: %v", err)
 	}

@@ -179,7 +179,7 @@ it to a CloudEvents-spec type string:
 TEAM_MEMBER_ADDED  →  io.nais.team.member.added
 POSTGRES_DELETED   →  io.nais.postgres.deleted
 SERVICE_ACCOUNT_CREATED → io.nais.service_account.created
-GENERIC_KUBERNETES_RESOURCE_CREATED → io.nais.resource.created
+GENERIC_KUBERNETES_RESOURCE_CREATED → io.nais.kubernetes_resource.created
 ```
 
 `cloudEventTypeGroupPrefixes` maps activity type prefixes to CloudEvents group names,
@@ -259,6 +259,21 @@ Public destinations are allowed. Private addresses are allowed only for hostname
 under `intern.<tenant>.cloud.nais.io`, such as
 `myapp.intern.mytenant.cloud.nais.io`. Loopback, link-local, metadata, and other
 reserved destinations remain blocked even for these internal ingress names.
+
+For local development only, explicitly enable unrestricted HTTP/HTTPS destinations:
+
+```sh
+WITH_INSECURE_WEBHOOK_URLS=true mise run local
+```
+
+This allows endpoints such as `http://localhost:32424/path` during creation, updates,
+manual tests, and event delivery. The setting is **false by default** and enabling it
+emits a startup warning. It disables HTTPS-only and destination-IP restrictions,
+including protections against access to internal and metadata services; never enable
+it in a shared or production environment.
+Redirects remain disabled, TLS certificates are still verified, and URL credentials
+and fragments remain prohibited. When running the API in a container, `localhost`
+refers to that container, not the host.
 
 ## Monitoring & Metrics
 

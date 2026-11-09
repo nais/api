@@ -5,11 +5,94 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"net/netip"
+	"strings"
 	"testing"
 
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 )
+
+func TestLocalWebhookURLsRequireExplicitOptIn(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/redirect" {
+			w.Header().Set("Location", "/path")
+			w.WriteHeader(http.StatusFound)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	localURL := strings.Replace(server.URL, "127.0.0.1", "localhost", 1) + "/path"
+	for _, allowInsecure := range []bool{false, true} {
+		t.Run(map[bool]string{false: "secure default", true: "explicit opt-in"}[allowInsecure], func(t *testing.T) {
+			d := &Dispatcher{allowInsecureURLs: allowInsecure}
+			if err := d.validateURL(localURL); (err == nil) != allowInsecure {
+				t.Fatalf("validateURL() = %v, allowInsecure=%v", err, allowInsecure)
+			}
+			client := newWebhookHTTPClient("test-tenant", allowInsecure)
+			defer client.CloseIdleConnections()
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, localURL, strings.NewReader("{}"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			response, err := client.Do(req)
+			if !allowInsecure {
+				if err == nil {
+					response.Body.Close()
+					t.Fatal("secure client must reject local HTTP destinations")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			response.Body.Close()
+			if response.StatusCode != http.StatusNoContent {
+				t.Errorf("status = %d, want %d", response.StatusCode, http.StatusNoContent)
+			}
+			req, err = http.NewRequestWithContext(t.Context(), http.MethodPost, server.URL+"/redirect", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			response, err = client.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer response.Body.Close()
+			if response.StatusCode != http.StatusFound {
+				t.Errorf("redirect was followed: status = %d", response.StatusCode)
+			}
+		})
+	}
+
+	var dispatcher *Dispatcher
+	if err := dispatcher.validateURL(localURL); err == nil {
+		t.Error("missing dispatcher must retain secure URL validation")
+	}
+}
+
+func TestInsecureWebhookURLValidation(t *testing.T) {
+	for _, tt := range []struct {
+		url     string
+		wantErr bool
+	}{
+		{"http://localhost:32424/path", false},
+		{"http://127.0.0.1:32424/path", false},
+		{"https://[::1]:32424/path", false},
+		{"http://10.0.0.1/path", false},
+		{"file:///path", true},
+		{"http:///path", true},
+		{"http://localhost/path#fragment", true},
+	} {
+		t.Run(tt.url, func(t *testing.T) {
+			if err := validateWebhookURL(tt.url, true); (err != nil) != tt.wantErr {
+				t.Errorf("validateWebhookURL() = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
 
 func TestValidateWebhookURL(t *testing.T) {
 	for _, tt := range []struct {
@@ -28,7 +111,7 @@ func TestValidateWebhookURL(t *testing.T) {
 		{"https:///events", false},
 	} {
 		t.Run(tt.url, func(t *testing.T) {
-			if err := validateWebhookURL(tt.url); (err == nil) != tt.ok {
+			if err := validateWebhookURL(tt.url, false); (err == nil) != tt.ok {
 				t.Errorf("validateWebhookURL() = %v, want valid=%v", err, tt.ok)
 			}
 		})

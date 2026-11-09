@@ -8,6 +8,28 @@ import (
 	"github.com/sethvargo/go-envconfig"
 )
 
+func TestInsecureWebhookURLsConfig(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		env  map[string]string
+		want bool
+	}{
+		{"secure by default", map[string]string{}, false},
+		{"explicitly disabled", map[string]string{"WITH_INSECURE_WEBHOOK_URLS": "false"}, false},
+		{"explicitly enabled", map[string]string{"WITH_INSECURE_WEBHOOK_URLS": "true"}, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, err := NewConfig(t.Context(), envconfig.MapLookuper(tt.env))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := cfg.Fakes.WithInsecureWebhookURLs; got != tt.want {
+				t.Errorf("WithInsecureWebhookURLs = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestLoggingDestinationsConfig(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
