@@ -205,63 +205,6 @@ func (PostgresBranch) IsPersistence() {}
 
 func (PostgresBranch) IsNode() {}
 
-type CreatePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	SourceBranch    string    `json:"sourceBranch"`
-	TargetTime      time.Time `json:"targetTime"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-type CreatePostgresBranchPayload struct {
-	PostgresBranch *PostgresBranch `json:"postgresBranch"`
-}
-
-type ActivatePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-type ActivatePostgresBranchPayload struct {
-	Postgres *Postgres `json:"postgres"`
-}
-
-func (i *ActivatePostgresBranchInput) Validate(ctx context.Context) error {
-	base := DeletePostgresBranchInput{Postgres: i.Postgres, Branch: i.Branch, EnvironmentName: i.EnvironmentName, TeamSlug: i.TeamSlug}
-	verr := base.ValidationErrors(ctx)
-	i.Postgres, i.Branch, i.EnvironmentName = base.Postgres, base.Branch, base.EnvironmentName
-	for field, name := range map[string]string{"postgres": i.Postgres, "branch": i.Branch} {
-		if len(name) > 63 || len(validation.IsDNS1123Label(name)) > 0 {
-			verr.Add(field, "Must be a DNS label of at most 63 lowercase letters, numbers or hyphens.")
-		}
-	}
-	return verr.NilIfEmpty()
-}
-
-func (i *CreatePostgresBranchInput) Validate(ctx context.Context) error {
-	base := DeletePostgresBranchInput{Postgres: i.Postgres, Branch: i.Branch, EnvironmentName: i.EnvironmentName, TeamSlug: i.TeamSlug}
-	verr := base.ValidationErrors(ctx)
-	i.Postgres, i.Branch, i.EnvironmentName = base.Postgres, base.Branch, base.EnvironmentName
-	i.SourceBranch = strings.TrimSpace(i.SourceBranch)
-	for field, name := range map[string]string{"postgres": i.Postgres, "branch": i.Branch, "sourceBranch": i.SourceBranch} {
-		if len(name) > 63 || len(validation.IsDNS1123Label(name)) > 0 {
-			verr.Add(field, "Must be a DNS label of at most 63 lowercase letters, numbers or hyphens.")
-		}
-	}
-	if i.Branch == i.SourceBranch {
-		verr.Add("branch", "Branch must differ from sourceBranch.")
-	}
-	if i.TargetTime.IsZero() || i.TargetTime.After(time.Now()) {
-		verr.Add("targetTime", "Target time must be an explicit instant no later than now.")
-	} else if i.TargetTime.Nanosecond() != 0 {
-		verr.Add("targetTime", "Target time must have whole-second precision.")
-	}
-	return verr.NilIfEmpty()
-}
-
 type DeletePostgresInput struct {
 	Name            string    `json:"name"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
@@ -286,43 +229,6 @@ func (i *DeletePostgresInput) Validate(_ context.Context) error {
 
 type DeletePostgresPayload struct {
 	DeletionRequested bool `json:"deletionRequested"`
-}
-
-type DeletePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-func (i *DeletePostgresBranchInput) Validate(ctx context.Context) error {
-	return i.ValidationErrors(ctx).NilIfEmpty()
-}
-
-func (i *DeletePostgresBranchInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
-	verr := validate.New()
-	i.Postgres = strings.TrimSpace(i.Postgres)
-	i.Branch = strings.TrimSpace(i.Branch)
-	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
-
-	if i.Postgres == "" {
-		verr.Add("postgres", "Postgres must not be empty.")
-	}
-	if i.Branch == "" {
-		verr.Add("branch", "Branch must not be empty.")
-	}
-	if i.EnvironmentName == "" {
-		verr.Add("environmentName", "Environment name must not be empty.")
-	}
-	if i.TeamSlug == "" {
-		verr.Add("teamSlug", "Team slug must not be empty.")
-	}
-
-	return verr
-}
-
-type DeletePostgresBranchPayload struct {
-	PostgresBranchDeleted *bool `json:"postgresBranchDeleted,omitempty"`
 }
 
 // CreatePostgresAccessInput requests a new, time-limited personal database access.

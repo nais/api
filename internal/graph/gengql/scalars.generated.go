@@ -73,6 +73,36 @@ func (ec *executionContext) marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋ
 	return graphql.WrapContextMarshaler(ctx, v)
 }
 
+func (ec *executionContext) unmarshalNSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx context.Context, v any) ([]slug.Slug, error) {
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]slug.Slug, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNSlug2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlugᚄ(ctx context.Context, sel ast.SelectionSet, v []slug.Slug) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalNSlug2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx context.Context, v any) (*slug.Slug, error) {
 	var res = new(slug.Slug)
 	err := res.UnmarshalGQLContext(ctx, v)

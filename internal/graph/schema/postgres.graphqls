@@ -731,12 +731,6 @@ extend type Mutation {
 	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
 	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
 	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
-	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
-	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
-	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
-	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
-	"Delete a PostgresBranch that is not active on its Postgres."
-	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
 	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
@@ -787,46 +781,6 @@ enum PostgresAccessLevel {
 	MAINTAIN
 }
 
-"Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
-input CreatePostgresBranchInput {
-	"Name of the owning Postgres."
-	postgres: String!
-	"Local name of the new branch."
-	branch: String!
-	"Local name of the source branch in the same Postgres."
-	sourceBranch: String!
-	"Explicit UTC recovery target; must not be in the future."
-	targetTime: Time!
-	"Environment containing the Postgres."
-	environmentName: String!
-	"Team owning the Postgres."
-	teamSlug: Slug!
-}
-
-"Result of creating a branch; provisioning continues asynchronously."
-type CreatePostgresBranchPayload {
-	"The new branch."
-	postgresBranch: PostgresBranch!
-}
-
-"Request a branch for normal workloads. It becomes active once its database is ready."
-input ActivatePostgresBranchInput {
-	"Name of the owning Postgres."
-	postgres: String!
-	"Local name of the branch to activate."
-	branch: String!
-	"Environment containing the Postgres."
-	environmentName: String!
-	"Team owning the Postgres."
-	teamSlug: Slug!
-}
-
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
-type ActivatePostgresBranchPayload {
-	"Postgres with desired and observed branch selection."
-	postgres: Postgres!
-}
-
 "Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
 input DeletePostgresInput {
 	"Name of the Postgres."
@@ -841,22 +795,6 @@ input DeletePostgresInput {
 type DeletePostgresPayload {
 	"True if Kubernetes accepted the deletion request; data deletion may still be pending."
 	deletionRequested: Boolean!
-}
-
-input DeletePostgresBranchInput {
-	"Name of the Postgres containing the branch."
-	postgres: String!
-	"Local name of the branch to delete."
-	branch: String!
-	"The environment containing the PostgresBranch."
-	environmentName: String!
-	"The team that owns the PostgresBranch."
-	teamSlug: Slug!
-}
-
-type DeletePostgresBranchPayload {
-	"Whether the PostgresBranch was deleted."
-	postgresBranchDeleted: Boolean
 }
 
 extend type TeamInventoryCounts {

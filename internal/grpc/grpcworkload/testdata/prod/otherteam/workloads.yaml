@@ -1,0 +1,8 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: nightly
+spec:
+  image: redis:7
+status:
+  effectiveImage: redis:7.2

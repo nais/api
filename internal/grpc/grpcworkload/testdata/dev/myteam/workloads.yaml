@@ -1,0 +1,22 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: tagged
+spec:
+  image: ghcr.io/nais/tagged:1.0
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: deployed
+spec:
+  image: ghcr.io/nais/deployed:old
+status:
+  effectiveImage: ghcr.io/nais/deployed:new@sha256:1111111111111111111111111111111111111111111111111111111111111111
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: batch
+spec:
+  image: europe-north1-docker.pkg.dev/nais-io/batch@sha256:2222222222222222222222222222222222222222222222222222222222222222

@@ -27,8 +27,18 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("REPOSITORY_ADDED", activitylog.ActivityLogEntryActionAdded, activityLogEntryResourceTypeRepository)
-	activitylog.RegisterFilter("REPOSITORY_REMOVED", activitylog.ActivityLogEntryActionRemoved, activityLogEntryResourceTypeRepository)
+	activitylog.RegisterActivityType(
+		"REPOSITORY_ADDED",
+		activitylog.ActivityLogEntryActionAdded,
+		activityLogEntryResourceTypeRepository,
+		"Triggered when a repository is added to a team.",
+	)
+	activitylog.RegisterActivityType(
+		"REPOSITORY_REMOVED",
+		activitylog.ActivityLogEntryActionRemoved,
+		activityLogEntryResourceTypeRepository,
+		"Triggered when a repository is removed from a team.",
+	)
 }
 
 type RepositoryAddedActivityLogEntry struct {

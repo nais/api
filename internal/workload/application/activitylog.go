@@ -82,12 +82,44 @@ func init() {
 		}
 	})
 
-	activitylog.RegisterFilter("APPLICATION_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("APPLICATION_RESTARTED", activityLogEntryActionRestartApplication, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("APPLICATION_SCALED", activityLogEntryActionAutoScaleApplication, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("DEPLOYMENT", deploymentactivity.ActivityLogEntryActionDeployment, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("GENERIC_KUBERNETES_RESOURCE_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypeApplication)
-	activitylog.RegisterFilter("APPLICATION_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypeApplication)
+	activitylog.RegisterActivityType(
+		"APPLICATION_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypeApplication,
+		"Triggered when an application is deleted.",
+	)
+	activitylog.RegisterActivityType(
+		"APPLICATION_RESTARTED",
+		activityLogEntryActionRestartApplication,
+		ActivityLogEntryResourceTypeApplication,
+		"Triggered when an application is restarted.",
+	)
+	activitylog.RegisterActivityType(
+		"APPLICATION_SCALED",
+		activityLogEntryActionAutoScaleApplication,
+		ActivityLogEntryResourceTypeApplication,
+		"Triggered when an application is scaled.",
+		activitylog.IgnoreWebhook(),
+	)
+	activitylog.RegisterActivityType(
+		"DEPLOYMENT",
+		deploymentactivity.ActivityLogEntryActionDeployment,
+		ActivityLogEntryResourceTypeApplication,
+		"Triggered when a resource is deployed using the nais/deploy action.",
+		activitylog.IgnoreWebhook(),
+	)
+	activitylog.RegisterActivityType(
+		"GENERIC_KUBERNETES_RESOURCE_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypeApplication,
+		"Triggered when a Kubernetes resource is applied.",
+	)
+	activitylog.RegisterActivityType(
+		"APPLICATION_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypeApplication,
+		"Triggered when an application is updated.",
+	)
 }
 
 type ApplicationRestartedActivityLogEntry struct {

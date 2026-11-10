@@ -356,6 +356,34 @@ func CanCreateTunnel(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "tunnels:create")
 }
 
+func CanCreateWebhook(ctx context.Context, teamSlug *slug.Slug) error {
+	if teamSlug == nil {
+		return RequireGlobalAdmin(ctx)
+	}
+	return requireTeamAuthorization(ctx, *teamSlug, "webhooks:create")
+}
+
+func CanReadWebhook(ctx context.Context, teamSlug *slug.Slug) error {
+	if teamSlug == nil {
+		return RequireGlobalAdmin(ctx)
+	}
+	return requireTeamAuthorization(ctx, *teamSlug, "webhooks:read")
+}
+
+func CanUpdateWebhook(ctx context.Context, teamSlug *slug.Slug) error {
+	if teamSlug == nil {
+		return RequireGlobalAdmin(ctx)
+	}
+	return requireTeamAuthorization(ctx, *teamSlug, "webhooks:update")
+}
+
+func CanDeleteWebhook(ctx context.Context, teamSlug *slug.Slug) error {
+	if teamSlug == nil {
+		return RequireGlobalAdmin(ctx)
+	}
+	return requireTeamAuthorization(ctx, *teamSlug, "webhooks:delete")
+}
+
 func RequireGlobalAdmin(ctx context.Context) error {
 	if ActorFromContext(ctx).User.IsAdmin() {
 		return nil
