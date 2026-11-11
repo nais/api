@@ -131,7 +131,7 @@ Test.gql("List vulnerability summaries for team", function(t)
 										{
 											identifier = NotNull(),
 											imageName = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
-											package = "pkg:golang/some-component-0@v2.0.8?type=module",
+											package = "pkg:golang/some-component-1@v2.0.8?type=module",
 											riskAssessment = {
 												priority = NotNull(),
 											},
