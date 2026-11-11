@@ -34,17 +34,7 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: pg-a-main-fb72f9ba
-  namespace: myteam
-spec:
-  postgres: pg-a
-  branchName: main
-status:
+  clusterName: pg-pg-a-main-fb72f9ba
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState

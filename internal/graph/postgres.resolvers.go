@@ -78,11 +78,42 @@ func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Po
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
+func (r *postgresResolver) State(ctx context.Context, obj *postgres.Postgres) (postgres.PostgresBranchState, error) {
+	state, _, err := postgres.PhysicalStatus(ctx, obj)
+	return state, err
+}
+
+func (r *postgresResolver) Configuration(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresConfiguration, error) {
+	_, configuration, err := postgres.PhysicalStatus(ctx, obj)
+	return configuration, err
+}
+
+func (r *postgresResolver) EarliestRestoreTime(ctx context.Context, obj *postgres.Postgres) (*time.Time, error) {
+	return postgres.PostgresEarliestRestoreTime(ctx, obj)
+}
+
+func (r *postgresResolver) Issues(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
+	page, err := pagination.ParsePage(first, after, last, before)
+	if err != nil {
+		return nil, err
+	}
+	scope := &issue.IssueScope{
+		ResourceName: postgres.PhysicalIssueName(obj),
+		ResourceType: issue.ResourceTypePostgresBranch,
+		Env:          obj.EnvironmentName,
+	}
+	var f *issue.IssueFilter
+	if filter != nil {
+		f = &issue.IssueFilter{ResourceIssueFilter: *filter}
+	}
+	return issue.ListIssues(ctx, obj.TeamSlug, page, orderBy, scope, f)
+}
+
 func (r *postgresResolver) ActiveBranch(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresBranch, error) {
 	if obj.ActiveBranch == nil {
 		return nil, nil
 	}
-	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, *obj.ActiveBranch)
+	return postgres.BranchForPostgres(ctx, obj, *obj.ActiveBranch)
 }
 
 func (r *postgresResolver) Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresWorkload], error) {
@@ -95,7 +126,7 @@ func (r *postgresResolver) Workloads(ctx context.Context, obj *postgres.Postgres
 }
 
 func (r *postgresResolver) Branch(ctx context.Context, obj *postgres.Postgres, name string) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranch(ctx, obj.TeamSlug, obj.EnvironmentName, obj.Name, name)
+	return postgres.BranchForPostgres(ctx, obj, name)
 }
 
 func (r *postgresResolver) Branches(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) (*pagination.FacetableConnection[*postgres.PostgresBranch, *postgres.PostgresBranchFilter], error) {
@@ -112,6 +143,17 @@ func (r *postgresAccessResolver) Team(ctx context.Context, obj *postgres.Postgre
 
 func (r *postgresAccessResolver) TeamEnvironment(ctx context.Context, obj *postgres.PostgresAccess) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *postgresAccessResolver) Postgres(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.Postgres, error) {
+	if obj.PostgresName != "" {
+		return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName)
+	}
+	branch, err := postgres.GetPostgresBranchByObjectName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresBranchName)
+	if err != nil {
+		return nil, err
+	}
+	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, branch.PostgresName)
 }
 
 func (r *postgresAccessResolver) PostgresBranch(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresBranch, error) {
@@ -186,7 +228,7 @@ func (r *postgresConnectionResolver) Facets(ctx context.Context, obj *pagination
 }
 
 func (r *postgresWorkloadResolver) Branch(ctx context.Context, obj *postgres.PostgresWorkload) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranch(ctx, obj.Workload.GetTeamSlug(), obj.Workload.GetEnvironmentName(), obj.PostgresName, obj.BranchName)
+	return postgres.BranchForPostgres(ctx, obj.Postgres, obj.BranchName)
 }
 
 func (r *teamResolver) Postgreses(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) (*pagination.FacetableConnection[*postgres.Postgres, *postgres.TeamPostgresFilter], error) {

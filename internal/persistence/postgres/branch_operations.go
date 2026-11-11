@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -23,13 +22,13 @@ var (
 )
 
 func EarliestRestoreTime(ctx context.Context, branch *PostgresBranch) (*time.Time, error) {
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(
 		ctx, branch.EnvironmentName, watcher.WithImpersonatedClientGVR(cnpgClusterGVR),
 	)
 	if err != nil {
 		return nil, err
 	}
-	clusterName := nais_io_v1.CNPGClusterName(nais_io_v1.PostgresBranchObjectName(branch.PostgresName, branch.Name))
+	clusterName := branch.clusterName()
 	cluster, err := client.Namespace(branch.TeamSlug.String()).Get(ctx, clusterName, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		return nil, nil
@@ -43,7 +42,7 @@ func EarliestRestoreTime(ctx context.Context, branch *PostgresBranch) (*time.Tim
 		return nil, fmt.Errorf("reading Barman ObjectStore name from CNPG cluster %q: %w", clusterName, err)
 	}
 	if objectStoreName != "" {
-		objectStoreClient, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(
+		objectStoreClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(
 			ctx, branch.EnvironmentName, watcher.WithImpersonatedClientGVR(barmanObjectStoreGVR),
 		)
 		if err != nil {
