@@ -262,10 +262,10 @@ func (row bigQueryCostTableRow) upsertParams() (costsql.CostUpsertParams, error)
 	}
 	if params.PostgresName != nil {
 		if *params.PostgresName == "" {
-			return costsql.CostUpsertParams{}, fmt.Errorf("Postgres name cannot be empty")
+			return costsql.CostUpsertParams{}, fmt.Errorf("postgres name cannot be empty")
 		}
 		if !row.Team.Valid || row.Team.StringVal == "" || !row.Env.Valid || row.Env.StringVal == "" {
-			return costsql.CostUpsertParams{}, fmt.Errorf("Postgres cost requires a team and environment")
+			return costsql.CostUpsertParams{}, fmt.Errorf("postgres cost requires a team and environment")
 		}
 		// A database's app label must never also attribute its costs to a workload.
 		params.AppLabel = ""
