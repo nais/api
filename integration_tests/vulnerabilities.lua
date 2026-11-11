@@ -66,6 +66,8 @@ Test.gql("List vulnerability summaries for team", function(t)
 					  vulnerabilities(first: 10) {
 					  	nodes {
 					  		identifier
+							imageName
+							package
 					  		riskAssessment {
 					  			priority
 					  		}
@@ -120,18 +122,24 @@ Test.gql("List vulnerability summaries for team", function(t)
 									nodes = {
 										{
 											identifier = NotNull(),
+											imageName = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
+											package = "pkg:golang/some-component-0@v2.0.8?type=module",
 											riskAssessment = {
 												priority = NotNull(),
 											},
 										},
 										{
 											identifier = NotNull(),
+											imageName = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
+											package = "pkg:golang/some-component-0@v2.0.8?type=module",
 											riskAssessment = {
 												priority = NotNull(),
 											},
 										},
 										{
 											identifier = NotNull(),
+											imageName = "europe-north1-docker.pkg.dev/nais/navikt/app-name",
+											package = "pkg:golang/some-component-0@v2.0.8?type=module",
 											riskAssessment = {
 												priority = NotNull(),
 											},
