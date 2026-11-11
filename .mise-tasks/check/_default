@@ -5,4 +5,4 @@ set -e
 
 unset MISE_TASK_OUTPUT
 
-mise run check:deadcode ::: check:gosec ::: check:staticcheck ::: check:vulncheck ::: check:helm-lint
+mise run check:deadcode ::: check:gosec ::: check:staticcheck ::: check:vulncheck ::: check:vulncheck-apiclient ::: check:helm-lint

@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+#MISE description="Run vulncheck for the API client"
+
+set -e
+
+govulncheck=$(go tool -n golang.org/x/vuln/cmd/govulncheck)
+cd pkg/apiclient
+"$govulncheck" -show verbose ./...
