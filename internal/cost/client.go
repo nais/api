@@ -14,6 +14,8 @@ import (
 )
 
 type Client interface {
+	DailyForPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string, fromDate, toDate time.Time) (*PostgresCostPeriod, error)
+	MonthlyForPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string) (*PostgresCostPeriod, error)
 	DailyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string, fromDate, toDate time.Time) (*WorkloadCostPeriod, error)
 	MonthlyForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) (*WorkloadCostPeriod, error)
 	DailyForTeamEnvironment(ctx context.Context, teamSlug slug.Slug, environmentName string, fromDate, toDate time.Time) (*TeamEnvironmentCostPeriod, error)

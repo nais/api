@@ -39,7 +39,7 @@ func fromContext(ctx context.Context) *loaders {
 
 type loaders struct {
 	client          Client
-	internalQuerier *costsql.Queries
+	internalQuerier costsql.Querier
 }
 
 func newLoaders(dbConn *pgxpool.Pool) *loaders {
@@ -50,11 +50,11 @@ func newLoaders(dbConn *pgxpool.Pool) *loaders {
 	}
 }
 
-func db(ctx context.Context) *costsql.Queries {
+func db(ctx context.Context) costsql.Querier {
 	l := fromContext(ctx)
 
 	if tx := database.TransactionFromContext(ctx); tx != nil {
-		return l.internalQuerier.WithTx(tx)
+		return costsql.New(tx)
 	}
 
 	return l.internalQuerier

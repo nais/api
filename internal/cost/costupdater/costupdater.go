@@ -22,13 +22,14 @@ const (
 
 // bigQueryCostTableRow is a struct that represents a row in the BigQuery table
 type bigQueryCostTableRow struct {
-	Env         bigquery.NullString `bigquery:"env"`
-	Team        bigquery.NullString `bigquery:"team"`
-	App         bigquery.NullString `bigquery:"app"`
-	CostType    string              `bigquery:"cost_type"`
-	Date        civil.Date          `bigquery:"date"`
-	Cost        float32             `bigquery:"cost"`
-	ServiceName bigquery.NullString `bigquery:"service_name"`
+	Env          bigquery.NullString `bigquery:"env"`
+	Team         bigquery.NullString `bigquery:"team"`
+	App          bigquery.NullString `bigquery:"app"`
+	CostType     string              `bigquery:"cost_type"`
+	Date         civil.Date          `bigquery:"date"`
+	Cost         float32             `bigquery:"cost"`
+	ServiceName  bigquery.NullString `bigquery:"service_name"`
+	PostgresName bigquery.NullString `bigquery:"postgres_name"`
 }
 
 // Updater is the cost updater struct
@@ -114,34 +115,26 @@ func (u *Updater) FetchBigQueryData(ctx context.Context, ch chan<- costsql.CostU
 		return err
 	}
 
-	var row bigQueryCostTableRow
 	for {
+		var row bigQueryCostTableRow
 		if err := it.Next(&row); err != nil {
 			if errors.Is(err, iterator.Done) {
 				break
 			}
 
-			if errors.Is(err, context.Canceled) {
-				return err
-			}
-
-			continue
+			return fmt.Errorf("read cost data from BigQuery: %w", err)
 		}
 
+		params, err := row.upsertParams()
+		if err != nil {
+			return fmt.Errorf("invalid cost row for team %q on %s: %w", row.Team.StringVal, row.Date, err)
+		}
 		numRows++
 
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case ch <- costsql.CostUpsertParams{
-			Environment: nullToStringPointer(row.Env),
-			TeamSlug:    slug.Slug(row.Team.StringVal),
-			AppLabel:    row.App.StringVal,
-			Service:     row.CostType,
-			Date:        pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
-			DailyCost:   row.Cost,
-			ServiceName: nullToStringPointer(row.ServiceName),
-		}:
+		case ch <- params:
 			// entry sent to the channel
 		}
 	}
@@ -254,6 +247,30 @@ func (u *Updater) getBatch(ctx context.Context, ch <-chan costsql.CostUpsertPara
 			}
 		}
 	}
+}
+
+func (row bigQueryCostTableRow) upsertParams() (costsql.CostUpsertParams, error) {
+	params := costsql.CostUpsertParams{
+		Environment:  nullToStringPointer(row.Env),
+		TeamSlug:     slug.Slug(row.Team.StringVal),
+		AppLabel:     row.App.StringVal,
+		Service:      row.CostType,
+		Date:         pgtype.Date{Time: row.Date.In(time.UTC), Valid: true},
+		DailyCost:    row.Cost,
+		ServiceName:  nullToStringPointer(row.ServiceName),
+		PostgresName: nullToStringPointer(row.PostgresName),
+	}
+	if params.PostgresName != nil {
+		if *params.PostgresName == "" {
+			return costsql.CostUpsertParams{}, fmt.Errorf("postgres name cannot be empty")
+		}
+		if !row.Team.Valid || row.Team.StringVal == "" || !row.Env.Valid || row.Env.StringVal == "" {
+			return costsql.CostUpsertParams{}, fmt.Errorf("postgres cost requires a team and environment")
+		}
+		// A database's app label must never also attribute its costs to a workload.
+		params.AppLabel = ""
+	}
+	return params, nil
 }
 
 // nullToStringPointer converts a bigquery.NullString to a *string

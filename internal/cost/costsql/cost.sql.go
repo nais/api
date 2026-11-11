@@ -19,6 +19,7 @@ WHERE
 	team_slug = $1
 	AND service = $2
 	AND app_label = $3
+	AND postgres_name IS NULL
 	AND date >= $4
 	AND date <= $5
 	AND environment = $6::TEXT
@@ -76,6 +77,67 @@ func (q *Queries) CostForTeam(ctx context.Context, arg CostForTeamParams) (float
 	var column_1 float32
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const dailyCostForPostgres = `-- name: DailyCostForPostgres :many
+SELECT
+	date,
+	service,
+	SUM(daily_cost)::REAL AS daily_cost
+FROM
+	cost
+WHERE
+	team_slug = $1::slug
+	AND environment = $2::TEXT
+	AND postgres_name = $3::TEXT
+	AND date >= $4::date
+	AND date <= $5::date
+GROUP BY
+	date,
+	service
+ORDER BY
+	date,
+	service
+`
+
+type DailyCostForPostgresParams struct {
+	TeamSlug     slug.Slug
+	Environment  string
+	PostgresName string
+	FromDate     pgtype.Date
+	ToDate       pgtype.Date
+}
+
+type DailyCostForPostgresRow struct {
+	Date      pgtype.Date
+	Service   string
+	DailyCost float32
+}
+
+func (q *Queries) DailyCostForPostgres(ctx context.Context, arg DailyCostForPostgresParams) ([]*DailyCostForPostgresRow, error) {
+	rows, err := q.db.Query(ctx, dailyCostForPostgres,
+		arg.TeamSlug,
+		arg.Environment,
+		arg.PostgresName,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DailyCostForPostgresRow{}
+	for rows.Next() {
+		var i DailyCostForPostgresRow
+		if err := rows.Scan(&i.Date, &i.Service, &i.DailyCost); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const dailyCostForTeam = `-- name: DailyCostForTeam :many
@@ -185,6 +247,7 @@ WITH
 			AND cost.date <= $2::date
 			AND environment = $3::TEXT
 			AND team_slug = $4::slug
+			AND postgres_name IS NULL
 		GROUP BY
 			cost.date,
 			cost.environment,
@@ -279,6 +342,7 @@ WITH
 			AND environment = $3::TEXT
 			AND team_slug = $4::slug
 			AND app_label = $5
+			AND postgres_name IS NULL
 		GROUP BY
 			cost.date,
 			cost.environment,
@@ -364,6 +428,7 @@ WHERE
 	AND date <= $2::date
 	AND environment = $3
 	AND team_slug = $4::slug
+	AND postgres_name IS NULL
 GROUP BY
 	team_slug,
 	app_label,
@@ -453,6 +518,74 @@ func (q *Queries) ListTeamSlugsForCostUpdater(ctx context.Context) ([]slug.Slug,
 			return nil, err
 		}
 		items = append(items, slug)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const monthlyCostForPostgres = `-- name: MonthlyCostForPostgres :many
+WITH
+	last_run AS (
+		SELECT
+			DATE_TRUNC('month', MAX(date))::date AS MONTH
+		FROM
+			cost
+	)
+SELECT
+	DATE_TRUNC('month', c.date)::date AS MONTH,
+	MAX(c.date)::date AS last_recorded_date,
+	c.service,
+	SUM(c.daily_cost)::REAL AS daily_cost
+FROM
+	cost c
+	CROSS JOIN last_run
+WHERE
+	c.team_slug = $1::slug
+	AND c.environment = $2::TEXT
+	AND c.postgres_name = $3::TEXT
+	AND c.date >= last_run.month - INTERVAL '11 months'
+	AND c.date < last_run.month + INTERVAL '1 month'
+GROUP BY
+	DATE_TRUNC('month', c.date),
+	c.service
+ORDER BY
+	MONTH DESC,
+	c.service
+`
+
+type MonthlyCostForPostgresParams struct {
+	TeamSlug     slug.Slug
+	Environment  string
+	PostgresName string
+}
+
+type MonthlyCostForPostgresRow struct {
+	Month            pgtype.Date
+	LastRecordedDate pgtype.Date
+	Service          string
+	DailyCost        float32
+}
+
+func (q *Queries) MonthlyCostForPostgres(ctx context.Context, arg MonthlyCostForPostgresParams) ([]*MonthlyCostForPostgresRow, error) {
+	rows, err := q.db.Query(ctx, monthlyCostForPostgres, arg.TeamSlug, arg.Environment, arg.PostgresName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*MonthlyCostForPostgresRow{}
+	for rows.Next() {
+		var i MonthlyCostForPostgresRow
+		if err := rows.Scan(
+			&i.Month,
+			&i.LastRecordedDate,
+			&i.Service,
+			&i.DailyCost,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -569,6 +702,7 @@ FROM
 WHERE
 	c.team_slug = $1::slug
 	AND c.app_label = $2
+	AND c.postgres_name IS NULL
 	AND c.environment = $3::TEXT
 	AND c.date >= DATE_TRUNC('month', last_run) - INTERVAL '1 year'
 GROUP BY
