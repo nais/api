@@ -277,6 +277,24 @@ values:
         {{- end -}}
         {{- toJSON $result | quote -}}
 
+  kafka.credentialEnvironments:
+    displayName: Kafka credential environments
+    description: |
+      JSON mapping from canonical Nais environment names to pool, credentialEnvironment and optional legacy aliases.
+      Other Kafka tenants must configure their own mapping. Empty means Kafka credentials are unavailable.
+    config:
+      type: string
+    computed:
+      template: |
+        {{- if eq .Tenant.Name "nav" -}}
+        {{- dict
+          "dev-gcp" (dict "pool" "nav-dev" "credentialEnvironment" "dev-gcp" "aliases" (list "dev"))
+          "prod-gcp" (dict "pool" "nav-prod" "credentialEnvironment" "prod-gcp" "aliases" (list "prod"))
+          | toJSON | quote -}}
+        {{- else -}}
+        {{- "{}" | quote -}}
+        {{- end -}}
+
   kubernetes.oidcIssuers:
     displayName: Kubernetes OIDC issuers
     description: JSON array with objects containing `environment` and `issuer` for each supported environment.

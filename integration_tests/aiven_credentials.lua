@@ -467,3 +467,84 @@ Test.gql("Activity log returns credentials entries without panic", function(t)
 		},
 	}
 end)
+
+Helper.readK8sResources("k8s_resources/kafka_credentials")
+
+for _, environment in ipairs({ "dev-gcp", "legacy-dev" }) do
+	Test.gql("Kafka credentials resolve " .. environment .. " to the canonical environment", function(t)
+		t.addHeader("x-user-email", user:email())
+		t.query(string.format([[
+			mutation {
+				createKafkaCredentials(input: {
+					teamSlug: "%s", environmentName: "%s", ttl: "1d"
+				}) {
+					environmentName
+					credentials { username accessCert accessKey caCert brokers schemaRegistry }
+				}
+			}
+		]], team:slug(), environment))
+		t.check { data = { createKafkaCredentials = {
+			environmentName = "dev-gcp",
+			credentials = {
+				username = "test", accessCert = "test", accessKey = "test",
+				caCert = "test", brokers = "test", schemaRegistry = "test",
+			},
+		} } }
+	end)
+end
+
+Test.k8s("Kafka credentials use the configured pool in the credential cluster", function(t)
+	t.check("aiven.nais.io/v1", "aivenapplications", "dev", team:slug(), "tmp-kafka-topic-011e34", {
+		apiVersion = "aiven.nais.io/v1",
+		kind = "AivenApplication",
+		metadata = Ignore(),
+		spec = {
+			protected = true,
+			expiresAt = NotNull(),
+			kafka = { pool = "aiven-dev", secretName = "tmp-kafka-topic-b2fb77" },
+		},
+	})
+end)
+
+Test.gql("Kafka credentials are audited under the canonical requested environment", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		{ team(slug: "%s") {
+			activityLog(first: 1, filter: {activityTypes: [KAFKA_CREDENTIALS_CREATED]}) {
+				nodes { environmentName resourceName }
+			}
+		} }
+	]], team:slug()))
+	t.check { data = { team = { activityLog = { nodes = {
+		{ environmentName = "dev-gcp", resourceName = "dev-gcp" },
+	} } } } }
+end)
+
+Test.gql("A real Nais environment named dev remains canonical", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation { createKafkaCredentials(input: {
+			teamSlug: "%s", environmentName: "dev", ttl: "1d"
+		}) { environmentName credentials { username } } }
+	]], team:slug()))
+	t.check { data = { createKafkaCredentials = {
+		environmentName = "dev", credentials = { username = "test" },
+	} } }
+end)
+
+Test.gql("An environment without Kafka credentials returns a useful error", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[
+		mutation { createKafkaCredentials(input: {
+			teamSlug: "%s", environmentName: "staging", ttl: "1d"
+		}) { credentials { username } } }
+	]], team:slug()))
+	t.check {
+		data = Null,
+		errors = { {
+			locations = NotNull(),
+			message = 'Kafka credentials are not configured for Nais environment "staging"; valid environments: dev, dev-gcp',
+			path = { "createKafkaCredentials" },
+		} },
+	}
+end)

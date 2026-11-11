@@ -4,9 +4,46 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
 )
+
+func TestKafkaCredentialEnvironmentConfig(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		value   string
+		want    kafkatopic.CredentialEnvironments
+		wantErr bool
+	}{
+		{
+			name:  "configured",
+			value: `{"dev-gcp":{"pool":"nav-dev","credentialEnvironment":"dev-gcp","aliases":["dev"]}}`,
+			want: kafkatopic.CredentialEnvironments{
+				"dev-gcp": {Pool: "nav-dev", CredentialEnvironment: "dev-gcp", Aliases: []string{"dev"}},
+			},
+		},
+		{name: "unset"},
+		{name: "empty map", value: `{}`, want: kafkatopic.CredentialEnvironments{}},
+		{name: "null", value: `null`},
+		{name: "invalid JSON", value: `{`, wantErr: true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg, err := NewConfig(t.Context(), envconfig.MapLookuper(map[string]string{
+				"KAFKA_CREDENTIAL_ENVIRONMENTS": tt.value,
+			}))
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.wantErr {
+				return
+			}
+			if diff := cmp.Diff(tt.want, cfg.KafkaCredentialEnvironments); diff != "" {
+				t.Errorf("Kafka credential config mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
 
 func TestInsecureWebhookURLsConfig(t *testing.T) {
 	for _, tt := range []struct {

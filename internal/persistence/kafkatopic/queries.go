@@ -73,9 +73,14 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 }
 
 func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInput) (*CreateKafkaCredentialsPayload, error) {
+	environment, target, err := fromContext(ctx).credentialEnvironments.resolve(input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+
 	result, err := aivencredentials.CreateCredentials(ctx, ActivityLogEntryResourceTypeKafkaTopic, aivencredentials.CredentialRequest{
 		TeamSlug:        input.TeamSlug,
-		EnvironmentName: input.EnvironmentName,
+		EnvironmentName: target.CredentialEnvironment,
 		TTL:             input.TTL,
 		MaxTTL:          maxTTLKafka,
 		BuildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
@@ -83,7 +88,7 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 				"protected": true,
 				"expiresAt": expiresAt.Format(time.RFC3339),
 				"kafka": map[string]any{
-					"pool":       "nav-" + input.EnvironmentName, // @TODO(chredvar): this will only work for Nav
+					"pool":       target.Pool,
 					"secretName": secretName,
 				},
 			}
@@ -107,8 +112,8 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 		Action:          activitylog.ActivityLogEntryActionCredentialsCreated,
 		Actor:           authz.ActorFromContext(ctx).User,
 		ResourceType:    ActivityLogEntryResourceTypeKafkaTopic,
-		ResourceName:    input.EnvironmentName,
-		EnvironmentName: &input.EnvironmentName,
+		ResourceName:    environment,
+		EnvironmentName: &environment,
 		TeamSlug:        &input.TeamSlug,
 		Data: KafkaCredentialsCreatedActivityLogEntryData{
 			TTL: input.TTL,
@@ -117,7 +122,10 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 		fromContext(ctx).log.WithError(err).Warn("failed to create activity log entry for kafka credentials creation")
 	}
 
-	return &CreateKafkaCredentialsPayload{Credentials: result.(*KafkaCredentials)}, nil
+	return &CreateKafkaCredentialsPayload{
+		Credentials:     result.(*KafkaCredentials),
+		EnvironmentName: environment,
+	}, nil
 }
 
 func Update(ctx context.Context, input UpdateKafkaTopicInput) (*UpdateKafkaTopicPayload, error) {

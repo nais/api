@@ -28,6 +28,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/loki"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
@@ -283,6 +284,17 @@ func newGQLRunner(
 				ID:         "aiven-dev",
 				VPC:        "aiven-vpc",
 				EndpointID: "endpoint-id",
+			},
+		},
+		kafkatopic.CredentialEnvironments{
+			"dev": {
+				Pool:                  "aiven-dev",
+				CredentialEnvironment: "dev",
+			},
+			"dev-gcp": {
+				Pool:                  "aiven-dev",
+				CredentialEnvironment: "dev",
+				Aliases:               []string{"legacy-dev"},
 			},
 		},
 		vMgr,

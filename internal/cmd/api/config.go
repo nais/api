@@ -6,6 +6,7 @@ import (
 
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
@@ -144,7 +145,8 @@ type Aiven struct {
 }
 
 type Config struct {
-	Aiven Aiven
+	Aiven                       Aiven
+	KafkaCredentialEnvironments kafkatopic.CredentialEnvironments `env:"KAFKA_CREDENTIAL_ENVIRONMENTS"`
 
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`

@@ -91,3 +91,6 @@ zitadel:
 aiven:
   projects: ""
   token:
+
+kafka:
+  credentialEnvironments: "{}" # JSON supplied by Fasit; explicitly maps Nais environments to pools

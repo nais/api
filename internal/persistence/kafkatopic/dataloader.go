@@ -13,8 +13,8 @@ type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*KafkaTopic], logger logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(watcher, logger))
+func NewLoaderContext(ctx context.Context, watcher *watcher.Watcher[*KafkaTopic], logger logrus.FieldLogger, credentialEnvironments CredentialEnvironments) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(watcher, logger, credentialEnvironments))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*KafkaTopic] {
@@ -38,13 +38,15 @@ func fromContext(ctx context.Context) *loaders {
 }
 
 type loaders struct {
-	watcher *watcher.Watcher[*KafkaTopic]
-	log     logrus.FieldLogger
+	watcher                *watcher.Watcher[*KafkaTopic]
+	log                    logrus.FieldLogger
+	credentialEnvironments CredentialEnvironments
 }
 
-func newLoaders(watcher *watcher.Watcher[*KafkaTopic], logger logrus.FieldLogger) *loaders {
+func newLoaders(watcher *watcher.Watcher[*KafkaTopic], logger logrus.FieldLogger, credentialEnvironments CredentialEnvironments) *loaders {
 	return &loaders{
-		watcher: watcher,
-		log:     logger,
+		watcher:                watcher,
+		log:                    logger,
+		credentialEnvironments: credentialEnvironments,
 	}
 }
