@@ -88,10 +88,6 @@ func (r *postgresResolver) Configuration(ctx context.Context, obj *postgres.Post
 	return configuration, err
 }
 
-func (r *postgresResolver) ClusterName(ctx context.Context, obj *postgres.Postgres) (*string, error) {
-	return postgres.PhysicalClusterName(ctx, obj)
-}
-
 func (r *postgresResolver) EarliestRestoreTime(ctx context.Context, obj *postgres.Postgres) (*time.Time, error) {
 	return postgres.PostgresEarliestRestoreTime(ctx, obj)
 }

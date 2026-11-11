@@ -25,9 +25,8 @@ func PhysicalStatus(ctx context.Context, pg *Postgres) (PostgresState, *Postgres
 	return branch.State, branch.Configuration, nil
 }
 
-// PhysicalClusterName exposes the same target before and after direct ownership,
-// without making clients reconstruct the historical main naming algorithm.
-func PhysicalClusterName(ctx context.Context, pg *Postgres) (*string, error) {
+// physicalClusterName selects the same internal target before and after direct ownership.
+func physicalClusterName(ctx context.Context, pg *Postgres) (*string, error) {
 	if pg.directClusterName != nil {
 		return pg.directClusterName, nil
 	}

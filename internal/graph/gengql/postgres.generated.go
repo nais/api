@@ -32,7 +32,6 @@ type PostgresResolver interface {
 
 	State(ctx context.Context, obj *postgres.Postgres) (postgres.PostgresBranchState, error)
 	Configuration(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresConfiguration, error)
-	ClusterName(ctx context.Context, obj *postgres.Postgres) (*string, error)
 	EarliestRestoreTime(ctx context.Context, obj *postgres.Postgres) (*time.Time, error)
 	Issues(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error)
 
@@ -660,29 +659,6 @@ func (ec *executionContext) fieldContext_Postgres_configuration(_ context.Contex
 		},
 	}
 	return fc, nil
-}
-
-func (ec *executionContext) _Postgres_clusterName(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Postgres_clusterName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Postgres().ClusterName(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_Postgres_clusterName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Postgres", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Postgres_earliestRestoreTime(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
@@ -6353,39 +6329,6 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Postgres_configuration(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "clusterName":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Postgres_clusterName(ctx, field, obj)
 				return res
 			}
 

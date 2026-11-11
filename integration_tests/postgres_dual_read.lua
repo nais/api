@@ -6,11 +6,11 @@ Helper.readK8sResources("k8s_resources/postgres_dual_read")
 Test.gql("Direct Postgres fields read both legacy and directly owned databases", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-dual-read-team") { postgreses { nodes {
-		name state configuration { parameters { name value } } clusterName
+		name state configuration { parameters { name value } }
 	} } } }]]
 	t.check { data = { team = { postgreses = { nodes = {
-		{ name = "foobar", state = "AVAILABLE", configuration = { parameters = { { name = "work_mem", value = "8MB" } } },  clusterName = "pg-foobar-main-a4f04c0c" },
-		{ name = "orders", state = "AVAILABLE", configuration = { parameters = { { name = "work_mem", value = "16MB" } } }, clusterName = "pg-orders-main-65648812" },
+		{ name = "foobar", state = "AVAILABLE", configuration = { parameters = { { name = "work_mem", value = "8MB" } } } },
+		{ name = "orders", state = "AVAILABLE", configuration = { parameters = { { name = "work_mem", value = "16MB" } } } },
 	} } } } }
 end)
 

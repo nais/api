@@ -1942,7 +1942,6 @@ type ComplexityRoot struct {
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Branch              func(childComplexity int, name string) int
 		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
-		ClusterName         func(childComplexity int) int
 		Configuration       func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
 		DesiredActiveBranch func(childComplexity int) int
@@ -12261,13 +12260,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
-
-	case "Postgres.clusterName":
-		if e.ComplexityRoot.Postgres.ClusterName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Postgres.ClusterName(childComplexity), true
 
 	case "Postgres.configuration":
 		if e.ComplexityRoot.Postgres.Configuration == nil {
@@ -29987,8 +29979,6 @@ type Postgres implements Node {
 	state: PostgresState!
 	"Observed PostgreSQL configuration, when available."
 	configuration: PostgresConfiguration
-	"Physical cluster name, when available."
-	clusterName: String
 	"Earliest point in time covered by available backups, when known."
 	earliestRestoreTime: Time
 	"Issues reported for this database."
@@ -41498,8 +41488,6 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_state(ctx, field)
 	case "configuration":
 		return ec.fieldContext_Postgres_configuration(ctx, field)
-	case "clusterName":
-		return ec.fieldContext_Postgres_clusterName(ctx, field)
 	case "earliestRestoreTime":
 		return ec.fieldContext_Postgres_earliestRestoreTime(ctx, field)
 	case "issues":

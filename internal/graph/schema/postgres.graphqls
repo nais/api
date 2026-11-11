@@ -197,8 +197,6 @@ type Postgres implements Node {
 	state: PostgresState!
 	"Observed PostgreSQL configuration, when available."
 	configuration: PostgresConfiguration
-	"Physical cluster name, when available."
-	clusterName: String
 	"Earliest point in time covered by available backups, when known."
 	earliestRestoreTime: Time
 	"Issues reported for this database."
