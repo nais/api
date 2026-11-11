@@ -231,6 +231,74 @@ func (_c *MockQuerier_CostUpsert_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
+// DailyCostForPostgres provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) DailyCostForPostgres(ctx context.Context, arg DailyCostForPostgresParams) ([]*DailyCostForPostgresRow, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DailyCostForPostgres")
+	}
+
+	var r0 []*DailyCostForPostgresRow
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, DailyCostForPostgresParams) ([]*DailyCostForPostgresRow, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, DailyCostForPostgresParams) []*DailyCostForPostgresRow); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*DailyCostForPostgresRow)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, DailyCostForPostgresParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_DailyCostForPostgres_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DailyCostForPostgres'
+type MockQuerier_DailyCostForPostgres_Call struct {
+	*mock.Call
+}
+
+// DailyCostForPostgres is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg DailyCostForPostgresParams
+func (_e *MockQuerier_Expecter) DailyCostForPostgres(ctx interface{}, arg interface{}) *MockQuerier_DailyCostForPostgres_Call {
+	return &MockQuerier_DailyCostForPostgres_Call{Call: _e.mock.On("DailyCostForPostgres", ctx, arg)}
+}
+
+func (_c *MockQuerier_DailyCostForPostgres_Call) Run(run func(ctx context.Context, arg DailyCostForPostgresParams)) *MockQuerier_DailyCostForPostgres_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 DailyCostForPostgresParams
+		if args[1] != nil {
+			arg1 = args[1].(DailyCostForPostgresParams)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockQuerier_DailyCostForPostgres_Call) Return(dailyCostForPostgresRows []*DailyCostForPostgresRow, err error) *MockQuerier_DailyCostForPostgres_Call {
+	_c.Call.Return(dailyCostForPostgresRows, err)
+	return _c
+}
+
+func (_c *MockQuerier_DailyCostForPostgres_Call) RunAndReturn(run func(ctx context.Context, arg DailyCostForPostgresParams) ([]*DailyCostForPostgresRow, error)) *MockQuerier_DailyCostForPostgres_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DailyCostForTeam provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error) {
 	ret := _mock.Called(ctx, arg)
@@ -621,6 +689,74 @@ func (_c *MockQuerier_ListTeamSlugsForCostUpdater_Call) Return(slugs []slug.Slug
 }
 
 func (_c *MockQuerier_ListTeamSlugsForCostUpdater_Call) RunAndReturn(run func(ctx context.Context) ([]slug.Slug, error)) *MockQuerier_ListTeamSlugsForCostUpdater_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MonthlyCostForPostgres provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) MonthlyCostForPostgres(ctx context.Context, arg MonthlyCostForPostgresParams) ([]*MonthlyCostForPostgresRow, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MonthlyCostForPostgres")
+	}
+
+	var r0 []*MonthlyCostForPostgresRow
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, MonthlyCostForPostgresParams) ([]*MonthlyCostForPostgresRow, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, MonthlyCostForPostgresParams) []*MonthlyCostForPostgresRow); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*MonthlyCostForPostgresRow)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, MonthlyCostForPostgresParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_MonthlyCostForPostgres_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MonthlyCostForPostgres'
+type MockQuerier_MonthlyCostForPostgres_Call struct {
+	*mock.Call
+}
+
+// MonthlyCostForPostgres is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg MonthlyCostForPostgresParams
+func (_e *MockQuerier_Expecter) MonthlyCostForPostgres(ctx interface{}, arg interface{}) *MockQuerier_MonthlyCostForPostgres_Call {
+	return &MockQuerier_MonthlyCostForPostgres_Call{Call: _e.mock.On("MonthlyCostForPostgres", ctx, arg)}
+}
+
+func (_c *MockQuerier_MonthlyCostForPostgres_Call) Run(run func(ctx context.Context, arg MonthlyCostForPostgresParams)) *MockQuerier_MonthlyCostForPostgres_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 MonthlyCostForPostgresParams
+		if args[1] != nil {
+			arg1 = args[1].(MonthlyCostForPostgresParams)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockQuerier_MonthlyCostForPostgres_Call) Return(monthlyCostForPostgresRows []*MonthlyCostForPostgresRow, err error) *MockQuerier_MonthlyCostForPostgres_Call {
+	_c.Call.Return(monthlyCostForPostgresRows, err)
+	return _c
+}
+
+func (_c *MockQuerier_MonthlyCostForPostgres_Call) RunAndReturn(run func(ctx context.Context, arg MonthlyCostForPostgresParams) ([]*MonthlyCostForPostgresRow, error)) *MockQuerier_MonthlyCostForPostgres_Call {
 	_c.Call.Return(run)
 	return _c
 }

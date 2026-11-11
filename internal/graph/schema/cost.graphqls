@@ -136,7 +136,7 @@ type ServiceCostSeries {
 	"The sum of the cost across all services."
 	sum: Float!
 
-	"The cost for the services used by the workload."
+	"The cost for the services used by the resource."
 	services: [ServiceCostSample!]!
 }
 
@@ -192,6 +192,35 @@ extend type BigQueryDataset {
 
 type BigQueryDatasetCost {
 	sum: Float!
+}
+
+extend type Postgres {
+	"Imported billing costs for this Postgres, including all its branches. Billing data is delayed by at least two days."
+	cost: PostgresCost!
+}
+
+"Imported costs for a Postgres, separate from the applications that use it."
+type PostgresCost {
+	"Daily costs in ascending date order. Returns null when no attributed billing samples exist in the period."
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive; must not be in the future."
+		to: Date!
+	): PostgresCostPeriod
+
+	"Costs for the 12 calendar months ending in the most recent imported billing month, newest first. Each date is the last observed billing date for this Postgres in that month. Returns null when no attributed samples exist."
+	monthly: PostgresCostPeriod
+}
+
+"Observed billing costs in euros. Missing dates are omitted, not assumed to be zero. A populated period does not guarantee complete resource coverage."
+type PostgresCostPeriod {
+	"Total imported cost in euros across all returned services and dates."
+	sum: Float!
+
+	"Per-service costs for dates with attributed billing samples."
+	series: [ServiceCostSeries!]!
 }
 
 extend type SqlInstance {

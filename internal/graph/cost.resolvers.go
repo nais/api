@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/persistence/bigquery"
 	"github.com/nais/api/internal/persistence/opensearch"
+	"github.com/nais/api/internal/persistence/postgres"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/persistence/valkey"
 	"github.com/nais/api/internal/team"
@@ -79,6 +80,27 @@ func (r *openSearchResolver) Cost(ctx context.Context, obj *opensearch.OpenSearc
 	return &cost.OpenSearchCost{
 		Sum: float64(sum),
 	}, nil
+}
+
+func (r *postgresResolver) Cost(ctx context.Context, obj *postgres.Postgres) (*cost.PostgresCost, error) {
+	return &cost.PostgresCost{
+		TeamSlug:        obj.TeamSlug,
+		EnvironmentName: obj.EnvironmentName,
+		PostgresName:    obj.Name,
+	}, nil
+}
+
+func (r *postgresCostResolver) Daily(ctx context.Context, obj *cost.PostgresCost, from scalar.Date, to scalar.Date) (*cost.PostgresCostPeriod, error) {
+	if to.Time().Before(from.Time()) {
+		return nil, apierror.Errorf("`to` must be on or after `from`.")
+	} else if to.Time().After(time.Now()) {
+		return nil, apierror.Errorf("`to` cannot be in the future.")
+	}
+	return cost.DailyForPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName, from.Time(), to.Time())
+}
+
+func (r *postgresCostResolver) Monthly(ctx context.Context, obj *cost.PostgresCost) (*cost.PostgresCostPeriod, error) {
+	return cost.MonthlyForPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName)
 }
 
 func (r *queryResolver) CostMonthlySummary(ctx context.Context, from scalar.Date, to scalar.Date) (*cost.CostMonthlySummary, error) {
@@ -183,6 +205,8 @@ func (r *workloadCostSampleResolver) Workload(ctx context.Context, obj *cost.Wor
 	return w, nil
 }
 
+func (r *Resolver) PostgresCost() gengql.PostgresCostResolver { return &postgresCostResolver{r} }
+
 func (r *Resolver) TeamCost() gengql.TeamCostResolver { return &teamCostResolver{r} }
 
 func (r *Resolver) TeamEnvironmentCost() gengql.TeamEnvironmentCostResolver {
@@ -196,6 +220,7 @@ func (r *Resolver) WorkloadCostSample() gengql.WorkloadCostSampleResolver {
 }
 
 type (
+	postgresCostResolver        struct{ *Resolver }
 	teamCostResolver            struct{ *Resolver }
 	teamEnvironmentCostResolver struct{ *Resolver }
 	workloadCostResolver        struct{ *Resolver }

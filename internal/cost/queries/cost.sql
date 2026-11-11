@@ -34,6 +34,7 @@ FROM
 WHERE
 	c.team_slug = @team_slug::slug
 	AND c.app_label = @app_label
+	AND c.postgres_name IS NULL
 	AND c.environment = @environment::TEXT
 	AND c.date >= DATE_TRUNC('month', last_run) - INTERVAL '1 year'
 GROUP BY
@@ -80,7 +81,8 @@ INSERT INTO
 		service,
 		date,
 		daily_cost,
-		service_name
+		service_name,
+		postgres_name
 	)
 VALUES
 	(
@@ -90,7 +92,8 @@ VALUES
 		@service,
 		@date,
 		@daily_cost,
-		@service_name
+		@service_name,
+		@postgres_name
 	)
 ON CONFLICT ON CONSTRAINT daily_cost_key DO UPDATE
 SET
@@ -125,6 +128,7 @@ WITH
 			AND environment = @environment::TEXT
 			AND team_slug = @team_slug::slug
 			AND app_label = @app_label
+			AND postgres_name IS NULL
 		GROUP BY
 			cost.date,
 			cost.environment,
@@ -203,6 +207,7 @@ WHERE
 	AND date <= @to_date::date
 	AND environment = @environment
 	AND team_slug = @team_slug::slug
+	AND postgres_name IS NULL
 GROUP BY
 	team_slug,
 	app_label,
@@ -221,6 +226,7 @@ WHERE
 	team_slug = @team_slug
 	AND service = @service
 	AND app_label = @app_label
+	AND postgres_name IS NULL
 	AND date >= @from_date
 	AND date <= @to_date
 	AND environment = @environment::TEXT
@@ -272,6 +278,7 @@ WITH
 			AND cost.date <= @to_date::date
 			AND environment = @environment::TEXT
 			AND team_slug = @team_slug::slug
+			AND postgres_name IS NULL
 		GROUP BY
 			cost.date,
 			cost.environment,
@@ -290,6 +297,57 @@ FROM
 ORDER BY
 	date_range.date,
 	cost_data.app_label ASC
+;
+
+-- name: DailyCostForPostgres :many
+SELECT
+	date,
+	service,
+	SUM(daily_cost)::REAL AS daily_cost
+FROM
+	cost
+WHERE
+	team_slug = @team_slug::slug
+	AND environment = @environment::TEXT
+	AND postgres_name = @postgres_name::TEXT
+	AND date >= @from_date::date
+	AND date <= @to_date::date
+GROUP BY
+	date,
+	service
+ORDER BY
+	date,
+	service
+;
+
+-- name: MonthlyCostForPostgres :many
+WITH
+	last_run AS (
+		SELECT
+			DATE_TRUNC('month', MAX(date))::date AS MONTH
+		FROM
+			cost
+	)
+SELECT
+	DATE_TRUNC('month', c.date)::date AS MONTH,
+	MAX(c.date)::date AS last_recorded_date,
+	c.service,
+	SUM(c.daily_cost)::REAL AS daily_cost
+FROM
+	cost c
+	CROSS JOIN last_run
+WHERE
+	c.team_slug = @team_slug::slug
+	AND c.environment = @environment::TEXT
+	AND c.postgres_name = @postgres_name::TEXT
+	AND c.date >= last_run.month - INTERVAL '11 months'
+	AND c.date < last_run.month + INTERVAL '1 month'
+GROUP BY
+	DATE_TRUNC('month', c.date),
+	c.service
+ORDER BY
+	MONTH DESC,
+	c.service
 ;
 
 -- name: ListTeamSlugsForCostUpdater :many

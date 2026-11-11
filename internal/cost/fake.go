@@ -15,6 +15,7 @@ import (
 )
 
 type FakeClient struct {
+	dailyForPostgresCache        map[postgresCostCacheKey]*PostgresCostPeriod
 	dailyForTeamCache            map[string]*TeamCostPeriod
 	dailyForWorkloadCache        map[string]*WorkloadCostPeriod
 	dailyForTeamEnvironmentCache map[string]*TeamEnvironmentCostPeriod
@@ -27,6 +28,7 @@ type FakeClient struct {
 
 func NewFakeClient() *FakeClient {
 	return &FakeClient{
+		dailyForPostgresCache:        make(map[postgresCostCacheKey]*PostgresCostPeriod),
 		dailyForTeamCache:            make(map[string]*TeamCostPeriod),
 		dailyForWorkloadCache:        make(map[string]*WorkloadCostPeriod),
 		dailyForTeamEnvironmentCache: make(map[string]*TeamEnvironmentCostPeriod),
