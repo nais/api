@@ -44,6 +44,10 @@ func TestPostgresCostStorageAndQueries(t *testing.T) {
 	if err := goose.UpToContext(ctx, db, "migrations", 82); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := db.ExecContext(ctx, `INSERT INTO teams (slug, purpose, slack_channel)
+		VALUES ('team', 'Cost attribution test', '#test'), ('other-team', 'Cost isolation test', '#test')`); err != nil {
+		t.Fatal(err)
+	}
 	// The additive migration must preserve already imported application costs.
 	if _, err := db.ExecContext(ctx, `INSERT INTO cost (environment, team_slug, app_label, service, date, daily_cost)
 		VALUES ('dev', 'team', 'orders', 'Compute Engine', '2026-02-28', 100)`); err != nil {
