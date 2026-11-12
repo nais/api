@@ -99,7 +99,7 @@ metadata:
 spec:
   majorVersion: "18"
 status:
-  activeBranch: main
+  activeBranch: restored
 ---
 apiVersion: nais.io/v1alpha1
 kind: Application

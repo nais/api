@@ -47,12 +47,13 @@ Test.gql("A provisioning database retains workload relations without branch obje
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
 		postgres(name: "missing-branch") {
-			state branch(name: "main") { name state }
+			state activeBranch { name state } branch(name: "main") { name state }
 			workloads { pageInfo { totalCount } nodes { branch { name } workload { ... on Application { name } } } }
 		}
 	} } }]]
 	t.check { data = { team = { environment = { postgres = {
 		state = "PROGRESSING", branch = { name = "main", state = "PROGRESSING" },
+		activeBranch = { name = "main", state = "PROGRESSING" },
 		workloads = { pageInfo = { totalCount = 1 }, nodes = { { branch = { name = "main" }, workload = { name = "missing-branch-app" } } } },
 	} } } } }
 end)
