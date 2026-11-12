@@ -18,9 +18,9 @@ func TestKafkaCredentialEnvironmentConfig(t *testing.T) {
 	}{
 		{
 			name:  "configured",
-			value: `{"dev-gcp":{"pool":"nav-dev","credentialEnvironment":"dev-gcp","aliases":["dev"]}}`,
+			value: `{"dev-gcp":{"pool":"nav-dev","aliases":["dev"]}}`,
 			want: kafkatopic.CredentialEnvironments{
-				"dev-gcp": {Pool: "nav-dev", CredentialEnvironment: "dev-gcp", Aliases: []string{"dev"}},
+				"dev-gcp": {Pool: "nav-dev", Aliases: []string{"dev"}},
 			},
 		},
 		{name: "unset"},

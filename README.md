@@ -36,19 +36,18 @@ CONTEXT="dev" WITH_LOG_PROXY="true" mise run local|debug
 ## Kafka credential environments
 
 `KAFKA_CREDENTIAL_ENVIRONMENTS` maps canonical Nais environment names to Kafka
-pools and the Nais environment where temporary credentials are created. For
-example, with the existing Nav cluster-name mapping:
+pools and optional legacy aliases. Temporary credentials are created in the
+selected canonical environment, using the existing cluster-name mapping.
+For example, for Nav:
 
 ```json
 {
 	"dev-gcp": {
 		"pool": "nav-dev",
-		"credentialEnvironment": "dev-gcp",
 		"aliases": ["dev"]
 	},
 	"prod-gcp": {
 		"pool": "nav-prod",
-		"credentialEnvironment": "prod-gcp",
 		"aliases": ["prod"]
 	}
 }
@@ -64,12 +63,12 @@ Non-standard topologies can configure an explicit mapping. A direct Helm
 installation must also supply this value. An empty mapping disables Kafka
 credential creation, not other Kafka operations.
 
-Both the requested canonical environment and the credential environment must
-refer to configured Kubernetes clusters through the existing environment-name
+The canonical environment must refer to a configured Kubernetes cluster through the existing environment-name
 mapping. Aliases cannot collide with canonical Nais environments or other aliases.
 Pool names are never inferred from environment names or the tenant name.
 An environment without a mapping is rejected before creating any resources.
-There is no implicit routing from FSS to GCP; such a route requires its own mapping.
+Selecting a shared pool does not route credential creation to another cluster.
+There is no routing from FSS to GCP.
 
 Existing clients can keep using configured aliases. The additive
 `CreateKafkaCredentialsPayload.environmentName` field returns the canonical name,

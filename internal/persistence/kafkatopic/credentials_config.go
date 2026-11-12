@@ -10,11 +10,10 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 )
 
-// CredentialEnvironment maps a Nais environment to its Kafka pool and credential location.
+// CredentialEnvironment configures the Kafka pool and aliases for a Nais environment.
 type CredentialEnvironment struct {
-	Pool                  string   `json:"pool"`
-	CredentialEnvironment string   `json:"credentialEnvironment"`
-	Aliases               []string `json:"aliases,omitempty"`
+	Pool    string   `json:"pool"`
+	Aliases []string `json:"aliases,omitempty"`
 }
 
 // CredentialEnvironments is keyed by canonical, user-facing Nais environment names.
@@ -37,14 +36,12 @@ func (e *CredentialEnvironments) UnmarshalJSON(data []byte) error {
 func (e CredentialEnvironments) Validate(clusters []string) error {
 	aliases := make(map[string]string)
 	for name, target := range e {
-		if name == "" || target.Pool == "" || target.CredentialEnvironment == "" {
-			return fmt.Errorf("kafka credential environment %q requires a name, pool and credentialEnvironment", name)
+		if name == "" || target.Pool == "" {
+			return fmt.Errorf("kafka credential environment %q requires a name and pool", name)
 		}
-		for _, environment := range []string{name, target.CredentialEnvironment} {
-			cluster := environmentmapper.ClusterName(environment)
-			if !slices.Contains(clusters, cluster) || environmentmapper.EnvironmentName(cluster) != environment {
-				return fmt.Errorf("kafka credential environment %q references unknown Nais environment %q", name, environment)
-			}
+		cluster := environmentmapper.ClusterName(name)
+		if !slices.Contains(clusters, cluster) || environmentmapper.EnvironmentName(cluster) != name {
+			return fmt.Errorf("kafka credential environment %q is not a configured Nais environment", name)
 		}
 		for _, alias := range target.Aliases {
 			if alias == "" {

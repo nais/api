@@ -288,13 +288,11 @@ func newGQLRunner(
 		},
 		kafkatopic.CredentialEnvironments{
 			"dev": {
-				Pool:                  "aiven-dev",
-				CredentialEnvironment: "dev",
+				Pool: "aiven-dev",
 			},
 			"dev-gcp": {
-				Pool:                  "aiven-dev",
-				CredentialEnvironment: "dev",
-				Aliases:               []string{"legacy-dev"},
+				Pool:    "aiven-dev",
+				Aliases: []string{"legacy-dev"},
 			},
 		},
 		vMgr,

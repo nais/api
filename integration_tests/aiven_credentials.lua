@@ -493,8 +493,8 @@ for _, environment in ipairs({ "dev-gcp", "legacy-dev" }) do
 	end)
 end
 
-Test.k8s("Kafka credentials use the configured pool in the credential cluster", function(t)
-	t.check("aiven.nais.io/v1", "aivenapplications", "dev", team:slug(), "tmp-kafka-topic-011e34", {
+Test.k8s("Kafka credentials use the configured pool in the canonical environment", function(t)
+	t.check("aiven.nais.io/v1", "aivenapplications", "dev-gcp", team:slug(), "tmp-kafka-topic-011e34", {
 		apiVersion = "aiven.nais.io/v1",
 		kind = "AivenApplication",
 		metadata = Ignore(),

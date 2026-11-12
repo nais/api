@@ -50,8 +50,8 @@ func TestKafkaCredentialFeatureDefaults(t *testing.T) {
 				{"kind": "tenant", "name": "non-prod", "aiven_project": "other-project", "kafka_bootstrap_broker": "other-broker:9092"},
 			},
 			want: kafkatopic.CredentialEnvironments{
-				"dev":      {Pool: "custom-project", CredentialEnvironment: "dev"},
-				"non-prod": {Pool: "other-project", CredentialEnvironment: "non-prod"},
+				"dev":      {Pool: "custom-project"},
+				"non-prod": {Pool: "other-project"},
 			},
 		},
 		{
@@ -72,8 +72,8 @@ func TestKafkaCredentialFeatureDefaults(t *testing.T) {
 				{"kind": "tenant", "name": "dev", "aiven_project": "different-project", "kafka_bootstrap_broker": "broker:9092"},
 			},
 			want: kafkatopic.CredentialEnvironments{
-				"dev-gcp":  {Pool: "nav-dev", CredentialEnvironment: "dev-gcp", Aliases: []string{"dev"}},
-				"prod-gcp": {Pool: "nav-prod", CredentialEnvironment: "prod-gcp", Aliases: []string{"prod"}},
+				"dev-gcp":  {Pool: "nav-dev", Aliases: []string{"dev"}},
+				"prod-gcp": {Pool: "nav-prod", Aliases: []string{"prod"}},
 			},
 		},
 		{name: "tenant without environments", tenant: "example", want: kafkatopic.CredentialEnvironments{}},

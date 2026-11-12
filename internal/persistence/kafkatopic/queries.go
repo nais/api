@@ -80,7 +80,7 @@ func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInp
 
 	result, err := aivencredentials.CreateCredentials(ctx, ActivityLogEntryResourceTypeKafkaTopic, aivencredentials.CredentialRequest{
 		TeamSlug:        input.TeamSlug,
-		EnvironmentName: target.CredentialEnvironment,
+		EnvironmentName: environment,
 		TTL:             input.TTL,
 		MaxTTL:          maxTTLKafka,
 		BuildSpec: func(namespace, secretName string, expiresAt time.Time) map[string]any {
