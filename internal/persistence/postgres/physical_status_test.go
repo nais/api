@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"errors"
-	"slices"
 	"testing"
 	"time"
 
@@ -99,18 +98,11 @@ func TestDirectPostgresInvalidStatus(t *testing.T) {
 	}
 }
 
-func TestBranchViewsSelectDirectStatusWithoutDuplicates(t *testing.T) {
+func TestMainViewUsesOnlyDirectStatus(t *testing.T) {
 	pg := &Postgres{Name: "orders", TeamSlug: "team", EnvironmentName: "dev", directClusterName: new("pg-existing"), physicalState: PostgresBranchStateDegraded}
-	branches := []*PostgresBranch{
-		{Name: "main", PostgresName: "orders", TeamSlug: "team", EnvironmentName: "dev", State: PostgresBranchStateAvailable},
-		{Name: "restore", PostgresName: "orders", TeamSlug: "team", EnvironmentName: "dev"},
-		{Name: "main", PostgresName: "orders", TeamSlug: "team", EnvironmentName: "prod"},
-		{Name: "main", PostgresName: "orders", TeamSlug: "other", EnvironmentName: "dev"},
-		{Name: "main", PostgresName: "legacy", TeamSlug: "team", EnvironmentName: "dev"},
-	}
-	views := BranchViews([]*Postgres{pg}, branches)
-	if len(views) != 4 {
-		t.Fatalf("views = %d, want 4", len(views))
+	views := MainViews([]*Postgres{pg})
+	if len(views) != 1 {
+		t.Fatalf("views = %d, want 1", len(views))
 	}
 	for _, branch := range views {
 		if branch.PostgresName == pg.Name && branch.TeamSlug == pg.TeamSlug && branch.EnvironmentName == pg.EnvironmentName {
@@ -119,12 +111,9 @@ func TestBranchViewsSelectDirectStatusWithoutDuplicates(t *testing.T) {
 			}
 		}
 	}
-	if !slices.Contains(views, branches[2]) || !slices.Contains(views, branches[3]) || !slices.Contains(views, branches[4]) {
-		t.Error("source selection leaked across database, namespace or environment")
-	}
 }
 
-func TestPostgresDualReadAcrossAdoption(t *testing.T) {
+func TestRetiredBranchCannotSupplyReadiness(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -157,21 +146,20 @@ func TestPostgresDualReadAcrossAdoption(t *testing.T) {
 	if _, err := branchClient.Create(ctx, branchObj, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	branches := NewPostgresBranchWatcher(ctx, mgr)
 	postgreses := NewPostgresWatcher(ctx, mgr)
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
 	if !mgr.WaitForReady(ready) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, branches, postgreses, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
 	pg, err := GetPostgres(ctx, slug.Slug("team"), "dev", "orders")
 	if err != nil {
 		t.Fatal(err)
 	}
 	state, config, err := PhysicalStatus(ctx, pg)
-	if err != nil || state != PostgresBranchStateAvailable || config == nil {
-		t.Fatalf("legacy status = %q, %v, %v", state, config, err)
+	if err != nil || state != PostgresBranchStateProgressing || config != nil {
+		t.Fatalf("retired branch supplied status = %q, %v, %v", state, config, err)
 	}
 
 	// Direct status is intentionally incomplete: stale healthy main must not win.

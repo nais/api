@@ -10,22 +10,17 @@ import (
 )
 
 type Postgres struct {
-	PostgresBranchWatcher *watcher.Watcher[*postgres.PostgresBranch]
-	PostgresWatcher       *watcher.Watcher[*postgres.Postgres]
+	PostgresWatcher *watcher.Watcher[*postgres.Postgres]
 }
 
 func (p Postgres) Run(_ context.Context) ([]Issue, error) {
-	var branches []*postgres.PostgresBranch
 	var postgreses []*postgres.Postgres
-	if p.PostgresBranchWatcher != nil && p.PostgresBranchWatcher.Enabled() {
-		branches = watcher.Objects(p.PostgresBranchWatcher.All())
-	}
 	if p.PostgresWatcher != nil && p.PostgresWatcher.Enabled() {
 		postgreses = watcher.Objects(p.PostgresWatcher.All())
 	}
 
 	var issues []Issue
-	for _, branch := range postgres.BranchViews(postgreses, branches) {
+	for _, branch := range postgres.MainViews(postgreses) {
 		if branch.State != postgres.PostgresBranchStateDegraded {
 			continue
 		}

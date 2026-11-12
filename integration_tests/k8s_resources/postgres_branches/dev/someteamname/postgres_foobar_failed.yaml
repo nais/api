@@ -1,12 +1,12 @@
 apiVersion: nais.io/v1
-kind: PostgresBranch
+kind: Postgres
 metadata:
-  name: foobar-failed-68299523
+  name: broken
   namespace: someteamname
 spec:
-  postgres: foobar
-  branchName: failed
+  majorVersion: "17"
 status:
+  clusterName: pg-broken-main-preserved
   configuration:
     parameters:
       shared_buffers: 128MB

@@ -6,7 +6,7 @@ Helper.readK8sResources("k8s_resources/postgres_branches")
 local checker = IssueChecker.new()
 checker:runChecks()
 
-Test.gql("Degraded inactive Postgres branches produce team issues", function(t)
+Test.gql("Degraded Postgres produces an issue with its legacy identity", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
 		team(slug: "someteamname") {
@@ -28,9 +28,9 @@ Test.gql("Degraded inactive Postgres branches produce team issues", function(t)
 			__typename = "PostgresBranchIssue",
 			id = NotNull(),
 			severity = "CRITICAL",
-			message = 'Postgres branch "failed" of "foobar" has reported a failure.',
+			message = 'Postgres "broken" has reported a failure.',
 			teamEnvironment = { name = "dev" },
-			branch = { name = "failed", state = "DEGRADED", postgres = { name = "foobar", activeBranch = { name = "main" } } },
+			branch = { name = "main", state = "DEGRADED", postgres = { name = "broken", activeBranch = { name = "main" } } },
 		} },
 	} } } }
 end)
@@ -40,11 +40,11 @@ Test.gql("Branch issues are scoped to the concrete branch", function(t)
 	t.query [[{
 		team(slug: "someteamname") {
 			environment(name: "dev") {
-				postgres(name: "foobar") {
-					failed: branch(name: "failed") { issues(filter: { severity: CRITICAL }) {
+				postgres(name: "broken") {
+					issues(filter: { severity: CRITICAL }) {
 						pageInfo { totalCount } nodes { __typename }
 						facets { resourceTypes { resourceType count } issueTypes { issueType count } }
-					} }
+					}
 					main: branch(name: "main") { issues { pageInfo { totalCount } } }
 				}
 				other: postgres(name: "another-db") {
@@ -63,14 +63,14 @@ Test.gql("Branch issues are scoped to the concrete branch", function(t)
 		team = {
 			environment = {
 				postgres = {
-					failed = { issues = {
+					issues = {
 						pageInfo = { totalCount = 1 }, nodes = { { __typename = "PostgresBranchIssue" } },
 						facets = {
 							resourceTypes = { { resourceType = "POSTGRES_BRANCH", count = 1 } },
 							issueTypes = { { issueType = "POSTGRES_BRANCH", count = 1 } },
 						},
-					} },
-					main = { issues = { pageInfo = { totalCount = 0 } } },
+					},
+					main = { issues = { pageInfo = { totalCount = 1 } } },
 				},
 				other = { branch = { issues = { pageInfo = { totalCount = 0 } } } },
 			},

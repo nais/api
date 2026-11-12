@@ -6,7 +6,8 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: green
+  clusterName: pg-orders-main-65648812
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: Postgres
@@ -16,7 +17,8 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: recovered
+  clusterName: pg-reports-main-preserved
+  activeBranch: main
 ---
 apiVersion: nais.io/v1
 kind: Postgres
@@ -26,51 +28,6 @@ metadata:
 spec:
   majorVersion: "18"
   activeBranch: pending
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: archive-main-0df7b960
-  namespace: postgres-workload-team
-spec:
-  postgres: archive
-  branchName: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: archive-pending-725fee7d
-  namespace: postgres-workload-team
-spec:
-  postgres: archive
-  branchName: pending
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: orders-restored-9a5f103c
-  namespace: postgres-workload-team
-spec:
-  postgres: orders
-  branchName: restored
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: orders-green-d77a35b4
-  namespace: postgres-workload-team
-spec:
-  postgres: orders
-  branchName: green
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: reports-recovered-9e2f7180
-  namespace: postgres-workload-team
-spec:
-  postgres: reports
-  branchName: recovered
 ---
 apiVersion: nais.io/v1alpha1
 kind: Application
@@ -99,7 +56,7 @@ spec:
   uses:
     postgres:
       - name: orders
-        branch: restored
+        branch: main
       - name: reports
         envPrefix: REPORTS_
       - name: archive

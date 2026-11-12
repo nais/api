@@ -7,6 +7,7 @@ spec:
   majorVersion: "18"
   activeBranch: pending
 status:
+  clusterName: pg-orders-main-65648812
   activeBranch: green
 ---
 apiVersion: nais.io/v1
@@ -79,7 +80,7 @@ spec:
   uses:
     postgres:
       - name: orders
-        branch: pr-123
+        branch: main
 ---
 apiVersion: nais.io/v1
 kind: Naisjob

@@ -21,12 +21,13 @@ func TestAccessSelectionUsesFreshObservedParent(t *testing.T) {
 	for _, tc := range []struct {
 		name, requested, observed, explicit, want string
 		direct                                    bool
+		wantError                                 bool
 	}{
-		{name: "omitted uses observed active", observed: "recovered", want: "recovered"},
-		{name: "desired activation does not select target", requested: "main", observed: "recovered", want: "recovered"},
-		{name: "explicit main remains explicit", observed: "recovered", explicit: "main", want: "main"},
-		{name: "explicit legacy branch remains explicit", observed: "main", explicit: "recovered", want: "recovered"},
-		{name: "no observed branch defaults to main", requested: "recovered", want: "main"},
+		{name: "omitted ignores stale active", observed: "recovered", direct: true, want: "main"},
+		{name: "desired activation does not select target", requested: "main", observed: "recovered", direct: true, want: "main"},
+		{name: "explicit main remains explicit", observed: "recovered", explicit: "main", direct: true, want: "main"},
+		{name: "explicit retired branch is rejected", observed: "main", explicit: "recovered", direct: true, wantError: true},
+		{name: "no observed direct status is unavailable", requested: "recovered", wantError: true},
 		{name: "direct ownership uses virtual main", observed: "recovered", direct: true, want: "main"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -75,7 +76,6 @@ func TestAccessSelectionUsesFreshObservedParent(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			branches := NewPostgresBranchWatcher(ctx, mgr)
 			postgreses := NewPostgresWatcher(ctx, mgr)
 			ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 			defer cancelReady()
@@ -94,14 +94,21 @@ func TestAccessSelectionUsesFreshObservedParent(t *testing.T) {
 			if _, err := pgClient.UpdateStatus(ctx, parent, metav1.UpdateOptions{}); err != nil {
 				t.Fatal(err)
 			}
-			ctx = NewLoaderContext(ctx, branches, postgreses, "", "", "nav", mgr.GetDynamicClients())
+			ctx = NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
 			parentGets := 0
 			client.(*dynamicfake.FakeDynamicClient).PrependReactor("get", "postgres", func(k8stesting.Action) (bool, runtime.Object, error) {
 				parentGets++
 				return false, nil, nil
 			})
 			input := CreatePostgresAccessInput{Postgres: "orders", Branch: tc.explicit, TeamSlug: "team", EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead, Reason: "Investigating access selection"}
-			if err := input.Validate(ctx); err != nil {
+			err = input.Validate(ctx)
+			if tc.wantError {
+				if err == nil {
+					t.Fatal("accepted retired or unready target")
+				}
+				return
+			}
+			if err != nil {
 				t.Fatal(err)
 			}
 			if parentGets != 1 {
@@ -113,8 +120,8 @@ func TestAccessSelectionUsesFreshObservedParent(t *testing.T) {
 			// The resolved choice is also the immutable creation identity; do not
 			// resolve it again or replace an explicit request during creation.
 			resource := newPostgresAccessResource(input, "user@example.com", "access", time.Now().Add(time.Hour))
-			got, _, err := unstructured.NestedString(resource.Object, "spec", "postgresBranch")
-			if err != nil || got != nais_io_v1.PostgresBranchObjectName("orders", tc.want) {
+			got, _, err := unstructured.NestedString(resource.Object, "spec", "postgres")
+			if err != nil || got != "orders" {
 				t.Fatalf("created access target = %q, error = %v", got, err)
 			}
 		})

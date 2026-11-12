@@ -158,9 +158,8 @@ func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *paginati
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresBranchFilter) []*PostgresBranch {
-	all := fromContext(ctx).postgresBranchWatcher.GetByNamespace(teamSlug.String())
 	postgreses := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
-	return BranchViews(postgreses, watcher.Objects(all))
+	return MainViews(postgreses)
 }
 
 func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
@@ -436,27 +435,10 @@ func GetPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName,
 // BranchForPostgres implements the legacy branch view for an already resolved
 // Postgres. It avoids extra Kubernetes requests and uses the parent's snapshot.
 func BranchForPostgres(ctx context.Context, pg *Postgres, branchName string) (*PostgresBranch, error) {
-	if pg.directClusterName != nil {
-		if branchName != nais_io_v1.DefaultBranchName {
-			return nil, &watcher.ErrorNotFound{Cluster: pg.EnvironmentName, Namespace: pg.TeamSlug.String(), Name: pg.Name + "/" + branchName}
-		}
-		return mainBranchView(pg), nil
+	if branchName != nais_io_v1.DefaultBranchName {
+		return nil, &watcher.ErrorNotFound{Cluster: pg.EnvironmentName, Namespace: pg.TeamSlug.String(), Name: pg.Name + "/" + branchName}
 	}
-	return legacyBranch(ctx, pg.TeamSlug.String(), pg.EnvironmentName, pg.Name, branchName)
-}
-
-func legacyBranch(ctx context.Context, namespace, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
-	branch, err := fromContext(ctx).postgresBranchWatcher.Get(environmentName, namespace, nais_io_v1.PostgresBranchObjectName(postgresName, branchName))
-	if errors.Is(err, &watcher.ErrorNotFound{}) {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: namespace, Name: postgresName + "/" + branchName}
-	}
-	if err != nil {
-		return nil, err
-	}
-	if branch.PostgresName != postgresName || branch.Name != branchName {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: namespace, Name: postgresName + "/" + branchName}
-	}
-	return branch, nil
+	return mainBranchView(pg), nil
 }
 
 // GetPostgresBranchByObjectName resolves the internal object name from PostgresAccess.
@@ -466,30 +448,11 @@ func GetPostgresBranchByObjectName(ctx context.Context, teamSlug slug.Slug, envi
 			return GetPostgresBranch(ctx, teamSlug, environmentName, pg.Name, nais_io_v1.DefaultBranchName)
 		}
 	}
-	branch, err := fromContext(ctx).postgresBranchWatcher.Get(environmentName, teamSlug.String(), objectName)
-	if errors.Is(err, &watcher.ErrorNotFound{}) {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
-	}
-	if err != nil {
-		return nil, err
-	}
-	if nais_io_v1.PostgresBranchObjectName(branch.PostgresName, branch.Name) != objectName {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
-	}
-	return GetPostgresBranch(ctx, teamSlug, environmentName, branch.PostgresName, branch.Name)
+	return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
 }
 
 func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Pagination, orderBy *PostgresBranchOrder) *PostgresBranchConnection {
-	all := make([]*PostgresBranch, 0)
-	if pg.directClusterName != nil {
-		all = append(all, mainBranchView(pg))
-	} else {
-		for _, branch := range watcher.Objects(fromContext(ctx).postgresBranchWatcher.GetByNamespace(pg.TeamSlug.String())) {
-			if branch.EnvironmentName == pg.EnvironmentName && branch.PostgresName == pg.Name {
-				all = append(all, branch)
-			}
-		}
-	}
+	all := []*PostgresBranch{mainBranchView(pg)}
 	if orderBy == nil {
 		orderBy = &PostgresBranchOrder{Field: PostgresBranchOrderFieldName, Direction: model.OrderDirectionAsc}
 	}
@@ -565,13 +528,6 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	accesses := client.Namespace(input.TeamSlug.String())
 
 	res := newPostgresAccessResource(input, username, name, expiresAt)
-	if pg.directClusterName != nil {
-		// Older pgrator receives its existing reference shape. Direct references
-		// are written only after the parent publishes the new-model marker.
-		spec := res.Object["spec"].(map[string]any)
-		delete(spec, "postgresBranch")
-		spec["postgres"] = pg.Name
-	}
 	for attempt := 0; ; attempt++ {
 		_, err = accesses.Create(ctx, res, metav1.CreateOptions{})
 		if err == nil {
@@ -700,10 +656,10 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, username))
 	kubernetes.SetManagedByConsoleLabel(res)
 	res.Object["spec"] = map[string]any{
-		"postgresBranch": nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch),
-		"username":       username,
-		"accessLevel":    input.AccessLevel.CRDValue(),
-		"expiresAt":      expiresAt.Format(time.RFC3339),
+		"postgres":    input.Postgres,
+		"username":    username,
+		"accessLevel": input.AccessLevel.CRDValue(),
+		"expiresAt":   expiresAt.Format(time.RFC3339),
 	}
 	return res
 }

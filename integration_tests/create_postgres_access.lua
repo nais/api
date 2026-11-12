@@ -15,12 +15,12 @@ Helper.readK8sResources("k8s_resources/create_postgres_access")
 Test.gql("Postgres branches use local names and stay scoped to their Postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "someteamname") { environment(name: "dev") {
-		postgres(name: "foobar") { activeBranch { name } branches { nodes { name postgres { name } } } branch(name: "recovered") { name postgres { name } } }
+		postgres(name: "foobar") { activeBranch { name } branches { nodes { name postgres { name } } } branch(name: "main") { name postgres { name } } }
 	} } }]]
 	t.check { data = { team = { environment = { postgres = {
 		activeBranch = { name = "main" },
-		branches = { nodes = { { name = "main", postgres = { name = "foobar" } }, { name = "recovered", postgres = { name = "foobar" } } } },
-		branch = { name = "recovered", postgres = { name = "foobar" } },
+		branches = { nodes = { { name = "main", postgres = { name = "foobar" } } } },
+		branch = { name = "main", postgres = { name = "foobar" } },
 	} } } } }
 end)
 
@@ -120,7 +120,7 @@ Test.gql("Create personal postgres access rejects a logical Postgres without a p
 		}) { name } }
 	]]
 	t.check {
-		errors = { { extensions = { field = "branch" }, message = Contains("Could not find PostgresBranch"), path = { "createPostgresAccess" } } },
+		errors = { { extensions = { field = "branch" }, message = Contains("is not available"), path = { "createPostgresAccess" } } },
 		data = Null,
 	}
 end)
@@ -270,7 +270,7 @@ Test.gql("Changing access level revokes and recreates live access", function(t)
 	} } } } }
 end)
 
-Test.gql("Personal access targets a physical instance, even when its name differs from logical Postgres", function(t)
+Test.gql("Personal access rejects retired non-main selection", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation { createPostgresAccess(input: {
@@ -279,14 +279,7 @@ Test.gql("Personal access targets a physical instance, even when its name differ
 			reason: "Testing access to a recovered instance"
 		}) { name } }
 	]]
-	t.check { data = { createPostgresAccess = { name = NotNull() } } }
-
-	t.query [[
-		query { team(slug: "someteamname") { environment(name: "dev") {
-			postgresAccess(name: "recovered-access") { postgresBranch { name } }
-		} } }
-	]]
-	t.check { data = { team = { environment = { postgresAccess = { postgresBranch = { name = "recovered" } } } } } }
+	t.check { data = Null, errors = { { extensions = { field = "branch" }, message = Contains("Could not find PostgresBranch"), path = { "createPostgresAccess" } } } }
 end)
 
 Test.gql("PostgresAccess status is visible to authorized team members", function(t)
