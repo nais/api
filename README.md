@@ -54,8 +54,13 @@ example, with the existing Nav cluster-name mapping:
 }
 ```
 
-The Helm value is the JSON string `kafka.credentialEnvironments`. Fasit supplies the mappings above
-for Nav; other Kafka tenants must supply their own mappings. A direct Helm
+The Helm value is the JSON string `kafka.credentialEnvironments`. For ordinary
+tenant environments, Fasit generates a mapping when both `aiven_project` and
+`kafka_bootstrap_broker` are configured. The pool is the configured Aiven project,
+and credentials are created in the same Nais environment, without aliases.
+Nav retains the explicit legacy mappings above.
+
+Non-standard topologies can configure an explicit mapping. A direct Helm
 installation must also supply this value. An empty mapping disables Kafka
 credential creation, not other Kafka operations.
 

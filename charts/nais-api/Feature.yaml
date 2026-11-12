@@ -281,7 +281,8 @@ values:
     displayName: Kafka credential environments
     description: |
       JSON mapping from canonical Nais environment names to pool, credentialEnvironment and optional legacy aliases.
-      Other Kafka tenants must configure their own mapping. Empty means Kafka credentials are unavailable.
+      Defaults to each Kafka-enabled tenant environment's Aiven project and environment name.
+      Nav uses an explicit legacy mapping. Empty means Kafka credentials are unavailable.
     config:
       type: string
     computed:
@@ -292,7 +293,13 @@ values:
           "prod-gcp" (dict "pool" "nav-prod" "credentialEnvironment" "prod-gcp" "aliases" (list "prod"))
           | toJSON | quote -}}
         {{- else -}}
-        {{- "{}" | quote -}}
+        {{- $result := dict -}}
+        {{- range $env := .Envs -}}
+          {{- if and (eq $env.kind "tenant") $env.aiven_project $env.kafka_bootstrap_broker -}}
+            {{- $_ := set $result $env.name (dict "pool" $env.aiven_project "credentialEnvironment" $env.name) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- toJSON $result | quote -}}
         {{- end -}}
 
   kubernetes.oidcIssuers:
