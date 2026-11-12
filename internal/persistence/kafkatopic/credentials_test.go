@@ -19,7 +19,7 @@ import (
 	k8stesting "k8s.io/client-go/testing"
 )
 
-func TestCredentialEnvironmentsValidation(t *testing.T) {
+func TestEnvironmentsValidation(t *testing.T) {
 	environmentmapper.SetMapping(environmentmapper.EnvironmentMapping{"dev": "dev-gcp", "prod": "prod-gcp"})
 	t.Cleanup(func() { environmentmapper.SetMapping(nil) })
 
@@ -42,7 +42,7 @@ func TestCredentialEnvironmentsValidation(t *testing.T) {
 		{name: "empty alias", config: `{"dev-gcp":{"pool":"nav-dev","aliases":[""]}}`, wantErr: "empty alias"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			var environments kafkatopic.CredentialEnvironments
+			var environments kafkatopic.Environments
 			err := json.Unmarshal([]byte(tt.config), &environments)
 			if err == nil {
 				err = environments.Validate([]string{"dev", "prod", "dev-fss"})
@@ -63,7 +63,7 @@ func TestCreateKafkaCredentialsTargets(t *testing.T) {
 		name        string
 		mapping     environmentmapper.EnvironmentMapping
 		environment string
-		targets     kafkatopic.CredentialEnvironments
+		targets     kafkatopic.Environments
 		wantCluster string
 		wantPool    string
 		wantErr     string
@@ -72,34 +72,34 @@ func TestCreateKafkaCredentialsTargets(t *testing.T) {
 			name:        "Nav Nais environment",
 			mapping:     environmentmapper.EnvironmentMapping{"dev": "dev-gcp"},
 			environment: "dev-gcp",
-			targets:     kafkatopic.CredentialEnvironments{"dev-gcp": {Pool: "nav-dev", Aliases: []string{"dev"}}},
+			targets:     kafkatopic.Environments{"dev-gcp": {Pool: "nav-dev", Aliases: []string{"dev"}}},
 			wantCluster: "dev", wantPool: "nav-dev",
 		},
 		{
 			name:        "Nav legacy alias",
 			mapping:     environmentmapper.EnvironmentMapping{"dev": "dev-gcp"},
 			environment: "dev",
-			targets:     kafkatopic.CredentialEnvironments{"dev-gcp": {Pool: "nav-dev", Aliases: []string{"dev"}}},
+			targets:     kafkatopic.Environments{"dev-gcp": {Pool: "nav-dev", Aliases: []string{"dev"}}},
 			wantCluster: "dev", wantPool: "nav-dev",
 		},
 		{
 			name:        "production alias stays in production",
 			mapping:     environmentmapper.EnvironmentMapping{"prod": "prod-gcp"},
 			environment: "prod",
-			targets:     kafkatopic.CredentialEnvironments{"prod-gcp": {Pool: "nav-prod", Aliases: []string{"prod"}}},
+			targets:     kafkatopic.Environments{"prod-gcp": {Pool: "nav-prod", Aliases: []string{"prod"}}},
 			wantCluster: "prod", wantPool: "nav-prod",
 		},
 		{
 			name:        "another tenant with canonical dev",
 			environment: "dev",
-			targets:     kafkatopic.CredentialEnvironments{"dev": {Pool: "other-pool"}},
+			targets:     kafkatopic.Environments{"dev": {Pool: "other-pool"}},
 			wantCluster: "dev", wantPool: "other-pool",
 		},
 		{
 			name:        "shared pool does not change the selected cluster",
 			mapping:     environmentmapper.EnvironmentMapping{"dev": "dev-gcp"},
 			environment: "dev-fss",
-			targets: kafkatopic.CredentialEnvironments{
+			targets: kafkatopic.Environments{
 				"dev-gcp": {Pool: "nav-dev"},
 				"dev-fss": {Pool: "nav-dev"},
 			},
@@ -108,21 +108,21 @@ func TestCreateKafkaCredentialsTargets(t *testing.T) {
 		{
 			name:        "unknown environment is not guessed",
 			environment: "prod-gcp",
-			targets:     kafkatopic.CredentialEnvironments{"dev": {Pool: "some-pool"}},
+			targets:     kafkatopic.Environments{"dev": {Pool: "some-pool"}},
 			wantErr:     `not configured for Nais environment "prod-gcp"`,
 		},
 		{
 			name:        "legacy cluster name requires explicit alias",
 			mapping:     environmentmapper.EnvironmentMapping{"dev": "dev-gcp"},
 			environment: "dev",
-			targets:     kafkatopic.CredentialEnvironments{"dev-gcp": {Pool: "nav-dev"}},
+			targets:     kafkatopic.Environments{"dev-gcp": {Pool: "nav-dev"}},
 			wantErr:     `not configured for Nais environment "dev"`,
 		},
 		{
 			name:        "FSS does not fall back to GCP",
 			mapping:     environmentmapper.EnvironmentMapping{"dev": "dev-gcp"},
 			environment: "dev-fss",
-			targets:     kafkatopic.CredentialEnvironments{"dev-gcp": {Pool: "nav-dev"}},
+			targets:     kafkatopic.Environments{"dev-gcp": {Pool: "nav-dev"}},
 			wantErr:     `not configured for Nais environment "dev-fss"`,
 		},
 		{

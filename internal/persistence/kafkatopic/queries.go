@@ -73,7 +73,7 @@ func ListForWorkload(ctx context.Context, teamSlug slug.Slug, workloadName, pool
 }
 
 func CreateKafkaCredentials(ctx context.Context, input CreateKafkaCredentialsInput) (*CreateKafkaCredentialsPayload, error) {
-	environment, target, err := fromContext(ctx).credentialEnvironments.resolve(input.EnvironmentName)
+	environment, target, err := fromContext(ctx).environments.resolve(input.EnvironmentName)
 	if err != nil {
 		return nil, err
 	}

@@ -33,9 +33,9 @@ narc jita grant k8s-admin "$TENANT_NAME" --duration 1h --reason "port forward fo
 CONTEXT="dev" WITH_LOG_PROXY="true" mise run local|debug
 ```
 
-## Kafka credential environments
+## Kafka environments
 
-`KAFKA_CREDENTIAL_ENVIRONMENTS` maps canonical Nais environment names to Kafka
+`KAFKA_ENVIRONMENTS` maps canonical Nais environment names to Kafka
 pools and optional legacy aliases. Temporary credentials are created in the
 selected canonical environment, using the existing cluster-name mapping.
 For example, for Nav:
@@ -53,7 +53,7 @@ For example, for Nav:
 }
 ```
 
-The Helm value is the JSON string `kafka.credentialEnvironments`. For ordinary
+The Helm value is the JSON string `kafka.environments`. For ordinary
 tenant environments, Fasit generates a mapping when both `aiven_project` and
 `kafka_bootstrap_broker` are configured. The pool is the configured Aiven project,
 and credentials are created in the same Nais environment, without aliases.

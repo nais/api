@@ -277,8 +277,8 @@ values:
         {{- end -}}
         {{- toJSON $result | quote -}}
 
-  kafka.credentialEnvironments:
-    displayName: Kafka credential environments
+  kafka.environments:
+    displayName: Kafka environments
     description: |
       JSON mapping from canonical Nais environment names to pool and optional legacy aliases.
       Defaults to each Kafka-enabled tenant environment's Aiven project and environment name.

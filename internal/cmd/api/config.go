@@ -145,8 +145,8 @@ type Aiven struct {
 }
 
 type Config struct {
-	Aiven                       Aiven
-	KafkaCredentialEnvironments kafkatopic.CredentialEnvironments `env:"KAFKA_CREDENTIAL_ENVIRONMENTS"`
+	Aiven             Aiven
+	KafkaEnvironments kafkatopic.Environments `env:"KAFKA_ENVIRONMENTS"`
 
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`

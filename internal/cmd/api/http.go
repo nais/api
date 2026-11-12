@@ -213,7 +213,7 @@ func ConfigureGraph(
 	serviceMaintenanceManager *servicemaintenance.Manager,
 	aivenClient aiven.AivenClient,
 	aivenProjects aiven.Projects,
-	kafkaCredentialEnvironments kafkatopic.CredentialEnvironments,
+	kafkaEnvironments kafkatopic.Environments,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -228,8 +228,8 @@ func ConfigureGraph(
 	webhookDispatcher *webhook.Dispatcher,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
-	if err := kafkaCredentialEnvironments.Validate(clusters); err != nil {
-		return nil, fmt.Errorf("configure Kafka credentials: %w", err)
+	if err := kafkaEnvironments.Validate(clusters); err != nil {
+		return nil, fmt.Errorf("configure Kafka environments: %w", err)
 	}
 	logStep := func(name string, fn func() error) error {
 		log.WithField("step", name).Info("starting setup step")
@@ -374,7 +374,7 @@ func ConfigureGraph(
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
-		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher, log, kafkaCredentialEnvironments)
+		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher, log, kafkaEnvironments)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = config.NewLoaderContext(ctx, watchers.ConfigWatcher, log)

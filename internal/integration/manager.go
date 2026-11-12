@@ -286,7 +286,7 @@ func newGQLRunner(
 				EndpointID: "endpoint-id",
 			},
 		},
-		kafkatopic.CredentialEnvironments{
+		kafkatopic.Environments{
 			"dev": {
 				Pool: "aiven-dev",
 			},

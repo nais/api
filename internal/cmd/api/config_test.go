@@ -9,28 +9,28 @@ import (
 	"github.com/sethvargo/go-envconfig"
 )
 
-func TestKafkaCredentialEnvironmentConfig(t *testing.T) {
+func TestKafkaEnvironmentsConfig(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
 		value   string
-		want    kafkatopic.CredentialEnvironments
+		want    kafkatopic.Environments
 		wantErr bool
 	}{
 		{
 			name:  "configured",
 			value: `{"dev-gcp":{"pool":"nav-dev","aliases":["dev"]}}`,
-			want: kafkatopic.CredentialEnvironments{
+			want: kafkatopic.Environments{
 				"dev-gcp": {Pool: "nav-dev", Aliases: []string{"dev"}},
 			},
 		},
 		{name: "unset"},
-		{name: "empty map", value: `{}`, want: kafkatopic.CredentialEnvironments{}},
+		{name: "empty map", value: `{}`, want: kafkatopic.Environments{}},
 		{name: "null", value: `null`},
 		{name: "invalid JSON", value: `{`, wantErr: true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg, err := NewConfig(t.Context(), envconfig.MapLookuper(map[string]string{
-				"KAFKA_CREDENTIAL_ENVIRONMENTS": tt.value,
+				"KAFKA_ENVIRONMENTS": tt.value,
 			}))
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
@@ -38,8 +38,8 @@ func TestKafkaCredentialEnvironmentConfig(t *testing.T) {
 			if tt.wantErr {
 				return
 			}
-			if diff := cmp.Diff(tt.want, cfg.KafkaCredentialEnvironments); diff != "" {
-				t.Errorf("Kafka credential config mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(tt.want, cfg.KafkaEnvironments); diff != "" {
+				t.Errorf("Kafka environment config mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

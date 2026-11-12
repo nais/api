@@ -10,51 +10,51 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 )
 
-// CredentialEnvironment configures the Kafka pool and aliases for a Nais environment.
-type CredentialEnvironment struct {
+// EnvironmentConfig configures the Kafka pool and aliases for a Nais environment.
+type EnvironmentConfig struct {
 	Pool    string   `json:"pool"`
 	Aliases []string `json:"aliases,omitempty"`
 }
 
-// CredentialEnvironments is keyed by canonical, user-facing Nais environment names.
-type CredentialEnvironments map[string]CredentialEnvironment
+// Environments is keyed by canonical, user-facing Nais environment names.
+type Environments map[string]EnvironmentConfig
 
-func (e *CredentialEnvironments) UnmarshalJSON(data []byte) error {
+func (e *Environments) UnmarshalJSON(data []byte) error {
 	if len(data) == 0 {
 		return nil
 	}
-	type environments CredentialEnvironments
+	type environments Environments
 	var decoded environments
 	if err := json.Unmarshal(data, &decoded); err != nil {
-		return fmt.Errorf("unmarshalling Kafka credential environments: %w", err)
+		return fmt.Errorf("unmarshalling Kafka environments: %w", err)
 	}
-	*e = CredentialEnvironments(decoded)
+	*e = Environments(decoded)
 	return nil
 }
 
 // Validate rejects incomplete mappings, unknown clusters and ambiguous aliases.
-func (e CredentialEnvironments) Validate(clusters []string) error {
+func (e Environments) Validate(clusters []string) error {
 	aliases := make(map[string]string)
 	for name, target := range e {
 		if name == "" || target.Pool == "" {
-			return fmt.Errorf("kafka credential environment %q requires a name and pool", name)
+			return fmt.Errorf("kafka environment %q requires a name and pool", name)
 		}
 		cluster := environmentmapper.ClusterName(name)
 		if !slices.Contains(clusters, cluster) || environmentmapper.EnvironmentName(cluster) != name {
-			return fmt.Errorf("kafka credential environment %q is not a configured Nais environment", name)
+			return fmt.Errorf("kafka environment %q is not a configured Nais environment", name)
 		}
 		for _, alias := range target.Aliases {
 			if alias == "" {
-				return fmt.Errorf("kafka credential environment %q has an empty alias", name)
+				return fmt.Errorf("kafka environment %q has an empty alias", name)
 			}
 			if _, ok := e[alias]; ok {
-				return fmt.Errorf("kafka credential alias %q conflicts with a canonical environment", alias)
+				return fmt.Errorf("kafka environment alias %q conflicts with a canonical environment", alias)
 			}
 			if previous, ok := aliases[alias]; ok {
-				return fmt.Errorf("kafka credential alias %q is configured for both %q and %q", alias, previous, name)
+				return fmt.Errorf("kafka environment alias %q is configured for both %q and %q", alias, previous, name)
 			}
 			if environmentmapper.EnvironmentName(environmentmapper.ClusterName(alias)) == alias && slices.Contains(clusters, environmentmapper.ClusterName(alias)) {
-				return fmt.Errorf("kafka credential alias %q conflicts with a Nais environment", alias)
+				return fmt.Errorf("kafka environment alias %q conflicts with a Nais environment", alias)
 			}
 			aliases[alias] = name
 		}
@@ -62,7 +62,7 @@ func (e CredentialEnvironments) Validate(clusters []string) error {
 	return nil
 }
 
-func (e CredentialEnvironments) resolve(input string) (string, CredentialEnvironment, error) {
+func (e Environments) resolve(input string) (string, EnvironmentConfig, error) {
 	if target, ok := e[input]; ok {
 		return input, target, nil
 	}
@@ -78,7 +78,7 @@ func (e CredentialEnvironments) resolve(input string) (string, CredentialEnviron
 	}
 	slices.Sort(valid)
 	if len(valid) == 0 {
-		return "", CredentialEnvironment{}, apierror.Errorf("Kafka credentials are not configured for any Nais environment")
+		return "", EnvironmentConfig{}, apierror.Errorf("Kafka credentials are not configured for any Nais environment")
 	}
-	return "", CredentialEnvironment{}, apierror.Errorf("Kafka credentials are not configured for Nais environment %q; valid environments: %s", input, strings.Join(valid, ", "))
+	return "", EnvironmentConfig{}, apierror.Errorf("Kafka credentials are not configured for Nais environment %q; valid environments: %s", input, strings.Join(valid, ", "))
 }
