@@ -2,6 +2,7 @@ package watchers_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,6 +15,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/postgres"
+	"github.com/nais/api/internal/slug"
 	v1 "github.com/nais/pgrator/pkg/api/v1"
 	logtest "github.com/sirupsen/logrus/hooks/test"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -78,6 +80,14 @@ func TestPostgresContractsWithoutBranchAPI(t *testing.T) {
 	}
 	if _, err := postgres.GetPostgresBranchByObjectName(ctx, "team", "dev", v1.PostgresPhysicalName("orders")); err != nil {
 		t.Fatal(err)
+	}
+	if parent, err := postgres.GetPostgresByPhysicalName(ctx, "team", "dev", v1.PostgresPhysicalName("orders")); err != nil || parent.Name != "orders" {
+		t.Fatalf("direct issue relation: %+v, %v", parent, err)
+	}
+	for _, scope := range []struct{ team, env string }{{"other-team", "dev"}, {"team", "prod"}} {
+		if _, err := postgres.GetPostgresByPhysicalName(ctx, slug.Slug(scope.team), scope.env, v1.PostgresPhysicalName("orders")); !errors.Is(err, &watcher.ErrorNotFound{}) {
+			t.Errorf("legacy issue lookup escaped scope %+v: %v", scope, err)
+		}
 	}
 	if selected, err := postgres.GetReadyPostgresBranch(ctx, "team", "dev", "orders", ""); err != nil || selected.State != postgres.PostgresBranchStateAvailable {
 		t.Fatalf("access target = %+v, %v", selected, err)

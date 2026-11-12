@@ -13,31 +13,29 @@ type Postgres struct {
 	PostgresWatcher *watcher.Watcher[*postgres.Postgres]
 }
 
-func (p Postgres) Run(_ context.Context) ([]Issue, error) {
+func (p Postgres) Run(ctx context.Context) ([]Issue, error) {
 	var postgreses []*postgres.Postgres
 	if p.PostgresWatcher != nil && p.PostgresWatcher.Enabled() {
 		postgreses = watcher.Objects(p.PostgresWatcher.All())
 	}
 
 	var issues []Issue
-	for _, branch := range postgres.MainViews(postgreses) {
-		if branch.State != postgres.PostgresBranchStateDegraded {
+	for _, pg := range postgreses {
+		state, _, err := postgres.PhysicalStatus(ctx, pg)
+		if err != nil {
+			return nil, err
+		}
+		if state != postgres.PostgresBranchStateDegraded {
 			continue
 		}
-		message := fmt.Sprintf("Postgres branch %q of %q has reported a failure.", branch.Name, branch.PostgresName)
-		if branch.ClusterName != "" {
-			message = fmt.Sprintf("Postgres %q has reported a failure.", branch.PostgresName)
-		}
-		// Keep the legacy issue identity until issue/schema contraction; its
-		// resource resolves through the virtual main after branch detachment.
 		issues = append(issues, Issue{
-			IssueType:    issue.IssueTypePostgresBranch,
-			ResourceName: branch.GetName(),
-			ResourceType: issue.ResourceTypePostgresBranch,
-			Team:         branch.TeamSlug.String(),
-			Env:          branch.EnvironmentName,
+			IssueType:    issue.IssueTypePostgres,
+			ResourceName: pg.Name,
+			ResourceType: issue.ResourceTypePostgres,
+			Team:         pg.TeamSlug.String(),
+			Env:          pg.EnvironmentName,
 			Severity:     issue.SeverityCritical,
-			Message:      message,
+			Message:      fmt.Sprintf("Postgres %q has reported a failure.", pg.Name),
 		})
 	}
 	return issues, nil

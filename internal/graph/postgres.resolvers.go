@@ -98,8 +98,8 @@ func (r *postgresResolver) Issues(ctx context.Context, obj *postgres.Postgres, f
 		return nil, err
 	}
 	scope := &issue.IssueScope{
-		ResourceName: postgres.PhysicalIssueName(obj),
-		ResourceType: issue.ResourceTypePostgresBranch,
+		ResourceName: obj.Name,
+		ResourceType: issue.ResourceTypePostgres,
 		Env:          obj.EnvironmentName,
 	}
 	var f *issue.IssueFilter
@@ -199,8 +199,8 @@ func (r *postgresBranchResolver) Issues(ctx context.Context, obj *postgres.Postg
 		return nil, err
 	}
 	scope := &issue.IssueScope{
-		ResourceName: obj.GetName(),
-		ResourceType: issue.ResourceTypePostgresBranch,
+		ResourceName: obj.PostgresName,
+		ResourceType: issue.ResourceTypePostgres,
 		Env:          obj.EnvironmentName,
 	}
 	var f *issue.IssueFilter

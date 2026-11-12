@@ -6,17 +6,17 @@ Helper.readK8sResources("k8s_resources/postgres_branches")
 local checker = IssueChecker.new()
 checker:runChecks()
 
-Test.gql("Degraded Postgres produces an issue with its legacy identity", function(t)
+Test.gql("Degraded Postgres produces a genuine Postgres issue", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
 		team(slug: "someteamname") {
-			issues(filter: { issueType: POSTGRES_BRANCH, resourceType: POSTGRES_BRANCH }) {
+			issues(filter: { issueType: POSTGRES, resourceType: POSTGRES }) {
 				pageInfo { totalCount }
 				nodes {
 					__typename id severity message
 					teamEnvironment { name }
-					... on PostgresBranchIssue {
-						branch { name state postgres { name activeBranch { name } } }
+					... on PostgresIssue {
+						postgres { name }
 					}
 				}
 			}
@@ -25,17 +25,30 @@ Test.gql("Degraded Postgres produces an issue with its legacy identity", functio
 	t.check { data = { team = { issues = {
 		pageInfo = { totalCount = 1 },
 		nodes = { {
-			__typename = "PostgresBranchIssue",
-			id = NotNull(),
+			__typename = "PostgresIssue",
+			id = Save("postgres_issue_id"),
 			severity = "CRITICAL",
+			postgres = { name = "broken" },
 			message = 'Postgres "broken" has reported a failure.',
 			teamEnvironment = { name = "dev" },
-			branch = { name = "main", state = "DEGRADED", postgres = { name = "broken", activeBranch = { name = "main" } } },
 		} },
 	} } } }
 end)
 
-Test.gql("Branch issues are scoped to the concrete branch", function(t)
+Test.gql("Postgres issue is a retrievable Node", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[{
+		node(id: "%s") {
+			__typename
+			... on PostgresIssue { id postgres { name } }
+		}
+	}]], State.postgres_issue_id))
+	t.check { data = { node = {
+		__typename = "PostgresIssue", id = State.postgres_issue_id, postgres = { name = "broken" },
+	} } }
+end)
+
+Test.gql("Postgres issues are scoped to the logical database", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
 		team(slug: "someteamname") {
@@ -56,7 +69,7 @@ Test.gql("Branch issues are scoped to the concrete branch", function(t)
 			}
 		}
 		other: team(slug: "postgres-other-team") {
-			issues(filter: { issueType: POSTGRES_BRANCH }) { pageInfo { totalCount } }
+			issues(filter: { issueType: POSTGRES }) { pageInfo { totalCount } }
 		}
 	}]]
 	t.check { data = {
@@ -64,10 +77,10 @@ Test.gql("Branch issues are scoped to the concrete branch", function(t)
 			environment = {
 				postgres = {
 					issues = {
-						pageInfo = { totalCount = 1 }, nodes = { { __typename = "PostgresBranchIssue" } },
+						pageInfo = { totalCount = 1 }, nodes = { { __typename = "PostgresIssue" } },
 						facets = {
-							resourceTypes = { { resourceType = "POSTGRES_BRANCH", count = 1 } },
-							issueTypes = { { issueType = "POSTGRES_BRANCH", count = 1 } },
+							resourceTypes = { { resourceType = "POSTGRES", count = 1 } },
+							issueTypes = { { issueType = "POSTGRES", count = 1 } },
 						},
 					},
 					main = { issues = { pageInfo = { totalCount = 1 } } },
@@ -78,4 +91,38 @@ Test.gql("Branch issues are scoped to the concrete branch", function(t)
 		},
 		other = { issues = { pageInfo = { totalCount = 0 } } },
 	} }
+end)
+
+-- Emulate an API rollout before the new checker has refreshed the old snapshot.
+Helper.SQLExec([[
+	UPDATE issues SET issue_type = 'POSTGRES_BRANCH', resource_type = 'POSTGRES_BRANCH',
+		resource_name = 'broken-main-69d0ff6e'
+	WHERE issue_type = 'POSTGRES' AND resource_name = 'broken' AND team = 'someteamname' AND env = 'dev'
+]])
+
+Test.gql("Old stored rows are exposed as PostgresIssue with the same Node ID", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query(string.format([[{
+		node(id: "%s") {
+			__typename
+			... on PostgresIssue { id postgres { name teamEnvironment { name team { slug } } } }
+		}
+		team(slug: "someteamname") {
+			issues(filter: { issueType: POSTGRES_BRANCH }) { pageInfo { totalCount } nodes { __typename ... on PostgresIssue { postgres { name } } } }
+		}
+	}]], State.postgres_issue_id))
+	t.check { data = {
+		node = {
+			__typename = "PostgresIssue", id = State.postgres_issue_id,
+			postgres = { name = "broken", teamEnvironment = { name = "dev", team = { slug = "someteamname" } } },
+		},
+		team = { issues = { pageInfo = { totalCount = 1 }, nodes = { { __typename = "PostgresIssue", postgres = { name = "broken" } } } } },
+	} }
+end)
+
+checker:runChecks()
+
+Test.sql("Checker replaces the legacy snapshot rather than duplicating issues", function(t)
+	t.query [[SELECT issue_type, resource_type, resource_name FROM issues WHERE team = 'someteamname' AND issue_type IN ('POSTGRES', 'POSTGRES_BRANCH')]]
+	t.check { { issue_type = "POSTGRES", resource_type = "POSTGRES", resource_name = "broken" } }
 end)

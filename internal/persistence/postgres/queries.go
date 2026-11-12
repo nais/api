@@ -443,12 +443,26 @@ func BranchForPostgres(ctx context.Context, pg *Postgres, branchName string) (*P
 
 // GetPostgresBranchByObjectName resolves the internal object name from PostgresAccess.
 func GetPostgresBranchByObjectName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*PostgresBranch, error) {
+	pg, err := GetPostgresByPhysicalName(ctx, teamSlug, environmentName, objectName)
+	if errors.Is(err, &watcher.ErrorNotFound{}) {
+		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
+	}
+	if err != nil {
+		return nil, err
+	}
+	return mainBranchView(pg), nil
+}
+
+// GetPostgresByPhysicalName adapts historical issue/access identities to their
+// logical parent without querying the retired branch API or exposing its naming
+// convention to clients. Namespace and environment are part of the lookup.
+func GetPostgresByPhysicalName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*Postgres, error) {
 	for _, pg := range watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String())) {
 		if pg.EnvironmentName == environmentName && nais_io_v1.PostgresPhysicalName(pg.Name) == objectName {
-			return GetPostgresBranch(ctx, teamSlug, environmentName, pg.Name, nais_io_v1.DefaultBranchName)
+			return pg, nil
 		}
 	}
-	return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
+	return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres"}
 }
 
 func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Pagination, orderBy *PostgresBranchOrder) *PostgresBranchConnection {

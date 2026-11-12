@@ -34,13 +34,6 @@ func PostgresEarliestRestoreTime(ctx context.Context, pg *Postgres) (*time.Time,
 	return nil, nil
 }
 
-// PhysicalIssueName retains the existing issue key while clients move from a
-// branch relation to Postgres. Stored issue identities need not be rewritten
-// together with the Kubernetes ownership change.
-func PhysicalIssueName(pg *Postgres) string {
-	return nais_io_v1.PostgresPhysicalName(pg.Name)
-}
-
 func mainBranchView(pg *Postgres) *PostgresBranch {
 	clusterName := ""
 	state := PostgresBranchStateProgressing

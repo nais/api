@@ -65,13 +65,13 @@ func TestPostgresIssuesWithoutBranchWatcher(t *testing.T) {
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
 	if !mgr.WaitForReady(ready) {
-		t.Fatal("PostgresBranch watcher did not synchronize")
+		t.Fatal("Postgres watcher did not synchronize")
 	}
 	check := Postgres{PostgresWatcher: w}
 	want := []Issue{{
-		IssueType:    issue.IssueTypePostgresBranch,
-		ResourceName: nais_io_v1.PostgresPhysicalName(obj.GetName()),
-		ResourceType: issue.ResourceTypePostgresBranch,
+		IssueType:    issue.IssueTypePostgres,
+		ResourceName: obj.GetName(),
+		ResourceType: issue.ResourceTypePostgres,
 		Team:         "team",
 		Env:          "dev",
 		Severity:     issue.SeverityCritical,
@@ -134,6 +134,6 @@ func TestPostgresIssuesWithoutBranchWatcher(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, err := check.Run(ctx); err != nil || len(got) != 0 {
-		t.Fatalf("deleted branch should have no issues, got %v, %v", got, err)
+		t.Fatalf("deleted Postgres should have no issues, got %v, %v", got, err)
 	}
 }
