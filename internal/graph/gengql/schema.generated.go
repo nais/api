@@ -7292,6 +7292,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresPersonalAccessConnectionActivityLogEntry(ctx, sel, obj)
+	case issue.PostgresIssue:
+		return ec._PostgresIssue(ctx, sel, &obj)
+	case *issue.PostgresIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresIssue(ctx, sel, obj)
 	case postgres.PostgresGrantAccessActivityLogEntry:
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresGrantAccessActivityLogEntry:

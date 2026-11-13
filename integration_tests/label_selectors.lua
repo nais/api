@@ -179,13 +179,13 @@ Test.gql("A branch's labels are available through its Postgres", function(t)
 	} } } } } } }
 end)
 
-Test.gql("Branch labels remain distinct from Postgres labels", function(t)
+Test.gql("The main facade inherits Postgres labels", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "labelteam") { environment(name: "dev") {
 		postgres(name: "postgres-one") { labels { key value } branch(name: "main") { labels { key value } } }
 	} } }]]
 	t.check { data = { team = { environment = { postgres = {
-		labels = {}, branch = { labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } },
+		labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } }, branch = { labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } },
 	} } } } }
 end)
 

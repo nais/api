@@ -14,25 +14,22 @@ import (
 )
 
 type Server struct {
-	sqlDatabaseWatcher    *watchers.SqlDatabaseWatcher
-	postgresBranchWatcher *watchers.PostgresBranchWatcher
-	postgresWatcher       *watchers.PostgresWatcher
+	sqlDatabaseWatcher *watchers.SqlDatabaseWatcher
+	postgresWatcher    *watchers.PostgresWatcher
 	protoapi.UnimplementedDatabasesServer
 }
 
-func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresBranchWatcher *watchers.PostgresBranchWatcher, postgresWatcher *watchers.PostgresWatcher) *Server {
+func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresWatcher *watchers.PostgresWatcher) *Server {
 	return &Server{
-		sqlDatabaseWatcher:    sqlDatabaseWatcher,
-		postgresBranchWatcher: postgresBranchWatcher,
-		postgresWatcher:       postgresWatcher,
+		sqlDatabaseWatcher: sqlDatabaseWatcher,
+		postgresWatcher:    postgresWatcher,
 	}
 }
 
 func (s *Server) List(_ context.Context, r *protoapi.ListDatabasesRequest) (*protoapi.ListDatabasesResponse, error) {
 	sqlDatabases := watcher.Objects(s.sqlDatabaseWatcher.GetByNamespace(r.TeamSlug))
-	postgresBranches := watcher.Objects(s.postgresBranchWatcher.GetByNamespace(r.TeamSlug))
 	postgreses := watcher.Objects(s.postgresWatcher.GetByNamespace(r.TeamSlug, watcher.WithoutDeleted()))
-	postgresBranches = postgres.BranchViews(postgreses, postgresBranches)
+	postgresBranches := postgres.MainViews(postgreses)
 
 	all := make([]*protoapi.Database, 0, len(sqlDatabases)+len(postgresBranches))
 	for _, d := range sqlDatabases {

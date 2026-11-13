@@ -391,7 +391,9 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	state := PostgresBranchStateProgressing
 	var configuration *PostgresConfiguration
 	if obj.Status != nil && obj.Status.ActiveBranch != "" {
-		active = &obj.Status.ActiveBranch
+		// The implicit compatibility relation is always virtual main. Stale
+		// legacy metadata must not turn a provisioning read into a non-main lookup.
+		active = new(nais_io_v1.DefaultBranchName)
 	}
 	if obj.Status != nil && obj.Status.ClusterName != "" {
 		if len(validation.IsDNS1123Label(obj.Status.ClusterName)) > 0 {

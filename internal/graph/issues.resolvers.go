@@ -117,6 +117,17 @@ func (r *postgresBranchIssueResolver) Branch(ctx context.Context, obj *issue.Pos
 	return postgres.GetPostgresBranchByObjectName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
+func (r *postgresIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.PostgresIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *postgresIssueResolver) Postgres(ctx context.Context, obj *issue.PostgresIssue) (*postgres.Postgres, error) {
+	if obj.LegacyPhysicalName != "" {
+		return postgres.GetPostgresByPhysicalName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.LegacyPhysicalName)
+	}
+	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
+}
+
 func (r *queryResolver) Issues(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
@@ -234,6 +245,8 @@ func (r *Resolver) PostgresBranchIssue() gengql.PostgresBranchIssueResolver {
 	return &postgresBranchIssueResolver{r}
 }
 
+func (r *Resolver) PostgresIssue() gengql.PostgresIssueResolver { return &postgresIssueResolver{r} }
+
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
 	return &sqlInstanceStateIssueResolver{r}
 }
@@ -270,6 +283,7 @@ type (
 	noRunningInstancesIssueResolver                 struct{ *Resolver }
 	openSearchIssueResolver                         struct{ *Resolver }
 	postgresBranchIssueResolver                     struct{ *Resolver }
+	postgresIssueResolver                           struct{ *Resolver }
 	sqlInstanceStateIssueResolver                   struct{ *Resolver }
 	sqlInstanceVersionIssueResolver                 struct{ *Resolver }
 	unleashReleaseChannelIssueResolver              struct{ *Resolver }

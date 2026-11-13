@@ -35,7 +35,6 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
 	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	appWatcher := application.NewWatcher(ctx, mgr)
 	jobWatcher := job.NewWatcher(ctx, mgr)
@@ -44,7 +43,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	ctx = application.NewLoaderContext(ctx, appWatcher, nil, log)
 	ctx = job.NewLoaderContext(ctx, jobWatcher, nil)
 	team := slug.Slug("postgres-workload-team")
@@ -73,8 +72,8 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		uses   []liberatorv1.PostgresUse
 		branch map[string]string
 	}{
-		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "green", "reports": "recovered"}},
-		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "restored", "reports": "recovered"}},
+		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "main", "reports": "main"}},
+		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "main", "reports": "main"}},
 	} {
 		usages, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", test.uses, page)
 		if err != nil {
@@ -116,12 +115,9 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		t.Fatal("expected an error for a missing branch on the requested page")
 	}
 
-	for _, entry := range []struct{ postgres, branch string }{{"orders", "green"}, {"reports", "recovered"}} {
+	for _, entry := range []struct{ postgres, branch string }{{"orders", "main"}, {"reports", "main"}} {
 		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
 		wantCount := 2
-		if entry.postgres == "orders" {
-			wantCount = 1
-		}
 		if len(workloads) != wantCount || workloads[0].GetName() != "consumer" || wantCount == 2 && workloads[1].GetName() != "scheduled-reader" {
 			t.Errorf("workloads for %q = %+v", entry.branch, workloads)
 		}
@@ -170,16 +166,15 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
 	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
-	for _, name := range []string{"main", "recovered"} {
+	for _, name := range []string{"main"} {
 		instance, err := GetReadyPostgresBranch(ctx, team, "dev", "foobar", name)
 		if err != nil || instance.State != PostgresBranchStateAvailable || instance.Name != name || instance.PostgresName != "foobar" {
 			t.Errorf("%s: got instance %+v, error %v", name, instance, err)
@@ -203,7 +198,7 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	}
 	branches := ListForPostgres(ctx, pg, nil, nil)
 	nodes := branches.Nodes()
-	if len(nodes) != 2 || nodes[0].Name != "main" || nodes[1].Name != "recovered" {
+	if len(nodes) != 1 || nodes[0].Name != "main" {
 		t.Errorf("Postgres branches = %+v", nodes)
 	}
 }
@@ -224,14 +219,13 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 	}
 	t.Cleanup(mgr.Stop)
 	ctx := context.Background()
-	postgresBranchWatcher := NewPostgresBranchWatcher(ctx, mgr)
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("PostgresBranch watcher did not synchronize")
 	}
 	postgresWatcher := NewPostgresWatcher(ctx, mgr)
-	ctx = NewLoaderContext(ctx, postgresBranchWatcher, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
 		Postgres: "foobar", Branch: "missing", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,

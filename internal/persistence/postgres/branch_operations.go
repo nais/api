@@ -22,6 +22,9 @@ var (
 )
 
 func EarliestRestoreTime(ctx context.Context, branch *PostgresBranch) (*time.Time, error) {
+	if branch.ClusterName == "" {
+		return nil, nil
+	}
 	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(
 		ctx, branch.EnvironmentName, watcher.WithImpersonatedClientGVR(cnpgClusterGVR),
 	)

@@ -116,10 +116,10 @@ func TestPostgresLogProxy(t *testing.T) {
 		name, database, path, query, method, rawID, wantCluster string
 		wantStatus                                              int
 	}{
-		{name: "legacy main log page", database: "legacy", wantCluster: nais_io_v1.CNPGClusterName(nais_io_v1.PostgresPhysicalName("legacy"))},
+		{name: "missing direct status log page", database: "legacy", wantStatus: http.StatusConflict},
 		{name: "direct log page", database: "direct", wantCluster: "pg-preserved-main-12345678"},
 		{name: "direct volume", database: "direct", path: "query", query: `sum(count_over_time({service_name="direct"}[1m]))`, wantCluster: "pg-preserved-main-12345678"},
-		{name: "legacy volume", database: "legacy", path: "query", query: `sum(count_over_time({service_name="legacy"}[1m]))`, wantCluster: nais_io_v1.CNPGClusterName(nais_io_v1.PostgresPhysicalName("legacy"))},
+		{name: "missing direct status volume", database: "legacy", path: "query", query: `sum(count_over_time({service_name="legacy"}[1m]))`, wantStatus: http.StatusConflict},
 		{name: "incomplete direct beats stale legacy", database: "incomplete", wantCluster: "pg-direct-incomplete"},
 		{name: "unresolved must not query broad logs", database: "pending", wantStatus: http.StatusConflict},
 		{name: "missing database", database: "missing", wantStatus: http.StatusNotFound},
@@ -236,11 +236,11 @@ func postgresLogTestContext(t *testing.T) context.Context {
 			t.Fatal(err)
 		}
 	}
-	branches, postgreses := NewPostgresBranchWatcher(ctx, mgr), NewPostgresWatcher(ctx, mgr)
+	postgreses := NewPostgresWatcher(ctx, mgr)
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
 	if !mgr.WaitForReady(ready) {
 		t.Fatal("watchers did not synchronize")
 	}
-	return NewLoaderContext(ctx, branches, postgreses, "", "", "nav", mgr.GetDynamicClients())
+	return NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
 }

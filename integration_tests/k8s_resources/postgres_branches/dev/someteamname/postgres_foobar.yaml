@@ -17,16 +17,6 @@ spec:
     diskSize: 2Gi
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: foobar-main-a4f04c0c
-  namespace: someteamname
-spec:
-  postgres: foobar
-  branchName: main
-status:
   clusterName: pg-foobar-main-a4f04c0c
   configuration:
     parameters:

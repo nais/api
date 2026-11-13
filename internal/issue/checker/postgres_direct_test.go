@@ -58,8 +58,8 @@ func TestPostgresIssuesWithoutBranchObjects(t *testing.T) {
 	if err != nil || len(issues) != 1 {
 		t.Fatalf("issues = %v, error = %v", issues, err)
 	}
-	if issues[0].ResourceName != nais_io_v1.PostgresPhysicalName("orders") || issues[0].Severity != issue.SeverityCritical {
-		t.Errorf("direct issue lost its compatible identity/severity: %+v", issues[0])
+	if issues[0].ResourceName != "orders" || issues[0].Severity != issue.SeverityCritical || issues[0].IssueType != issue.IssueTypePostgres || issues[0].ResourceType != issue.ResourceTypePostgres {
+		t.Errorf("direct issue must identify the logical Postgres: %+v", issues[0])
 	}
 	if err := client.Delete(ctx, obj.GetName(), metav1.DeleteOptions{}); err != nil {
 		t.Fatal(err)

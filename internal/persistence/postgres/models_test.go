@@ -79,7 +79,7 @@ func TestToPostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
+	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "main" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
 	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {

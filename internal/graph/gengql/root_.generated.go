@@ -114,6 +114,7 @@ type ResolverRoot interface {
 	PostgresBranchConnection() PostgresBranchConnectionResolver
 	PostgresBranchIssue() PostgresBranchIssueResolver
 	PostgresConnection() PostgresConnectionResolver
+	PostgresIssue() PostgresIssueResolver
 	PostgresWorkload() PostgresWorkloadResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
@@ -2136,6 +2137,14 @@ type ComplexityRoot struct {
 	PostgresGrantAccessActivityLogEntryData struct {
 		Grantee func(childComplexity int) int
 		Until   func(childComplexity int) int
+	}
+
+	PostgresIssue struct {
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Postgres        func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
 	}
 
 	PostgresParameter struct {
@@ -13218,6 +13227,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
+
+	case "PostgresIssue.id":
+		if e.ComplexityRoot.PostgresIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.ID(childComplexity), true
+
+	case "PostgresIssue.message":
+		if e.ComplexityRoot.PostgresIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Message(childComplexity), true
+
+	case "PostgresIssue.postgres":
+		if e.ComplexityRoot.PostgresIssue.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Postgres(childComplexity), true
+
+	case "PostgresIssue.severity":
+		if e.ComplexityRoot.PostgresIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Severity(childComplexity), true
+
+	case "PostgresIssue.teamEnvironment":
+		if e.ComplexityRoot.PostgresIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.TeamEnvironment(childComplexity), true
 
 	case "PostgresParameter.name":
 		if e.ComplexityRoot.PostgresParameter.Name == nil {
@@ -27497,8 +27541,10 @@ enum Severity {
 }
 
 enum ResourceType {
+	"Postgres database."
+	POSTGRES
 	"A branch of a Postgres database."
-	POSTGRES_BRANCH
+	POSTGRES_BRANCH @deprecated(reason: "Use POSTGRES instead.")
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -27508,8 +27554,10 @@ enum ResourceType {
 }
 
 enum IssueType {
+	"Postgres database failure."
+	POSTGRES
 	"Raised when a Postgres branch has reported a failure."
-	POSTGRES_BRANCH
+	POSTGRES_BRANCH @deprecated(reason: "Use POSTGRES instead.")
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -27640,7 +27688,21 @@ type ValkeyIssue implements Issue & Node {
 	event: String!
 }
 
-"A failure reported by a Postgres branch, including inactive branches."
+"A failure reported by a Postgres database."
+type PostgresIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"Team environment containing the affected Postgres database."
+	teamEnvironment: TeamEnvironment!
+	"Severity of the reported failure."
+	severity: Severity!
+	"Description of the reported failure."
+	message: String!
+	"The Postgres database that reported the failure."
+	postgres: Postgres!
+}
+
+"Legacy issue type, no longer returned. Use PostgresIssue instead."
 type PostgresBranchIssue implements Issue & Node {
 	"Unique identifier for this issue."
 	id: ID!
@@ -27651,7 +27713,7 @@ type PostgresBranchIssue implements Issue & Node {
 	"Description of the reported failure."
 	message: String!
 	"The branch that reported the failure."
-	branch: PostgresBranch!
+	branch: PostgresBranch! @deprecated(reason: "Use PostgresIssue.postgres instead.")
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {

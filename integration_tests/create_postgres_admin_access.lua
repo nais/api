@@ -53,7 +53,7 @@ Test.k8s("Personal admin access uses the authenticated identity and explicit adm
 		kind = "PostgresAccess",
 		metadata = Ignore(),
 		spec = {
-			postgresBranch = "foobar-main-a4f04c0c",
+			postgres = "foobar",
 			username = user:email(),
 			accessLevel = "admin",
 			expiresAt = NotNull(),
