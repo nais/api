@@ -757,7 +757,7 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 	}{
 		{field: "cpu", value: cpu, max: resource.MustParse("8")},
 		{field: "memory", value: memory, max: resource.MustParse("32Gi")},
-		{field: "diskSize", value: diskSize, min: resource.MustParse("10Gi"), hasMin: true, max: resource.MustParse("1000Gi")},
+		{field: "diskSize", value: diskSize, min: resource.MustParse("5Gi"), hasMin: true, max: resource.MustParse("1000Gi")},
 	}
 	for _, limit := range limits {
 		field, value := limit.field, limit.value
