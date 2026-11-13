@@ -47,7 +47,10 @@ WHERE
 	)
 	AND (
 		sqlc.narg('issue_type')::TEXT IS NULL
-		OR issue_type = sqlc.narg('issue_type')::TEXT
+		OR CASE
+			WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE issue_type
+		END = sqlc.narg('issue_type')::TEXT
 	)
 	AND (
 		sqlc.narg('severity')::severity_level IS NULL
@@ -55,11 +58,18 @@ WHERE
 	)
 	AND (
 		sqlc.narg('resource_type')::TEXT IS NULL
-		OR resource_type = sqlc.narg('resource_type')::TEXT
+		OR CASE
+			WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE resource_type
+		END = sqlc.narg('resource_type')::TEXT
 	)
 	AND (
 		sqlc.narg('resource_name')::TEXT IS NULL
 		OR resource_name = sqlc.narg('resource_name')::TEXT
+		OR (
+			resource_type = 'POSTGRES_BRANCH'
+			AND resource_name = sqlc.narg('legacy_resource_name')::TEXT
+		)
 	)
 ORDER BY
 	CASE
@@ -69,16 +79,28 @@ ORDER BY
 		WHEN @order_by::TEXT = 'env:desc' THEN env
 	END DESC,
 	CASE
-		WHEN @order_by::TEXT = 'issue_type:asc' THEN issue_type
+		WHEN @order_by::TEXT = 'issue_type:asc' THEN CASE
+			WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE issue_type
+		END
 	END ASC,
 	CASE
-		WHEN @order_by::TEXT = 'issue_type:desc' THEN issue_type
+		WHEN @order_by::TEXT = 'issue_type:desc' THEN CASE
+			WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE issue_type
+		END
 	END DESC,
 	CASE
-		WHEN @order_by::TEXT = 'resource_type:asc' THEN resource_type
+		WHEN @order_by::TEXT = 'resource_type:asc' THEN CASE
+			WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE resource_type
+		END
 	END ASC,
 	CASE
-		WHEN @order_by::TEXT = 'resource_type:desc' THEN resource_type
+		WHEN @order_by::TEXT = 'resource_type:desc' THEN CASE
+			WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE resource_type
+		END
 	END DESC,
 	CASE
 		WHEN @order_by::TEXT = 'resource_name:asc' THEN resource_name
@@ -101,6 +123,31 @@ LIMIT
 ;
 
 -- name: FacetsForIssues :many
+-- Normalize before grouping, including zero-count facets. Keep ListIssues' stored
+-- row types intact so legacy physical names still reach the Postgres read adapter.
+WITH
+	issue_rows AS (
+		SELECT
+			team,
+			severity,
+			env,
+			resource_name,
+			(
+				CASE
+					WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+					ELSE resource_type
+				END
+			)::TEXT AS resource_type,
+			(
+				CASE
+					WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+					ELSE issue_type
+				END
+			)::TEXT AS issue_type,
+			resource_type = 'POSTGRES_BRANCH' AS legacy_postgres
+		FROM
+			issues
+	)
 SELECT
 	team,
 	EXISTS (
@@ -136,10 +183,14 @@ SELECT
 			AND (
 				sqlc.narg('filter_resource_name')::TEXT IS NULL
 				OR resource_name = sqlc.narg('filter_resource_name')::TEXT
+				OR (
+					legacy_postgres
+					AND resource_name = sqlc.narg('legacy_filter_resource_name')::TEXT
+				)
 			)
 	) AS filtered_count
 FROM
-	issues
+	issue_rows AS issues
 WHERE
 	(
 		@team::TEXT = ''
@@ -156,6 +207,10 @@ WHERE
 	AND (
 		sqlc.narg('scope_resource_name')::TEXT IS NULL
 		OR resource_name = sqlc.narg('scope_resource_name')::TEXT
+		OR (
+			legacy_postgres
+			AND resource_name = sqlc.narg('legacy_scope_resource_name')::TEXT
+		)
 	)
 	AND (
 		sqlc.narg('scope_env')::TEXT IS NULL

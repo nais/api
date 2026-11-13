@@ -9,6 +9,8 @@ import (
 )
 
 type Querier interface {
+	// Normalize before grouping, including zero-count facets. Keep ListIssues' stored
+	// row types intact so legacy physical names still reach the Postgres read adapter.
 	FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams) ([]*FacetsForIssuesRow, error)
 	GetIssueByID(ctx context.Context, id uuid.UUID) (*Issue, error)
 	GetSeverityScoreForWorkload(ctx context.Context, arg GetSeverityScoreForWorkloadParams) (int64, error)
