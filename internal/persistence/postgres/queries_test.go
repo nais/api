@@ -321,10 +321,10 @@ func TestNewPostgresAccessResource(t *testing.T) {
 		t.Fatalf("spec = (%v, %t, %v), want a spec", spec, found, err)
 	}
 	wantSpec := map[string]any{
-		"postgresBranch": nais_io_v1.PostgresBranchObjectName("orders", "main"),
-		"username":       "user@example.com",
-		"accessLevel":    "readwrite",
-		"expiresAt":      "2026-09-17T12:00:00Z",
+		"postgres":    "orders",
+		"username":    "user@example.com",
+		"accessLevel": "readwrite",
+		"expiresAt":   "2026-09-17T12:00:00Z",
 	}
 	if diff := cmp.Diff(wantSpec, spec); diff != "" {
 		t.Errorf("spec mismatch (-want +got):\n%s", diff)

@@ -6,15 +6,7 @@ spec:
   majorVersion: "17"
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: foobar-main-a4f04c0c
-spec:
-  postgres: foobar
-  branchName: main
-status:
+  clusterName: pg-foobar-main-a4f04c0c
   configuration:
     parameters:
       work_mem: 16MB

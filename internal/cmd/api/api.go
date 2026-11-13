@@ -253,7 +253,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	go notifier.Run(ctx)
 
 	// Webhook dispatcher — drains the webhook_events outbox table on PG NOTIFY
-	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://"+cfg.TenantDomain+"/api", cfg.Tenant, cfg.Fakes.WithInsecureWebhookURLs, log)
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://console."+cfg.Tenant+".cloud.nais.io/cloudevents", cfg.Tenant, cfg.Fakes.WithInsecureWebhookURLs, log)
 	if err != nil {
 		return fmt.Errorf("creating webhook dispatcher: %w", err)
 	}
@@ -412,7 +412,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresBranchWatcher, watchers.AppWatcher, watchers.JobWatcher, log.WithField("subsystem", "grpc")); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresWatcher, watchers.AppWatcher, watchers.JobWatcher, log.WithField("subsystem", "grpc")); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}

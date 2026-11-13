@@ -94,7 +94,7 @@ func hasPostgresDeletionFinalizer(finalizers []string) bool {
 }
 
 func listPostgresDependents(ctx context.Context, environment string, team slug.Slug, gvr schema.GroupVersionResource) (*unstructured.UnstructuredList, error) {
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environment, watcher.WithImpersonatedClientGVR(gvr))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environment, watcher.WithImpersonatedClientGVR(gvr))
 	if err != nil {
 		return nil, err
 	}

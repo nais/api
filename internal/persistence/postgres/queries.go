@@ -78,7 +78,7 @@ func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, envi
 	for _, instance := range instances {
 		use := usesByName[instance.Name]
 		branchName := selectedBranchName(instance, use)
-		branch, err := GetPostgresBranch(ctx, teamSlug, environmentName, instance.Name, branchName)
+		branch, err := BranchForPostgres(ctx, instance, branchName)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -136,10 +136,7 @@ func selectedBranchName(instance *Postgres, use liberatorv1.PostgresUse) string 
 	if use.Branch != "" {
 		return use.Branch
 	}
-	if instance.ActiveBranch != nil {
-		return *instance.ActiveBranch
-	}
-	return nais_io_v1.DefaultBranchName
+	return observedBranchName(instance)
 }
 
 func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
@@ -161,12 +158,12 @@ func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *paginati
 }
 
 func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresBranchFilter) []*PostgresBranch {
-	all := fromContext(ctx).postgresBranchWatcher.GetByNamespace(teamSlug.String())
-	return watcher.Objects(all)
+	postgreses := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
+	return MainViews(postgreses)
 }
 
 func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
-	return len(fromContext(ctx).postgresBranchWatcher.GetByNamespace(teamSlug.String()))
+	return len(ListAllForTeam(ctx, teamSlug, nil))
 }
 
 func GetPostgresBranchByIdent(ctx context.Context, id ident.Ident) (*PostgresBranch, error) {
@@ -267,7 +264,7 @@ func GetPostgresAccessConnection(ctx context.Context, input PostgresAccessConnec
 }
 
 func getPostgresAccessResource(ctx context.Context, name string, teamSlug slug.Slug, environmentName string) (*unstructured.Unstructured, error) {
-	accessClient, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
+	accessClient, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
 	if err != nil {
 		return nil, fmt.Errorf("creating postgresaccess client: %w", err)
 	}
@@ -317,6 +314,9 @@ func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environm
 	if err != nil {
 		return nil, fmt.Errorf("converting PostgresAccess %q: %w", name, err)
 	}
+	if (obj.Spec.Postgres == "") == (obj.Spec.PostgresBranch == "") {
+		return nil, fmt.Errorf("PostgresAccess %q must have exactly one Postgres reference", name)
+	}
 	expiresAt := obj.Spec.ExpiresAt.Time
 	levelStr := obj.Spec.AccessLevel
 	level := PostgresAccessLevel(strings.ToUpper(string(levelStr)))
@@ -335,7 +335,8 @@ func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environm
 		Name:               name,
 		TeamSlug:           teamSlug,
 		EnvironmentName:    environmentName,
-		PostgresBranchName: obj.Spec.PostgresBranch,
+		PostgresBranchName: obj.Spec.PhysicalName(),
+		PostgresName:       obj.Spec.Postgres,
 		Username:           obj.Spec.Username,
 		AccessLevel:        level,
 		ExpiresAt:          expiresAt,
@@ -375,23 +376,29 @@ func postgresAccessState(obj *nais_io_v1.PostgresAccess, expiresAt time.Time) (P
 }
 
 func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
-	instance, err := GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, branchName)
+	// Access is a write decision: select the model and target from a fresh parent
+	// rather than relying on the informer's potentially older ownership status.
+	pg, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
+	if err != nil {
+		return nil, err
+	}
+	if branchName == "" {
+		branchName = observedBranchName(pg)
+	}
+	instance, err := BranchForPostgres(ctx, pg, branchName)
 	if err != nil {
 		return nil, err
 	}
 	if instance.State != PostgresBranchStateAvailable {
 		return instance, nil
 	}
-	if _, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName); err != nil {
-		return nil, fmt.Errorf("getting Postgres %q for branch %q: %w", instance.PostgresName, branchName, err)
-	}
 	// The pgrator reconciliation condition reflects the CNPG phase, but must be
 	// corroborated with CNPG's own Ready condition before issuing access.
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters"}))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters"}))
 	if err != nil {
 		return nil, err
 	}
-	cluster, err := client.Namespace(teamSlug.String()).Get(ctx, nais_io_v1.CNPGClusterName(nais_io_v1.PostgresBranchObjectName(postgresName, branchName)), metav1.GetOptions{})
+	cluster, err := client.Namespace(teamSlug.String()).Get(ctx, instance.clusterName(), metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
 		instance.State = PostgresBranchStateProgressing
 		return instance, nil
@@ -418,41 +425,48 @@ func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environment
 }
 
 func GetPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
-	branch, err := fromContext(ctx).postgresBranchWatcher.Get(environmentName, teamSlug.String(), nais_io_v1.PostgresBranchObjectName(postgresName, branchName))
-	if errors.Is(err, &watcher.ErrorNotFound{}) {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: postgresName + "/" + branchName}
-	}
+	pg, err := fromContext(ctx).postgresWatcher.Get(environmentName, teamSlug.String(), postgresName)
 	if err != nil {
 		return nil, err
 	}
-	if branch.PostgresName != postgresName || branch.Name != branchName {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: postgresName + "/" + branchName}
+	return BranchForPostgres(ctx, pg, branchName)
+}
+
+// BranchForPostgres implements the legacy branch view for an already resolved
+// Postgres. It avoids extra Kubernetes requests and uses the parent's snapshot.
+func BranchForPostgres(ctx context.Context, pg *Postgres, branchName string) (*PostgresBranch, error) {
+	if branchName != nais_io_v1.DefaultBranchName {
+		return nil, &watcher.ErrorNotFound{Cluster: pg.EnvironmentName, Namespace: pg.TeamSlug.String(), Name: pg.Name + "/" + branchName}
 	}
-	return branch, nil
+	return mainBranchView(pg), nil
 }
 
 // GetPostgresBranchByObjectName resolves the internal object name from PostgresAccess.
 func GetPostgresBranchByObjectName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*PostgresBranch, error) {
-	branch, err := fromContext(ctx).postgresBranchWatcher.Get(environmentName, teamSlug.String(), objectName)
+	pg, err := GetPostgresByPhysicalName(ctx, teamSlug, environmentName, objectName)
 	if errors.Is(err, &watcher.ErrorNotFound{}) {
 		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
 	}
 	if err != nil {
 		return nil, err
 	}
-	if nais_io_v1.PostgresBranchObjectName(branch.PostgresName, branch.Name) != objectName {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
+	return mainBranchView(pg), nil
+}
+
+// GetPostgresByPhysicalName adapts historical issue/access identities to their
+// logical parent without querying the retired branch API or exposing its naming
+// convention to clients. Namespace and environment are part of the lookup.
+func GetPostgresByPhysicalName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*Postgres, error) {
+	for _, pg := range watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String())) {
+		if pg.EnvironmentName == environmentName && nais_io_v1.PostgresPhysicalName(pg.Name) == objectName {
+			return pg, nil
+		}
 	}
-	return branch, nil
+	return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres"}
 }
 
 func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Pagination, orderBy *PostgresBranchOrder) *PostgresBranchConnection {
-	all := make([]*PostgresBranch, 0)
-	for _, branch := range ListAllForTeam(ctx, pg.TeamSlug, nil) {
-		if branch.EnvironmentName == pg.EnvironmentName && branch.PostgresName == pg.Name {
-			all = append(all, branch)
-		}
-	}
+	all := []*PostgresBranch{mainBranchView(pg)}
 	if orderBy == nil {
 		orderBy = &PostgresBranchOrder{Field: PostgresBranchOrderFieldName, Direction: model.OrderDirectionAsc}
 	}
@@ -500,13 +514,24 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	if parent.GetDeletionTimestamp() != nil {
 		return nil, apierror.Errorf("Postgres %q is being deleted", input.Postgres)
 	}
+	pg, err := toPostgres(parent, input.EnvironmentName)
+	if err != nil {
+		return nil, err
+	}
+	selected, err := BranchForPostgres(ctx, pg, input.Branch)
+	if err != nil {
+		return nil, err
+	}
+	if selected.State != PostgresBranchStateAvailable {
+		return nil, apierror.Errorf("Postgres %q is not available", pg.Name)
+	}
 
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, input.EnvironmentName, watcher.WithImpersonatedClientGVR(postgresAccessGVR()))
 	if err != nil {
 		return nil, err
 	}
 
-	expiresAt := time.Now().Add(accessTTL)
+	expiresAt := time.Now().Add(accessTTL).Truncate(time.Second)
 	username := authz.ActorFromContext(ctx).User.Identity()
 	branchObjectName := nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch)
 
@@ -534,6 +559,13 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		}
 		if getErr != nil {
 			return nil, getErr
+		}
+		oldAccess, err := kubernetes.ToConcrete[nais_io_v1.PostgresAccess](existing)
+		if err != nil {
+			return nil, fmt.Errorf("reading existing PostgresAccess %q: %w", name, err)
+		}
+		if oldAccess.Spec.Username != username || oldAccess.Spec.PhysicalName() != branchObjectName || (oldAccess.Spec.Postgres == "") == (oldAccess.Spec.PostgresBranch == "") {
+			return nil, apierror.Errorf("Existing PostgresAccess %q has a conflicting identity", name)
 		}
 		if existing.GetDeletionTimestamp() == nil && existingExpiry(existing).After(time.Now()) {
 			level, _, _ := unstructured.NestedString(existing.Object, "spec", "accessLevel")
@@ -638,10 +670,10 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	res.SetAnnotations(kubernetes.WithCommonAnnotations(nil, username))
 	kubernetes.SetManagedByConsoleLabel(res)
 	res.Object["spec"] = map[string]any{
-		"postgresBranch": nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch),
-		"username":       username,
-		"accessLevel":    input.AccessLevel.CRDValue(),
-		"expiresAt":      expiresAt.Format(time.RFC3339),
+		"postgres":    input.Postgres,
+		"username":    username,
+		"accessLevel": input.AccessLevel.CRDValue(),
+		"expiresAt":   expiresAt.Format(time.RFC3339),
 	}
 	return res
 }
@@ -681,7 +713,7 @@ func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWo
 				break
 			}
 		}
-		ret = append(ret, &PostgresWorkload{Workload: current, PostgresName: postgres.Name, BranchName: branchName})
+		ret = append(ret, &PostgresWorkload{Workload: current, Postgres: postgres, BranchName: branchName})
 	}
 	return ret
 }
@@ -719,7 +751,7 @@ func postgresGVR() schema.GroupVersionResource {
 // postgresClient returns a namespaced client for Postgres that writes with the API's own
 // identity. Users never write the CRD directly; authorization is decided by the resolver.
 func postgresClient(ctx context.Context, environmentName string, teamSlug slug.Slug) (dynamic.ResourceInterface, error) {
-	client, err := fromContext(ctx).postgresBranchWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(postgresGVR()))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(postgresGVR()))
 	if err != nil {
 		return nil, err
 	}
