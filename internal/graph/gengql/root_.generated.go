@@ -1107,6 +1107,7 @@ type ComplexityRoot struct {
 		HasKevEntry              func(childComplexity int) int
 		ID                       func(childComplexity int) int
 		Identifier               func(childComplexity int) int
+		ImageName                func(childComplexity int) int
 		KnownRansomwareUse       func(childComplexity int) int
 		LatestVersion            func(childComplexity int) int
 		Package                  func(childComplexity int) int
@@ -8119,6 +8120,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerability.Identifier(childComplexity), true
+
+	case "ImageVulnerability.imageName":
+		if e.ComplexityRoot.ImageVulnerability.ImageName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerability.ImageName(childComplexity), true
 
 	case "ImageVulnerability.knownRansomwareUse":
 		if e.ComplexityRoot.ImageVulnerability.KnownRansomwareUse == nil {
@@ -37171,6 +37179,9 @@ type ImageVulnerability implements Node {
 	"The unique identifier of the vulnerability. E.g. CVE-****-****."
 	identifier: String!
 
+	"Image name for this finding, without tag or digest. Empty when unavailable."
+	imageName: String!
+
 	"Severity of the vulnerability."
 	severity: ImageVulnerabilitySeverity!
 
@@ -37183,7 +37194,7 @@ type ImageVulnerability implements Node {
 	"Description of the vulnerability."
 	description: String!
 
-	"Package name of the vulnerability."
+	"Affected package URL (purl), including its version when reported."
 	package: String!
 
 	"CVSS score of the vulnerability."
@@ -40358,6 +40369,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 		return ec.fieldContext_ImageVulnerability_id(ctx, field)
 	case "identifier":
 		return ec.fieldContext_ImageVulnerability_identifier(ctx, field)
+	case "imageName":
+		return ec.fieldContext_ImageVulnerability_imageName(ctx, field)
 	case "severity":
 		return ec.fieldContext_ImageVulnerability_severity(ctx, field)
 	case "priority":
