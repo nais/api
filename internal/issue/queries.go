@@ -92,6 +92,7 @@ func listIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		}
 	}
 
+	params.LegacyResourceName = legacyPostgresIssueName(params.ResourceName)
 	ret, err := db(ctx).ListIssues(ctx, params)
 	if err != nil {
 		return nil, err

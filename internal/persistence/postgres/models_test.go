@@ -33,13 +33,6 @@ func TestToPostgresBranch(t *testing.T) {
 	if got.GetName() != obj.GetName() {
 		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
 	}
-	if got.ID().Type != "PBR" {
-		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
-	}
-	team, env, pg, branch, err := parsePostgresBranchIdent(got.ID())
-	if err != nil || team != "my-team" || env != "dev" || pg != "orders" || branch != "restored" {
-		t.Errorf("branch ID = (%q, %q, %q, %q, %v)", team, env, pg, branch, err)
-	}
 }
 
 func TestToPostgresBranchWithoutStatus(t *testing.T) {

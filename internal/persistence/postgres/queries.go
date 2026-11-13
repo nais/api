@@ -166,15 +166,6 @@ func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
 	return len(ListAllForTeam(ctx, teamSlug, nil))
 }
 
-func GetPostgresBranchByIdent(ctx context.Context, id ident.Ident) (*PostgresBranch, error) {
-	teamSlug, environmentName, postgresName, branchName, err := parsePostgresBranchIdent(id)
-	if err != nil {
-		return nil, err
-	}
-
-	return GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, branchName)
-}
-
 func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
 	teamSlug, environmentName, name, err := parseAccessIdent(id)
 	if err != nil {

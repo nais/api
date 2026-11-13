@@ -7320,13 +7320,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
-	case issue.PostgresBranchIssue:
-		return ec._PostgresBranchIssue(ctx, sel, &obj)
-	case *issue.PostgresBranchIssue:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresBranchIssue(ctx, sel, obj)
 	case postgres.PostgresBranchDeletedActivityLogEntry:
 		return ec._PostgresBranchDeletedActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresBranchDeletedActivityLogEntry:
@@ -7348,13 +7341,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresBranchActivatedActivityLogEntry(ctx, sel, obj)
-	case postgres.PostgresBranch:
-		return ec._PostgresBranch(ctx, sel, &obj)
-	case *postgres.PostgresBranch:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresBranch(ctx, sel, obj)
 	case postgres.Postgres:
 		return ec._Postgres(ctx, sel, &obj)
 	case *postgres.Postgres:

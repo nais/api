@@ -12,6 +12,29 @@ import (
 )
 
 const facetsForIssues = `-- name: FacetsForIssues :many
+WITH
+	issue_rows AS (
+		SELECT
+			team,
+			severity,
+			env,
+			resource_name,
+			(
+				CASE
+					WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+					ELSE resource_type
+				END
+			)::TEXT AS resource_type,
+			(
+				CASE
+					WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+					ELSE issue_type
+				END
+			)::TEXT AS issue_type,
+			resource_type = 'POSTGRES_BRANCH' AS legacy_postgres
+		FROM
+			issues
+	)
 SELECT
 	team,
 	EXISTS (
@@ -47,30 +70,38 @@ SELECT
 			AND (
 				$5::TEXT IS NULL
 				OR resource_name = $5::TEXT
+				OR (
+					legacy_postgres
+					AND resource_name = $6::TEXT
+				)
 			)
 	) AS filtered_count
 FROM
-	issues
+	issue_rows AS issues
 WHERE
 	(
-		$6::TEXT = ''
-		OR team = $6
+		$7::TEXT = ''
+		OR team = $7
 	)
 	AND (
-		$7::slug[] IS NULL
-		OR team = ANY ($7::slug[])
-	)
-	AND (
-		$8::TEXT IS NULL
-		OR resource_type = $8::TEXT
+		$8::slug[] IS NULL
+		OR team = ANY ($8::slug[])
 	)
 	AND (
 		$9::TEXT IS NULL
-		OR resource_name = $9::TEXT
+		OR resource_type = $9::TEXT
 	)
 	AND (
 		$10::TEXT IS NULL
-		OR env = $10::TEXT
+		OR resource_name = $10::TEXT
+		OR (
+			legacy_postgres
+			AND resource_name = $11::TEXT
+		)
+	)
+	AND (
+		$12::TEXT IS NULL
+		OR env = $12::TEXT
 	)
 GROUP BY
 	team,
@@ -87,16 +118,18 @@ ORDER BY
 `
 
 type FacetsForIssuesParams struct {
-	Env                []string
-	IssueType          *string
-	Severity           *SeverityLevel
-	FilterResourceType *string
-	FilterResourceName *string
-	Team               string
-	TeamSlugs          []slug.Slug
-	ScopeResourceType  *string
-	ScopeResourceName  *string
-	ScopeEnv           *string
+	Env                      []string
+	IssueType                *string
+	Severity                 *SeverityLevel
+	FilterResourceType       *string
+	FilterResourceName       *string
+	LegacyFilterResourceName *string
+	Team                     string
+	TeamSlugs                []slug.Slug
+	ScopeResourceType        *string
+	ScopeResourceName        *string
+	LegacyScopeResourceName  *string
+	ScopeEnv                 *string
 }
 
 type FacetsForIssuesRow struct {
@@ -109,6 +142,8 @@ type FacetsForIssuesRow struct {
 	FilteredCount int64
 }
 
+// Normalize before grouping, including zero-count facets. Keep ListIssues' stored
+// row types intact so legacy physical names still reach the Postgres read adapter.
 func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams) ([]*FacetsForIssuesRow, error) {
 	rows, err := q.db.Query(ctx, facetsForIssues,
 		arg.Env,
@@ -116,10 +151,12 @@ func (q *Queries) FacetsForIssues(ctx context.Context, arg FacetsForIssuesParams
 		arg.Severity,
 		arg.FilterResourceType,
 		arg.FilterResourceName,
+		arg.LegacyFilterResourceName,
 		arg.Team,
 		arg.TeamSlugs,
 		arg.ScopeResourceType,
 		arg.ScopeResourceName,
+		arg.LegacyScopeResourceName,
 		arg.ScopeEnv,
 	)
 	if err != nil {
@@ -234,7 +271,10 @@ WHERE
 	)
 	AND (
 		$4::TEXT IS NULL
-		OR issue_type = $4::TEXT
+		OR CASE
+			WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE issue_type
+		END = $4::TEXT
 	)
 	AND (
 		$5::severity_level IS NULL
@@ -242,62 +282,82 @@ WHERE
 	)
 	AND (
 		$6::TEXT IS NULL
-		OR resource_type = $6::TEXT
+		OR CASE
+			WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE resource_type
+		END = $6::TEXT
 	)
 	AND (
 		$7::TEXT IS NULL
 		OR resource_name = $7::TEXT
+		OR (
+			resource_type = 'POSTGRES_BRANCH'
+			AND resource_name = $8::TEXT
+		)
 	)
 ORDER BY
 	CASE
-		WHEN $8::TEXT = 'env:asc' THEN env
+		WHEN $9::TEXT = 'env:asc' THEN env
 	END ASC,
 	CASE
-		WHEN $8::TEXT = 'env:desc' THEN env
+		WHEN $9::TEXT = 'env:desc' THEN env
 	END DESC,
 	CASE
-		WHEN $8::TEXT = 'issue_type:asc' THEN issue_type
+		WHEN $9::TEXT = 'issue_type:asc' THEN CASE
+			WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE issue_type
+		END
 	END ASC,
 	CASE
-		WHEN $8::TEXT = 'issue_type:desc' THEN issue_type
+		WHEN $9::TEXT = 'issue_type:desc' THEN CASE
+			WHEN issue_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE issue_type
+		END
 	END DESC,
 	CASE
-		WHEN $8::TEXT = 'resource_type:asc' THEN resource_type
+		WHEN $9::TEXT = 'resource_type:asc' THEN CASE
+			WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE resource_type
+		END
 	END ASC,
 	CASE
-		WHEN $8::TEXT = 'resource_type:desc' THEN resource_type
+		WHEN $9::TEXT = 'resource_type:desc' THEN CASE
+			WHEN resource_type = 'POSTGRES_BRANCH' THEN 'POSTGRES'
+			ELSE resource_type
+		END
 	END DESC,
 	CASE
-		WHEN $8::TEXT = 'resource_name:asc' THEN resource_name
+		WHEN $9::TEXT = 'resource_name:asc' THEN resource_name
 	END ASC,
 	CASE
-		WHEN $8::TEXT = 'resource_name:desc' THEN resource_name
+		WHEN $9::TEXT = 'resource_name:desc' THEN resource_name
 	END DESC,
 	CASE
-		WHEN $8::TEXT = 'severity:asc' THEN severity
+		WHEN $9::TEXT = 'severity:asc' THEN severity
 	END ASC,
 	CASE
-		WHEN $8::TEXT = 'severity:desc' THEN severity
+		WHEN $9::TEXT = 'severity:desc' THEN severity
 	END DESC,
 	severity DESC,
 	id
 OFFSET
-	$9
-LIMIT
 	$10
+LIMIT
+	$11
 `
 
 type ListIssuesParams struct {
-	Team         string
-	TeamSlugs    []slug.Slug
-	Env          []string
-	IssueType    *string
-	Severity     *SeverityLevel
-	ResourceType *string
-	ResourceName *string
-	OrderBy      string
-	Offset       int32
-	Limit        int32
+	Team               string
+	TeamSlugs          []slug.Slug
+	Env                []string
+	IssueType          *string
+	Severity           *SeverityLevel
+	ResourceType       *string
+	ResourceName       *string
+	LegacyResourceName *string
+	OrderBy            string
+	Offset             int32
+	Limit              int32
 }
 
 type ListIssuesRow struct {
@@ -323,6 +383,7 @@ func (q *Queries) ListIssues(ctx context.Context, arg ListIssuesParams) ([]*List
 		arg.Severity,
 		arg.ResourceType,
 		arg.ResourceName,
+		arg.LegacyResourceName,
 		arg.OrderBy,
 		arg.Offset,
 		arg.Limit,

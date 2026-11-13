@@ -37,13 +37,37 @@ func TestPostgresSchemaRetainsDatabaseOperationsAndBranchHistory(t *testing.T) {
 		}
 	}
 	for _, name := range []string{
-		"PostgresBranch",
+		"Postgres",
+		"PostgresIssue",
 		"PostgresBranchCreatedActivityLogEntry",
 		"PostgresBranchActivatedActivityLogEntry",
 		"PostgresBranchDeletedActivityLogEntry",
 	} {
 		if schema.Types[name] == nil {
 			t.Errorf("type %s must remain available", name)
+		}
+	}
+}
+
+func TestPostgresSchemaRetiresBranchReads(t *testing.T) {
+	schema := gengql.NewExecutableSchema(gengql.Config{}).Schema()
+	for _, name := range []string{"PostgresBranch", "PostgresBranchIssue", "PostgresBranchConnection", "PostgresBranchFilter", "PostgresBranchOrder", "PostgresBranchState", "PostgresBranchFacets", "TeamInventoryCountPostgresBranches"} {
+		if schema.Types[name] != nil {
+			t.Errorf("retired type %s is still exposed", name)
+		}
+	}
+	for name, fields := range map[string][]string{
+		"Postgres":                  {"activeBranch", "desiredActiveBranch", "branch", "branches"},
+		"PostgresAccess":            {"postgresBranch"},
+		"PostgresWorkload":          {"branch"},
+		"WorkloadPostgres":          {"branch"},
+		"TeamInventoryCounts":       {"postgresBranches"},
+		"CreatePostgresAccessInput": {"branch"},
+	} {
+		for _, field := range fields {
+			if schema.Types[name].Fields.ForName(field) != nil {
+				t.Errorf("retired field %s.%s is still exposed", name, field)
+			}
 		}
 	}
 }

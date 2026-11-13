@@ -75,8 +75,8 @@ func TestDirectPostgresPhysicalStatus(t *testing.T) {
 			}
 			branch := mainBranchView(pg)
 			legacy := &PostgresBranch{Name: "main", PostgresName: pg.Name, TeamSlug: pg.TeamSlug, EnvironmentName: pg.EnvironmentName}
-			if branch.ID() != legacy.ID() {
-				t.Error("virtual main changed the legacy node ID")
+			if branch.GetName() != legacy.GetName() {
+				t.Error("physical view changed the legacy resource identity")
 			}
 			if branch.clusterName() != *pg.directClusterName {
 				t.Error("virtual main did not preserve the observed physical target")
