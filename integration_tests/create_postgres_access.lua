@@ -12,15 +12,13 @@ mainTeam:addMember(staleUser)
 
 Helper.readK8sResources("k8s_resources/create_postgres_access")
 
-Test.gql("Postgres branches use local names and stay scoped to their Postgres", function(t)
+Test.gql("Postgres access targets the logical database", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "someteamname") { environment(name: "dev") {
-		postgres(name: "foobar") { activeBranch { name } branches { nodes { name postgres { name } } } branch(name: "main") { name postgres { name } } }
+		postgres(name: "foobar") { name state }
 	} } }]]
 	t.check { data = { team = { environment = { postgres = {
-		activeBranch = { name = "main" },
-		branches = { nodes = { { name = "main", postgres = { name = "foobar" } } } },
-		branch = { name = "main", postgres = { name = "foobar" } },
+		name = "foobar", state = "AVAILABLE",
 	} } } } }
 end)
 
@@ -29,7 +27,7 @@ Test.gql("Create personal postgres access without authorization", function(t)
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgres: "foobar", branch: "main"
+				postgres: "foobar"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -58,7 +56,7 @@ Test.gql("Create personal postgres access requires an audit reason", function(t)
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgres: "foobar", branch: "main"
+				postgres: "foobar"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -86,7 +84,7 @@ Test.gql("Create personal postgres access rejects an unknown instance", function
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgres: "foobar", branch: "unknown"
+				postgres: "unknown"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -114,7 +112,7 @@ Test.gql("Create personal postgres access rejects a logical Postgres without a p
 	t.addHeader("x-user-email", user:email())
 	t.query [[
 		mutation { createPostgresAccess(input: {
-			postgres: "legacy-only", branch: "main", environmentName: "dev",
+			postgres: "legacy-only", environmentName: "dev",
 			teamSlug: "someteamname", accessLevel: READ,
 			reason: "Testing missing physical database instance"
 		}) { name } }
@@ -130,7 +128,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgres: "progressing", branch: "main"
+				postgres: "progressing"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READ
@@ -159,7 +157,7 @@ Test.gql("Create personal postgres access", function(t)
 	t.query [[
 		mutation CreatePostgresAccess {
 			createPostgresAccess(input: {
-				postgres: "foobar", branch: "main"
+				postgres: "foobar"
 				environmentName: "dev"
 				teamSlug: "someteamname"
 				accessLevel: READWRITE
@@ -229,7 +227,7 @@ Test.gql("Requesting access again returns the live access instead of creating an
 	t.addHeader("x-user-email", creatorUser:email())
 	local request = [[
 		mutation { createPostgresAccess(input: {
-			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			postgres: "foobar", environmentName: "dev", teamSlug: "someteamname",
 			accessLevel: READWRITE, reason: "Testing personal database access"
 		}) { name expiresAt } }
 	]]
@@ -249,7 +247,7 @@ Test.gql("Changing access level revokes and recreates live access", function(t)
 	for _, level in ipairs({ "READ", "READWRITE" }) do
 		t.query(string.format([[
 			mutation { createPostgresAccess(input: {
-				postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+				postgres: "foobar", environmentName: "dev", teamSlug: "someteamname",
 				accessLevel: %s, reason: "Testing personal database access"
 			}) { name expiresAt } }
 		]], level))
@@ -279,7 +277,7 @@ Test.gql("Personal access rejects retired non-main selection", function(t)
 			reason: "Testing access to a recovered instance"
 		}) { name } }
 	]]
-	t.check { data = Null, errors = { { extensions = { field = "branch" }, message = Contains("Could not find PostgresBranch"), path = { "createPostgresAccess" } } } }
+	t.check { data = Null, errors = { { extensions = { code = "GRAPHQL_VALIDATION_FAILED" }, locations = NotNull(), message = Contains('Field "branch" is not defined') } } }
 end)
 
 Test.gql("PostgresAccess status is visible to authorized team members", function(t)
@@ -432,7 +430,7 @@ Test.gql("An expired access is replaced in the same request", function(t)
 	t.addHeader("x-user-email", staleUser:email())
 	local request = [[
 		mutation { createPostgresAccess(input: {
-			postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+			postgres: "foobar", environmentName: "dev", teamSlug: "someteamname",
 			accessLevel: READ, reason: "Testing personal database access"
 		}) { name } }
 	]]

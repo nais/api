@@ -109,14 +109,6 @@ func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.Ope
 	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
-func (r *postgresBranchIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.PostgresBranchIssue) (*team.TeamEnvironment, error) {
-	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
-}
-
-func (r *postgresBranchIssueResolver) Branch(ctx context.Context, obj *issue.PostgresBranchIssue) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranchByObjectName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
-}
-
 func (r *postgresIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.PostgresIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -241,10 +233,6 @@ func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
 
-func (r *Resolver) PostgresBranchIssue() gengql.PostgresBranchIssueResolver {
-	return &postgresBranchIssueResolver{r}
-}
-
 func (r *Resolver) PostgresIssue() gengql.PostgresIssueResolver { return &postgresIssueResolver{r} }
 
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
@@ -282,7 +270,6 @@ type (
 	missingSbomIssueResolver                        struct{ *Resolver }
 	noRunningInstancesIssueResolver                 struct{ *Resolver }
 	openSearchIssueResolver                         struct{ *Resolver }
-	postgresBranchIssueResolver                     struct{ *Resolver }
 	postgresIssueResolver                           struct{ *Resolver }
 	sqlInstanceStateIssueResolver                   struct{ *Resolver }
 	sqlInstanceVersionIssueResolver                 struct{ *Resolver }

@@ -61,16 +61,6 @@ func (PostgresIssue) IsIssue() {}
 
 func (PostgresIssue) IsNode() {}
 
-// Deprecated: retained only to validate old GraphQL client documents. No longer
-// produced by the checker or by stored issue conversion.
-type PostgresBranchIssue struct {
-	Base
-}
-
-func (PostgresBranchIssue) IsIssue() {}
-
-func (PostgresBranchIssue) IsNode() {}
-
 type SqlInstanceVersionIssue struct {
 	Base
 }

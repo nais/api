@@ -58,14 +58,13 @@ Test.gql("Postgres issues are scoped to the logical database", function(t)
 						pageInfo { totalCount } nodes { __typename }
 						facets { resourceTypes { resourceType count } issueTypes { issueType count } }
 					}
-					main: branch(name: "main") { issues { pageInfo { totalCount } } }
 				}
 				other: postgres(name: "another-db") {
-					branch(name: "main") { issues { pageInfo { totalCount } } }
+					issues { pageInfo { totalCount } }
 				}
 			}
 			staging: environment(name: "staging") {
-				postgres(name: "foobar") { branch(name: "main") { issues { pageInfo { totalCount } } } }
+				postgres(name: "foobar") { issues { pageInfo { totalCount } } }
 			}
 		}
 		other: team(slug: "postgres-other-team") {
@@ -83,11 +82,10 @@ Test.gql("Postgres issues are scoped to the logical database", function(t)
 							issueTypes = { { issueType = "POSTGRES", count = 1 } },
 						},
 					},
-					main = { issues = { pageInfo = { totalCount = 1 } } },
 				},
-				other = { branch = { issues = { pageInfo = { totalCount = 0 } } } },
+				other = { issues = { pageInfo = { totalCount = 0 } } },
 			},
-			staging = { postgres = { branch = { issues = { pageInfo = { totalCount = 0 } } } } },
+			staging = { postgres = { issues = { pageInfo = { totalCount = 0 } } } },
 		},
 		other = { issues = { pageInfo = { totalCount = 0 } } },
 	} }
@@ -108,7 +106,7 @@ Test.gql("Old stored rows are exposed as PostgresIssue with the same Node ID", f
 			... on PostgresIssue { id postgres { name teamEnvironment { name team { slug } } } }
 		}
 		team(slug: "someteamname") {
-			issues(filter: { issueType: POSTGRES_BRANCH }) { pageInfo { totalCount } nodes { __typename ... on PostgresIssue { postgres { name } } } }
+			issues(filter: { resourceName: "broken-main-69d0ff6e" }) { pageInfo { totalCount } nodes { __typename ... on PostgresIssue { postgres { name } } } }
 		}
 	}]], State.postgres_issue_id))
 	t.check { data = {

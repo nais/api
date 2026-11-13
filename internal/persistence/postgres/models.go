@@ -201,10 +201,6 @@ func (e PostgresBranchState) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (PostgresBranch) IsPersistence() {}
-
-func (PostgresBranch) IsNode() {}
-
 type DeletePostgresInput struct {
 	Name            string    `json:"name"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
@@ -358,10 +354,6 @@ func (p *PostgresBranch) GetNamespace() string {
 
 func (p *PostgresBranch) GetLabels() map[string]string {
 	return nil
-}
-
-func (p *PostgresBranch) ID() ident.Ident {
-	return newIdent(p.TeamSlug, p.EnvironmentName, p.PostgresName, p.Name)
 }
 
 func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*PostgresBranch, error) {

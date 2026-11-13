@@ -75,9 +75,6 @@ func TestPostgresContractsWithoutBranchAPI(t *testing.T) {
 	if len(views) != 1 || views[0].Name != "main" || views[0].State != postgres.PostgresBranchStateAvailable {
 		t.Fatalf("main facade = %+v", views)
 	}
-	if _, err := postgres.GetPostgresBranchByIdent(ctx, views[0].ID()); err != nil {
-		t.Fatal(err)
-	}
 	if _, err := postgres.GetPostgresBranchByObjectName(ctx, "team", "dev", v1.PostgresPhysicalName("orders")); err != nil {
 		t.Fatal(err)
 	}

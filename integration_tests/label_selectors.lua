@@ -145,7 +145,7 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 					}
 					nodes {
 						name
-						branches { nodes { name labels { key value } } }
+						labels { key value }
 					}
 				}
 			}
@@ -159,9 +159,9 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 				postgreses = {
 					pageInfo = { totalCount = 3 },
 					nodes = {
-						{ name = "postgres-one",   branches = { nodes = { { name = "main", labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } } } } },
-						{ name = "postgres-three", branches = { nodes = { { name = "main", labels = { { key = "tag", value = "other" } } } } } },
-						{ name = "postgres-two",   branches = { nodes = { { name = "main", labels = { { key = "tag", value = "target" } } } } } },
+						{ name = "postgres-one",   labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } },
+						{ name = "postgres-three", labels = { { key = "tag", value = "other" } } },
+						{ name = "postgres-two",   labels = { { key = "tag", value = "target" } } },
 					},
 				},
 			},
@@ -169,24 +169,14 @@ Test.gql("Check all Postgres instances (no filter)", function(t)
 	}
 end)
 
-Test.gql("A branch's labels are available through its Postgres", function(t)
+Test.gql("Postgres labels are available on the database", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "labelteam") { environment(name: "dev") {
-		postgres(name: "postgres-one") { branch(name: "main") { labels { key value } } }
+		postgres(name: "postgres-one") { labels { key value } }
 	} } }]]
-	t.check { data = { team = { environment = { postgres = { branch = { labels = {
+	t.check { data = { team = { environment = { postgres = { labels = {
 		{ key = "priority", value = "high" }, { key = "tag", value = "target" },
-	} } } } } } }
-end)
-
-Test.gql("The main facade inherits Postgres labels", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug: "labelteam") { environment(name: "dev") {
-		postgres(name: "postgres-one") { labels { key value } branch(name: "main") { labels { key value } } }
-	} } }]]
-	t.check { data = { team = { environment = { postgres = {
-		labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } }, branch = { labels = { { key = "priority", value = "high" }, { key = "tag", value = "target" } } },
-	} } } } }
+	} } } } } }
 end)
 
 Test.gql("Check all applications (no filter)", function(t)

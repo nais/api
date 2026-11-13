@@ -8,7 +8,6 @@ local workloadFields = [[fragment PostgresWorkloadFields on PostgresWorkload {
 		... on Application { __typename id name team { slug } teamEnvironment { environment { name } } }
 		... on Job { __typename id name team { slug } teamEnvironment { environment { name } } }
 	}
-	branch { id name }
 }]]
 
 local function workloadNode(workloadType, name, branch)
@@ -20,25 +19,24 @@ local function workloadNode(workloadType, name, branch)
 			team = { slug = "postgres-workload-team" },
 			teamEnvironment = { environment = { name = "dev" } },
 		},
-		branch = { id = NotNull(), name = branch },
 	}
 end
 
 Test.gql("Application and job Postgres uses expose spec fields and resolved resources", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		application(name: "consumer") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
-		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		application(name: "consumer") { postgreses { pageInfo { totalCount } nodes { envPrefix role postgres { name } } } }
+		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { envPrefix role postgres { name } } } }
 	} } }]]
 	local applicationPostgreses = {
-		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "archive", activeBranch = Null } },
-		{ envPrefix = Null,       role = "READ",  branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "main" } } },
-		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "reports", activeBranch = { name = "main" } } },
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", postgres = { name = "archive" } },
+		{ envPrefix = Null,       role = "READ",  postgres = { name = "orders" } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", postgres = { name = "reports" } },
 	}
 	local jobPostgreses = {
-		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "archive", activeBranch = Null } },
-		{ envPrefix = Null,       role = "ADMIN", branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "main" } } },
-		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "reports", activeBranch = { name = "main" } } },
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", postgres = { name = "archive" } },
+		{ envPrefix = Null,       role = "ADMIN", postgres = { name = "orders" } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", postgres = { name = "reports" } },
 	}
 	t.check { data = { team = { environment = {
 		application = { postgreses = { pageInfo = { totalCount = 3 }, nodes = applicationPostgreses } },
@@ -46,19 +44,19 @@ Test.gql("Application and job Postgres uses expose spec fields and resolved reso
 	} } } }
 end)
 
-Test.gql("PostgresBranch workloads reference its Postgres through uses.postgres", function(t)
+Test.gql("Postgres workloads reference their database through uses.postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		postgres(name: "orders") { branch(name: "main") { workloads { nodes { __typename name } } } }
-		other: postgres(name: "reports") { branch(name: "main") { workloads { nodes { __typename name } } } }
+		postgres(name: "orders") { workloads { nodes { workload { __typename ... on Application { name } ... on Job { name } } } } }
+		other: postgres(name: "reports") { workloads { nodes { workload { __typename ... on Application { name } ... on Job { name } } } } }
 	} } }]]
 	local workloads = {
-		{ __typename = "Application", name = "consumer" },
-		{ __typename = "Job",         name = "scheduled-reader" },
+		{ workload = { __typename = "Application", name = "consumer" } },
+		{ workload = { __typename = "Job", name = "scheduled-reader" } },
 	}
 	t.check { data = { team = { environment = {
-		postgres = { branch = { workloads = { nodes = workloads } } },
-		other = { branch = { workloads = { nodes = workloads } } },
+		postgres = { workloads = { nodes = workloads } },
+		other = { workloads = { nodes = workloads } },
 	} } } }
 end)
 
@@ -67,7 +65,7 @@ Test.gql("Postgres workloads include inactive branch references and databases wi
 	t.query([[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
 		postgres(name: "orders") { workloads(first: 1) { pageInfo { totalCount hasNextPage endCursor } nodes { ...PostgresWorkloadFields } } }
 		reports: postgres(name: "reports") { workloads { pageInfo { totalCount } nodes { ...PostgresWorkloadFields } } }
-		archive: postgres(name: "archive") { desiredActiveBranch activeBranch { name } workloads { pageInfo { totalCount } nodes { ...PostgresWorkloadFields } } }
+		archive: postgres(name: "archive") { workloads { pageInfo { totalCount } nodes { ...PostgresWorkloadFields } } }
 	} } }]] .. workloadFields)
 	t.check { data = { team = { environment = {
 		postgres = { workloads = { pageInfo = { totalCount = 2, hasNextPage = true, endCursor = Save("ordersCursor") }, nodes = {
@@ -77,7 +75,7 @@ Test.gql("Postgres workloads include inactive branch references and databases wi
 			workloadNode("Application", "consumer", "main"),
 			workloadNode("Job", "scheduled-reader", "main"),
 		} } },
-		archive = { desiredActiveBranch = "pending", activeBranch = Null, workloads = { pageInfo = { totalCount = 2 }, nodes = {
+		archive = { workloads = { pageInfo = { totalCount = 2 }, nodes = {
 			workloadNode("Application", "consumer", "main"),
 			workloadNode("Job", "scheduled-reader", "main"),
 		} } },

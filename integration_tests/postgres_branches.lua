@@ -10,7 +10,6 @@ local workloadFields = [[fragment PostgresWorkloadFields on PostgresWorkload {
 		... on Application { __typename id name team { slug } teamEnvironment { environment { name } } }
 		... on Job { __typename id name team { slug } teamEnvironment { environment { name } } }
 	}
-	branch { id name team { slug } teamEnvironment { environment { name } } }
 }]]
 
 local function workloadNode(workloadType, name, teamSlug, environmentName)
@@ -24,28 +23,20 @@ local function workloadNode(workloadType, name, teamSlug, environmentName)
 			team = { slug = teamSlug },
 			teamEnvironment = { environment = { name = environmentName } },
 		},
-		branch = {
-			id = NotNull(),
-			name = "main",
-			team = { slug = teamSlug },
-			teamEnvironment = { environment = { name = environmentName } },
-		},
 	}
 end
 
-Test.gql("List Postgres and their branches together", function(t)
+Test.gql("List Postgres databases with their observed states", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "someteamname") { postgreses(filter: { environments: ["dev"] }) { nodes {
-        name majorVersion activeBranch { name } branches { nodes { name state postgres { name } } }
+        name majorVersion state
     } } } }]]
 	t.check { data = { team = { postgreses = { nodes = {
-		{ name = "another-db", majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "another-db" } } } } },
-		{ name = "broken",     majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "DEGRADED", postgres = { name = "broken" } } } } },
-		{ name = "foobar", majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = {
-			{ name = "main", state = "AVAILABLE", postgres = { name = "foobar" } },
-		} } },
-		{ name = "with-audit",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "with-audit" } } } } },
-		{ name = "without-audit", majorVersion = "15", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "without-audit" } } } } },
+		{ name = "another-db",    majorVersion = "16", state = "AVAILABLE" },
+		{ name = "broken",        majorVersion = "17", state = "DEGRADED" },
+		{ name = "foobar",        majorVersion = "17", state = "AVAILABLE" },
+		{ name = "with-audit",    majorVersion = "16", state = "AVAILABLE" },
+		{ name = "without-audit", majorVersion = "15", state = "AVAILABLE" },
 	} } } } }
 end)
 
@@ -64,51 +55,36 @@ end)
 Test.gql("Retrieve logical Postgres and selected physical instance separately", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-        postgres(name:"foobar") { name activeBranch { name } majorVersion highAvailability resources { cpu memory diskSize } branch(name:"main") { name postgres { name } teamEnvironment { name } } branches { nodes { name state } } }
+        postgres(name:"foobar") { name state majorVersion highAvailability resources { cpu memory diskSize } teamEnvironment { name } }
     } } }]]
 	t.check { data = { team = { environment = {
-		postgres = { name = "foobar", activeBranch = { name = "main" }, majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, branch = { name = "main", postgres = { name = "foobar" }, teamEnvironment = { name = "dev" } }, branches = { nodes = {
-			{ name = "main", state = "AVAILABLE" },
-		} } },
+		postgres = { name = "foobar", state = "AVAILABLE", majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, teamEnvironment = { name = "dev" } },
 	} } } }
 end)
 
 Test.gql("An unrecoverable Postgres is degraded through the main facade", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-		postgres(name:"broken") { branch(name:"main") { name state } }
+		postgres(name:"broken") { name state }
 	} } }]]
 	t.check { data = { team = { environment = {
-		postgres = { branch = { name = "main", state = "DEGRADED" } },
+		postgres = { name = "broken", state = "DEGRADED" },
 	} } } }
-end)
-
-Test.gql("Branch state facets are scoped to their Postgres", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug:"someteamname") { environment(name:"dev") { postgres(name:"foobar") {
-        branches { nodes { name state } facets { states { state count } } }
-    } } } }]]
-	t.check { data = { team = { environment = { postgres = { branches = {
-		nodes = {
-			{ name = "main", state = "AVAILABLE" },
-		},
-		facets = { states = { { state = "AVAILABLE", count = 1 } } },
-	} } } } } }
 end)
 
 Test.gql("A workload Postgres use follows the active physical instance", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-	        application(name:"app-with-postgres") { postgreses { nodes { postgres { name activeBranch { name } } branch { name } } } }
-        postgres(name:"foobar") { branch(name:"main") { workloads { nodes { __typename name } } } }
+	        application(name:"app-with-postgres") { postgreses { nodes { postgres { name } } } }
+        postgres(name:"foobar") { workloads { nodes { workload { __typename ... on Application { name } ... on Job { name } } } } }
     } } }]]
 	t.check { data = { team = { environment = {
-		application = { postgreses = { nodes = { { postgres = { name = "foobar", activeBranch = { name = "main" } }, branch = { name = "main" } } } } },
-		postgres = { branch = { workloads = { nodes = {
-			{ __typename = "Application", name = "app-with-postgres" },
-			{ __typename = "Application", name = "app-with-postgres-2" },
-			{ __typename = "Job",         name = "job-with-postgres" },
-		} } } },
+		application = { postgreses = { nodes = { { postgres = { name = "foobar" } } } } },
+		postgres = { workloads = { nodes = {
+			{ workload = { __typename = "Application", name = "app-with-postgres" } },
+			{ workload = { __typename = "Application", name = "app-with-postgres-2" } },
+			{ workload = { __typename = "Job", name = "job-with-postgres" } },
+		} } },
 	} } } }
 end)
 
@@ -205,10 +181,9 @@ end)
 Test.gql("Postgres configuration exposes explicitly configured parameters in name order", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "someteamname") { environment(name: "dev") { postgres(name: "foobar") {
-		activeBranch { name configuration { parameters { name value } } }
+		configuration { parameters { name value } }
 	} } } }]]
-	t.check { data = { team = { environment = { postgres = { activeBranch = {
-		name = "main",
+	t.check { data = { team = { environment = { postgres = {
 		configuration = { parameters = {
 			{ name = "bgwriter_lru_maxpages",      value = "200" },
 			{ name = "checkpoint_timeout",         value = "10min" },
@@ -230,7 +205,7 @@ Test.gql("Postgres configuration exposes explicitly configured parameters in nam
 			{ name = "wal_compression",            value = "zstd" },
 			{ name = "work_mem",                   value = "32MB" },
 		} },
-	} } } } } }
+	} } } } }
 end)
 
 Test.gql("Postgres configuration is scoped to branch, database, team and environment", function(t)
@@ -238,23 +213,23 @@ Test.gql("Postgres configuration is scoped to branch, database, team and environ
 	t.query [[{
 		team(slug: "someteamname") {
 			dev: environment(name: "dev") {
-				postgres(name: "broken") { branch(name: "main") { configuration { parameters { name value } } } }
-				empty: postgres(name: "another-db") { activeBranch { configuration { parameters { name value } } } }
-				missing: postgres(name: "without-audit") { name activeBranch { name configuration { parameters { name value } } } }
+				postgres(name: "broken") { configuration { parameters { name value } } }
+				empty: postgres(name: "another-db") { configuration { parameters { name value } } }
+				missing: postgres(name: "without-audit") { name configuration { parameters { name value } } }
 			}
-			staging: environment(name: "staging") { postgres(name: "foobar") { activeBranch { configuration { parameters { name value } } } } }
+			staging: environment(name: "staging") { postgres(name: "foobar") { configuration { parameters { name value } } } }
 		}
-		other: team(slug: "postgres-other-team") { environment(name: "dev") { postgres(name: "foobar") { activeBranch { configuration { parameters { name value } } } } } }
+		other: team(slug: "postgres-other-team") { environment(name: "dev") { postgres(name: "foobar") { configuration { parameters { name value } } } } }
 	}]]
 	t.check { data = {
 		team = {
 			dev = {
-				postgres = { branch = { configuration = { parameters = { { name = "shared_buffers", value = "128MB" } } } } },
-				empty = { activeBranch = { configuration = { parameters = {} } } },
-				missing = { name = "without-audit", activeBranch = { name = "main", configuration = Null } },
+				postgres = { configuration = { parameters = { { name = "shared_buffers", value = "128MB" } } } },
+				empty = { configuration = { parameters = {} } },
+				missing = { name = "without-audit", configuration = Null },
 			},
-			staging = { postgres = { activeBranch = { configuration = { parameters = { { name = "work_mem", value = "8MB" } } } } } },
+			staging = { postgres = { configuration = { parameters = { { name = "work_mem", value = "8MB" } } } } },
 		},
-		other = { environment = { postgres = { activeBranch = { configuration = { parameters = { { name = "work_mem", value = "16MB" } } } } } } },
+		other = { environment = { postgres = { configuration = { parameters = { { name = "work_mem", value = "16MB" } } } } } },
 	} }
 end)
