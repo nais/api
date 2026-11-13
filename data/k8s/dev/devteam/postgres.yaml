@@ -16,16 +16,6 @@ spec:
     diskSize: 10Gi
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: postgres-1-main-7adae74b
-  namespace: devteam
-spec:
-  postgres: postgres-1
-  branchName: main
-status:
   clusterName: pg-postgres-1-main-7adae74b
   reconcilePhase: Completed
   observedGeneration: 0
@@ -53,16 +43,6 @@ spec:
     diskSize: 20Gi
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: postgres-2-main-41c0e281
-  namespace: devteam
-spec:
-  postgres: postgres-2
-  branchName: main
-status:
   clusterName: pg-postgres-2-main-41c0e281
   reconcilePhase: Completed
   observedGeneration: 0

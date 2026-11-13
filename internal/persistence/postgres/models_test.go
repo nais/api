@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -78,7 +79,7 @@ func TestToPostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
+	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "main" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
 	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {
@@ -135,7 +136,7 @@ func TestValidateQuantities(t *testing.T) {
 		{name: "inclusive limits", cpu: "8000m", memory: "32768Mi", disk: "1000Gi"},
 		{name: "cpu above maximum", cpu: "8.001", wantErr: true},
 		{name: "memory above maximum", memory: "33Gi", wantErr: true},
-		{name: "disk below minimum", disk: "9Gi", wantErr: true},
+		{name: "disk below minimum", disk: "4Gi", wantErr: true},
 		{name: "disk above maximum", disk: "1001Gi", wantErr: true},
 	}
 	for _, tt := range tests {
@@ -156,6 +157,37 @@ func TestValidateQuantities(t *testing.T) {
 			err := verr.NilIfEmpty()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("validation error = %v, want error %t", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestPostgresInputDiskSizeValidation(t *testing.T) {
+	for _, tt := range []struct {
+		diskSize string
+		wantErr  string
+	}{
+		{diskSize: "4Gi", wantErr: `diskSize: "4Gi" must be at least 5Gi.`},
+		{diskSize: "5119Mi", wantErr: `diskSize: "5119Mi" must be at least 5Gi.`},
+		{diskSize: "5Gi"},
+		{diskSize: "9Gi"},
+	} {
+		t.Run(tt.diskSize, func(t *testing.T) {
+			create := CreatePostgresInput{
+				Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a", MajorVersion: "18", DiskSize: &tt.diskSize,
+			}
+			update := UpdatePostgresInput{
+				Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a", DiskSize: &tt.diskSize,
+			}
+			for name, validationErrors := range map[string]*validate.ValidationErrors{
+				"create": create.ValidationErrors(context.Background()),
+				"update": update.ValidationErrors(context.Background()),
+			} {
+				t.Run(name, func(t *testing.T) {
+					if got := validationErrors.Error(); got != tt.wantErr {
+						t.Errorf("validation error = %q, want %q", got, tt.wantErr)
+					}
+				})
 			}
 		})
 	}

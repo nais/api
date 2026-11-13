@@ -157,7 +157,7 @@ func newHTTPRouter(
 			))
 			r.Method("POST", "/", graphHandler)
 		})
-		r.Mount("/api/loki", otelhttp.NewHandler(http.StripPrefix("/api", lokiProxy), "loki"))
+		r.Mount("/api/loki", otelhttp.NewHandler(http.StripPrefix("/api", postgres.WithLogScope(lokiProxy)), "loki"))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
@@ -383,7 +383,7 @@ func ConfigureGraph(
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
-		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresBranchWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation, tenantName, dynamicClients)
+		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation, tenantName, dynamicClients)
 		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)

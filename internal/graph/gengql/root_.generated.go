@@ -114,6 +114,7 @@ type ResolverRoot interface {
 	PostgresBranchConnection() PostgresBranchConnectionResolver
 	PostgresBranchIssue() PostgresBranchIssueResolver
 	PostgresConnection() PostgresConnectionResolver
+	PostgresIssue() PostgresIssueResolver
 	PostgresWorkload() PostgresWorkloadResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
@@ -1942,14 +1943,19 @@ type ComplexityRoot struct {
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Branch              func(childComplexity int, name string) int
 		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
+		Configuration       func(childComplexity int) int
+		CreatedAt           func(childComplexity int) int
 		DesiredActiveBranch func(childComplexity int) int
+		EarliestRestoreTime func(childComplexity int) int
 		Extensions          func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
+		Issues              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Labels              func(childComplexity int) int
 		MajorVersion        func(childComplexity int) int
 		Name                func(childComplexity int) int
 		Resources           func(childComplexity int) int
+		State               func(childComplexity int) int
 		Team                func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
 		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1962,6 +1968,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		Name            func(childComplexity int) int
+		Postgres        func(childComplexity int) int
 		PostgresBranch  func(childComplexity int) int
 		RelayAccess     func(childComplexity int) int
 		State           func(childComplexity int) int
@@ -2132,6 +2139,14 @@ type ComplexityRoot struct {
 		Until   func(childComplexity int) int
 	}
 
+	PostgresIssue struct {
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Postgres        func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+	}
+
 	PostgresParameter struct {
 		Name  func(childComplexity int) int
 		Value func(childComplexity int) int
@@ -2200,6 +2215,7 @@ type ComplexityRoot struct {
 
 	PostgresWorkload struct {
 		Branch   func(childComplexity int) int
+		Postgres func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
 
@@ -12254,12 +12270,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
 
+	case "Postgres.configuration":
+		if e.ComplexityRoot.Postgres.Configuration == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Configuration(childComplexity), true
+
+	case "Postgres.createdAt":
+		if e.ComplexityRoot.Postgres.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.CreatedAt(childComplexity), true
+
 	case "Postgres.desiredActiveBranch":
 		if e.ComplexityRoot.Postgres.DesiredActiveBranch == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
+
+	case "Postgres.earliestRestoreTime":
+		if e.ComplexityRoot.Postgres.EarliestRestoreTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.EarliestRestoreTime(childComplexity), true
 
 	case "Postgres.extensions":
 		if e.ComplexityRoot.Postgres.Extensions == nil {
@@ -12281,6 +12318,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.ID(childComplexity), true
+
+	case "Postgres.issues":
+		if e.ComplexityRoot.Postgres.Issues == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_issues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
 
 	case "Postgres.labels":
 		if e.ComplexityRoot.Postgres.Labels == nil {
@@ -12309,6 +12358,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
+
+	case "Postgres.state":
+		if e.ComplexityRoot.Postgres.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.State(childComplexity), true
 
 	case "Postgres.team":
 		if e.ComplexityRoot.Postgres.Team == nil {
@@ -12377,6 +12433,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresAccess.Name(childComplexity), true
+
+	case "PostgresAccess.postgres":
+		if e.ComplexityRoot.PostgresAccess.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresAccess.Postgres(childComplexity), true
 
 	case "PostgresAccess.postgresBranch":
 		if e.ComplexityRoot.PostgresAccess.PostgresBranch == nil {
@@ -13165,6 +13228,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
+	case "PostgresIssue.id":
+		if e.ComplexityRoot.PostgresIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.ID(childComplexity), true
+
+	case "PostgresIssue.message":
+		if e.ComplexityRoot.PostgresIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Message(childComplexity), true
+
+	case "PostgresIssue.postgres":
+		if e.ComplexityRoot.PostgresIssue.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Postgres(childComplexity), true
+
+	case "PostgresIssue.severity":
+		if e.ComplexityRoot.PostgresIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Severity(childComplexity), true
+
+	case "PostgresIssue.teamEnvironment":
+		if e.ComplexityRoot.PostgresIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.TeamEnvironment(childComplexity), true
+
 	case "PostgresParameter.name":
 		if e.ComplexityRoot.PostgresParameter.Name == nil {
 			break
@@ -13465,6 +13563,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresWorkload.Branch(childComplexity), true
+
+	case "PostgresWorkload.postgres":
+		if e.ComplexityRoot.PostgresWorkload.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresWorkload.Postgres(childComplexity), true
 
 	case "PostgresWorkload.workload":
 		if e.ComplexityRoot.PostgresWorkload.Workload == nil {
@@ -27436,8 +27541,10 @@ enum Severity {
 }
 
 enum ResourceType {
+	"Postgres database."
+	POSTGRES
 	"A branch of a Postgres database."
-	POSTGRES_BRANCH
+	POSTGRES_BRANCH @deprecated(reason: "Use POSTGRES instead.")
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -27447,8 +27554,10 @@ enum ResourceType {
 }
 
 enum IssueType {
+	"Postgres database failure."
+	POSTGRES
 	"Raised when a Postgres branch has reported a failure."
-	POSTGRES_BRANCH
+	POSTGRES_BRANCH @deprecated(reason: "Use POSTGRES instead.")
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -27579,7 +27688,21 @@ type ValkeyIssue implements Issue & Node {
 	event: String!
 }
 
-"A failure reported by a Postgres branch, including inactive branches."
+"A failure reported by a Postgres database."
+type PostgresIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"Team environment containing the affected Postgres database."
+	teamEnvironment: TeamEnvironment!
+	"Severity of the reported failure."
+	severity: Severity!
+	"Description of the reported failure."
+	message: String!
+	"The Postgres database that reported the failure."
+	postgres: Postgres!
+}
+
+"Legacy issue type, no longer returned. Use PostgresIssue instead."
 type PostgresBranchIssue implements Issue & Node {
 	"Unique identifier for this issue."
 	id: ID!
@@ -27590,7 +27713,7 @@ type PostgresBranchIssue implements Issue & Node {
 	"Description of the reported failure."
 	message: String!
 	"The branch that reported the failure."
-	branch: PostgresBranch!
+	branch: PostgresBranch! @deprecated(reason: "Use PostgresIssue.postgres instead.")
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {
@@ -29902,7 +30025,7 @@ type PostgresParameter {
 	value: String!
 }
 
-"A Postgres whose active branch can change."
+"A managed Postgres database."
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
@@ -29912,6 +30035,29 @@ type Postgres implements Node {
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
+	"When this Postgres was created."
+	createdAt: Time!
+	"Observed database state; availability does not guarantee successful client connections."
+	state: PostgresState!
+	"Observed PostgreSQL configuration, when available."
+	configuration: PostgresConfiguration
+	"Earliest point in time covered by available backups, when known."
+	earliestRestoreTime: Time
+	"Issues reported for this database."
+	issues(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Order issues."
+		orderBy: IssueOrder
+		"Filter issues."
+		filter: ResourceIssueFilter
+	): IssueConnection!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
 	"Names of PostgreSQL extensions configured for this Postgres."
@@ -29949,10 +30095,22 @@ type Postgres implements Node {
 	labels: [ResourceLabel!]!
 }
 
+"Observed state of a Postgres database."
+enum PostgresState {
+	"The database reports that it is available."
+	AVAILABLE
+	"The database is being provisioned or reconciled."
+	PROGRESSING
+	"The database reports an error requiring intervention."
+	DEGRADED
+}
+
 "A workload referencing a Postgres and the branch it uses."
 type PostgresWorkload {
 	"The application or job referencing this Postgres."
 	workload: Workload!
+	"The database referenced by this workload."
+	postgres: Postgres!
 	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
 	branch: PostgresBranch!
 }
@@ -30429,13 +30587,16 @@ type CreatePostgresAccessPayload {
 
 "Input for creating a time-limited personal Postgres access."
 input CreatePostgresAccessInput {
-	"Name of the Postgres containing the branch."
+	"Name of the Postgres to access."
 	postgres: String!
-	"Local name of the branch to access."
-	branch: String!
-	"Team that owns the Postgres branch."
+	"Legacy branch selection. Omit for normal database access."
+	branch: String
+		@deprecated(
+			reason: "Branch selection is being removed. Omit this field to access the database."
+		)
+	"Team that owns the Postgres."
 	teamSlug: Slug!
-	"Environment containing the Postgres branch."
+	"Environment containing the Postgres."
 	environmentName: String!
 	"Privileges requested for the personal database role."
 	accessLevel: PostgresAccessLevel!
@@ -30487,7 +30648,7 @@ type TeamInventoryCountPostgresBranches {
 	total: Int!
 }
 
-"A time-limited personal access request for a Postgres branch."
+"A time-limited personal access request for a Postgres database."
 type PostgresAccess implements Node {
 	"Opaque ID for this PostgresAccess resource."
 	id: ID!
@@ -30497,8 +30658,10 @@ type PostgresAccess implements Node {
 	team: Team!
 	"Environment for the access."
 	teamEnvironment: TeamEnvironment!
-	"PostgresBranch selected by this access."
-	postgresBranch: PostgresBranch!
+	"Postgres selected by this access."
+	postgres: Postgres!
+	"Legacy branch view of the database selected by this access."
+	postgresBranch: PostgresBranch! @deprecated(reason: "Use postgres instead.")
 	"Requested access level."
 	accessLevel: PostgresAccessLevel!
 	"Server-controlled expiry for this personal access."
@@ -41383,6 +41546,16 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_teamEnvironment(ctx, field)
 	case "name":
 		return ec.fieldContext_Postgres_name(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_Postgres_createdAt(ctx, field)
+	case "state":
+		return ec.fieldContext_Postgres_state(ctx, field)
+	case "configuration":
+		return ec.fieldContext_Postgres_configuration(ctx, field)
+	case "earliestRestoreTime":
+		return ec.fieldContext_Postgres_earliestRestoreTime(ctx, field)
+	case "issues":
+		return ec.fieldContext_Postgres_issues(ctx, field)
 	case "majorVersion":
 		return ec.fieldContext_Postgres_majorVersion(ctx, field)
 	case "extensions":
@@ -41419,6 +41592,8 @@ func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, fiel
 		return ec.fieldContext_PostgresAccess_team(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_PostgresAccess_teamEnvironment(ctx, field)
+	case "postgres":
+		return ec.fieldContext_PostgresAccess_postgres(ctx, field)
 	case "postgresBranch":
 		return ec.fieldContext_PostgresAccess_postgresBranch(ctx, field)
 	case "accessLevel":
@@ -41655,6 +41830,8 @@ func (ec *executionContext) childFields_PostgresWorkload(ctx context.Context, fi
 	switch field.Name {
 	case "workload":
 		return ec.fieldContext_PostgresWorkload_workload(ctx, field)
+	case "postgres":
+		return ec.fieldContext_PostgresWorkload_postgres(ctx, field)
 	case "branch":
 		return ec.fieldContext_PostgresWorkload_branch(ctx, field)
 	}

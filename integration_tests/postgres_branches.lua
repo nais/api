@@ -39,10 +39,10 @@ Test.gql("List Postgres and their branches together", function(t)
         name majorVersion activeBranch { name } branches { nodes { name state postgres { name } } }
     } } } }]]
 	t.check { data = { team = { postgreses = { nodes = {
-		{ name = "another-db",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "another-db" } } } } },
+		{ name = "another-db", majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "another-db" } } } } },
+		{ name = "broken",     majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "DEGRADED", postgres = { name = "broken" } } } } },
 		{ name = "foobar", majorVersion = "17", activeBranch = { name = "main" }, branches = { nodes = {
-			{ name = "failed", state = "DEGRADED",  postgres = { name = "foobar" } },
-			{ name = "main",   state = "AVAILABLE", postgres = { name = "foobar" } },
+			{ name = "main", state = "AVAILABLE", postgres = { name = "foobar" } },
 		} } },
 		{ name = "with-audit",    majorVersion = "16", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "with-audit" } } } } },
 		{ name = "without-audit", majorVersion = "15", activeBranch = { name = "main" }, branches = { nodes = { { name = "main", state = "AVAILABLE", postgres = { name = "without-audit" } } } } },
@@ -68,19 +68,18 @@ Test.gql("Retrieve logical Postgres and selected physical instance separately", 
     } } }]]
 	t.check { data = { team = { environment = {
 		postgres = { name = "foobar", activeBranch = { name = "main" }, majorVersion = "17", highAvailability = false, resources = { cpu = "100m", memory = "2Gi", diskSize = "2Gi" }, branch = { name = "main", postgres = { name = "foobar" }, teamEnvironment = { name = "dev" } }, branches = { nodes = {
-			{ name = "failed", state = "DEGRADED" },
-			{ name = "main",   state = "AVAILABLE" },
+			{ name = "main", state = "AVAILABLE" },
 		} } },
 	} } } }
 end)
 
-Test.gql("An unrecoverable Postgres branch is degraded", function(t)
+Test.gql("An unrecoverable Postgres is degraded through the main facade", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug:"someteamname") { environment(name:"dev") {
-		postgres(name:"foobar") { branch(name:"failed") { name state } }
+		postgres(name:"broken") { branch(name:"main") { name state } }
 	} } }]]
 	t.check { data = { team = { environment = {
-		postgres = { branch = { name = "failed", state = "DEGRADED" } },
+		postgres = { branch = { name = "main", state = "DEGRADED" } },
 	} } } }
 end)
 
@@ -91,10 +90,9 @@ Test.gql("Branch state facets are scoped to their Postgres", function(t)
     } } } }]]
 	t.check { data = { team = { environment = { postgres = { branches = {
 		nodes = {
-			{ name = "failed", state = "DEGRADED" },
-			{ name = "main",   state = "AVAILABLE" },
+			{ name = "main", state = "AVAILABLE" },
 		},
-		facets = { states = { { state = "AVAILABLE", count = 1 }, { state = "DEGRADED", count = 1 } } },
+		facets = { states = { { state = "AVAILABLE", count = 1 } } },
 	} } } } } }
 end)
 
@@ -240,7 +238,7 @@ Test.gql("Postgres configuration is scoped to branch, database, team and environ
 	t.query [[{
 		team(slug: "someteamname") {
 			dev: environment(name: "dev") {
-				postgres(name: "foobar") { branch(name: "failed") { configuration { parameters { name value } } } }
+				postgres(name: "broken") { branch(name: "main") { configuration { parameters { name value } } } }
 				empty: postgres(name: "another-db") { activeBranch { configuration { parameters { name value } } } }
 				missing: postgres(name: "without-audit") { name activeBranch { name configuration { parameters { name value } } } }
 			}

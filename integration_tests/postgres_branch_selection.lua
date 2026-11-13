@@ -1,38 +1,38 @@
 local user = User.new("pg-selection-user", "pg-selection-user@usersen.com")
-local team = Team.new("pg-selection-team", "Testing explicit Postgres branches", "#postgres")
+local team = Team.new("pg-selection-team", "Testing the retired branch facade", "#postgres")
 team:addMember(user)
 Helper.readK8sResources("k8s_resources/postgres_branch_selection")
 
-Test.gql("Branch workloads distinguish explicit selection from observed active branch", function(t)
+Test.gql("The main facade includes omitted and explicit main consumers", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-  postgres(name: "orders") {
-   main: branch(name: "main") { workloads { nodes { __typename name } } }
-   active: branch(name: "green") { workloads { nodes { __typename name } } }
-   preview: branch(name: "pr-123") { workloads { nodes { __typename name } } }
-   requested: branch(name: "pending") { workloads { nodes { __typename name } } }
-  }
- } } }]]
-	t.check { data = { team = { environment = { postgres = {
-		main = { workloads = { nodes = { { __typename = "Application", name = "pinned-app" } } } },
-		active = { workloads = { nodes = { { __typename = "Application", name = "following-app" } } } },
-		preview = { workloads = { nodes = { { __typename = "Job", name = "pinned-job" } } } },
-		requested = { workloads = { nodes = {} } },
-	} } } } }
+		postgres(name: "orders") { branch(name: "main") { workloads { nodes { __typename name } } } }
+	} } }]]
+	t.check { data = { team = { environment = { postgres = { branch = { workloads = { nodes = {
+		{ __typename = "Application", name = "following-app" },
+		{ __typename = "Application", name = "pinned-app" },
+		{ __typename = "Job",         name = "pinned-job" },
+	} } } } } } } }
 end)
 
-Test.gql("Workload Postgres uses include the configured and resolved branch", function(t)
+Test.gql("Stale active branch metadata never selects a physical target", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-		pinned: application(name: "pinned-app") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
-		following: application(name: "following-app") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
-		job: job(name: "pinned-job") { postgreses { nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
+		postgres(name: "orders") { activeBranch { name } branches { nodes { name } } }
+		application(name: "following-app") { postgreses { nodes { branch { name } postgres { name } } } }
 	} } }]]
 	t.check { data = { team = { environment = {
-		pinned = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
-		following = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "green" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
-		job = { postgreses = { nodes = { { envPrefix = Null, role = "ADMIN", branch = { name = "pr-123" }, postgres = { name = "orders", activeBranch = { name = "green" } } } } } },
+		postgres = { activeBranch = { name = "main" }, branches = { nodes = { { name = "main" } } } },
+		application = { postgreses = { nodes = { { branch = { name = "main" }, postgres = { name = "orders" } } } } },
 	} } } }
+end)
+
+Test.gql("Retired non-main lookups do not fall back to main", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
+		postgres(name: "orders") { branch(name: "green") { name } }
+	} } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), message = Contains("orders/green"), path = { "team", "environment", "postgres", "branch" } } } }
 end)
 
 Test.gql("Postgres pagination is validated when a workload has no uses", function(t)
@@ -40,61 +40,20 @@ Test.gql("Postgres pagination is validated when a workload has no uses", functio
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
 		job(name: "no-postgres-uses") { postgreses(first: 0) { pageInfo { totalCount } } }
 	} } }]]
-	t.check {
-		data = Null,
-		errors = { { locations = NotNull(), message = Contains("first must be greater than or equal to 1"), path = { "team", "environment", "job", "postgreses" } } },
-	}
+	t.check { data = Null, errors = { { locations = NotNull(), message = Contains("first must be greater than or equal to 1"), path = { "team", "environment", "job", "postgreses" } } } }
 end)
 
-Test.gql("Postgres workload branches use explicit selection or the observed active branch", function(t)
+Test.gql("A provisioning database retains workload relations without branch objects", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-		postgres(name: "orders") {
-			desiredActiveBranch activeBranch { name }
-			workloads { pageInfo { totalCount } nodes {
-				workload {
-					... on Application { __typename name }
-					... on Job { __typename name }
-				}
-				branch { name }
-			} }
+		postgres(name: "missing-branch") {
+			state activeBranch { name state } branch(name: "main") { name state }
+			workloads { pageInfo { totalCount } nodes { branch { name } workload { ... on Application { name } } } }
 		}
 	} } }]]
 	t.check { data = { team = { environment = { postgres = {
-		desiredActiveBranch = "pending", activeBranch = { name = "green" },
-		workloads = { pageInfo = { totalCount = 3 }, nodes = {
-			{ workload = { __typename = "Application", name = "following-app" }, branch = { name = "green" } },
-			{ workload = { __typename = "Application", name = "pinned-app" },    branch = { name = "main" } },
-			{ workload = { __typename = "Job", name = "pinned-job" },            branch = { name = "pr-123" } },
-		} },
+		state = "PROGRESSING", branch = { name = "main", state = "PROGRESSING" },
+		activeBranch = { name = "main", state = "PROGRESSING" },
+		workloads = { pageInfo = { totalCount = 1 }, nodes = { { branch = { name = "main" }, workload = { name = "missing-branch-app" } } } },
 	} } } } }
-end)
-
-Test.gql("A missing referenced branch returns an error instead of omitting the workload", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "missing-branch") {
-		workloads { pageInfo { totalCount } nodes { workload {
-			... on Application { __typename name }
-			... on Job { __typename name }
-		} } }
-	} } } }]]
-	t.check { data = { team = { environment = { postgres = { workloads = {
-		pageInfo = { totalCount = 1 }, nodes = {
-		{ workload = { __typename = "Application", name = "missing-branch-app" } },
-	},
-	} } } } } }
-	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") { postgres(name: "missing-branch") {
-		workloads(first: 2) { nodes { workload { ... on Application { name } } branch { name } } }
-	} } } }]]
-	t.check {
-		data = Null,
-		errors = { { locations = NotNull(), message = Contains("missing-branch/main"), path = { "team", "environment", "postgres", "workloads", "nodes", 0, "branch" } } },
-	}
-	t.query [[{ team(slug: "pg-selection-team") { environment(name: "dev") {
-		application(name: "missing-branch-app") { postgreses { nodes { postgres { name } branch { name } } } }
-	} } }]]
-	t.check {
-		data = Null,
-		errors = { { locations = NotNull(), message = Contains("missing-branch/main"), path = { "team", "environment", "application", "postgreses" } } },
-	}
 end)

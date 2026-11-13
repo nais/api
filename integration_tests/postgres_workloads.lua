@@ -31,14 +31,14 @@ Test.gql("Application and job Postgres uses expose spec fields and resolved reso
 		job(name: "scheduled-reader") { postgreses { pageInfo { totalCount } nodes { envPrefix role branch { name } postgres { name activeBranch { name } } } } }
 	} } }]]
 	local applicationPostgreses = {
-		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" },      postgres = { name = "archive", activeBranch = Null } },
-		{ envPrefix = Null,       role = "READ",  branch = { name = "green" },     postgres = { name = "orders", activeBranch = { name = "green" } } },
-		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "recovered" }, postgres = { name = "reports", activeBranch = { name = "recovered" } } },
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "archive", activeBranch = Null } },
+		{ envPrefix = Null,       role = "READ",  branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "main" } } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "reports", activeBranch = { name = "main" } } },
 	}
 	local jobPostgreses = {
-		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" },      postgres = { name = "archive", activeBranch = Null } },
-		{ envPrefix = Null,       role = "ADMIN", branch = { name = "restored" },  postgres = { name = "orders", activeBranch = { name = "green" } } },
-		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "recovered" }, postgres = { name = "reports", activeBranch = { name = "recovered" } } },
+		{ envPrefix = "ARCHIVE_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "archive", activeBranch = Null } },
+		{ envPrefix = Null,       role = "ADMIN", branch = { name = "main" }, postgres = { name = "orders", activeBranch = { name = "main" } } },
+		{ envPrefix = "REPORTS_", role = "ADMIN", branch = { name = "main" }, postgres = { name = "reports", activeBranch = { name = "main" } } },
 	}
 	t.check { data = { team = { environment = {
 		application = { postgreses = { pageInfo = { totalCount = 3 }, nodes = applicationPostgreses } },
@@ -49,15 +49,15 @@ end)
 Test.gql("PostgresBranch workloads reference its Postgres through uses.postgres", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
-		postgres(name: "orders") { branch(name: "green") { workloads { nodes { __typename name } } } }
-		other: postgres(name: "reports") { branch(name: "recovered") { workloads { nodes { __typename name } } } }
+		postgres(name: "orders") { branch(name: "main") { workloads { nodes { __typename name } } } }
+		other: postgres(name: "reports") { branch(name: "main") { workloads { nodes { __typename name } } } }
 	} } }]]
 	local workloads = {
 		{ __typename = "Application", name = "consumer" },
 		{ __typename = "Job",         name = "scheduled-reader" },
 	}
 	t.check { data = { team = { environment = {
-		postgres = { branch = { workloads = { nodes = { workloads[1] } } } },
+		postgres = { branch = { workloads = { nodes = workloads } } },
 		other = { branch = { workloads = { nodes = workloads } } },
 	} } } }
 end)
@@ -71,11 +71,11 @@ Test.gql("Postgres workloads include inactive branch references and databases wi
 	} } }]] .. workloadFields)
 	t.check { data = { team = { environment = {
 		postgres = { workloads = { pageInfo = { totalCount = 2, hasNextPage = true, endCursor = Save("ordersCursor") }, nodes = {
-			workloadNode("Application", "consumer", "green"),
+			workloadNode("Application", "consumer", "main"),
 		} } },
 		reports = { workloads = { pageInfo = { totalCount = 2 }, nodes = {
-			workloadNode("Application", "consumer", "recovered"),
-			workloadNode("Job", "scheduled-reader", "recovered"),
+			workloadNode("Application", "consumer", "main"),
+			workloadNode("Job", "scheduled-reader", "main"),
 		} } },
 		archive = { desiredActiveBranch = "pending", activeBranch = Null, workloads = { pageInfo = { totalCount = 2 }, nodes = {
 			workloadNode("Application", "consumer", "main"),
@@ -90,6 +90,6 @@ Test.gql("Postgres workloads include inactive branch references and databases wi
 	} } }]] .. workloadFields)
 	t.check { data = { team = { environment = { postgres = { workloads = {
 		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true },
-		nodes = { workloadNode("Job", "scheduled-reader", "restored") },
+		nodes = { workloadNode("Job", "scheduled-reader", "main") },
 	} } } } } }
 end)

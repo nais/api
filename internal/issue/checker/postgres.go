@@ -10,28 +10,32 @@ import (
 )
 
 type Postgres struct {
-	PostgresBranchWatcher *watcher.Watcher[*postgres.PostgresBranch]
+	PostgresWatcher *watcher.Watcher[*postgres.Postgres]
 }
 
-func (p Postgres) Run(_ context.Context) ([]Issue, error) {
-	if p.PostgresBranchWatcher == nil || !p.PostgresBranchWatcher.Enabled() {
-		return nil, nil
+func (p Postgres) Run(ctx context.Context) ([]Issue, error) {
+	var postgreses []*postgres.Postgres
+	if p.PostgresWatcher != nil && p.PostgresWatcher.Enabled() {
+		postgreses = watcher.Objects(p.PostgresWatcher.All())
 	}
 
 	var issues []Issue
-	for _, instance := range p.PostgresBranchWatcher.All() {
-		branch := instance.Obj
-		if branch.State != postgres.PostgresBranchStateDegraded {
+	for _, pg := range postgreses {
+		state, _, err := postgres.PhysicalStatus(ctx, pg)
+		if err != nil {
+			return nil, err
+		}
+		if state != postgres.PostgresBranchStateDegraded {
 			continue
 		}
 		issues = append(issues, Issue{
-			IssueType:    issue.IssueTypePostgresBranch,
-			ResourceName: branch.GetName(),
-			ResourceType: issue.ResourceTypePostgresBranch,
-			Team:         branch.TeamSlug.String(),
-			Env:          branch.EnvironmentName,
+			IssueType:    issue.IssueTypePostgres,
+			ResourceName: pg.Name,
+			ResourceType: issue.ResourceTypePostgres,
+			Team:         pg.TeamSlug.String(),
+			Env:          pg.EnvironmentName,
 			Severity:     issue.SeverityCritical,
-			Message:      fmt.Sprintf("Postgres branch %q of %q has reported a failure.", branch.Name, branch.PostgresName),
+			Message:      fmt.Sprintf("Postgres %q has reported a failure.", pg.Name),
 		})
 	}
 	return issues, nil

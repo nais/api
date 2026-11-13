@@ -79,7 +79,7 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, fakeEna
 	}
 
 	checker.checks = []check{
-		Postgres{PostgresBranchWatcher: watchers.PostgresBranchWatcher},
+		Postgres{PostgresWatcher: watchers.PostgresWatcher},
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceWatcher: watchers.SqlInstanceWatcher, Log: log.WithField("check", "SQLInstance")},
 		Workload{AppWatcher: *watchers.AppWatcher, IngressWatcher: *watchers.IngressWatcher, JobWatcher: *watchers.JobWatcher, PodWatcher: *watchers.PodWatcher, RunWatcher: *watchers.RunWatcher, V13sClient: v13s, log: log.WithField("check", "Workload")},

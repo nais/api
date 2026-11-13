@@ -411,7 +411,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresBranchWatcher, watchers.AppWatcher, watchers.JobWatcher, log.WithField("subsystem", "grpc")); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresWatcher, watchers.AppWatcher, watchers.JobWatcher, log.WithField("subsystem", "grpc")); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}

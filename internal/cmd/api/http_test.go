@@ -62,6 +62,20 @@ func TestLokiProxyAuthentication(t *testing.T) {
 	}
 }
 
+func TestPostgresLogScopeRequiresAuthentication(t *testing.T) {
+	identity := func(next http.Handler) http.Handler { return next }
+	proxy := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		t.Fatal("unauthenticated Postgres log request reached Loki")
+	})
+	router := newHTTPRouter(Fakes{}, nil, nil, nil, authn.New(nil, logrus.New()), nil, proxy, identity)
+	request := httptest.NewRequest(http.MethodGet, "/api/loki/api/v1/query_range?postgres=invalid&query=invalid", nil)
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+	if response.Code != http.StatusUnauthorized {
+		t.Errorf("got %d, want 401", response.Code)
+	}
+}
+
 func TestLokiProxyWebSocketAuthentication(t *testing.T) {
 	log := logrus.New()
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
