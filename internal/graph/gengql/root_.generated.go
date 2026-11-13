@@ -28663,7 +28663,7 @@ extend enum SearchType {
 input CreateKafkaCredentialsInput {
 	"The team that owns the Kafka topic."
 	teamSlug: Slug!
-	"The Nais environment to create Kafka credentials for. Configured legacy aliases are also accepted."
+	"The environment to create Kafka credentials for."
 	environmentName: String!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
 	ttl: String!
@@ -28687,7 +28687,7 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
-	"The canonical Nais environment name. Clients can compare this with the requested name to identify a legacy alias."
+	"The environment the Kafka credentials were created for."
 	environmentName: String!
 }
 
