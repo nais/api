@@ -1118,9 +1118,10 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilityConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
+		Edges        func(childComplexity int) int
+		Nodes        func(childComplexity int) int
+		PackageTypes func(childComplexity int) int
+		PageInfo     func(childComplexity int) int
 	}
 
 	ImageVulnerabilityEdge struct {
@@ -8158,6 +8159,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilityConnection.Nodes(childComplexity), true
+
+	case "ImageVulnerabilityConnection.packageTypes":
+		if e.ComplexityRoot.ImageVulnerabilityConnection.PackageTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilityConnection.PackageTypes(childComplexity), true
 
 	case "ImageVulnerabilityConnection.pageInfo":
 		if e.ComplexityRoot.ImageVulnerabilityConnection.PageInfo == nil {
@@ -36630,6 +36638,12 @@ type ImageVulnerabilitySummaryCountsByPriority {
 }
 
 type ImageVulnerabilityConnection {
+	"""
+	Registered PURL types for this image, including suppressed findings.
+	Independent of pagination and vulnerability filters.
+	"""
+	packageTypes: [String!]!
+
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
 
@@ -39948,6 +39962,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 
 func (ec *executionContext) childFields_ImageVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "packageTypes":
+		return ec.fieldContext_ImageVulnerabilityConnection_packageTypes(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_ImageVulnerabilityConnection_pageInfo(ctx, field)
 	case "edges":
