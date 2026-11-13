@@ -122,6 +122,8 @@ type Postgres implements Node {
 	configuration: PostgresConfiguration
 	"Earliest point in time covered by available backups, when known."
 	earliestRestoreTime: Time
+	"Immutable recovery origin and observed bootstrap progress, if created from a backup."
+	recovery: PostgresRecovery
 	"Issues reported for this database."
 	issues(
 		"Get the first n items in the connection."
@@ -724,6 +726,28 @@ input CreatePostgresInput {
 	diskSize: String
 	"Initial user-defined labels to apply."
 	labels: [ResourceLabelInput!]
+	"Initialize from an existing database in the same team and environment instead of creating an empty database."
+	recovery: PostgresRecoveryInput
+}
+
+"An explicit point-in-time recovery source for a new Postgres database."
+input PostgresRecoveryInput {
+	"Name of the source Postgres in the destination team and environment."
+	sourcePostgres: String!
+	"Restore to this explicit instant. Must be within the available archive and not in the future."
+	targetTime: Time!
+}
+
+"The immutable origin and bootstrap progress of a recovered database."
+type PostgresRecovery {
+	"Name of the source database at creation; the source may since have been deleted."
+	sourcePostgres: String!
+	"The requested point in time, not the database creation time."
+	targetTime: Time!
+	"Recovery is checkpointed and the database has a successful backup of its own."
+	completed: Boolean!
+	"A terminal recovery failure, if reported by the operator."
+	failureMessage: String
 }
 
 "Result of creating a Postgres."

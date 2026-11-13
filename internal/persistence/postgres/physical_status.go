@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"time"
 
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 )
@@ -23,15 +22,6 @@ func physicalClusterName(ctx context.Context, pg *Postgres) (*string, error) {
 
 func observedBranchName(pg *Postgres) string {
 	return nais_io_v1.DefaultBranchName
-}
-
-// PostgresEarliestRestoreTime uses the same physical target as database status,
-// including the preserved archive identity of an adopted main.
-func PostgresEarliestRestoreTime(ctx context.Context, pg *Postgres) (*time.Time, error) {
-	if pg.directClusterName != nil {
-		return EarliestRestoreTime(ctx, mainBranchView(pg))
-	}
-	return nil, nil
 }
 
 func mainBranchView(pg *Postgres) *PostgresBranch {

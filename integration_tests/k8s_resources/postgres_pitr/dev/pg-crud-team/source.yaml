@@ -1,0 +1,52 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: pitr-source
+  namespace: pg-crud-team
+  uid: pitr-source-uid
+spec:
+  majorVersion: "18"
+  highAvailability: true
+  extensions:
+    - name: pg_trgm
+  resources:
+    cpu: 250m
+    memory: 1Gi
+    diskSize: 20Gi
+status:
+  clusterName: pg-pitr-source-main
+  ownership:
+    phase: Managed
+    clusterUID: pitr-source-cluster-uid
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-pitr-source-main
+  namespace: pg-crud-team
+  uid: pitr-source-cluster-uid
+  ownerReferences:
+    - apiVersion: nais.io/v1
+      kind: Postgres
+      name: pitr-source
+      uid: pitr-source-uid
+      controller: true
+spec:
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      parameters:
+        barmanObjectName: pitr-source-archive
+status: {}
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: pitr-source-archive
+  namespace: pg-crud-team
+spec:
+  configuration:
+    destinationPath: gs://pitr-source-archive
+status:
+  serverRecoveryWindow:
+    pg-pitr-source-main:
+      firstRecoverabilityPoint: "2026-09-29T00:00:00Z"

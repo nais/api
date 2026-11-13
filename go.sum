@@ -809,6 +809,8 @@ github.com/nais/liberator v0.0.0-20261008133002-00075fb0d007 h1:F3ChkijLTpjxqGpQ
 github.com/nais/liberator v0.0.0-20261008133002-00075fb0d007/go.mod h1:PI0BYiAkX+ike2N1ZIOns0aUkhgiNKiCmy+YGKDR2R0=
 github.com/nais/pgrator/pkg/api v0.0.0-20261106143424-e72706ac0330 h1:bPVghfEV8ILMO9njAlBO/L/Vd6X9UkSedsSveztueSA=
 github.com/nais/pgrator/pkg/api v0.0.0-20261106143424-e72706ac0330/go.mod h1:jwBmSICTVLZyeJyD6ck+LLb2V5FsgsUbuCbfbHosew0=
+github.com/nais/pgrator/pkg/api v0.0.0-20261113135456-297e807a50e6 h1:7bg8b4tTjkOjpLuaLZ0zd49OUefm3RImWDgSsAxrT3w=
+github.com/nais/pgrator/pkg/api v0.0.0-20261113135456-297e807a50e6/go.mod h1:uMfm7kYuZxUNDMdf9sLv7MP2Y7RvQYWcI61NEd2Ni5c=
 github.com/nais/tester v0.2.0 h1:lcTkDP52ddw9l5s3KC4snUP+GlUpZMUtJ3XR2vF4G0w=
 github.com/nais/tester v0.2.0/go.mod h1:Pp7CtcVk/NZI3z0MW7V4j8CPMG5lhKZeAV4IaJKcslo=
 github.com/nais/unleasherator v0.0.0-20251216221129-efebc54203fe h1:CdRVopOihru4tXVwKZjhg6C8SbPLCQYOhJKpjBZYhjg=
