@@ -750,7 +750,8 @@ type ComplexityRoot struct {
 	}
 
 	CreateKafkaCredentialsPayload struct {
-		Credentials func(childComplexity int) int
+		Credentials     func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
 	}
 
 	CreateOpenSearchCredentialsPayload struct {
@@ -6848,6 +6849,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CreateKafkaCredentialsPayload.Credentials(childComplexity), true
+
+	case "CreateKafkaCredentialsPayload.environmentName":
+		if e.ComplexityRoot.CreateKafkaCredentialsPayload.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateKafkaCredentialsPayload.EnvironmentName(childComplexity), true
 
 	case "CreateOpenSearchCredentialsPayload.credentials":
 		if e.ComplexityRoot.CreateOpenSearchCredentialsPayload.Credentials == nil {
@@ -28778,7 +28786,7 @@ extend enum SearchType {
 input CreateKafkaCredentialsInput {
 	"The team that owns the Kafka topic."
 	teamSlug: Slug!
-	"The environment name that the Kafka topic belongs to."
+	"The environment to create Kafka credentials for."
 	environmentName: String!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
 	ttl: String!
@@ -28802,6 +28810,8 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+	"The environment the Kafka credentials were created for."
+	environmentName: String!
 }
 
 "Payload of the updateKafkaTopic mutation."
@@ -39878,6 +39888,8 @@ func (ec *executionContext) childFields_CreateKafkaCredentialsPayload(ctx contex
 	switch field.Name {
 	case "credentials":
 		return ec.fieldContext_CreateKafkaCredentialsPayload_credentials(ctx, field)
+	case "environmentName":
+		return ec.fieldContext_CreateKafkaCredentialsPayload_environmentName(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CreateKafkaCredentialsPayload", field.Name)
 }

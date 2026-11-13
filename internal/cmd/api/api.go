@@ -334,6 +334,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		serviceMaintenanceManager,
 		aivenClient,
 		cfg.Aiven.Projects,
+		cfg.KafkaEnvironments,
 		vulnMgr,
 		cfg.Tenant,
 		cfg.K8s.AllClusterNames(),

@@ -277,6 +277,31 @@ values:
         {{- end -}}
         {{- toJSON $result | quote -}}
 
+  kafka.environments:
+    displayName: Kafka environments
+    description: |
+      JSON mapping from canonical Nais environment names to pool and optional legacy aliases.
+      Defaults to each Kafka-enabled tenant environment's Aiven project and environment name.
+      Nav uses an explicit legacy mapping. Empty means Kafka credentials are unavailable.
+    config:
+      type: string
+    computed:
+      template: |
+        {{- if eq .Tenant.Name "nav" -}}
+        {{- dict
+          "dev-gcp" (dict "pool" "nav-dev" "aliases" (list "dev"))
+          "prod-gcp" (dict "pool" "nav-prod" "aliases" (list "prod"))
+          | toJSON | quote -}}
+        {{- else -}}
+        {{- $result := dict -}}
+        {{- range $env := .Envs -}}
+          {{- if and (eq $env.kind "tenant") $env.aiven_project $env.kafka_bootstrap_broker -}}
+            {{- $_ := set $result $env.name (dict "pool" $env.aiven_project) -}}
+          {{- end -}}
+        {{- end -}}
+        {{- toJSON $result | quote -}}
+        {{- end -}}
+
   kubernetes.oidcIssuers:
     displayName: Kubernetes OIDC issuers
     description: JSON array with objects containing `environment` and `issuer` for each supported environment.

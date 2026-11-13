@@ -42,6 +42,8 @@ spec:
               value: "true"
             - name: AIVEN_PROJECTS
               value: {{ .Values.aiven.projects | toJson  }}
+            - name: KAFKA_ENVIRONMENTS
+              value: {{ .Values.kafka.environments | quote }}
             - name: VULNERABILITIES_ENDPOINT
               value: "{{ .Values.v13s.endpoint }}"
             - name: VULNERABILITIES_SERVICE_ACCOUNT
