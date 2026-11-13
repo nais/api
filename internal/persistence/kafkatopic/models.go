@@ -240,7 +240,8 @@ type KafkaCredentials struct {
 // Payload types
 
 type CreateKafkaCredentialsPayload struct {
-	Credentials *KafkaCredentials `json:"credentials"`
+	Credentials     *KafkaCredentials `json:"credentials"`
+	EnvironmentName string            `json:"environmentName"`
 }
 
 type KafkaTopicGrantInput struct {
