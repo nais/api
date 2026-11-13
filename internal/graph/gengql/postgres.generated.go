@@ -33,6 +33,7 @@ type PostgresResolver interface {
 	State(ctx context.Context, obj *postgres.Postgres) (postgres.PostgresBranchState, error)
 	Configuration(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresConfiguration, error)
 	EarliestRestoreTime(ctx context.Context, obj *postgres.Postgres) (*time.Time, error)
+
 	Issues(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error)
 
 	Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresWorkload], error)
@@ -510,6 +511,38 @@ func (ec *executionContext) _Postgres_earliestRestoreTime(ctx context.Context, f
 }
 func (ec *executionContext) fieldContext_Postgres_earliestRestoreTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Postgres", field, true, true, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _Postgres_recovery(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_recovery(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Recovery, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresRecovery) graphql.Marshaler {
+			return ec.marshalOPostgresRecovery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresRecovery(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_recovery(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Postgres",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresRecovery(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _Postgres_issues(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
@@ -3615,6 +3648,98 @@ func (ec *executionContext) fieldContext_PostgresPersonalAccessCreatedActivityLo
 	return graphql.NewScalarFieldContext("PostgresPersonalAccessCreatedActivityLogEntryData", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresRecovery_sourcePostgres(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresRecovery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresRecovery_sourcePostgres(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.SourcePostgres, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresRecovery_sourcePostgres(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresRecovery", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresRecovery_targetTime(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresRecovery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresRecovery_targetTime(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TargetTime, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresRecovery_targetTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresRecovery", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresRecovery_completed(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresRecovery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresRecovery_completed(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Completed, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresRecovery_completed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresRecovery", field, false, false, errors.New("field of type Boolean does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresRecovery_failureMessage(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresRecovery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresRecovery_failureMessage(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.FailureMessage, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresRecovery_failureMessage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresRecovery", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _PostgresResources_cpu(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresResources) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -4589,7 +4714,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels", "recovery"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4666,6 +4791,13 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.Labels = data
+		case "recovery":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("recovery"))
+			data, err := ec.unmarshalOPostgresRecoveryInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresRecoveryInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Recovery = data
 		}
 	}
 	return it, nil
@@ -4710,6 +4842,43 @@ func (ec *executionContext) unmarshalInputDeletePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.EnvironmentName = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputPostgresRecoveryInput(ctx context.Context, obj any) (postgres.PostgresRecoveryInput, error) {
+	var it postgres.PostgresRecoveryInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"sourcePostgres", "targetTime"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "sourcePostgres":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sourcePostgres"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.SourcePostgres = data
+		case "targetTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("targetTime"))
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TargetTime = data
 		}
 	}
 	return it, nil
@@ -5168,6 +5337,8 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "recovery":
+			out.Values[i] = ec._Postgres_recovery(ctx, field, obj)
 		case "issues":
 			field := field
 
@@ -6626,6 +6797,57 @@ func (ec *executionContext) _PostgresPersonalAccessCreatedActivityLogEntryData(c
 	return out
 }
 
+var postgresRecoveryImplementors = []string{"PostgresRecovery"}
+
+func (ec *executionContext) _PostgresRecovery(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresRecovery) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresRecoveryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresRecovery")
+		case "sourcePostgres":
+			out.Values[i] = ec._PostgresRecovery_sourcePostgres(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "targetTime":
+			out.Values[i] = ec._PostgresRecovery_targetTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "completed":
+			out.Values[i] = ec._PostgresRecovery_completed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failureMessage":
+			out.Values[i] = ec._PostgresRecovery_failureMessage(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var postgresResourcesImplementors = []string{"PostgresResources"}
 
 func (ec *executionContext) _PostgresResources(ctx context.Context, sel ast.SelectionSet, obj *postgres.PostgresResources) graphql.Marshaler {
@@ -7604,6 +7826,21 @@ func (ec *executionContext) marshalOPostgresConfiguration2ᚖgithubᚗcomᚋnais
 		return graphql.Null
 	}
 	return ec._PostgresConfiguration(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostgresRecovery2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresRecovery(ctx context.Context, sel ast.SelectionSet, v *postgres.PostgresRecovery) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostgresRecovery(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPostgresRecoveryInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresRecoveryInput(ctx context.Context, v any) (*postgres.PostgresRecoveryInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPostgresRecoveryInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOTeamPostgresFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐTeamPostgresFilter(ctx context.Context, v any) (*postgres.TeamPostgresFilter, error) {
