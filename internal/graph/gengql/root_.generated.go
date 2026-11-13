@@ -36664,6 +36664,9 @@ type ImageVulnerabilityConnection {
 	nodes: [ImageVulnerability!]!
 }
 
+"""
+Distribution counts over all matching image findings, ignoring pagination and respecting the current filter.
+"""
 type ImageVulnerabilityFacets {
 	"Distribution of matching findings by PURL type."
 	packageTypes: [StringFacetItem!]!
