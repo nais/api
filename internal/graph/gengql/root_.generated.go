@@ -1118,15 +1118,19 @@ type ComplexityRoot struct {
 	}
 
 	ImageVulnerabilityConnection struct {
-		Edges        func(childComplexity int) int
-		Nodes        func(childComplexity int) int
-		PackageTypes func(childComplexity int) int
-		PageInfo     func(childComplexity int) int
+		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
 	}
 
 	ImageVulnerabilityEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ImageVulnerabilityFacets struct {
+		PackageTypes func(childComplexity int) int
 	}
 
 	ImageVulnerabilityHistory struct {
@@ -8153,19 +8157,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilityConnection.Edges(childComplexity), true
 
+	case "ImageVulnerabilityConnection.facets":
+		if e.ComplexityRoot.ImageVulnerabilityConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilityConnection.Facets(childComplexity), true
+
 	case "ImageVulnerabilityConnection.nodes":
 		if e.ComplexityRoot.ImageVulnerabilityConnection.Nodes == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilityConnection.Nodes(childComplexity), true
-
-	case "ImageVulnerabilityConnection.packageTypes":
-		if e.ComplexityRoot.ImageVulnerabilityConnection.PackageTypes == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ImageVulnerabilityConnection.PackageTypes(childComplexity), true
 
 	case "ImageVulnerabilityConnection.pageInfo":
 		if e.ComplexityRoot.ImageVulnerabilityConnection.PageInfo == nil {
@@ -8187,6 +8191,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilityEdge.Node(childComplexity), true
+
+	case "ImageVulnerabilityFacets.packageTypes":
+		if e.ComplexityRoot.ImageVulnerabilityFacets.PackageTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilityFacets.PackageTypes(childComplexity), true
 
 	case "ImageVulnerabilityHistory.samples":
 		if e.ComplexityRoot.ImageVulnerabilityHistory.Samples == nil {
@@ -36639,10 +36650,9 @@ type ImageVulnerabilitySummaryCountsByPriority {
 
 type ImageVulnerabilityConnection {
 	"""
-	Registered PURL types for this image, including suppressed findings.
-	Independent of pagination and vulnerability filters.
+	Facets over all matching findings, ignoring pagination and respecting the current filter.
 	"""
-	packageTypes: [String!]!
+	facets: ImageVulnerabilityFacets
 
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
@@ -36652,6 +36662,11 @@ type ImageVulnerabilityConnection {
 
 	"List of nodes."
 	nodes: [ImageVulnerability!]!
+}
+
+type ImageVulnerabilityFacets {
+	"Distribution of matching findings by PURL type."
+	packageTypes: [StringFacetItem!]!
 }
 
 type ImageVulnerabilitySample {
@@ -39962,8 +39977,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 
 func (ec *executionContext) childFields_ImageVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "packageTypes":
-		return ec.fieldContext_ImageVulnerabilityConnection_packageTypes(ctx, field)
+	case "facets":
+		return ec.fieldContext_ImageVulnerabilityConnection_facets(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_ImageVulnerabilityConnection_pageInfo(ctx, field)
 	case "edges":
@@ -39982,6 +39997,14 @@ func (ec *executionContext) childFields_ImageVulnerabilityEdge(ctx context.Conte
 		return ec.fieldContext_ImageVulnerabilityEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilityFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "packageTypes":
+		return ec.fieldContext_ImageVulnerabilityFacets_packageTypes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_ImageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
