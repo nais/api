@@ -12,20 +12,20 @@ import (
 
 var SortFilter = sortfilter.New[*Team, TeamOrderField, *TeamFilter]()
 
-var vulnerabilityPriorityGrouping func(context.Context, []*Team, TeamVulnerabilityPriorityGroup) ([]*Team, error)
+var vulnerabilityPriorityGrouping func(context.Context, []*Team, *TeamFilter) ([]*Team, error)
 
-func RegisterVulnerabilityPriorityGrouping(fn func(context.Context, []*Team, TeamVulnerabilityPriorityGroup) ([]*Team, error)) {
+func RegisterVulnerabilityPriorityGrouping(fn func(context.Context, []*Team, *TeamFilter) ([]*Team, error)) {
 	vulnerabilityPriorityGrouping = fn
 }
 
-func groupByVulnerabilityPriority(ctx context.Context, teams []*Team, priority TeamVulnerabilityPriorityGroup) ([]*Team, error) {
-	if !priority.IsValid() {
-		return nil, fmt.Errorf("invalid team vulnerability priority group: %s", priority)
+func groupByVulnerabilityPriority(ctx context.Context, teams []*Team, filter *TeamFilter) ([]*Team, error) {
+	if priority := filter.VulnerabilityPriorityGroup; priority != nil && !priority.IsValid() {
+		return nil, fmt.Errorf("invalid team vulnerability priority group: %s", *priority)
 	}
 	if vulnerabilityPriorityGrouping == nil {
 		return nil, fmt.Errorf("team vulnerability priority grouping is unavailable")
 	}
-	return vulnerabilityPriorityGrouping(ctx, teams, priority)
+	return vulnerabilityPriorityGrouping(ctx, teams, filter)
 }
 
 func init() {

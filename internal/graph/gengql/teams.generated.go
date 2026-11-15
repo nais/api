@@ -7999,7 +7999,7 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"teamScope", "hasWorkloads", "vulnerabilityPriorityGroup"}
+	fieldsInOrder := [...]string{"teamScope", "hasWorkloads", "hasCompleteSbomCoverage", "vulnerabilityPriorityGroup"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8020,6 +8020,13 @@ func (ec *executionContext) unmarshalInputTeamFilter(ctx context.Context, obj an
 				return it, err
 			}
 			it.HasWorkloads = data
+		case "hasCompleteSbomCoverage":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasCompleteSbomCoverage"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.HasCompleteSbomCoverage = data
 		case "vulnerabilityPriorityGroup":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityPriorityGroup"))
 			data, err := ec.unmarshalOTeamVulnerabilityPriorityGroup2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamVulnerabilityPriorityGroup(ctx, v)
