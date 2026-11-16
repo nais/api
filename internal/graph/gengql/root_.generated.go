@@ -24648,7 +24648,8 @@ type ApplicationInstanceStatus {
 	"""
 	message: String!
 	"""
-	Whether the container is passing its readiness check and can receive traffic.
+	Whether the instance is passing its readiness check and can receive traffic.
+	An instance does not receive traffic while a component added by the platform is failing.
 	"""
 	ready: Boolean!
 	"""

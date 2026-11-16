@@ -45,7 +45,6 @@ func transformPod(in any) (any, error) {
 		{"metadata", "generateName"},
 		{"metadata", "annotations"},
 		{"metadata", "managedFields"},
-		{"status", "initContainerStatuses"},
 	}
 
 	labelsToKeep := []string{
@@ -79,6 +78,11 @@ func transformPod(in any) (any, error) {
 	}
 
 	containerStatuses, _, err := unstructured.NestedSlice(pod.Object, "status", "containerStatuses")
+	if err != nil {
+		return nil, err
+	}
+
+	initContainerStatuses, _, err := unstructured.NestedSlice(pod.Object, "status", "initContainerStatuses")
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +122,7 @@ func transformPod(in any) (any, error) {
 	// Adding data back
 	_ = unstructured.SetNestedSlice(pod.Object, newContainers, "spec", "containers")
 	_ = unstructured.SetNestedSlice(pod.Object, containerStatuses, "status", "containerStatuses")
+	_ = unstructured.SetNestedSlice(pod.Object, initContainerStatuses, "status", "initContainerStatuses")
 	_ = unstructured.SetNestedSlice(pod.Object, newConditions, "status", "conditions")
 
 	return pod, nil

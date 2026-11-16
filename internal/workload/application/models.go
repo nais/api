@@ -93,6 +93,8 @@ type ApplicationInstance struct {
 	ApplicationContainerStatus corev1.ContainerStatus `json:"-"`
 	// SchedulingFailure is the reason the instance cannot be placed on a server, if any.
 	SchedulingFailure *string `json:"-"`
+	// ComponentContainerStatuses are the statuses of containers added by the platform, including init containers.
+	ComponentContainerStatuses []corev1.ContainerStatus `json:"-"`
 }
 
 func (ApplicationInstance) IsNode() {}
@@ -204,6 +206,8 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	ready := i.ApplicationContainerStatus.Ready
 	current := i.ApplicationContainerStatus.State
 
+	componentProblem, hasComponentProblem := i.componentProblem()
+
 	switch {
 	case i.SchedulingFailure != nil && current.Running == nil && current.Terminated == nil:
 		return &ApplicationInstanceStatus{
@@ -217,7 +221,11 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 
 	case i.ApplicationContainerStatus.State.Running != nil:
 		msg := "Running and ready."
-		if !ready {
+		if hasComponentProblem {
+			// The instance does not receive traffic until all its containers are ready.
+			ready = false
+			msg = "Running, but not receiving traffic. " + componentProblem
+		} else if !ready {
 			msg = "Running, but not passing readiness check."
 		}
 		return &ApplicationInstanceStatus{
@@ -250,10 +258,24 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 		state := ApplicationInstanceStateFailing
 		if kind == "benign" {
 			state = ApplicationInstanceStateStarting
+			if hasComponentProblem {
+				state = ApplicationInstanceStateFailing
+				msg = componentProblem
+			}
 		}
 		return &ApplicationInstanceStatus{
 			State:             state,
 			Message:           msg,
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
+		}
+
+	case hasComponentProblem:
+		return &ApplicationInstanceStatus{
+			State:             ApplicationInstanceStateFailing,
+			Message:           componentProblem,
 			Ready:             false,
 			LastExitReason:    lastExitReason,
 			LastExitCode:      lastExitCode,
@@ -301,7 +323,51 @@ func ToApplicationInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName 
 		ApplicationName:            applicationName,
 		ApplicationContainerStatus: containerStatus,
 		SchedulingFailure:          schedulingFailure(pod),
+		ComponentContainerStatuses: componentStatuses(pod, applicationName),
 	}
+}
+
+func componentStatuses(pod *corev1.Pod, applicationName string) []corev1.ContainerStatus {
+	ret := slices.Clone(pod.Status.InitContainerStatuses)
+	for _, c := range pod.Status.ContainerStatuses {
+		if c.Name != applicationName {
+			ret = append(ret, c)
+		}
+	}
+	return ret
+}
+
+// componentProblem describes a failing container added by the platform. Container names are not exposed, as these
+// containers are not part of the application manifest.
+func (i *ApplicationInstance) componentProblem() (string, bool) {
+	const prefix = "A component added by the platform "
+	for _, c := range i.ComponentContainerStatuses {
+		if w := c.State.Waiting; w != nil {
+			if kind, _ := classifyWaiting(w); kind != "problem" {
+				continue
+			}
+			switch strings.TrimSpace(w.Reason) {
+			case "CrashLoopBackOff":
+				return prefix + "keeps crashing.", true
+			case "ErrImagePull", "ImagePullBackOff", "InvalidImageName":
+				return prefix + "could not download its image.", true
+			case "CreateContainerConfigError":
+				if msg, ok := translate.MissingSource(w.Message); ok {
+					return prefix + "is missing configuration. " + msg, true
+				}
+				return prefix + "is missing configuration.", true
+			default:
+				return prefix + "could not start.", true
+			}
+		}
+		if t := c.State.Terminated; t != nil && t.ExitCode != 0 {
+			if t.Reason == "OOMKilled" {
+				return prefix + "ran out of memory.", true
+			}
+			return prefix + "stopped unexpectedly.", true
+		}
+	}
+	return "", false
 }
 
 func schedulingFailure(pod *corev1.Pod) *string {
