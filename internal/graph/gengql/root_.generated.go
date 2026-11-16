@@ -24670,6 +24670,8 @@ type ApplicationInstanceStatus {
 
 enum ApplicationInstanceState {
 	RUNNING
+	"The instance is waiting to be placed on a server, for example because there is not enough CPU or memory available."
+	PENDING
 	STARTING
 	FAILING
 	TERMINATED

@@ -332,7 +332,7 @@ func ListAllInstances(ctx context.Context, teamSlug slug.Slug, environmentName, 
 
 	ret := make([]*ApplicationInstance, len(pods))
 	for i, pod := range pods {
-		ret[i] = toGraphInstance(pod, teamSlug, environmentName, appName)
+		ret[i] = ToApplicationInstance(pod, teamSlug, environmentName, appName)
 	}
 	return ret, nil
 }
@@ -348,7 +348,7 @@ func getInstanceByIdent(ctx context.Context, ident ident.Ident) (*ApplicationIns
 		return nil, err
 	}
 
-	return toGraphInstance(pod, teamSlug, env, appName), nil
+	return ToApplicationInstance(pod, teamSlug, env, appName), nil
 }
 
 func GetIngressType(ctx context.Context, ingress *Ingress) IngressType {
