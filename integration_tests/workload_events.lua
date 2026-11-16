@@ -227,3 +227,76 @@ Test.gql("Deployments remain in the activity log", function(t)
 		events = { pageInfo = { totalCount = 2 } },
 	} } } } }
 end)
+
+Helper.SQLExec([[
+	INSERT INTO k8s_events (uid, environment_name, involved_kind, involved_name, involved_namespace, data, reason, triggered_at)
+	VALUES
+		('00000000-0000-0000-0000-000000000001', 'dev', 'Pod', 'another-app-pod', 'slug-1', '{"note":"Back-off restarting failed container another-app in pod another-app-pod","instance":"another-app-pod","count":1,"firstSeen":"2026-02-01T09:59:00Z","workloadKind":"Application","workloadName":"another-app"}', 'BackOff', '2026-02-01T10:00:00Z'),
+		('00000000-0000-0000-0000-000000000001', 'dev', 'Pod', 'another-app-pod', 'slug-1', '{"note":"Back-off restarting failed container another-app in pod another-app-pod","instance":"another-app-pod","count":3,"firstSeen":"2026-02-01T09:59:00Z","workloadKind":"Application","workloadName":"another-app"}', 'BackOff', '2026-02-01T10:05:00Z'),
+		('00000000-0000-0000-0000-000000000001', 'dev', 'Pod', 'another-app-pod', 'slug-1', '{"note":"Back-off restarting failed container another-app in pod another-app-pod","instance":"another-app-pod","count":5,"firstSeen":"2026-02-01T09:59:00Z","workloadKind":"Application","workloadName":"another-app"}', 'BackOff', '2026-02-01T10:10:00Z'),
+		(gen_random_uuid(), 'dev', 'ReplicaSet', 'another-app-abc', 'slug-1', '{"note":"Error creating: pods is forbidden: exceeded quota: team","count":1,"firstSeen":"2026-02-01T09:00:00Z","workloadKind":"Application","workloadName":"another-app"}', 'FailedCreate', '2026-02-01T09:00:00Z'),
+		(gen_random_uuid(), 'dev', 'HorizontalPodAutoscaler', 'another-app', 'slug-1', '{"note":"failed to get cpu utilization","count":2,"firstSeen":"2026-02-01T08:00:00Z"}', 'FailedGetResourceMetric', '2026-02-01T08:30:00Z')
+]])
+
+Test.gql("Warning events are translated and repeated occurrences combined", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		{ team(slug: "slug-1") { environment(name: "dev") { application(name: "another-app") {
+			events {
+				nodes {
+					__typename message triggeredAt
+					... on WorkloadWarningEvent { kind instance count firstSeenAt }
+				}
+				pageInfo { totalCount }
+			}
+		} } } }
+	]]
+	t.check { data = { team = { environment = { application = { events = {
+		nodes = {
+			{
+				__typename = "WorkloadWarningEvent",
+				message = "The instance keeps crashing and is restarted with increasing delay. Check the logs for details.",
+				triggeredAt = "2026-02-01T10:10:00Z",
+				kind = "CRASH_LOOP",
+				instance = "another-app-pod",
+				count = 5,
+				firstSeenAt = "2026-02-01T09:59:00Z",
+			},
+			{
+				__typename = "WorkloadWarningEvent",
+				message = "New instances could not be created because the team's resource quota is exceeded.",
+				triggeredAt = "2026-02-01T09:00:00Z",
+				kind = "INSTANCE_CREATION_FAILED",
+				instance = Null,
+				count = 1,
+				firstSeenAt = "2026-02-01T09:00:00Z",
+			},
+			{
+				__typename = "WorkloadWarningEvent",
+				message = "Automatic scaling could not read the metrics it needs, so the number of instances is not adjusted.",
+				triggeredAt = "2026-02-01T08:30:00Z",
+				kind = "SCALING_FAILED",
+				instance = Null,
+				count = 2,
+				firstSeenAt = "2026-02-01T08:00:00Z",
+			},
+		},
+		pageInfo = { totalCount = 3 },
+	} } } } } }
+end)
+
+Test.gql("Combined warning events use the latest occurrence within the time range", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		{ team(slug: "slug-1") { environment(name: "dev") { application(name: "another-app") {
+			events(filter: { from: "2026-02-01T09:30:00Z", to: "2026-02-01T10:07:00Z" }) {
+				nodes { ... on WorkloadWarningEvent { triggeredAt count } }
+				pageInfo { totalCount }
+			}
+		} } } }
+	]]
+	t.check { data = { team = { environment = { application = { events = {
+		nodes = { { triggeredAt = "2026-02-01T10:05:00Z", count = 3 } },
+		pageInfo = { totalCount = 1 },
+	} } } } } }
+end)

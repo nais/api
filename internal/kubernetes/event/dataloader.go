@@ -32,7 +32,10 @@ func NewLoaderContext(ctx context.Context, pool *pgxpool.Pool) context.Context {
 	queries := eventsql.New(pool)
 	l := &loaders{queries: queries}
 	l.byID = dataloadgen.NewLoader(func(ctx context.Context, ids []uuid.UUID) ([]WorkloadEvent, []error) {
-		return loader.LoadModelsWithError(ctx, ids, queries.ListByIDs, toGraphEvent, func(e WorkloadEvent) uuid.UUID { return e.GetUUID() })
+		listByIDs := func(ctx context.Context, ids []uuid.UUID) ([]*eventsql.K8sEvent, error) {
+			return queries.ListByIDs(ctx, eventsql.ListByIDsParams{Ids: ids, Reasons: supportedReasons})
+		}
+		return loader.LoadModelsWithError(ctx, ids, listByIDs, toGraphEvent, func(e WorkloadEvent) uuid.UUID { return e.GetUUID() })
 	}, loader.DefaultDataLoaderOptions...)
 	return context.WithValue(ctx, loadersKey, l)
 }

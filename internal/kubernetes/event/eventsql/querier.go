@@ -5,12 +5,14 @@ package eventsql
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error)
-	ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*K8sEvent, error)
+	DeleteOlderThan(ctx context.Context, before pgtype.Timestamptz) (pgconn.CommandTag, error)
+	ListByIDs(ctx context.Context, arg ListByIDsParams) ([]*K8sEvent, error)
 	ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*K8sEvent, error)
 	Upsert(ctx context.Context, arg []UpsertParams) *UpsertBatchResults
 }

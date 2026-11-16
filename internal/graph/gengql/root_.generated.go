@@ -4310,6 +4310,16 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	WorkloadWarningEvent struct {
+		Count       func(childComplexity int) int
+		FirstSeenAt func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Instance    func(childComplexity int) int
+		Kind        func(childComplexity int) int
+		Message     func(childComplexity int) int
+		TriggeredAt func(childComplexity int) int
+	}
+
 	WorkloadWithVulnerability struct {
 		ID            func(childComplexity int) int
 		Vulnerability func(childComplexity int) int
@@ -22826,6 +22836,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummaryEdge.Node(childComplexity), true
 
+	case "WorkloadWarningEvent.count":
+		if e.ComplexityRoot.WorkloadWarningEvent.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Count(childComplexity), true
+
+	case "WorkloadWarningEvent.firstSeenAt":
+		if e.ComplexityRoot.WorkloadWarningEvent.FirstSeenAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.FirstSeenAt(childComplexity), true
+
+	case "WorkloadWarningEvent.id":
+		if e.ComplexityRoot.WorkloadWarningEvent.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.ID(childComplexity), true
+
+	case "WorkloadWarningEvent.instance":
+		if e.ComplexityRoot.WorkloadWarningEvent.Instance == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Instance(childComplexity), true
+
+	case "WorkloadWarningEvent.kind":
+		if e.ComplexityRoot.WorkloadWarningEvent.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Kind(childComplexity), true
+
+	case "WorkloadWarningEvent.message":
+		if e.ComplexityRoot.WorkloadWarningEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Message(childComplexity), true
+
+	case "WorkloadWarningEvent.triggeredAt":
+		if e.ComplexityRoot.WorkloadWarningEvent.TriggeredAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.TriggeredAt(childComplexity), true
+
 	case "WorkloadWithVulnerability.id":
 		if e.ComplexityRoot.WorkloadWithVulnerability.ID == nil {
 			break
@@ -38115,6 +38174,51 @@ type WorkloadKillingEvent implements WorkloadEvent & Node {
 	container: String!
 	"Restart reason."
 	reason: String!
+}
+
+"""
+A problem detected while running the workload.
+Repeated occurrences of the same problem are combined into a single event.
+"""
+type WorkloadWarningEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the problem was last observed."
+	triggeredAt: Time!
+	"Description of the problem."
+	message: String!
+	"The kind of problem."
+	kind: WorkloadWarningEventKind!
+	"Name of the affected instance, if the problem concerns a single instance."
+	instance: String
+	"Number of times the problem has been observed."
+	count: Int!
+	"When the problem was first observed."
+	firstSeenAt: Time!
+}
+
+"The kind of problem reported by a warning event."
+enum WorkloadWarningEventKind {
+	"No server with enough available resources was found to run the instance."
+	PLACEMENT_FAILED
+	"Files or storage could not be mounted into the instance."
+	MOUNT_FAILED
+	"The container image could not be downloaded."
+	IMAGE_PULL_FAILED
+	"The instance could not be started, for example because of missing configuration."
+	START_FAILED
+	"The instance keeps crashing and is restarted with increasing delay."
+	CRASH_LOOP
+	"A readiness, liveness or startup check failed."
+	HEALTH_CHECK_FAILED
+	"The instance was stopped by the platform, for example to free up resources."
+	INSTANCE_STOPPED
+	"New instances could not be created, for example because of a quota or a platform policy."
+	INSTANCE_CREATION_FAILED
+	"Automatic scaling is unable to adjust the number of instances."
+	SCALING_FAILED
+	"A job run failed permanently."
+	RUN_FAILED
 }
 
 "A paginated collection of events."

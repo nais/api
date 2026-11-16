@@ -30,27 +30,31 @@ func listForWorkload(ctx context.Context, teamSlug slug.Slug, environment, name,
 	}
 	q := fromContext(ctx).queries
 	total, err := q.CountForWorkload(ctx, eventsql.CountForWorkloadParams{
-		Namespace:       teamSlug.String(),
-		EnvironmentName: environmentmapper.EnvironmentName(environment),
-		Name:            name,
-		WorkloadKind:    kind,
-		Kinds:           kinds,
-		From:            from,
-		To:              to,
+		Reasons:           supportedReasons,
+		AggregatedReasons: warningReasons,
+		Namespace:         teamSlug.String(),
+		EnvironmentName:   environmentmapper.EnvironmentName(environment),
+		Name:              name,
+		WorkloadKind:      kind,
+		Kinds:             kinds,
+		From:              from,
+		To:                to,
 	})
 	if err != nil {
 		return nil, err
 	}
 	rows, err := q.ListForWorkload(ctx, eventsql.ListForWorkloadParams{
-		Namespace:       teamSlug.String(),
-		EnvironmentName: environmentmapper.EnvironmentName(environment),
-		Name:            name,
-		WorkloadKind:    kind,
-		Kinds:           kinds,
-		From:            from,
-		To:              to,
-		Limit:           page.Limit(),
-		Offset:          page.Offset(),
+		Reasons:           supportedReasons,
+		AggregatedReasons: warningReasons,
+		Namespace:         teamSlug.String(),
+		EnvironmentName:   environmentmapper.EnvironmentName(environment),
+		Name:              name,
+		WorkloadKind:      kind,
+		Kinds:             kinds,
+		From:              from,
+		To:                to,
+		Limit:             page.Limit(),
+		Offset:            page.Offset(),
 	})
 	if err != nil {
 		return nil, err

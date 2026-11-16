@@ -4,15 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"reflect"
 	"testing"
 	"testing/fstest"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/job"
 	"github.com/sirupsen/logrus"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	eventv1 "k8s.io/api/events/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -76,19 +80,58 @@ func TestAddPodWorkload(t *testing.T) {
 	}
 }
 
+func TestAddOwnerWorkload(t *testing.T) {
+	run := &batchv1.Job{TypeMeta: metav1.TypeMeta{APIVersion: "batch/v1", Kind: "Job"}, ObjectMeta: metav1.ObjectMeta{
+		Name: "job-run", Namespace: "team", UID: "run-uid",
+		Labels: map[string]string{"app": "my-job"},
+	}}
+	runWatcher := newTestWatcher(t, run, job.NewRunWatcher)
+	w := &Watcher{log: logrus.New()}
+
+	for _, test := range []struct {
+		name     string
+		uid      types.UID
+		wantName string
+	}{
+		{name: "existing run", uid: "run-uid", wantName: "my-job"},
+		{name: "replaced run", uid: "old-run-uid"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			e := &eventv1.Event{Regarding: corev1.ObjectReference{Kind: "Job", Name: "job-run", Namespace: "team", UID: test.uid}}
+			data := map[string]any{}
+			addOwnerWorkload(w, runWatcher, "dev", e, data, "Naisjob")
+			if test.wantName == "" {
+				if len(data) != 0 {
+					t.Errorf("unexpected data %v", data)
+				}
+				return
+			}
+			want := map[string]any{"workloadKind": "Naisjob", "workloadName": test.wantName}
+			if diff := cmp.Diff(want, data); diff != "" {
+				t.Errorf("unexpected data (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func newTestPodWatcher(t *testing.T, pod *corev1.Pod) *watcher.Watcher[*corev1.Pod] {
+	t.Helper()
+	return newTestWatcher(t, pod, workload.NewWatcher)
+}
+
+func newTestWatcher[T watcher.Object](t *testing.T, obj T, newWatcher func(context.Context, *watcher.Manager) *watcher.Watcher[T]) *watcher.Watcher[T] {
 	t.Helper()
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
 	}
 	clientCreator := fake.Clients(nil)
-	if pod != nil {
-		data, err := json.Marshal(pod)
+	if !reflect.ValueOf(obj).IsNil() {
+		data, err := json.Marshal(obj)
 		if err != nil {
 			t.Fatal(err)
 		}
-		clientCreator = fake.Clients(fstest.MapFS{"dev/team/pod.yaml": &fstest.MapFile{Data: data}})
+		clientCreator = fake.Clients(fstest.MapFS{"dev/team/object.yaml": &fstest.MapFile{Data: data}})
 	}
 	log := logrus.New()
 	log.SetOutput(io.Discard)
@@ -99,11 +142,11 @@ func newTestPodWatcher(t *testing.T, pod *corev1.Pod) *watcher.Watcher[*corev1.P
 	t.Cleanup(mgr.Stop)
 	ctx, cancel := context.WithCancel(context.Background())
 	t.Cleanup(cancel)
-	podWatcher := workload.NewWatcher(ctx, mgr)
+	objectWatcher := newWatcher(ctx, mgr)
 	waitCtx, waitCancel := context.WithTimeout(ctx, 5*time.Second)
 	defer waitCancel()
 	if !mgr.WaitForReady(waitCtx) {
-		t.Fatal("pod watcher cache did not sync")
+		t.Fatal("watcher cache did not sync")
 	}
-	return podWatcher
+	return objectWatcher
 }

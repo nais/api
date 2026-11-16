@@ -413,6 +413,167 @@ func (ec *executionContext) fieldContext_WorkloadSuccessfulRescaleEvent_directio
 	return graphql.NewScalarFieldContext("WorkloadSuccessfulRescaleEvent", field, false, false, errors.New("field of type WorkloadSuccessfulRescaleEventDirection does not have child fields"))
 }
 
+func (ec *executionContext) _WorkloadWarningEvent_id(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, true, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadWarningEvent_triggeredAt(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_triggeredAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TriggeredAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_triggeredAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadWarningEvent_message(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadWarningEvent_kind(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_kind(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Kind, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v event.WorkloadWarningEventKind) graphql.Marshaler {
+			return ec.marshalNWorkloadWarningEventKind2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadWarningEventKind(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_kind(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, false, false, errors.New("field of type WorkloadWarningEventKind does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadWarningEvent_instance(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_instance(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Instance, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_instance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadWarningEvent_count(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_count(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Count, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _WorkloadWarningEvent_firstSeenAt(ctx context.Context, field graphql.CollectedField, obj *event.WorkloadWarningEvent) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadWarningEvent_firstSeenAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.FirstSeenAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadWarningEvent_firstSeenAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("WorkloadWarningEvent", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -462,6 +623,13 @@ func (ec *executionContext) _WorkloadEvent(ctx context.Context, sel ast.Selectio
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
+	case event.WorkloadWarningEvent:
+		return ec._WorkloadWarningEvent(ctx, sel, &obj)
+	case *event.WorkloadWarningEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadWarningEvent(ctx, sel, obj)
 	case event.WorkloadSuccessfulRescaleEvent:
 		return ec._WorkloadSuccessfulRescaleEvent(ctx, sel, &obj)
 	case *event.WorkloadSuccessfulRescaleEvent:
@@ -700,6 +868,72 @@ func (ec *executionContext) _WorkloadSuccessfulRescaleEvent(ctx context.Context,
 	return out
 }
 
+var workloadWarningEventImplementors = []string{"WorkloadWarningEvent", "WorkloadEvent", "Node"}
+
+func (ec *executionContext) _WorkloadWarningEvent(ctx context.Context, sel ast.SelectionSet, obj *event.WorkloadWarningEvent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadWarningEventImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadWarningEvent")
+		case "id":
+			out.Values[i] = ec._WorkloadWarningEvent_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "triggeredAt":
+			out.Values[i] = ec._WorkloadWarningEvent_triggeredAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._WorkloadWarningEvent_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "kind":
+			out.Values[i] = ec._WorkloadWarningEvent_kind(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "instance":
+			out.Values[i] = ec._WorkloadWarningEvent_instance(ctx, field, obj)
+		case "count":
+			out.Values[i] = ec._WorkloadWarningEvent_count(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "firstSeenAt":
+			out.Values[i] = ec._WorkloadWarningEvent_firstSeenAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -771,6 +1005,16 @@ func (ec *executionContext) unmarshalNWorkloadSuccessfulRescaleEventDirection2gi
 }
 
 func (ec *executionContext) marshalNWorkloadSuccessfulRescaleEventDirection2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadSuccessfulRescaleEventDirection(ctx context.Context, sel ast.SelectionSet, v event.WorkloadSuccessfulRescaleEventDirection) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNWorkloadWarningEventKind2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadWarningEventKind(ctx context.Context, v any) (event.WorkloadWarningEventKind, error) {
+	var res event.WorkloadWarningEventKind
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNWorkloadWarningEventKind2githubᚗcomᚋnaisᚋapiᚋinternalᚋkubernetesᚋeventᚐWorkloadWarningEventKind(ctx context.Context, sel ast.SelectionSet, v event.WorkloadWarningEventKind) graphql.Marshaler {
 	return v
 }
 
