@@ -9,6 +9,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/tools/cache"
@@ -20,8 +21,8 @@ const loadersKey ctxKey = iota
 
 const IngressHostIndex = "ingressHost"
 
-func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], log logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, log))
+func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], hpaWatcher *watcher.Watcher[*autoscalingv2.HorizontalPodAutoscaler], log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, hpaWatcher, log))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
@@ -69,13 +70,15 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	appWatcher     *watcher.Watcher[*nais_io_v1alpha1.Application]
 	ingressWatcher *watcher.Watcher[*netv1.Ingress]
+	hpaWatcher     *watcher.Watcher[*autoscalingv2.HorizontalPodAutoscaler]
 	log            logrus.FieldLogger
 }
 
-func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], log logrus.FieldLogger) *loaders {
+func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], hpaWatcher *watcher.Watcher[*autoscalingv2.HorizontalPodAutoscaler], log logrus.FieldLogger) *loaders {
 	return &loaders{
 		appWatcher:     appWatcher,
 		ingressWatcher: ingressWatcher,
+		hpaWatcher:     hpaWatcher,
 		log:            log,
 	}
 }

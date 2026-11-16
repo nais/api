@@ -67,6 +67,7 @@ type ResolverRoot interface {
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
 	ApplicationRolloutStuckIssue() ApplicationRolloutStuckIssueResolver
+	ApplicationScaling() ApplicationScalingResolver
 	AvailableValues() AvailableValuesResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
@@ -428,7 +429,15 @@ type ComplexityRoot struct {
 	ApplicationScaling struct {
 		MaxInstances func(childComplexity int) int
 		MinInstances func(childComplexity int) int
+		Status       func(childComplexity int) int
 		Strategies   func(childComplexity int) int
+	}
+
+	ApplicationScalingStatus struct {
+		CurrentInstances func(childComplexity int) int
+		DesiredInstances func(childComplexity int) int
+		Message          func(childComplexity int) int
+		State            func(childComplexity int) int
 	}
 
 	ApplicationStateFacetItem struct {
@@ -5540,12 +5549,47 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationScaling.MinInstances(childComplexity), true
 
+	case "ApplicationScaling.status":
+		if e.ComplexityRoot.ApplicationScaling.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScaling.Status(childComplexity), true
+
 	case "ApplicationScaling.strategies":
 		if e.ComplexityRoot.ApplicationScaling.Strategies == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ApplicationScaling.Strategies(childComplexity), true
+
+	case "ApplicationScalingStatus.currentInstances":
+		if e.ComplexityRoot.ApplicationScalingStatus.CurrentInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.CurrentInstances(childComplexity), true
+
+	case "ApplicationScalingStatus.desiredInstances":
+		if e.ComplexityRoot.ApplicationScalingStatus.DesiredInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.DesiredInstances(childComplexity), true
+
+	case "ApplicationScalingStatus.message":
+		if e.ComplexityRoot.ApplicationScalingStatus.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.Message(childComplexity), true
+
+	case "ApplicationScalingStatus.state":
+		if e.ComplexityRoot.ApplicationScalingStatus.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.State(childComplexity), true
 
 	case "ApplicationStateFacetItem.count":
 		if e.ComplexityRoot.ApplicationStateFacetItem.Count == nil {
@@ -24471,6 +24515,67 @@ type ApplicationScaling {
 	Scaling strategies for the application.
 	"""
 	strategies: [ScalingStrategy!]!
+
+	"""
+	The current state of automatic scaling for the application.
+	Null if automatic scaling is not set up for the application in the environment.
+	"""
+	status: ApplicationScalingStatus
+}
+
+"""
+The current state of automatic scaling for an application.
+"""
+type ApplicationScalingStatus {
+	"""
+	The number of instances currently running.
+	"""
+	currentInstances: Int!
+
+	"""
+	The number of instances that automatic scaling wants to run.
+	"""
+	desiredInstances: Int!
+
+	"""
+	The state of automatic scaling.
+	"""
+	state: ApplicationScalingState!
+
+	"""
+	A user-friendly description of the current state.
+	"""
+	message: String!
+}
+
+"""
+The state of automatic scaling for an application.
+"""
+enum ApplicationScalingState {
+	"""
+	Automatic scaling is working as expected.
+	"""
+	ACTIVE
+
+	"""
+	The application needs more instances than the configured maximum.
+	"""
+	LIMITED_BY_MAXIMUM
+
+	"""
+	The metrics used for automatic scaling cannot be read, so the number of instances is not adjusted.
+	"""
+	METRICS_UNAVAILABLE
+
+	"""
+	The platform is currently unable to change the number of instances.
+	"""
+	UNABLE_TO_SCALE
+
+	"""
+	Automatic scaling is turned off because the application has been scaled down to zero instances.
+	"""
+	DISABLED
 }
 
 """
@@ -39338,8 +39443,24 @@ func (ec *executionContext) childFields_ApplicationScaling(ctx context.Context, 
 		return ec.fieldContext_ApplicationScaling_maxInstances(ctx, field)
 	case "strategies":
 		return ec.fieldContext_ApplicationScaling_strategies(ctx, field)
+	case "status":
+		return ec.fieldContext_ApplicationScaling_status(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationScaling", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationScalingStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "currentInstances":
+		return ec.fieldContext_ApplicationScalingStatus_currentInstances(ctx, field)
+	case "desiredInstances":
+		return ec.fieldContext_ApplicationScalingStatus_desiredInstances(ctx, field)
+	case "state":
+		return ec.fieldContext_ApplicationScalingStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_ApplicationScalingStatus_message(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationScalingStatus", field.Name)
 }
 
 func (ec *executionContext) childFields_ApplicationStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

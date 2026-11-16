@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -69,6 +70,22 @@ func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, enviro
 		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
 	}
 	return ret
+}
+
+// GetScalingStatus returns the automatic scaling state of an application, or nil if automatic scaling is not set up.
+func GetScalingStatus(ctx context.Context, scaling *ApplicationScaling) (*ApplicationScalingStatus, error) {
+	w := fromContext(ctx).hpaWatcher
+	if w == nil {
+		return nil, nil
+	}
+	hpa, err := w.Get(scaling.EnvironmentName, scaling.TeamSlug.String(), scaling.ApplicationName)
+	if err != nil {
+		if errors.Is(err, &watcher.ErrorNotFound{}) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return toScalingStatus(hpa), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {

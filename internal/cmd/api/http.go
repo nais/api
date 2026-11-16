@@ -370,7 +370,7 @@ func ConfigureGraph(
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = crd.NewLoaderContext(ctx, watchers.AvailableValues)
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, log)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, watchers.HorizontalPodAutoscalerWatcher, log)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
