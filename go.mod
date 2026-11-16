@@ -21,6 +21,7 @@ require (
 	cloud.google.com/go/pubsub v1.51.0
 	github.com/99designs/gqlgen v0.17.90
 	github.com/GoogleCloudPlatform/k8s-config-connector v1.128.0
+	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/aiven/go-client-codegen v0.106.0
 	github.com/blevesearch/bleve/v2 v2.5.0
 	github.com/blevesearch/bleve_index_api v1.2.7
@@ -83,6 +84,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20261012220534-4341edf3f941
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.37.0
 	k8s.io/apimachinery v0.37.1
 	k8s.io/client-go v0.37.0
@@ -109,7 +111,6 @@ require (
 	github.com/DataDog/sketches-go v1.4.8 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
-	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/RoaringBitmap/roaring/v2 v2.4.5 // indirect
 	github.com/Workiva/go-datastructures v1.1.7 // indirect
@@ -464,7 +465,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.7.0 // indirect
 	k8s.io/apiextensions-apiserver v0.37.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad // indirect
