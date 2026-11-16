@@ -7607,6 +7607,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ApplicationScaledActivityLogEntry(ctx, sel, obj)
+	case issue.ApplicationRolloutStuckIssue:
+		return ec._ApplicationRolloutStuckIssue(ctx, sel, &obj)
+	case *issue.ApplicationRolloutStuckIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationRolloutStuckIssue(ctx, sel, obj)
 	case application.ApplicationRestartedActivityLogEntry:
 		return ec._ApplicationRestartedActivityLogEntry(ctx, sel, &obj)
 	case *application.ApplicationRestartedActivityLogEntry:

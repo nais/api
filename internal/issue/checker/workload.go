@@ -9,6 +9,7 @@ import (
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
+	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -25,12 +26,13 @@ type NaisWorkload interface {
 }
 
 type Workload struct {
-	AppWatcher     watcher.Watcher[*nais_io_v1alpha1.Application]
-	IngressWatcher watcher.Watcher[*netv1.Ingress]
-	JobWatcher     watcher.Watcher[*nais_io_v1.Naisjob]
-	PodWatcher     watcher.Watcher[*v1.Pod]
-	RunWatcher     watcher.Watcher[*batchv1.Job]
-	V13sClient     V13sClient
+	AppWatcher        watcher.Watcher[*nais_io_v1alpha1.Application]
+	IngressWatcher    watcher.Watcher[*netv1.Ingress]
+	JobWatcher        watcher.Watcher[*nais_io_v1.Naisjob]
+	PodWatcher        watcher.Watcher[*v1.Pod]
+	RunWatcher        watcher.Watcher[*batchv1.Job]
+	DeploymentWatcher *watcher.Watcher[*appsv1.Deployment]
+	V13sClient        V13sClient
 
 	log logrus.FieldLogger
 }
@@ -50,6 +52,7 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		}
 		ret = appendIssues(ret, w.noRunningInstances(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
 		ret = appendIssues(ret, w.restartLoop(app.Obj, watcher.Objects(pods), app.Obj.GetNamespace(), env))
+		ret = appendIssues(ret, w.rolloutStuck(app.Obj, app.Cluster, env))
 		ret = appendIssues(ret, w.workloadProblems(app.Obj, env, issue.ResourceTypeApplication)...)
 	}
 

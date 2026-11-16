@@ -36,6 +36,9 @@ rules:
       - deployments
     verbs:
       - patch
+      - get
+      - list
+      - watch
   - apiGroups:
       - "batch"
     resources:
@@ -252,6 +255,9 @@ rules:
       - deployments
     verbs:
       - patch
+      - get
+      - list
+      - watch
   - apiGroups:
       - "batch"
     resources:

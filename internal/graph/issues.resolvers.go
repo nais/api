@@ -25,6 +25,14 @@ func (r *applicationRestartLoopIssueResolver) Workload(ctx context.Context, obj 
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *applicationRolloutStuckIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ApplicationRolloutStuckIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *applicationRolloutStuckIssueResolver) Workload(ctx context.Context, obj *issue.ApplicationRolloutStuckIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 func (r *deprecatedIngressIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -189,6 +197,10 @@ func (r *Resolver) ApplicationRestartLoopIssue() gengql.ApplicationRestartLoopIs
 	return &applicationRestartLoopIssueResolver{r}
 }
 
+func (r *Resolver) ApplicationRolloutStuckIssue() gengql.ApplicationRolloutStuckIssueResolver {
+	return &applicationRolloutStuckIssueResolver{r}
+}
+
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
 	return &deprecatedIngressIssueResolver{r}
 }
@@ -259,6 +271,7 @@ func (r *Resolver) WorkloadProblemIssue() gengql.WorkloadProblemIssueResolver {
 
 type (
 	applicationRestartLoopIssueResolver             struct{ *Resolver }
+	applicationRolloutStuckIssueResolver            struct{ *Resolver }
 	deprecatedIngressIssueResolver                  struct{ *Resolver }
 	deprecatedRegistryIssueResolver                 struct{ *Resolver }
 	externalIngressUrgentVulnerabilityIssueResolver struct{ *Resolver }

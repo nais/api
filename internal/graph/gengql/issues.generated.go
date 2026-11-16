@@ -36,6 +36,11 @@ type ApplicationRestartLoopIssueResolver interface {
 
 	Workload(ctx context.Context, obj *issue.ApplicationRestartLoopIssue) (workload.Workload, error)
 }
+type ApplicationRolloutStuckIssueResolver interface {
+	TeamEnvironment(ctx context.Context, obj *issue.ApplicationRolloutStuckIssue) (*team.TeamEnvironment, error)
+
+	Workload(ctx context.Context, obj *issue.ApplicationRolloutStuckIssue) (workload.Workload, error)
+}
 type DeprecatedIngressIssueResolver interface {
 	TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error)
 
@@ -335,6 +340,162 @@ func (ec *executionContext) _ApplicationRestartLoopIssue_lastExitTimestamp(ctx c
 }
 func (ec *executionContext) fieldContext_ApplicationRestartLoopIssue_lastExitTimestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("ApplicationRestartLoopIssue", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.ApplicationRolloutStuckIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationRolloutStuckIssue_id(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v ident.Ident) graphql.Marshaler {
+			return ec.marshalNID2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋidentᚐIdent(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationRolloutStuckIssue_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationRolloutStuckIssue", field, false, false, errors.New("field of type ID does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *issue.ApplicationRolloutStuckIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationRolloutStuckIssue_teamEnvironment(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ApplicationRolloutStuckIssue().TeamEnvironment(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
+			return ec.marshalNTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationRolloutStuckIssue_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationRolloutStuckIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_TeamEnvironment(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue_severity(ctx context.Context, field graphql.CollectedField, obj *issue.ApplicationRolloutStuckIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationRolloutStuckIssue_severity(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Severity, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v issue.Severity) graphql.Marshaler {
+			return ec.marshalNSeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐSeverity(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationRolloutStuckIssue_severity(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationRolloutStuckIssue", field, false, false, errors.New("field of type Severity does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue_message(ctx context.Context, field graphql.CollectedField, obj *issue.ApplicationRolloutStuckIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationRolloutStuckIssue_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationRolloutStuckIssue_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationRolloutStuckIssue", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue_workload(ctx context.Context, field graphql.CollectedField, obj *issue.ApplicationRolloutStuckIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationRolloutStuckIssue_workload(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ApplicationRolloutStuckIssue().Workload(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
+			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationRolloutStuckIssue_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationRolloutStuckIssue",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue_reason(ctx context.Context, field graphql.CollectedField, obj *issue.ApplicationRolloutStuckIssue) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationRolloutStuckIssue_reason(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Reason, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v issue.ApplicationRolloutStuckReason) graphql.Marshaler {
+			return ec.marshalNApplicationRolloutStuckReason2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐApplicationRolloutStuckReason(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationRolloutStuckIssue_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationRolloutStuckIssue", field, false, false, errors.New("field of type ApplicationRolloutStuckReason does not have child fields"))
 }
 
 func (ec *executionContext) _DeprecatedIngressIssue_id(ctx context.Context, field graphql.CollectedField, obj *issue.DeprecatedIngressIssue) (ret graphql.Marshaler) {
@@ -3644,6 +3805,13 @@ func (ec *executionContext) _Issue(ctx context.Context, sel ast.SelectionSet, ob
 			return graphql.Null
 		}
 		return ec._DeprecatedIngressIssue(ctx, sel, obj)
+	case issue.ApplicationRolloutStuckIssue:
+		return ec._ApplicationRolloutStuckIssue(ctx, sel, &obj)
+	case *issue.ApplicationRolloutStuckIssue:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._ApplicationRolloutStuckIssue(ctx, sel, obj)
 	case issue.ApplicationRestartLoopIssue:
 		return ec._ApplicationRestartLoopIssue(ctx, sel, &obj)
 	case *issue.ApplicationRestartLoopIssue:
@@ -3774,6 +3942,132 @@ func (ec *executionContext) _ApplicationRestartLoopIssue(ctx context.Context, se
 			}
 		case "lastExitTimestamp":
 			out.Values[i] = ec._ApplicationRestartLoopIssue_lastExitTimestamp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationRolloutStuckIssueImplementors = []string{"ApplicationRolloutStuckIssue", "Issue", "Node"}
+
+func (ec *executionContext) _ApplicationRolloutStuckIssue(ctx context.Context, sel ast.SelectionSet, obj *issue.ApplicationRolloutStuckIssue) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationRolloutStuckIssueImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationRolloutStuckIssue")
+		case "id":
+			out.Values[i] = ec._ApplicationRolloutStuckIssue_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "teamEnvironment":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ApplicationRolloutStuckIssue_teamEnvironment(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "severity":
+			out.Values[i] = ec._ApplicationRolloutStuckIssue_severity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "message":
+			out.Values[i] = ec._ApplicationRolloutStuckIssue_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "workload":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ApplicationRolloutStuckIssue_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "reason":
+			out.Values[i] = ec._ApplicationRolloutStuckIssue_reason(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -6195,6 +6489,16 @@ func (ec *executionContext) _WorkloadProblemIssue(ctx context.Context, sel ast.S
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) unmarshalNApplicationRolloutStuckReason2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐApplicationRolloutStuckReason(ctx context.Context, v any) (issue.ApplicationRolloutStuckReason, error) {
+	var res issue.ApplicationRolloutStuckReason
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNApplicationRolloutStuckReason2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐApplicationRolloutStuckReason(ctx context.Context, sel ast.SelectionSet, v issue.ApplicationRolloutStuckReason) graphql.Marshaler {
+	return v
+}
 
 func (ec *executionContext) marshalNIssue2githubᚗcomᚋnaisᚋapiᚋinternalᚋissueᚐIssue(ctx context.Context, sel ast.SelectionSet, v issue.Issue) graphql.Marshaler {
 	if v == nil {
