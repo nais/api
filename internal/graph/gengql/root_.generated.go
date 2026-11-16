@@ -1405,8 +1405,12 @@ type ComplexityRoot struct {
 	}
 
 	JobRunInstance struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Created  func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Image    func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Restarts func(childComplexity int) int
+		Status   func(childComplexity int) int
 	}
 
 	JobRunInstanceConnection struct {
@@ -1418,6 +1422,14 @@ type ComplexityRoot struct {
 	JobRunInstanceEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	JobRunInstanceStatus struct {
+		LastExitCode      func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		State             func(childComplexity int) int
 	}
 
 	JobRunStatus struct {
@@ -9488,6 +9500,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunEdge.Node(childComplexity), true
 
+	case "JobRunInstance.created":
+		if e.ComplexityRoot.JobRunInstance.Created == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Created(childComplexity), true
+
 	case "JobRunInstance.id":
 		if e.ComplexityRoot.JobRunInstance.ID == nil {
 			break
@@ -9495,12 +9514,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunInstance.ID(childComplexity), true
 
+	case "JobRunInstance.image":
+		if e.ComplexityRoot.JobRunInstance.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Image(childComplexity), true
+
 	case "JobRunInstance.name":
 		if e.ComplexityRoot.JobRunInstance.Name == nil {
 			break
 		}
 
 		return e.ComplexityRoot.JobRunInstance.Name(childComplexity), true
+
+	case "JobRunInstance.restarts":
+		if e.ComplexityRoot.JobRunInstance.Restarts == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Restarts(childComplexity), true
+
+	case "JobRunInstance.status":
+		if e.ComplexityRoot.JobRunInstance.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Status(childComplexity), true
 
 	case "JobRunInstanceConnection.edges":
 		if e.ComplexityRoot.JobRunInstanceConnection.Edges == nil {
@@ -9536,6 +9576,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobRunInstanceEdge.Node(childComplexity), true
+
+	case "JobRunInstanceStatus.lastExitCode":
+		if e.ComplexityRoot.JobRunInstanceStatus.LastExitCode == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.LastExitCode(childComplexity), true
+
+	case "JobRunInstanceStatus.lastExitReason":
+		if e.ComplexityRoot.JobRunInstanceStatus.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.LastExitReason(childComplexity), true
+
+	case "JobRunInstanceStatus.lastExitTimestamp":
+		if e.ComplexityRoot.JobRunInstanceStatus.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.LastExitTimestamp(childComplexity), true
+
+	case "JobRunInstanceStatus.message":
+		if e.ComplexityRoot.JobRunInstanceStatus.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.Message(childComplexity), true
+
+	case "JobRunInstanceStatus.state":
+		if e.ComplexityRoot.JobRunInstanceStatus.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.State(childComplexity), true
 
 	case "JobRunStatus.message":
 		if e.ComplexityRoot.JobRunStatus.Message == nil {
@@ -28018,6 +28093,63 @@ type JobRunInstance implements Node {
 
 	"The name of the job run instance."
 	name: String!
+
+	"The container image of the job run instance."
+	image: ContainerImage!
+
+	"The number of times the job run instance has been restarted."
+	restarts: Int!
+
+	"The time the job run instance was created."
+	created: Time!
+
+	"The current status of the job run instance."
+	status: JobRunInstanceStatus!
+}
+
+"The status of a job run instance."
+type JobRunInstanceStatus {
+	"The current state of the job run instance."
+	state: JobRunInstanceState!
+
+	"A user-friendly description of the current state."
+	message: String!
+
+	"""
+	The reason the job run instance last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restarts.
+	"""
+	lastExitReason: String
+
+	"The exit code from the last termination of the job run instance, if applicable."
+	lastExitCode: Int
+
+	"""
+	The timestamp of the last termination of the job run instance, if applicable.
+	This is populated even when the instance is currently running, to help debug restarts.
+	"""
+	lastExitTimestamp: Time
+}
+
+"The state of a job run instance."
+enum JobRunInstanceState {
+	"The job run instance is running."
+	RUNNING
+
+	"The job run instance is waiting to be placed on a server, for example because there is not enough CPU or memory available."
+	PENDING
+
+	"The job run instance is starting."
+	STARTING
+
+	"The job run instance has a problem that prevents it from running or completing successfully."
+	FAILING
+
+	"The job run instance completed successfully."
+	SUCCEEDED
+
+	"The state of the job run instance is unknown."
+	UNKNOWN
 }
 
 type JobRunStatus {
@@ -40778,6 +40910,14 @@ func (ec *executionContext) childFields_JobRunInstance(ctx context.Context, fiel
 		return ec.fieldContext_JobRunInstance_id(ctx, field)
 	case "name":
 		return ec.fieldContext_JobRunInstance_name(ctx, field)
+	case "image":
+		return ec.fieldContext_JobRunInstance_image(ctx, field)
+	case "restarts":
+		return ec.fieldContext_JobRunInstance_restarts(ctx, field)
+	case "created":
+		return ec.fieldContext_JobRunInstance_created(ctx, field)
+	case "status":
+		return ec.fieldContext_JobRunInstance_status(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobRunInstance", field.Name)
 }
@@ -40802,6 +40942,22 @@ func (ec *executionContext) childFields_JobRunInstanceEdge(ctx context.Context, 
 		return ec.fieldContext_JobRunInstanceEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobRunInstanceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunInstanceStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_JobRunInstanceStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_JobRunInstanceStatus_message(ctx, field)
+	case "lastExitReason":
+		return ec.fieldContext_JobRunInstanceStatus_lastExitReason(ctx, field)
+	case "lastExitCode":
+		return ec.fieldContext_JobRunInstanceStatus_lastExitCode(ctx, field)
+	case "lastExitTimestamp":
+		return ec.fieldContext_JobRunInstanceStatus_lastExitTimestamp(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunInstanceStatus", field.Name)
 }
 
 func (ec *executionContext) childFields_JobRunStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
