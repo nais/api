@@ -186,7 +186,7 @@ func listAndSortByExternalSort(ctx context.Context, page *pagination.Pagination,
 
 	filteredTeams := SortFilter.Filter(ctx, teams, filter)
 
-	if filter != nil && (filter.VulnerabilityPriorityGroup != nil || filter.HasCompleteSbomCoverage != nil) {
+	if filter != nil && (filter.VulnerabilityPriorityGroup != nil || filter.HasCompleteSbomCoverage != nil || filter.HasVulnerabilityFindings != nil) {
 		filteredTeams, err = groupByVulnerabilityPriority(ctx, filteredTeams, filter)
 		if err != nil {
 			return nil, err

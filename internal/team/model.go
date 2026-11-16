@@ -357,6 +357,7 @@ func (e UserTeamOrderField) MarshalGQL(w io.Writer) {
 }
 
 type TeamFilter struct {
+	HasVulnerabilityFindings   *bool                           `json:"hasVulnerabilityFindings,omitempty"`
 	HasCompleteSbomCoverage    *bool                           `json:"hasCompleteSbomCoverage,omitempty"`
 	TeamScope                  *teamscope.TeamScopeInput       `json:"teamScope,omitempty"`
 	HasWorkloads               *bool                           `json:"hasWorkloads"`
