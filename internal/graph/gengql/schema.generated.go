@@ -164,7 +164,7 @@ type QueryResolver interface {
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
 	ImageVulnerabilityHistory(ctx context.Context, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilitySummary(ctx context.Context, filter *vulnerability.TenantVulnerabilitySummaryFilter) (*vulnerability.TenantVulnerabilitySummary, error)
-	VulnerabilitySummaries(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) (*pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary], error)
+	VulnerabilitySummaries(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) (*vulnerability.WorkloadVulnerabilitySummaryConnection, error)
 	VulnerabilityFixHistory(ctx context.Context, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
 	CVE(ctx context.Context, identifier string) (*vulnerability.CVE, error)
 	Cves(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) (*pagination.Connection[*vulnerability.CVE], error)
@@ -6361,8 +6361,8 @@ func (ec *executionContext) _Query_vulnerabilitySummaries(ctx context.Context, f
 			return ec.Resolvers.Query().VulnerabilitySummaries(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter), fc.Args["orderBy"].(*vulnerability.VulnerabilitySummaryOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary]) graphql.Marshaler {
-			return ec.marshalNWorkloadVulnerabilitySummaryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.WorkloadVulnerabilitySummaryConnection) graphql.Marshaler {
+			return ec.marshalNWorkloadVulnerabilitySummaryConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐWorkloadVulnerabilitySummaryConnection(ctx, selections, v)
 		},
 		true,
 		true,

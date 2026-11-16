@@ -4280,9 +4280,10 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadVulnerabilitySummaryConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
+		Edges        func(childComplexity int) int
+		Nodes        func(childComplexity int) int
+		PackageTypes func(childComplexity int) int
+		PageInfo     func(childComplexity int) int
 	}
 
 	WorkloadVulnerabilitySummaryEdge struct {
@@ -22710,6 +22711,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummaryConnection.Nodes(childComplexity), true
 
+	case "WorkloadVulnerabilitySummaryConnection.packageTypes":
+		if e.ComplexityRoot.WorkloadVulnerabilitySummaryConnection.PackageTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadVulnerabilitySummaryConnection.PackageTypes(childComplexity), true
+
 	case "WorkloadVulnerabilitySummaryConnection.pageInfo":
 		if e.ComplexityRoot.WorkloadVulnerabilitySummaryConnection.PageInfo == nil {
 			break
@@ -36458,6 +36466,13 @@ extend type Team {
 }
 
 type WorkloadVulnerabilitySummaryConnection {
+	"""
+	Registered findings by PURL type across the scoped workloads' current images.
+	Independent of pagination, selected package type, priority, KEV and SBOM status.
+	Includes suppressed findings. Shared images and CVE aliases are counted once.
+	"""
+	packageTypes: [StringFacetItem!]!
+
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
 
@@ -36485,6 +36500,13 @@ extend enum ActivityLogEntryResourceType {
 Input for filtering team vulnerability summaries.
 """
 input TeamVulnerabilitySummaryFilter {
+	"""
+	Only list workloads with a registered vulnerability of this PURL type.
+	Includes suppressed findings. Summary counts are unchanged.
+	Ignored by the vulnerabilitySummary aggregate, including SBOM coverage.
+	"""
+	packageType: String
+
 	"""
 	Match all user-label filters for team vulnerability summaries and their aggregate.
 	An omitted value matches any value; an empty string matches only an empty value.
@@ -44012,6 +44034,8 @@ func (ec *executionContext) childFields_WorkloadVulnerabilitySummary(ctx context
 
 func (ec *executionContext) childFields_WorkloadVulnerabilitySummaryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "packageTypes":
+		return ec.fieldContext_WorkloadVulnerabilitySummaryConnection_packageTypes(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_WorkloadVulnerabilitySummaryConnection_pageInfo(ctx, field)
 	case "edges":
