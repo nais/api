@@ -47,7 +47,11 @@ func indexIngressHosts(obj any) ([]string, error) {
 	}
 	hosts := make([]string, 0, len(rules))
 	for _, rule := range rules {
-		host, _, err := unstructured.NestedString(rule.(map[string]any), "host")
+		r := rule.(map[string]any)
+		if r["host"] == nil {
+			continue
+		}
+		host, _, err := unstructured.NestedString(r, "host")
 		if err != nil {
 			return nil, err
 		}
