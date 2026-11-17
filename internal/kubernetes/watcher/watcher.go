@@ -121,6 +121,14 @@ func (w *Watcher[T]) HasSynced(environmentName string) bool {
 	return false
 }
 
+func (w *Watcher[T]) WaitForCacheSync(ctx context.Context) bool {
+	synced := make([]cache.InformerSynced, 0, len(w.watchers))
+	for _, wat := range w.watchers {
+		synced = append(synced, wat.informer.Informer().HasSynced)
+	}
+	return cache.WaitForCacheSync(ctx.Done(), synced...)
+}
+
 func (w *Watcher[T]) add(cluster string, obj T) {
 	if w.onAdd != nil {
 		w.onAdd(cluster, obj)

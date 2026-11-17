@@ -1,11 +1,54 @@
 package application
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/fake"
+	"github.com/nais/api/internal/kubernetes/watcher"
+	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
+
+func TestIngressCacheSyncDoesNotWaitForOtherResources(t *testing.T) {
+	log, _ := logrustest.NewNullLogger()
+	scheme, err := kubernetes.NewScheme()
+	if err != nil {
+		t.Fatal(err)
+	}
+	mgr, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"dev": nil, "prod": nil}, log, watcher.WithClientCreator(fake.Clients(nil)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer mgr.Stop()
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	appWatcher := watcher.Watch(mgr, &nais_io_v1alpha1.Application{})
+	ingressWatcher := NewIngressWatcher(ctx, mgr)
+	waitCtx, waitCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer waitCancel()
+	if !ingressWatcher.WaitForCacheSync(waitCtx) {
+		t.Fatal("ingress synchronization blocked on an unrelated application watcher")
+	}
+	if mgr.IsReady() {
+		t.Fatal("manager should not be ready while the application watcher is not running")
+	}
+	for _, env := range ingressWatcher.EnvironmentNames() {
+		if !ingressWatcher.HasSynced(env) {
+			t.Errorf("ingress cache is not synchronized for %s", env)
+		}
+	}
+
+	cancel()
+	if appWatcher.WaitForCacheSync(ctx) {
+		t.Fatal("canceled wait for an unsynchronized cache should fail")
+	}
+}
 
 func TestIndexIngressHostsSkipsHostlessRules(t *testing.T) {
 	for _, tt := range []struct {

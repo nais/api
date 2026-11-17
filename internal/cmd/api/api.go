@@ -258,7 +258,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return fmt.Errorf("creating webhook dispatcher: %w", err)
 	}
 	wg.Go(func() error {
-		if !watcherMgr.WaitForReady(ctx) {
+		if !watchers.IngressWatcher.WaitForCacheSync(ctx) {
 			return ctx.Err()
 		}
 		webhookDispatcher.Run(ctx)
