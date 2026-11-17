@@ -136,7 +136,7 @@ type ServiceCostSeries {
 	"The sum of the cost across all services."
 	sum: Float!
 
-	"The cost for the services used by the workload."
+	"The cost for the services used by the resource."
 	services: [ServiceCostSample!]!
 }
 
@@ -192,6 +192,34 @@ extend type BigQueryDataset {
 
 type BigQueryDatasetCost {
 	sum: Float!
+}
+
+extend type Postgres {
+	"The cost for this Postgres. Billing data is delayed by at least two days."
+	cost: PostgresCost!
+}
+
+"The cost for a Postgres."
+type PostgresCost {
+	"Daily cost in ascending date order. Dates without cost data are omitted. Null when there is no cost data in the period."
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive; must not be in the future."
+		to: Date!
+	): PostgresCostPeriod
+
+	"Monthly cost for the last 12 months, newest first. The date is the last day with cost data in the month. Null when there is no cost data."
+	monthly: PostgresCostPeriod
+}
+
+type PostgresCostPeriod {
+	"The total cost in euros for the period."
+	sum: Float!
+
+	"The cost series."
+	series: [ServiceCostSeries!]!
 }
 
 extend type SqlInstance {

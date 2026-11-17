@@ -111,6 +111,7 @@ type ResolverRoot interface {
 	Postgres() PostgresResolver
 	PostgresAccess() PostgresAccessResolver
 	PostgresConnection() PostgresConnectionResolver
+	PostgresCost() PostgresCostResolver
 	PostgresIssue() PostgresIssueResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
@@ -1943,6 +1944,7 @@ type ComplexityRoot struct {
 	Postgres struct {
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
 		Configuration       func(childComplexity int) int
+		Cost                func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
 		EarliestRestoreTime func(childComplexity int) int
 		Extensions          func(childComplexity int) int
@@ -2038,6 +2040,16 @@ type ComplexityRoot struct {
 		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	PostgresCost struct {
+		Daily   func(childComplexity int, from scalar.Date, to scalar.Date) int
+		Monthly func(childComplexity int) int
+	}
+
+	PostgresCostPeriod struct {
+		Series func(childComplexity int) int
+		Sum    func(childComplexity int) int
 	}
 
 	PostgresCreatedActivityLogEntry struct {
@@ -12219,6 +12231,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.Configuration(childComplexity), true
 
+	case "Postgres.cost":
+		if e.ComplexityRoot.Postgres.Cost == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Cost(childComplexity), true
+
 	case "Postgres.createdAt":
 		if e.ComplexityRoot.Postgres.CreatedAt == nil {
 			break
@@ -12725,6 +12744,39 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresConnection.PageInfo(childComplexity), true
+
+	case "PostgresCost.daily":
+		if e.ComplexityRoot.PostgresCost.Daily == nil {
+			break
+		}
+
+		args, err := ec.field_PostgresCost_daily_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.PostgresCost.Daily(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+
+	case "PostgresCost.monthly":
+		if e.ComplexityRoot.PostgresCost.Monthly == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCost.Monthly(childComplexity), true
+
+	case "PostgresCostPeriod.series":
+		if e.ComplexityRoot.PostgresCostPeriod.Series == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCostPeriod.Series(childComplexity), true
+
+	case "PostgresCostPeriod.sum":
+		if e.ComplexityRoot.PostgresCostPeriod.Sum == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCostPeriod.Sum(childComplexity), true
 
 	case "PostgresCreatedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor == nil {
@@ -26077,7 +26129,7 @@ type ServiceCostSeries {
 	"The sum of the cost across all services."
 	sum: Float!
 
-	"The cost for the services used by the workload."
+	"The cost for the services used by the resource."
 	services: [ServiceCostSample!]!
 }
 
@@ -26133,6 +26185,34 @@ extend type BigQueryDataset {
 
 type BigQueryDatasetCost {
 	sum: Float!
+}
+
+extend type Postgres {
+	"The cost for this Postgres. Billing data is delayed by at least two days."
+	cost: PostgresCost!
+}
+
+"The cost for a Postgres."
+type PostgresCost {
+	"Daily cost in ascending date order. Dates without cost data are omitted. Null when there is no cost data in the period."
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive; must not be in the future."
+		to: Date!
+	): PostgresCostPeriod
+
+	"Monthly cost for the last 12 months, newest first. The date is the last day with cost data in the month. Null when there is no cost data."
+	monthly: PostgresCostPeriod
+}
+
+type PostgresCostPeriod {
+	"The total cost in euros for the period."
+	sum: Float!
+
+	"The cost series."
+	series: [ServiceCostSeries!]!
 }
 
 extend type SqlInstance {
@@ -41170,6 +41250,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_labels(ctx, field)
 	case "activityLog":
 		return ec.fieldContext_Postgres_activityLog(ctx, field)
+	case "cost":
+		return ec.fieldContext_Postgres_cost(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Postgres", field.Name)
 }
@@ -41254,6 +41336,26 @@ func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, 
 		return ec.fieldContext_PostgresConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "daily":
+		return ec.fieldContext_PostgresCost_daily(ctx, field)
+	case "monthly":
+		return ec.fieldContext_PostgresCost_monthly(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresCost", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresCostPeriod(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_PostgresCostPeriod_sum(ctx, field)
+	case "series":
+		return ec.fieldContext_PostgresCostPeriod_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresCostPeriod", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
