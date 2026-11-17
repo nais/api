@@ -36399,8 +36399,6 @@ extend enum TeamOrderField {
 	UNASSIGNED_VULNERABILITIES
 	"The team's software bill of materials (SBOM) coverage."
 	SBOM_COVERAGE
-	"The number of workloads included in the team's vulnerability summary."
-	VULNERABILITY_SUMMARY_WORKLOAD_COUNT
 	"The accumulated number of known exploited vulnerabilities (KEV) of the teams workloads."
 	KNOWN_EXPLOITED_VULNERABILITIES
 }
