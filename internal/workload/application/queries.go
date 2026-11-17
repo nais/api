@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
@@ -20,10 +21,8 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
@@ -358,25 +357,14 @@ func GetIngressType(ctx context.Context, ingress *Ingress) IngressType {
 		return IngressTypeUnknown
 	}
 
-	selector := labels.NewSelector()
-	req, err := labels.NewRequirement("app", selection.Equals, []string{ingress.ApplicationName})
-	if err != nil {
-		return IngressTypeUnknown
-	}
-	selector = selector.Add(*req)
-
-	ings := fromContext(ctx).ingressWatcher.GetByNamespace(ingress.TeamSlug.String(), watcher.WithLabels(selector))
+	ings := fromContext(ctx).ingressWatcher.GetByIndex(IngressHostIndex, strings.TrimSuffix(strings.ToLower(uri.Host), "."))
 	for _, ing := range ings {
-		if ing.Cluster != ingress.EnvironmentName {
+		if ing.Cluster != ingress.EnvironmentName || ing.Obj.Namespace != ingress.TeamSlug.String() || ing.Obj.Labels["app"] != ingress.ApplicationName {
 			continue
 		}
-
 		for _, rule := range ing.Obj.Spec.Rules {
 			if rule.Host == uri.Host {
-				if ret, ok := ingressClassMapping[ptr.Deref(ing.Obj.Spec.IngressClassName, "")]; ok {
-					return ret
-				}
-				return IngressTypeUnknown
+				return ClassifyIngressClassName(ptr.Deref(ing.Obj.Spec.IngressClassName, ""))
 			}
 		}
 	}

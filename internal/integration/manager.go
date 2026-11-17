@@ -253,7 +253,7 @@ func newGQLRunner(
 
 	notifierCtx, notifyCancel := context.WithCancel(ctx)
 	notifier := notify.New(pool, log, notify.WithRetries(0))
-	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://api.example.test", "dev-nais", false, log)
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://api.example.test", false, watchers.IngressWatcher, log)
 	if err != nil {
 		notifyCancel()
 		return nil, nil, nil, fmt.Errorf("creating webhook dispatcher: %w", err)

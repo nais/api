@@ -3,12 +3,16 @@ package webhook
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net"
 	"net/http"
 	"net/netip"
 	"net/url"
 	"strings"
+
+	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/workload/application"
+	netv1 "k8s.io/api/networking/v1"
+	"k8s.io/utils/ptr"
 )
 
 func validateWebhookURL(raw string, allowInsecure bool) error {
@@ -34,7 +38,7 @@ func (d *Dispatcher) validateURL(raw string) error {
 }
 
 type destinationPolicy struct {
-	internalDomain string
+	ingressWatcher *watcher.Watcher[*netv1.Ingress]
 	lookup         func(context.Context, string, string) ([]netip.Addr, error)
 	dial           func(context.Context, string, string) (net.Conn, error)
 }
@@ -68,9 +72,18 @@ func (p destinationPolicy) allows(host string, address netip.Addr) bool {
 			return false
 		}
 	}
+	if !address.IsPrivate() {
+		return true
+	}
 	host = strings.TrimSuffix(strings.ToLower(host), ".")
-	internal := p.internalDomain != "" && strings.HasSuffix(host, "."+p.internalDomain)
-	return !address.IsPrivate() || internal
+	if p.ingressWatcher != nil {
+		for _, ingress := range p.ingressWatcher.GetByIndex(application.IngressHostIndex, host) {
+			if ingress.Obj.DeletionTimestamp == nil && application.ClassifyIngressClassName(ptr.Deref(ingress.Obj.Spec.IngressClassName, "")) == application.IngressTypeInternal {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (p destinationPolicy) dialContext(ctx context.Context, network, address string) (net.Conn, error) {
@@ -113,13 +126,11 @@ func (t webhookTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	return t.transport.RoundTrip(req)
 }
 
-func newWebhookHTTPClient(tenant string, allowInsecureURLs bool) *http.Client {
+func newWebhookHTTPClient(allowInsecureURLs bool, ingressWatcher *watcher.Watcher[*netv1.Ingress]) *http.Client {
 	policy := destinationPolicy{
-		lookup: net.DefaultResolver.LookupNetIP,
-		dial:   (&net.Dialer{Timeout: defaultTimeout}).DialContext,
-	}
-	if tenant != "" {
-		policy.internalDomain = fmt.Sprintf("intern.%s.cloud.nais.io", strings.ToLower(tenant))
+		ingressWatcher: ingressWatcher,
+		lookup:         net.DefaultResolver.LookupNetIP,
+		dial:           (&net.Dialer{Timeout: defaultTimeout}).DialContext,
 	}
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = nil

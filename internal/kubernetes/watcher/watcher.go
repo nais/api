@@ -32,6 +32,12 @@ func WithTransformer(fn cache.TransformFunc) WatchOption {
 	}
 }
 
+func WithIndexers(indexers cache.Indexers) WatchOption {
+	return func(m *watcherSettings) {
+		m.indexers = indexers
+	}
+}
+
 func WithGVR(gvr schema.GroupVersionResource) WatchOption {
 	return func(m *watcherSettings) {
 		m.gvr = &gvr
@@ -47,6 +53,7 @@ func WithInformerFilter(labelSelector string) WatchOption {
 type watcherSettings struct {
 	converter           func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool)
 	transformer         cache.TransformFunc
+	indexers            cache.Indexers
 	gvr                 *schema.GroupVersionResource
 	filterLabelSelector string
 }
@@ -174,6 +181,26 @@ func (w *Watcher[T]) All() []*EnvironmentWrapper[T] {
 
 	}
 
+	return ret
+}
+
+func (w *Watcher[T]) GetByIndex(indexName, value string) []*EnvironmentWrapper[T] {
+	ret := make([]*EnvironmentWrapper[T], 0)
+	for _, wat := range w.watchers {
+		objs, err := wat.informer.Informer().GetIndexer().ByIndex(indexName, value)
+		if err != nil {
+			w.log.WithError(err).Error("looking up indexed objects")
+			continue
+		}
+		for _, obj := range objs {
+			if o, ok := wat.convert(obj.(*unstructured.Unstructured)); ok {
+				ret = append(ret, &EnvironmentWrapper[T]{Obj: o, Cluster: wat.cluster})
+			}
+		}
+	}
+	slices.SortFunc(ret, func(i, j *EnvironmentWrapper[T]) int {
+		return strings.Compare(i.GetName(), j.GetName())
+	})
 	return ret
 }
 

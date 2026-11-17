@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"sync"
 	"time"
@@ -17,10 +19,12 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
 	"github.com/nais/api/internal/database/notify"
+	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/slug"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	netv1 "k8s.io/api/networking/v1"
 )
 
 const (
@@ -62,7 +66,7 @@ type Dispatcher struct {
 }
 
 // NewDispatcher creates a new webhook dispatcher that drains events from the outbox table.
-func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source, tenant string, allowInsecureURLs bool, log logrus.FieldLogger) (*Dispatcher, error) {
+func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source string, allowInsecureURLs bool, ingressWatcher *watcher.Watcher[*netv1.Ingress], log logrus.FieldLogger) (*Dispatcher, error) {
 	q := webhooksql.New(pool)
 	m, err := newWebhookMetrics(q)
 	if err != nil {
@@ -75,7 +79,7 @@ func NewDispatcher(pool *pgxpool.Pool, notifier *notify.Notifier, source, tenant
 		notifier:          notifier,
 		log:               log.WithField("subsystem", "webhook_dispatcher"),
 		source:            source,
-		httpClient:        newWebhookHTTPClient(tenant, allowInsecureURLs),
+		httpClient:        newWebhookHTTPClient(allowInsecureURLs, ingressWatcher),
 		allowInsecureURLs: allowInsecureURLs,
 		metrics:           m,
 	}
@@ -372,6 +376,10 @@ func (d *Dispatcher) deliver(ctx context.Context, q webhooksql.Querier, sub *web
 		requestHeaders.Set("Content-Length", strconv.FormatInt(req.ContentLength, 10))
 		resp, err := d.httpClient.Do(req)
 		if err != nil {
+			if urlErr, ok := errors.AsType[*url.Error](err); ok {
+				err = urlErr.Err
+			}
+			d.log.WithError(err).WithField("subscription_id", sub.ID).Error("webhook HTTP request failed")
 			errorMessage = new("The HTTP request failed before a response could be received.")
 		} else {
 			defer resp.Body.Close()
