@@ -118,6 +118,7 @@ type Postgres struct {
 	Resources           PostgresResources      `json:"resources"`
 	Labels              []*model.ResourceLabel `json:"labels"`
 	CreatedAt           time.Time              `json:"createdAt"`
+	Recovery            *PostgresRecovery      `json:"recovery,omitempty"`
 	directClusterName   *string
 	physicalState       PostgresBranchState
 	configuration       *PostgresConfiguration
@@ -407,6 +408,20 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	for _, extension := range obj.Spec.Extensions {
 		extensions = append(extensions, extension.Name)
 	}
+	var recovery *PostgresRecovery
+	if obj.Spec.Recovery != nil {
+		recovery = &PostgresRecovery{SourcePostgres: obj.Spec.Recovery.SourcePostgres, TargetTime: obj.Spec.Recovery.TargetTime.Time}
+		if obj.Status != nil {
+			for _, condition := range obj.Status.Conditions {
+				if condition.Type == "RecoveryCompleted" && condition.Status == metav1.ConditionTrue {
+					recovery.Completed = obj.Status.Ownership != nil && obj.Status.Ownership.ClusterUID != "" && condition.Message == obj.Status.Ownership.ClusterUID
+				}
+				if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue {
+					recovery.FailureMessage = new(condition.Message)
+				}
+			}
+		}
+	}
 	return &Postgres{
 		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
 		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, Extensions: extensions, HighAvailability: obj.Spec.HighAvailability,
@@ -416,7 +431,7 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		},
 		Labels:    model.UserLabels(obj.Labels),
 		CreatedAt: obj.CreationTimestamp.Time, directClusterName: clusterName,
-		physicalState: state, configuration: configuration,
+		physicalState: state, configuration: configuration, Recovery: recovery,
 	}, nil
 }
 
@@ -645,6 +660,21 @@ type CreatePostgresInput struct {
 	DiskSize         *string                `json:"diskSize,omitempty"`
 	Extensions       []string               `json:"extensions,omitempty"`
 	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
+	Recovery         *PostgresRecoveryInput `json:"recovery,omitempty"`
+}
+
+// PostgresRecoveryInput can only select a source in the new database's team
+// and environment. Physical archive identifiers are resolved by the API.
+type PostgresRecoveryInput struct {
+	SourcePostgres string    `json:"sourcePostgres"`
+	TargetTime     time.Time `json:"targetTime"`
+}
+
+type PostgresRecovery struct {
+	SourcePostgres string    `json:"sourcePostgres"`
+	TargetTime     time.Time `json:"targetTime"`
+	Completed      bool      `json:"completed"`
+	FailureMessage *string   `json:"failureMessage,omitempty"`
 }
 
 type CreatePostgresPayload struct {
@@ -705,6 +735,19 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
 	validatePostgresUserLabels(verr, i.Labels)
+	if i.Recovery != nil {
+		i.Recovery.SourcePostgres = strings.TrimSpace(i.Recovery.SourcePostgres)
+		if i.Recovery.SourcePostgres == "" || len(validation.IsDNS1123Subdomain(i.Recovery.SourcePostgres)) > 0 {
+			verr.Add("recovery.sourcePostgres", "Select a valid source database.")
+		} else if i.Recovery.SourcePostgres == i.Name {
+			verr.Add("name", "The recovered database must have a different name from its source.")
+		}
+		if i.Recovery.TargetTime.IsZero() || i.Recovery.TargetTime.After(time.Now()) {
+			verr.Add("recovery.targetTime", "Choose an explicit restore time no later than now.")
+		} else if i.Recovery.TargetTime.Nanosecond() != 0 {
+			verr.Add("recovery.targetTime", "Restore time must have whole-second precision.")
+		}
+	}
 	return verr
 }
 

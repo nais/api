@@ -122,6 +122,8 @@ type Postgres implements Node {
 	configuration: PostgresConfiguration
 	"Earliest point in time covered by available backups, when known."
 	earliestRestoreTime: Time
+	"Where this database was restored from, if it was created by a recovery."
+	recovery: PostgresRecovery
 	"Issues reported for this database."
 	issues(
 		"Get the first n items in the connection."
@@ -710,20 +712,42 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values. Must match the source when restoring."
 	majorVersion: String!
-	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions."
+	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions. When restoring, defaults to the source's extensions and must include them all."
 	extensions: [String!]
-	"Add a third instance and enable synchronous replication. Defaults to false."
+	"Add a third instance and enable synchronous replication. Defaults to false, or to the source's setting when restoring."
 	highAvailability: Boolean
-	"Requested CPU, for example '100m'. If omitted, the platform default is used."
+	"Requested CPU, for example '100m'. If omitted, the platform default is used, or the source's value when restoring."
 	cpu: String
-	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used, or the source's value when restoring."
 	memory: String
-	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used, or the source's value when restoring. Must not be smaller than the source's."
 	diskSize: String
 	"Initial user-defined labels to apply."
 	labels: [ResourceLabelInput!]
+	"Initialize from an existing database in the same team and environment instead of creating an empty database. Omitted availability, resource and extension settings are taken from the source."
+	recovery: PostgresRecoveryInput
+}
+
+"An explicit point-in-time recovery source for a new Postgres database."
+input PostgresRecoveryInput {
+	"Name of the source Postgres in the destination team and environment."
+	sourcePostgres: String!
+	"Point in time to restore to, in whole seconds. Must be within the available backups and not in the future."
+	targetTime: Time!
+}
+
+"Origin and progress of a database created by recovery."
+type PostgresRecovery {
+	"Name of the source database. It may have been deleted since."
+	sourcePostgres: String!
+	"The point in time restored to."
+	targetTime: Time!
+	"True once the database is independent of the source and has its own backup."
+	completed: Boolean!
+	"Why recovery failed, if it did."
+	failureMessage: String
 }
 
 "Result of creating a Postgres."

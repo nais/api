@@ -1954,6 +1954,7 @@ type ComplexityRoot struct {
 		Labels              func(childComplexity int) int
 		MajorVersion        func(childComplexity int) int
 		Name                func(childComplexity int) int
+		Recovery            func(childComplexity int) int
 		Resources           func(childComplexity int) int
 		State               func(childComplexity int) int
 		Team                func(childComplexity int) int
@@ -2145,6 +2146,13 @@ type ComplexityRoot struct {
 		ExpiresAt   func(childComplexity int) int
 		Reason      func(childComplexity int) int
 		Username    func(childComplexity int) int
+	}
+
+	PostgresRecovery struct {
+		Completed      func(childComplexity int) int
+		FailureMessage func(childComplexity int) int
+		SourcePostgres func(childComplexity int) int
+		TargetTime     func(childComplexity int) int
 	}
 
 	PostgresResources struct {
@@ -12298,6 +12306,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.Name(childComplexity), true
 
+	case "Postgres.recovery":
+		if e.ComplexityRoot.Postgres.Recovery == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Recovery(childComplexity), true
+
 	case "Postgres.resources":
 		if e.ComplexityRoot.Postgres.Resources == nil {
 			break
@@ -13203,6 +13218,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username(childComplexity), true
+
+	case "PostgresRecovery.completed":
+		if e.ComplexityRoot.PostgresRecovery.Completed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.Completed(childComplexity), true
+
+	case "PostgresRecovery.failureMessage":
+		if e.ComplexityRoot.PostgresRecovery.FailureMessage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.FailureMessage(childComplexity), true
+
+	case "PostgresRecovery.sourcePostgres":
+		if e.ComplexityRoot.PostgresRecovery.SourcePostgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.SourcePostgres(childComplexity), true
+
+	case "PostgresRecovery.targetTime":
+		if e.ComplexityRoot.PostgresRecovery.TargetTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.TargetTime(childComplexity), true
 
 	case "PostgresResources.cpu":
 		if e.ComplexityRoot.PostgresResources.CPU == nil {
@@ -22931,6 +22974,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputPostgresRecoveryInput,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
@@ -29714,6 +29758,8 @@ type Postgres implements Node {
 	configuration: PostgresConfiguration
 	"Earliest point in time covered by available backups, when known."
 	earliestRestoreTime: Time
+	"Where this database was restored from, if it was created by a recovery."
+	recovery: PostgresRecovery
 	"Issues reported for this database."
 	issues(
 		"Get the first n items in the connection."
@@ -30302,20 +30348,42 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values. Must match the source when restoring."
 	majorVersion: String!
-	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions."
+	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions. When restoring, defaults to the source's extensions and must include them all."
 	extensions: [String!]
-	"Add a third instance and enable synchronous replication. Defaults to false."
+	"Add a third instance and enable synchronous replication. Defaults to false, or to the source's setting when restoring."
 	highAvailability: Boolean
-	"Requested CPU, for example '100m'. If omitted, the platform default is used."
+	"Requested CPU, for example '100m'. If omitted, the platform default is used, or the source's value when restoring."
 	cpu: String
-	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used, or the source's value when restoring."
 	memory: String
-	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used, or the source's value when restoring. Must not be smaller than the source's."
 	diskSize: String
 	"Initial user-defined labels to apply."
 	labels: [ResourceLabelInput!]
+	"Initialize from an existing database in the same team and environment instead of creating an empty database. Omitted availability, resource and extension settings are taken from the source."
+	recovery: PostgresRecoveryInput
+}
+
+"An explicit point-in-time recovery source for a new Postgres database."
+input PostgresRecoveryInput {
+	"Name of the source Postgres in the destination team and environment."
+	sourcePostgres: String!
+	"Point in time to restore to, in whole seconds. Must be within the available backups and not in the future."
+	targetTime: Time!
+}
+
+"Origin and progress of a database created by recovery."
+type PostgresRecovery {
+	"Name of the source database. It may have been deleted since."
+	sourcePostgres: String!
+	"The point in time restored to."
+	targetTime: Time!
+	"True once the database is independent of the source and has its own backup."
+	completed: Boolean!
+	"Why recovery failed, if it did."
+	failureMessage: String
 }
 
 "Result of creating a Postgres."
@@ -41164,6 +41232,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_configuration(ctx, field)
 	case "earliestRestoreTime":
 		return ec.fieldContext_Postgres_earliestRestoreTime(ctx, field)
+	case "recovery":
+		return ec.fieldContext_Postgres_recovery(ctx, field)
 	case "issues":
 		return ec.fieldContext_Postgres_issues(ctx, field)
 	case "majorVersion":
@@ -41338,6 +41408,20 @@ func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLog
 		return ec.fieldContext_PostgresPersonalAccessCreatedActivityLogEntryData_reason(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresPersonalAccessCreatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresRecovery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sourcePostgres":
+		return ec.fieldContext_PostgresRecovery_sourcePostgres(ctx, field)
+	case "targetTime":
+		return ec.fieldContext_PostgresRecovery_targetTime(ctx, field)
+	case "completed":
+		return ec.fieldContext_PostgresRecovery_completed(ctx, field)
+	case "failureMessage":
+		return ec.fieldContext_PostgresRecovery_failureMessage(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresRecovery", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

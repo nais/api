@@ -773,6 +773,9 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(pg)
 	setPostgresUserLabels(pg, input.Labels)
+	if err := resolveRecovery(ctx, client, input, pg); err != nil {
+		return nil, err
+	}
 	if input.HighAvailability != nil {
 		pg.Spec.HighAvailability = *input.HighAvailability
 	}
@@ -785,7 +788,9 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 
-	created, err := client.Create(ctx, obj, metav1.CreateOptions{})
+	// An older CRD must reject recovery fields, never silently prune them and
+	// turn a restore request into an empty database.
+	created, err := client.Create(ctx, obj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
@@ -793,7 +798,11 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 
-	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionCreated, input.Name, input.EnvironmentName, input.TeamSlug, nil); err != nil {
+	var creationData any
+	if input.Recovery != nil {
+		creationData = PostgresCreatedActivityLogEntryData{Recovery: input.Recovery, SourceUID: pg.Spec.Recovery.SourceUID}
+	}
+	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionCreated, input.Name, input.EnvironmentName, input.TeamSlug, creationData); err != nil {
 		return nil, err
 	}
 

@@ -87,8 +87,18 @@ func init() {
 func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 	switch entry.Action {
 	case activitylog.ActivityLogEntryActionCreated:
+		message := "Created Postgres"
+		if len(entry.Data) > 0 {
+			data, err := activitylog.UnmarshalData[PostgresCreatedActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming Postgres creation data: %w", err)
+			}
+			if data.Recovery != nil {
+				message = fmt.Sprintf("Requested Postgres recovery from %s to %s", data.Recovery.SourcePostgres, data.Recovery.TargetTime.UTC().Format(time.RFC3339))
+			}
+		}
 		return PostgresCreatedActivityLogEntry{
-			GenericActivityLogEntry: entry.WithMessage("Created Postgres"),
+			GenericActivityLogEntry: entry.WithMessage(message),
 		}, nil
 	case activitylog.ActivityLogEntryActionUpdated:
 		data, err := activitylog.UnmarshalData[PostgresUpdatedActivityLogEntryData](entry)
@@ -193,6 +203,11 @@ type PostgresDeletedActivityLogEntry struct {
 
 type PostgresCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type PostgresCreatedActivityLogEntryData struct {
+	Recovery  *PostgresRecoveryInput `json:"recovery,omitempty"`
+	SourceUID string                 `json:"sourceUID,omitempty"`
 }
 
 type PostgresUpdatedActivityLogEntry struct {
