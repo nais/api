@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"net"
 	"net/http"
@@ -9,8 +10,19 @@ import (
 	"net/netip"
 	"strings"
 	"testing"
+	"testing/fstest"
+	"time"
 
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
+	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/kubernetes/fake"
+	"github.com/nais/api/internal/kubernetes/watcher"
+	"github.com/nais/api/internal/workload/application"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
+	netv1 "k8s.io/api/networking/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/utils/ptr"
 )
 
 func TestLocalWebhookURLsRequireExplicitOptIn(t *testing.T) {
@@ -31,7 +43,7 @@ func TestLocalWebhookURLsRequireExplicitOptIn(t *testing.T) {
 			if err := d.validateURL(localURL); (err == nil) != allowInsecure {
 				t.Fatalf("validateURL() = %v, allowInsecure=%v", err, allowInsecure)
 			}
-			client := newWebhookHTTPClient("test-tenant", allowInsecure)
+			client := newWebhookHTTPClient(allowInsecure, nil)
 			defer client.CloseIdleConnections()
 			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, localURL, strings.NewReader("{}"))
 			if err != nil {
@@ -100,7 +112,7 @@ func TestValidateWebhookURL(t *testing.T) {
 		ok  bool
 	}{
 		{"https://hooks.example.com/events", true},
-		{"https://myapp.intern.mytenant.cloud.nais.io/events", true},
+		{"https://myapp.internal.example.com/events", true},
 		{"http://hooks.example.com", false},
 		{"https://user:password@hooks.example.com", false},
 		{"https://hooks.example.com/#secret", false},
@@ -119,7 +131,7 @@ func TestValidateWebhookURL(t *testing.T) {
 }
 
 func TestWebhookDestinationPolicy(t *testing.T) {
-	policy := destinationPolicy{internalDomain: "intern.mytenant.cloud.nais.io"}
+	policy := destinationPolicy{}
 	for _, tt := range []struct {
 		host, ip string
 		want     bool
@@ -127,21 +139,18 @@ func TestWebhookDestinationPolicy(t *testing.T) {
 		{"hooks.example.com", "8.8.8.8", true},
 		{"hooks.example.com", "2606:4700:4700::1111", true},
 		{"hooks.example.com", "10.1.2.3", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "10.1.2.3", true},
-		{"myapp.intern.mytenant.cloud.nais.io", "fd12::1", true},
-		{"MYAPP.INTERN.MYTENANT.CLOUD.NAIS.IO.", "192.168.1.2", true},
-		{"myapp.intern.other.cloud.nais.io", "10.1.2.3", false},
-		{"myapp.intern.mytenant.cloud.nais.io.evil.example", "10.1.2.3", false},
-		{"myapp.evilintern.mytenant.cloud.nais.io", "10.1.2.3", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "127.0.0.1", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "::1", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "::ffff:127.0.0.1", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "169.254.169.254", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "fd00:ec2::254", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "168.63.129.16", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "100.100.100.200", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "0.0.0.0", false},
-		{"myapp.intern.mytenant.cloud.nais.io", "224.0.0.1", false},
+		{"myapp.intern.mytenant.cloud.nais.io", "10.1.2.3", false},
+		{"hooks.example.com", "fd12::1", false},
+		{"hooks.example.com", "192.168.1.2", false},
+		{"hooks.example.com", "127.0.0.1", false},
+		{"hooks.example.com", "::1", false},
+		{"hooks.example.com", "::ffff:127.0.0.1", false},
+		{"hooks.example.com", "169.254.169.254", false},
+		{"hooks.example.com", "fd00:ec2::254", false},
+		{"hooks.example.com", "168.63.129.16", false},
+		{"hooks.example.com", "100.100.100.200", false},
+		{"hooks.example.com", "0.0.0.0", false},
+		{"hooks.example.com", "224.0.0.1", false},
 		{"hooks.example.com", "64:ff9b::a00:1", false},
 	} {
 		t.Run(tt.host+"/"+tt.ip, func(t *testing.T) {
@@ -183,6 +192,170 @@ func TestWebhookDialPinsAddressesAndRechecksDNS(t *testing.T) {
 	if _, err := policy.dialContext(t.Context(), "tcp", "hooks.example.com:443"); err == nil || dials != 1 {
 		t.Error("mixed public and private answers must fail before dialing")
 	}
+}
+
+func TestWebhookDestinationPolicyUsesInternalIngresses(t *testing.T) {
+	fixtures := fstest.MapFS{}
+	for _, class := range []string{"nais-ingress", "internal-haproxy", "nais-ingress-external", "nais-ingress-fa", "unknown", ""} {
+		name := class
+		if name == "" {
+			name = "no-class"
+		}
+		ingress := &netv1.Ingress{
+			TypeMeta:   metav1.TypeMeta{APIVersion: "networking.k8s.io/v1", Kind: "Ingress"},
+			ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: "team"},
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{{Host: name + ".custom.example.com"}},
+			},
+		}
+		if class != "" {
+			ingress.Spec.IngressClassName = ptr.To(class)
+		}
+		data, err := json.Marshal(ingress)
+		if err != nil {
+			t.Fatal(err)
+		}
+		fixtures["test/team/"+name+".yaml"] = &fstest.MapFile{Data: data}
+	}
+	log, _ := logrustest.NewNullLogger()
+	scheme, err := kubernetes.NewScheme()
+	if err != nil {
+		t.Fatal(err)
+	}
+	mgr, err := watcher.NewManager(scheme, kubernetes.ClusterConfigMap{"test": nil}, log, watcher.WithClientCreator(fake.Clients(fixtures)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer mgr.Stop()
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	ingressWatcher := application.NewIngressWatcher(ctx, mgr)
+	waitCtx, waitCancel := context.WithTimeout(ctx, 5*time.Second)
+	defer waitCancel()
+	if !mgr.WaitForReady(waitCtx) {
+		t.Fatal("timed out waiting for ingress watcher")
+	}
+
+	policy := destinationPolicy{ingressWatcher: ingressWatcher}
+	for _, tt := range []struct {
+		host, ip string
+		want     bool
+	}{
+		{"nais-ingress.custom.example.com", "10.1.2.3", true},
+		{"internal-haproxy.custom.example.com", "192.168.1.2", true},
+		{"NAIS-INGRESS.CUSTOM.EXAMPLE.COM.", "fd12::1", true},
+		{"nais-ingress-external.custom.example.com", "10.1.2.3", false},
+		{"nais-ingress-fa.custom.example.com", "10.1.2.3", false},
+		{"unknown.custom.example.com", "10.1.2.3", false},
+		{"no-class.custom.example.com", "10.1.2.3", false},
+		{"unregistered.custom.example.com", "10.1.2.3", false},
+		{"nais-ingress.custom.example.com.evil.example", "10.1.2.3", false},
+		{"sub.nais-ingress.custom.example.com", "10.1.2.3", false},
+		{"nais-ingress.custom.example.com", "127.0.0.1", false},
+		{"nais-ingress.custom.example.com", "::1", false},
+		{"nais-ingress.custom.example.com", "169.254.169.254", false},
+		{"nais-ingress.custom.example.com", "fd00:ec2::254", false},
+		{"nais-ingress.custom.example.com", "168.63.129.16", false},
+		{"nais-ingress.custom.example.com", "100.100.100.200", false},
+	} {
+		t.Run(tt.host+"/"+tt.ip, func(t *testing.T) {
+			if got := policy.allows(tt.host, netip.MustParseAddr(tt.ip)); got != tt.want {
+				t.Errorf("allows() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+	client, err := ingressWatcher.SystemAuthenticatedClient(ctx, "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ingresses := client.Namespace("team")
+	ingress, err := ingresses.Get(ctx, "nais-ingress", metav1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ingress.SetName("dynamic")
+	ingress.SetResourceVersion("")
+	setHost := func(host string) {
+		t.Helper()
+		if err := unstructured.SetNestedSlice(ingress.Object, []any{map[string]any{"host": host}}, "spec", "rules"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	waitFor := func(description string, ready func() bool) {
+		t.Helper()
+		waitCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+		ticker := time.NewTicker(time.Millisecond)
+		defer ticker.Stop()
+		for !ready() {
+			select {
+			case <-waitCtx.Done():
+				t.Fatalf("timed out waiting for %s", description)
+			case <-ticker.C:
+			}
+		}
+	}
+	waitForAllowed := func(host string, want bool) {
+		t.Helper()
+		waitFor(host+" allowance to change", func() bool {
+			return policy.allows(host, netip.MustParseAddr("10.1.2.3")) == want
+		})
+	}
+	update := func() {
+		t.Helper()
+		ingress, err = ingresses.Update(ctx, ingress, metav1.UpdateOptions{})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	setHost("created.custom.example.com")
+	ingress, err = ingresses.Create(ctx, ingress, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	waitForAllowed("created.custom.example.com", true)
+
+	setHost("updated.custom.example.com")
+	update()
+	waitForAllowed("created.custom.example.com", false)
+	waitForAllowed("updated.custom.example.com", true)
+
+	if err := unstructured.SetNestedField(ingress.Object, "nais-ingress-external", "spec", "ingressClassName"); err != nil {
+		t.Fatal(err)
+	}
+	update()
+	waitForAllowed("updated.custom.example.com", false)
+
+	if err := unstructured.SetNestedField(ingress.Object, "internal-haproxy", "spec", "ingressClassName"); err != nil {
+		t.Fatal(err)
+	}
+	update()
+	waitForAllowed("updated.custom.example.com", true)
+
+	duplicate := ingress.DeepCopy()
+	duplicate.SetName("duplicate")
+	duplicate.SetResourceVersion("")
+	if _, err := ingresses.Create(ctx, duplicate, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	waitFor("duplicate ingress to be indexed", func() bool {
+		_, err := ingressWatcher.Get("test", "team", duplicate.GetName())
+		return err == nil
+	})
+	if err := ingresses.Delete(ctx, ingress.GetName(), metav1.DeleteOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	waitFor("original ingress to be removed", func() bool {
+		_, err := ingressWatcher.Get("test", "team", ingress.GetName())
+		return err != nil
+	})
+	waitForAllowed("updated.custom.example.com", true)
+	if err := ingresses.Delete(ctx, duplicate.GetName(), metav1.DeleteOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	waitForAllowed("updated.custom.example.com", false)
 }
 
 func TestWebhookRedirectsAreFailedAttempts(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,8 +18,41 @@ import (
 	"github.com/google/uuid"
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/activitylog/webhook/webhooksql"
+	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 )
+
+func TestDeliverLogsRequestFailureWithoutURL(t *testing.T) {
+	q := newWorkerTestQueries(0)
+	cause := errors.New("webhook destination is not allowed")
+	d := newWorkerTestDispatcher(t, q, func(*http.Request) (*http.Response, error) {
+		return nil, cause
+	})
+	log, hook := logrustest.NewNullLogger()
+	d.log = log
+	sub := &webhooksql.WebhookSubscription{
+		ID:     uuid.New(),
+		Url:    "https://example.test/secret?token=hidden",
+		Secret: "test-secret",
+	}
+	attempt, err := d.deliver(t.Context(), q, sub, "WEBHOOK_TEST", []byte("{}"), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if attempt.Success || attempt.ErrorMessage == nil || *attempt.ErrorMessage != "The HTTP request failed before a response could be received." {
+		t.Errorf("unexpected failed attempt: %+v", attempt)
+	}
+	entry := hook.LastEntry()
+	if entry == nil {
+		t.Fatal("request failure was not logged")
+	}
+	if entry.Level != logrus.ErrorLevel || entry.Data["subscription_id"] != sub.ID {
+		t.Errorf("unexpected log entry: %+v", entry)
+	}
+	if got := entry.Data[logrus.ErrorKey]; got != cause {
+		t.Errorf("logged error = %v, want underlying error without request URL: %v", got, cause)
+	}
+}
 
 func TestDeliverPreservesDiagnosticsAndDoesNotChangeTestHealth(t *testing.T) {
 	for _, tt := range []struct {
@@ -368,7 +402,7 @@ func (f workerRoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error
 func newWorkerTestDispatcher(t *testing.T, q *workerTestQueries, transport workerRoundTripFunc) *Dispatcher {
 	t.Helper()
 	log, _ := logrustest.NewNullLogger()
-	d, err := NewDispatcher(nil, nil, "https://api.example.test", "test-tenant", false, log)
+	d, err := NewDispatcher(nil, nil, "https://api.example.test", false, nil, log)
 	if err != nil {
 		t.Fatal(err)
 	}

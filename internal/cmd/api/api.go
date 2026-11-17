@@ -253,11 +253,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	go notifier.Run(ctx)
 
 	// Webhook dispatcher — drains the webhook_events outbox table on PG NOTIFY
-	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://console."+cfg.Tenant+".cloud.nais.io/cloudevents", cfg.Tenant, cfg.Fakes.WithInsecureWebhookURLs, log)
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://console."+cfg.Tenant+".cloud.nais.io/cloudevents", cfg.Fakes.WithInsecureWebhookURLs, watchers.IngressWatcher, log)
 	if err != nil {
 		return fmt.Errorf("creating webhook dispatcher: %w", err)
 	}
 	wg.Go(func() error {
+		if !watchers.IngressWatcher.WaitForCacheSync(ctx) {
+			return ctx.Err()
+		}
 		webhookDispatcher.Run(ctx)
 		return nil
 	})
