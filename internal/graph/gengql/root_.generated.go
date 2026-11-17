@@ -37194,17 +37194,6 @@ enum VulnerabilitySummaryOrderByField {
 
 extend input TeamFilter {
 	"""
-	Filter by the presence of vulnerability findings across all severity levels and environments.
-	Applied before pagination. Missing summaries produce an error.
-	"""
-	hasVulnerabilityFindings: Boolean
-	"""
-	Filter by complete usable SBOM coverage across all environments.
-	True requires at least one usable SBOM and 100% coverage; false selects incomplete coverage.
-	Applied before pagination. Missing summaries produce an error.
-	"""
-	hasCompleteSbomCoverage: Boolean
-	"""
 	Filter by the team's highest operational vulnerability priority across all environments.
 	Groups are mutually exclusive. Without orderBy, teams are ordered by the group's
 	finding count descending, then slug ascending. Missing summaries produce an error.
