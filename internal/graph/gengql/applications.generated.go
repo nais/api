@@ -85,6 +85,9 @@ type ApplicationConnectionResolver interface {
 type ApplicationInstanceResolver interface {
 	InstanceUtilization(ctx context.Context, obj *application.ApplicationInstance, resourceType utilization.UtilizationResourceType) (*utilization.ApplicationInstanceUtilization, error)
 }
+type ApplicationScalingResolver interface {
+	Status(ctx context.Context, obj *application.ApplicationScaling) (*application.ApplicationScalingStatus, error)
+}
 type DeleteApplicationPayloadResolver interface {
 	Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error)
 }
@@ -3789,6 +3792,130 @@ func (ec *executionContext) fieldContext_ApplicationScaling_strategies(_ context
 	return graphql.NewScalarFieldContext("ApplicationScaling", field, false, false, errors.New("field of type ScalingStrategy does not have child fields"))
 }
 
+func (ec *executionContext) _ApplicationScaling_status(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScaling) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationScaling_status(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.ApplicationScaling().Status(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *application.ApplicationScalingStatus) graphql.Marshaler {
+			return ec.marshalOApplicationScalingStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationScalingStatus(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationScaling_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ApplicationScaling",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ApplicationScalingStatus(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ApplicationScalingStatus_currentInstances(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScalingStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationScalingStatus_currentInstances(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.CurrentInstances, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationScalingStatus_currentInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationScalingStatus", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationScalingStatus_desiredInstances(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScalingStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationScalingStatus_desiredInstances(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DesiredInstances, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationScalingStatus_desiredInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationScalingStatus", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationScalingStatus_state(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScalingStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationScalingStatus_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v application.ApplicationScalingState) graphql.Marshaler {
+			return ec.marshalNApplicationScalingState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationScalingState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationScalingStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationScalingStatus", field, false, false, errors.New("field of type ApplicationScalingState does not have child fields"))
+}
+
+func (ec *executionContext) _ApplicationScalingStatus_message(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationScalingStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_ApplicationScalingStatus_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_ApplicationScalingStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("ApplicationScalingStatus", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _ApplicationStateFacetItem_state(ctx context.Context, field graphql.CollectedField, obj *application.ApplicationStateFacetItem) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -6930,15 +7057,102 @@ func (ec *executionContext) _ApplicationScaling(ctx context.Context, sel ast.Sel
 		case "minInstances":
 			out.Values[i] = ec._ApplicationScaling_minInstances(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "maxInstances":
 			out.Values[i] = ec._ApplicationScaling_maxInstances(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "strategies":
 			out.Values[i] = ec._ApplicationScaling_strategies(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "status":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._ApplicationScaling_status(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var applicationScalingStatusImplementors = []string{"ApplicationScalingStatus"}
+
+func (ec *executionContext) _ApplicationScalingStatus(ctx context.Context, sel ast.SelectionSet, obj *application.ApplicationScalingStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, applicationScalingStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ApplicationScalingStatus")
+		case "currentInstances":
+			out.Values[i] = ec._ApplicationScalingStatus_currentInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "desiredInstances":
+			out.Values[i] = ec._ApplicationScalingStatus_desiredInstances(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._ApplicationScalingStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._ApplicationScalingStatus_message(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -7802,6 +8016,16 @@ func (ec *executionContext) marshalNApplicationScaling2ᚖgithubᚗcomᚋnaisᚋ
 	return ec._ApplicationScaling(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNApplicationScalingState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationScalingState(ctx context.Context, v any) (application.ApplicationScalingState, error) {
+	var res application.ApplicationScalingState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNApplicationScalingState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationScalingState(ctx context.Context, sel ast.SelectionSet, v application.ApplicationScalingState) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNApplicationState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationState(ctx context.Context, v any) (application.ApplicationState, error) {
 	var res application.ApplicationState
 	err := res.UnmarshalGQL(v)
@@ -8005,6 +8229,13 @@ func (ec *executionContext) unmarshalOApplicationOrder2ᚖgithubᚗcomᚋnaisᚋ
 	}
 	res, err := ec.unmarshalInputApplicationOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOApplicationScalingStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationScalingStatus(ctx context.Context, sel ast.SelectionSet, v *application.ApplicationScalingStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ApplicationScalingStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOApplicationState2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋapplicationᚐApplicationStateᚄ(ctx context.Context, v any) ([]application.ApplicationState, error) {

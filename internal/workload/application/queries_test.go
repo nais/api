@@ -62,7 +62,7 @@ func TestGetIngressTypeByHostPreservesWorkloadScope(t *testing.T) {
 	if !mgr.WaitForReady(waitCtx) {
 		t.Fatal("timed out waiting for ingress watcher")
 	}
-	ctx = NewLoaderContext(ctx, nil, ingressWatcher, log)
+	ctx = NewLoaderContext(ctx, nil, ingressWatcher, nil, log)
 
 	for _, tt := range []struct {
 		name, cluster, team, app, url string

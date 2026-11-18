@@ -44,7 +44,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		t.Fatal("watchers did not synchronize")
 	}
 	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
-	ctx = application.NewLoaderContext(ctx, appWatcher, nil, log)
+	ctx = application.NewLoaderContext(ctx, appWatcher, nil, nil, log)
 	ctx = job.NewLoaderContext(ctx, jobWatcher, nil)
 	team := slug.Slug("postgres-workload-team")
 	apps := application.ListAllForTeamInEnvironment(ctx, team, "dev")

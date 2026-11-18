@@ -105,6 +105,10 @@ func (r *applicationConnectionResolver) Facets(ctx context.Context, obj *paginat
 	}, nil
 }
 
+func (r *applicationScalingResolver) Status(ctx context.Context, obj *application.ApplicationScaling) (*application.ApplicationScalingStatus, error) {
+	return application.GetScalingStatus(ctx, obj)
+}
+
 func (r *deleteApplicationPayloadResolver) Team(ctx context.Context, obj *application.DeleteApplicationPayload) (*team.Team, error) {
 	if obj.TeamSlug == nil {
 		return nil, nil
@@ -201,6 +205,10 @@ func (r *Resolver) ApplicationInstance() gengql.ApplicationInstanceResolver {
 	return &applicationInstanceResolver{r}
 }
 
+func (r *Resolver) ApplicationScaling() gengql.ApplicationScalingResolver {
+	return &applicationScalingResolver{r}
+}
+
 func (r *Resolver) DeleteApplicationPayload() gengql.DeleteApplicationPayloadResolver {
 	return &deleteApplicationPayloadResolver{r}
 }
@@ -219,6 +227,7 @@ type (
 	applicationResolver               struct{ *Resolver }
 	applicationConnectionResolver     struct{ *Resolver }
 	applicationInstanceResolver       struct{ *Resolver }
+	applicationScalingResolver        struct{ *Resolver }
 	deleteApplicationPayloadResolver  struct{ *Resolver }
 	ingressResolver                   struct{ *Resolver }
 	restartApplicationPayloadResolver struct{ *Resolver }

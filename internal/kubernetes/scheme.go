@@ -13,6 +13,7 @@ import (
 	unleash_nais_io_v1 "github.com/nais/unleasherator/api/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	authorizationv1 "k8s.io/api/authorization/v1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -31,6 +32,7 @@ func NewScheme() (*runtime.Scheme, error) {
 		kafka_nais_io_v1.AddToScheme,
 		corev1.AddToScheme,
 		appsv1.AddToScheme,
+		autoscalingv2.AddToScheme,
 		netv1.AddToScheme,
 		rbacv1.AddToScheme,
 		sql_cnrm_cloud_google_com_v1beta1.AddToScheme,

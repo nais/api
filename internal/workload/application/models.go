@@ -17,6 +17,7 @@ import (
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -452,6 +453,100 @@ type ApplicationScaling struct {
 	MinInstances int               `json:"minInstances"`
 	MaxInstances int               `json:"maxInstances"`
 	Strategies   []ScalingStrategy `json:"strategies"`
+
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+	ApplicationName string    `json:"-"`
+}
+
+type ApplicationScalingStatus struct {
+	CurrentInstances int                     `json:"currentInstances"`
+	DesiredInstances int                     `json:"desiredInstances"`
+	State            ApplicationScalingState `json:"state"`
+	Message          string                  `json:"message"`
+}
+
+type ApplicationScalingState string
+
+const (
+	ApplicationScalingStateActive             ApplicationScalingState = "ACTIVE"
+	ApplicationScalingStateLimitedByMaximum   ApplicationScalingState = "LIMITED_BY_MAXIMUM"
+	ApplicationScalingStateMetricsUnavailable ApplicationScalingState = "METRICS_UNAVAILABLE"
+	ApplicationScalingStateUnableToScale      ApplicationScalingState = "UNABLE_TO_SCALE"
+	ApplicationScalingStateDisabled           ApplicationScalingState = "DISABLED"
+)
+
+var AllApplicationScalingState = []ApplicationScalingState{
+	ApplicationScalingStateActive,
+	ApplicationScalingStateLimitedByMaximum,
+	ApplicationScalingStateMetricsUnavailable,
+	ApplicationScalingStateUnableToScale,
+	ApplicationScalingStateDisabled,
+}
+
+func (e ApplicationScalingState) IsValid() bool {
+	return slices.Contains(AllApplicationScalingState, e)
+}
+
+func (e ApplicationScalingState) String() string {
+	return string(e)
+}
+
+func (e *ApplicationScalingState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ApplicationScalingState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ApplicationScalingState", str)
+	}
+	return nil
+}
+
+func (e ApplicationScalingState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// toScalingStatus translates the state of a horizontal pod autoscaler. When several conditions apply, the one that
+// is most severe for the user is reported.
+func toScalingStatus(hpa *autoscalingv2.HorizontalPodAutoscaler) *ApplicationScalingStatus {
+	ret := &ApplicationScalingStatus{
+		CurrentInstances: int(hpa.Status.CurrentReplicas),
+		DesiredInstances: int(hpa.Status.DesiredReplicas),
+		State:            ApplicationScalingStateActive,
+		Message:          "Automatic scaling is active.",
+	}
+
+	var ableToScale, scalingActive, scalingLimited *autoscalingv2.HorizontalPodAutoscalerCondition
+	for i, c := range hpa.Status.Conditions {
+		switch c.Type {
+		case autoscalingv2.AbleToScale:
+			ableToScale = &hpa.Status.Conditions[i]
+		case autoscalingv2.ScalingActive:
+			scalingActive = &hpa.Status.Conditions[i]
+		case autoscalingv2.ScalingLimited:
+			scalingLimited = &hpa.Status.Conditions[i]
+		}
+	}
+
+	switch {
+	case ableToScale != nil && ableToScale.Status == corev1.ConditionFalse:
+		ret.State = ApplicationScalingStateUnableToScale
+		ret.Message = "The platform is currently unable to change the number of instances."
+	case scalingActive != nil && scalingActive.Status == corev1.ConditionFalse && scalingActive.Reason == "ScalingDisabled":
+		ret.State = ApplicationScalingStateDisabled
+		ret.Message = "Automatic scaling is turned off because the application has been scaled down to zero instances."
+	case scalingActive != nil && scalingActive.Status == corev1.ConditionFalse:
+		ret.State = ApplicationScalingStateMetricsUnavailable
+		ret.Message = "The platform cannot read the metrics used for automatic scaling, so the number of instances is not adjusted."
+	case scalingLimited != nil && scalingLimited.Status == corev1.ConditionTrue && scalingLimited.Reason == "TooManyReplicas":
+		ret.State = ApplicationScalingStateLimitedByMaximum
+		ret.Message = "The application needs more instances than the configured maximum. Consider increasing the maximum number of instances or the resources of each instance."
+	}
+
+	return ret
 }
 
 type CPUScalingStrategy struct {
@@ -485,7 +580,11 @@ func (a *Application) Resources() *ApplicationResources {
 	ret := &ApplicationResources{
 		Limits:   &workload.WorkloadResourceQuantity{},
 		Requests: &workload.WorkloadResourceQuantity{},
-		Scaling:  &ApplicationScaling{},
+		Scaling: &ApplicationScaling{
+			TeamSlug:        a.TeamSlug,
+			EnvironmentName: a.EnvironmentName,
+			ApplicationName: a.Name,
+		},
 	}
 
 	if resources := a.Spec.Resources; resources != nil {
