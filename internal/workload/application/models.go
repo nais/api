@@ -12,6 +12,7 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/translate"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
@@ -90,6 +91,8 @@ type ApplicationInstance struct {
 	TeamSlug                   slug.Slug              `json:"-"`
 	ApplicationName            string                 `json:"-"`
 	ApplicationContainerStatus corev1.ContainerStatus `json:"-"`
+	// SchedulingFailure is the reason the instance cannot be placed on a server, if any.
+	SchedulingFailure *string `json:"-"`
 }
 
 func (ApplicationInstance) IsNode() {}
@@ -199,8 +202,19 @@ func (i *ApplicationInstance) lastTerminationInfo() (*string, *int, *time.Time) 
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	lastExitReason, lastExitCode, lastExitTimestamp := i.lastTerminationInfo()
 	ready := i.ApplicationContainerStatus.Ready
+	current := i.ApplicationContainerStatus.State
 
 	switch {
+	case i.SchedulingFailure != nil && current.Running == nil && current.Terminated == nil:
+		return &ApplicationInstanceStatus{
+			State:             ApplicationInstanceStatePending,
+			Message:           translate.SchedulingFailure(*i.SchedulingFailure),
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
+		}
+
 	case i.ApplicationContainerStatus.State.Running != nil:
 		msg := "Running and ready."
 		if !ready {
@@ -262,7 +276,8 @@ func (i *ApplicationInstance) State() ApplicationInstanceState {
 	return i.Status().State
 }
 
-func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
+// ToApplicationInstance converts a pod to an ApplicationInstance.
+func ToApplicationInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
 	var containerStatus corev1.ContainerStatus
 	for _, c := range pod.Status.ContainerStatuses {
 		if c.Name == applicationName {
@@ -271,18 +286,31 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 		}
 	}
 
-	ret := &ApplicationInstance{
+	var imageString string
+	if len(pod.Spec.Containers) > 0 {
+		imageString = pod.Spec.Containers[0].Image
+	}
+
+	return &ApplicationInstance{
 		Name:                       pod.Name,
 		Restarts:                   int(containerStatus.RestartCount),
 		Created:                    pod.CreationTimestamp.Time,
 		EnvironmentName:            environmentName,
-		ImageString:                pod.Spec.Containers[0].Image,
+		ImageString:                imageString,
 		TeamSlug:                   teamSlug,
 		ApplicationName:            applicationName,
 		ApplicationContainerStatus: containerStatus,
+		SchedulingFailure:          schedulingFailure(pod),
 	}
+}
 
-	return ret
+func schedulingFailure(pod *corev1.Pod) *string {
+	for _, c := range pod.Status.Conditions {
+		if c.Type == corev1.PodScheduled && c.Status == corev1.ConditionFalse && c.Reason == corev1.PodReasonUnschedulable {
+			return &c.Message
+		}
+	}
+	return nil
 }
 
 func (i ApplicationInstance) Image() *workload.ContainerImage {
@@ -541,6 +569,7 @@ type ApplicationInstanceState string
 
 const (
 	ApplicationInstanceStateRunning    ApplicationInstanceState = "RUNNING"
+	ApplicationInstanceStatePending    ApplicationInstanceState = "PENDING"
 	ApplicationInstanceStateStarting   ApplicationInstanceState = "STARTING"
 	ApplicationInstanceStateFailing    ApplicationInstanceState = "FAILING"
 	ApplicationInstanceStateTerminated ApplicationInstanceState = "TERMINATED"
@@ -549,6 +578,7 @@ const (
 
 var AllApplicationInstanceState = []ApplicationInstanceState{
 	ApplicationInstanceStateRunning,
+	ApplicationInstanceStatePending,
 	ApplicationInstanceStateStarting,
 	ApplicationInstanceStateFailing,
 	ApplicationInstanceStateTerminated,
@@ -557,7 +587,7 @@ var AllApplicationInstanceState = []ApplicationInstanceState{
 
 func (e ApplicationInstanceState) IsValid() bool {
 	switch e {
-	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateTerminated, ApplicationInstanceStateUnknown:
+	case ApplicationInstanceStateRunning, ApplicationInstanceStatePending, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateTerminated, ApplicationInstanceStateUnknown:
 		return true
 	}
 	return false

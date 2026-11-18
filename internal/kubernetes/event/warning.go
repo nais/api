@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/nais/api/internal/kubernetes/translate"
 )
 
 type WorkloadWarningEvent struct {
@@ -152,17 +154,7 @@ func missingSourceMessage(note string) (string, bool) {
 }
 
 func translateFailedScheduling(note string) (WorkloadWarningEventKind, string, bool) {
-	var resources []string
-	if strings.Contains(note, "Insufficient cpu") {
-		resources = append(resources, "CPU")
-	}
-	if strings.Contains(note, "Insufficient memory") {
-		resources = append(resources, "memory")
-	}
-	if len(resources) > 0 {
-		return WorkloadWarningEventKindPlacementFailed, fmt.Sprintf("Not enough %s available to start the instance. Consider lowering the requested resources.", strings.Join(resources, " and ")), true
-	}
-	return WorkloadWarningEventKindPlacementFailed, "No suitable server was found to run the instance.", true
+	return WorkloadWarningEventKindPlacementFailed, translate.SchedulingFailure(note), true
 }
 
 func translateFailedMount(note string) (WorkloadWarningEventKind, string, bool) {

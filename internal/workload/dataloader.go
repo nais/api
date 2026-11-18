@@ -83,6 +83,25 @@ func transformPod(in any) (any, error) {
 		return nil, err
 	}
 
+	// Keep the scheduling condition to detect instances that cannot be placed on a server.
+	conditions, _, err := unstructured.NestedSlice(pod.Object, "status", "conditions")
+	if err != nil {
+		return nil, err
+	}
+	newConditions := []any{}
+	for _, condition := range conditions {
+		c, ok := condition.(map[string]any)
+		if !ok || c["type"] != string(corev1.PodScheduled) {
+			continue
+		}
+		newConditions = append(newConditions, map[string]any{
+			"type":    c["type"],
+			"status":  c["status"],
+			"reason":  c["reason"],
+			"message": c["message"],
+		})
+	}
+
 	// Removing data
 	for _, field := range fieldsToRemove {
 		unstructured.RemoveNestedField(pod.Object, field...)
@@ -99,6 +118,7 @@ func transformPod(in any) (any, error) {
 	// Adding data back
 	_ = unstructured.SetNestedSlice(pod.Object, newContainers, "spec", "containers")
 	_ = unstructured.SetNestedSlice(pod.Object, containerStatuses, "status", "containerStatuses")
+	_ = unstructured.SetNestedSlice(pod.Object, newConditions, "status", "conditions")
 
 	return pod, nil
 }
