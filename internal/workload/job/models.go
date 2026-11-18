@@ -3,6 +3,7 @@ package job
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
+	"github.com/nais/api/internal/workload/application"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	"github.com/robfig/cron/v3"
 	batchv1 "k8s.io/api/batch/v1"
@@ -32,9 +34,102 @@ type (
 )
 
 type JobRunInstance struct {
-	Name            string    `json:"name"`
+	Name     string    `json:"name"`
+	Restarts int       `json:"restarts"`
+	Created  time.Time `json:"created"`
+
 	EnvironmentName string    `json:"-"`
 	TeamSlug        slug.Slug `json:"-"`
+	ImageString     string    `json:"-"`
+	// instance holds the container statuses used to compute the status of the instance.
+	instance *application.ApplicationInstance
+}
+
+func (i JobRunInstance) Image() *workload.ContainerImage {
+	return workload.ParseContainerImage(i.ImageString)
+}
+
+func (i JobRunInstance) Status() *JobRunInstanceStatus {
+	s := i.instance.Status()
+	state := JobRunInstanceStateUnknown
+	message := s.Message
+	switch s.State {
+	case application.ApplicationInstanceStateRunning:
+		// Jobs do not receive traffic, so readiness is not relevant.
+		state = JobRunInstanceStateRunning
+		message = "Running."
+		if problem, ok := i.instance.ComponentProblem(); ok {
+			message = "Running. " + problem
+		}
+	case application.ApplicationInstanceStatePending:
+		state = JobRunInstanceStatePending
+	case application.ApplicationInstanceStateStarting:
+		state = JobRunInstanceStateStarting
+	case application.ApplicationInstanceStateFailing:
+		state = JobRunInstanceStateFailing
+	case application.ApplicationInstanceStateTerminated:
+		state = JobRunInstanceStateSucceeded
+	}
+	return &JobRunInstanceStatus{
+		State:             state,
+		Message:           message,
+		LastExitReason:    s.LastExitReason,
+		LastExitCode:      s.LastExitCode,
+		LastExitTimestamp: s.LastExitTimestamp,
+	}
+}
+
+type JobRunInstanceStatus struct {
+	State             JobRunInstanceState `json:"state"`
+	Message           string              `json:"message"`
+	LastExitReason    *string             `json:"lastExitReason,omitempty"`
+	LastExitCode      *int                `json:"lastExitCode,omitempty"`
+	LastExitTimestamp *time.Time          `json:"lastExitTimestamp,omitempty"`
+}
+
+type JobRunInstanceState string
+
+const (
+	JobRunInstanceStateRunning   JobRunInstanceState = "RUNNING"
+	JobRunInstanceStatePending   JobRunInstanceState = "PENDING"
+	JobRunInstanceStateStarting  JobRunInstanceState = "STARTING"
+	JobRunInstanceStateFailing   JobRunInstanceState = "FAILING"
+	JobRunInstanceStateSucceeded JobRunInstanceState = "SUCCEEDED"
+	JobRunInstanceStateUnknown   JobRunInstanceState = "UNKNOWN"
+)
+
+var AllJobRunInstanceState = []JobRunInstanceState{
+	JobRunInstanceStateRunning,
+	JobRunInstanceStatePending,
+	JobRunInstanceStateStarting,
+	JobRunInstanceStateFailing,
+	JobRunInstanceStateSucceeded,
+	JobRunInstanceStateUnknown,
+}
+
+func (e JobRunInstanceState) IsValid() bool {
+	return slices.Contains(AllJobRunInstanceState, e)
+}
+
+func (e JobRunInstanceState) String() string {
+	return string(e)
+}
+
+func (e *JobRunInstanceState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobRunInstanceState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobRunInstanceState", str)
+	}
+	return nil
+}
+
+func (e JobRunInstanceState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 func (JobRunInstance) IsNode() {}
@@ -431,10 +526,16 @@ func trigger(run *batchv1.Job) *JobRunTrigger {
 }
 
 func toGraphJobRunInstance(run *corev1.Pod, environmentName string) *JobRunInstance {
+	teamSlug := slug.Slug(run.Namespace)
+	instance := application.ToApplicationInstance(run, teamSlug, environmentName, run.GetLabels()["app"])
 	return &JobRunInstance{
 		Name:            run.Name,
+		Restarts:        instance.Restarts,
+		Created:         instance.Created,
 		EnvironmentName: environmentName,
-		TeamSlug:        slug.Slug(run.Namespace),
+		TeamSlug:        teamSlug,
+		ImageString:     instance.ImageString,
+		instance:        instance,
 	}
 }
 

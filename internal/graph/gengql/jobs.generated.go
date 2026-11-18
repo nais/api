@@ -3400,6 +3400,116 @@ func (ec *executionContext) fieldContext_JobRunInstance_name(_ context.Context, 
 	return graphql.NewScalarFieldContext("JobRunInstance", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _JobRunInstance_image(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstance_image(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Image(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.ContainerImage) graphql.Marshaler {
+			return ec.marshalNContainerImage2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐContainerImage(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstance_image(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ContainerImage(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobRunInstance_restarts(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstance_restarts(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Restarts, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstance_restarts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstance", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _JobRunInstance_created(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstance_created(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Created, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstance_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstance", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _JobRunInstance_status(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstance) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstance_status(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Status(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *job.JobRunInstanceStatus) graphql.Marshaler {
+			return ec.marshalNJobRunInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceStatus(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstance_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobRunInstance",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_JobRunInstanceStatus(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _JobRunInstanceConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[*job.JobRunInstance]) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3549,6 +3659,121 @@ func (ec *executionContext) fieldContext_JobRunInstanceEdge_node(_ context.Conte
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _JobRunInstanceStatus_state(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstanceStatus_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v job.JobRunInstanceState) graphql.Marshaler {
+			return ec.marshalNJobRunInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstanceStatus_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstanceStatus", field, false, false, errors.New("field of type JobRunInstanceState does not have child fields"))
+}
+
+func (ec *executionContext) _JobRunInstanceStatus_message(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstanceStatus_message(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstanceStatus_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstanceStatus", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _JobRunInstanceStatus_lastExitReason(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstanceStatus_lastExitReason(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitReason, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstanceStatus_lastExitReason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstanceStatus", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _JobRunInstanceStatus_lastExitCode(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstanceStatus_lastExitCode(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitCode, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *int) graphql.Marshaler {
+			return ec.marshalOInt2ᚖint(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstanceStatus_lastExitCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstanceStatus", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _JobRunInstanceStatus_lastExitTimestamp(ctx context.Context, field graphql.CollectedField, obj *job.JobRunInstanceStatus) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_JobRunInstanceStatus_lastExitTimestamp(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.LastExitTimestamp, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_JobRunInstanceStatus_lastExitTimestamp(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("JobRunInstanceStatus", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 func (ec *executionContext) _JobRunStatus_state(ctx context.Context, field graphql.CollectedField, obj *job.JobRunStatus) (ret graphql.Marshaler) {
@@ -6777,6 +7002,26 @@ func (ec *executionContext) _JobRunInstance(ctx context.Context, sel ast.Selecti
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "image":
+			out.Values[i] = ec._JobRunInstance_image(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "restarts":
+			out.Values[i] = ec._JobRunInstance_restarts(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "created":
+			out.Values[i] = ec._JobRunInstance_created(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._JobRunInstance_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6870,6 +7115,56 @@ func (ec *executionContext) _JobRunInstanceEdge(ctx context.Context, sel ast.Sel
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobRunInstanceStatusImplementors = []string{"JobRunInstanceStatus"}
+
+func (ec *executionContext) _JobRunInstanceStatus(ctx context.Context, sel ast.SelectionSet, obj *job.JobRunInstanceStatus) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobRunInstanceStatusImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobRunInstanceStatus")
+		case "state":
+			out.Values[i] = ec._JobRunInstanceStatus_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "message":
+			out.Values[i] = ec._JobRunInstanceStatus_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "lastExitReason":
+			out.Values[i] = ec._JobRunInstanceStatus_lastExitReason(ctx, field, obj)
+		case "lastExitCode":
+			out.Values[i] = ec._JobRunInstanceStatus_lastExitCode(ctx, field, obj)
+		case "lastExitTimestamp":
+			out.Values[i] = ec._JobRunInstanceStatus_lastExitTimestamp(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7739,6 +8034,26 @@ func (ec *executionContext) marshalNJobRunInstanceEdge2ᚕgithubᚗcomᚋnaisᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNJobRunInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceState(ctx context.Context, v any) (job.JobRunInstanceState, error) {
+	var res job.JobRunInstanceState
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJobRunInstanceState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceState(ctx context.Context, sel ast.SelectionSet, v job.JobRunInstanceState) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) marshalNJobRunInstanceStatus2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunInstanceStatus(ctx context.Context, sel ast.SelectionSet, v *job.JobRunInstanceStatus) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobRunInstanceStatus(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNJobRunState2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚋjobᚐJobRunState(ctx context.Context, v any) (job.JobRunState, error) {

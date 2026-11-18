@@ -188,7 +188,10 @@ func terminatedMessage(t *corev1.ContainerStateTerminated) string {
 }
 
 func (i *ApplicationInstance) lastTerminationInfo() (*string, *int, *time.Time) {
-	last := i.ApplicationContainerStatus.LastTerminationState.Terminated
+	last := i.ApplicationContainerStatus.State.Terminated
+	if last == nil {
+		last = i.ApplicationContainerStatus.LastTerminationState.Terminated
+	}
 	if last == nil {
 		return nil, nil, nil
 	}
@@ -206,7 +209,7 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	ready := i.ApplicationContainerStatus.Ready
 	current := i.ApplicationContainerStatus.State
 
-	componentProblem, hasComponentProblem := i.componentProblem()
+	componentProblem, hasComponentProblem := i.ComponentProblem()
 
 	switch {
 	case i.SchedulingFailure != nil && current.Running == nil && current.Terminated == nil:
@@ -349,9 +352,9 @@ func (i *ApplicationInstance) hasUnreadyComponent() bool {
 	})
 }
 
-// componentProblem describes a failing container added by the platform. Container names are not exposed, as these
+// ComponentProblem describes a failing container added by the platform. Container names are not exposed, as these
 // containers are not part of the application manifest.
-func (i *ApplicationInstance) componentProblem() (string, bool) {
+func (i *ApplicationInstance) ComponentProblem() (string, bool) {
 	const prefix = "A component added by the platform "
 	for _, c := range i.ComponentContainerStatuses {
 		if w := c.State.Waiting; w != nil {
