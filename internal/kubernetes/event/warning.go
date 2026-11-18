@@ -128,37 +128,16 @@ func fixedWarning(kind WorkloadWarningEventKind, message string) warningTranslat
 }
 
 var (
-	regMissingSecret    = regexp.MustCompile(`(?i)secrets? "([^"]+)" not found`)
-	regMissingConfig    = regexp.MustCompile(`(?i)configmaps? "([^"]+)" not found`)
-	regMissingKey       = regexp.MustCompile(`couldn't find key (\S+) in (Secret|ConfigMap) (?:[^/\s]+/)?(\S+)`)
 	regStatusCode       = regexp.MustCompile(`statuscode: (\d+)`)
 	regEvictionResource = regexp.MustCompile(`low on resource: ([\w-]+)`)
 )
-
-// missingSourceMessage describes a missing Secret or Config referenced by the workload, if the note mentions one.
-func missingSourceMessage(note string) (string, bool) {
-	if m := regMissingKey.FindStringSubmatch(note); m != nil {
-		kind := "secret"
-		if m[2] == "ConfigMap" {
-			kind = "config"
-		}
-		return fmt.Sprintf("Key %q was not found in %s %q.", m[1], kind, m[3]), true
-	}
-	if m := regMissingSecret.FindStringSubmatch(note); m != nil {
-		return fmt.Sprintf("Secret %q was not found.", m[1]), true
-	}
-	if m := regMissingConfig.FindStringSubmatch(note); m != nil {
-		return fmt.Sprintf("Config %q was not found.", m[1]), true
-	}
-	return "", false
-}
 
 func translateFailedScheduling(note string) (WorkloadWarningEventKind, string, bool) {
 	return WorkloadWarningEventKindPlacementFailed, translate.SchedulingFailure(note), true
 }
 
 func translateFailedMount(note string) (WorkloadWarningEventKind, string, bool) {
-	if msg, ok := missingSourceMessage(note); ok {
+	if msg, ok := translate.MissingSource(note); ok {
 		return WorkloadWarningEventKindMountFailed, "Failed to mount files into the instance. " + msg, true
 	}
 	return WorkloadWarningEventKindMountFailed, "Failed to mount files or storage into the instance.", true
@@ -172,7 +151,7 @@ func translateFailed(note string) (WorkloadWarningEventKind, string, bool) {
 		// Follow-up events for an image download failure that has already been reported.
 		return "", "", false
 	case strings.HasPrefix(note, "Error: "):
-		if msg, ok := missingSourceMessage(note); ok {
+		if msg, ok := translate.MissingSource(note); ok {
 			return WorkloadWarningEventKindStartFailed, "The instance failed to start. " + msg, true
 		}
 		return WorkloadWarningEventKindStartFailed, "The instance failed to start.", true

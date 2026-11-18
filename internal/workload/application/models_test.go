@@ -57,3 +57,106 @@ func TestApplicationInstanceStatusPending(t *testing.T) {
 		})
 	}
 }
+
+func TestApplicationInstanceStatusComponentProblem(t *testing.T) {
+	crashing := corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "CrashLoopBackOff"}}
+
+	for _, test := range []struct {
+		name        string
+		init        []corev1.ContainerStatus
+		sidecars    []corev1.ContainerStatus
+		app         corev1.ContainerState
+		appReady    bool
+		wantState   ApplicationInstanceState
+		wantReady   bool
+		wantMessage string
+	}{
+		{
+			name:        "failing init container blocks start",
+			init:        []corev1.ContainerStatus{{Name: "init", State: crashing}},
+			app:         corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "PodInitializing"}},
+			wantState:   ApplicationInstanceStateFailing,
+			wantMessage: "A component added by the platform keeps crashing.",
+		},
+		{
+			name: "missing configuration for init container",
+			init: []corev1.ContainerStatus{{Name: "init", State: corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{
+				Reason: "CreateContainerConfigError", Message: `secret "db" not found`,
+			}}}},
+			wantState:   ApplicationInstanceStateFailing,
+			wantMessage: `A component added by the platform is missing configuration. Secret "db" was not found.`,
+		},
+		{
+			name: "failing sidecar stops traffic to running app",
+			sidecars: []corev1.ContainerStatus{{Name: "sidecar", State: corev1.ContainerState{Terminated: &corev1.ContainerStateTerminated{
+				Reason: "OOMKilled", ExitCode: 137,
+			}}}},
+			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
+			appReady:    true,
+			wantState:   ApplicationInstanceStateRunning,
+			wantMessage: "Running, but not receiving traffic. A component added by the platform ran out of memory.",
+		},
+		{
+			name:        "running unready sidecar stops traffic to running app",
+			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
+			appReady:    true,
+			wantState:   ApplicationInstanceStateRunning,
+			wantMessage: "Running, but not receiving traffic. A component added by the platform is not ready.",
+		},
+		{
+			name:        "running unready init sidecar stops traffic to running app",
+			init:        []corev1.ContainerStatus{{Name: "init-sidecar", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
+			appReady:    true,
+			wantState:   ApplicationInstanceStateRunning,
+			wantMessage: "Running, but not receiving traffic. A component added by the platform is not ready.",
+		},
+		{
+			name:        "unready component does not make startup fail",
+			init:        []corev1.ContainerStatus{{Name: "init", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "PodInitializing"}},
+			wantState:   ApplicationInstanceStateStarting,
+			wantMessage: "Waiting for init containers to complete.",
+		},
+		{
+			name:        "application problem takes precedence",
+			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", State: crashing}},
+			app:         corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "ErrImagePull"}},
+			wantState:   ApplicationInstanceStateFailing,
+			wantMessage: "Failed to download container image. Check that the image exists and is accessible.",
+		},
+		{
+			name: "healthy components",
+			init: []corev1.ContainerStatus{{Name: "init", State: corev1.ContainerState{Terminated: &corev1.ContainerStateTerminated{
+				Reason: "Completed",
+			}}}},
+			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", Ready: true, State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
+			appReady:    true,
+			wantState:   ApplicationInstanceStateRunning,
+			wantReady:   true,
+			wantMessage: "Running and ready.",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			pod := &corev1.Pod{
+				Spec: corev1.PodSpec{Containers: []corev1.Container{{Name: "app", Image: "image"}}},
+				Status: corev1.PodStatus{
+					InitContainerStatuses: test.init,
+					ContainerStatuses:     append([]corev1.ContainerStatus{{Name: "app", State: test.app, Ready: test.appReady}}, test.sidecars...),
+				},
+			}
+			status := ToApplicationInstance(pod, "team", "dev", "app").Status()
+			if status.State != test.wantState {
+				t.Errorf("got state %q, want %q", status.State, test.wantState)
+			}
+			if status.Ready != test.wantReady {
+				t.Errorf("got ready %v, want %v", status.Ready, test.wantReady)
+			}
+			if status.Message != test.wantMessage {
+				t.Errorf("got message %q, want %q", status.Message, test.wantMessage)
+			}
+		})
+	}
+}
