@@ -6804,6 +6804,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Application(ctx, sel, obj)
+	case event.WorkloadWarningEvent:
+		return ec._WorkloadWarningEvent(ctx, sel, &obj)
+	case *event.WorkloadWarningEvent:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._WorkloadWarningEvent(ctx, sel, obj)
 	case event.WorkloadSuccessfulRescaleEvent:
 		return ec._WorkloadSuccessfulRescaleEvent(ctx, sel, &obj)
 	case *event.WorkloadSuccessfulRescaleEvent:

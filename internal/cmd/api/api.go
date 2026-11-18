@@ -272,14 +272,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watchers.PodWatcher, watchers.ReplicaSetWatcher, watchers.RunWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
 		go eventWatcher.Run(ctx)
 	} else {
 		log.Info("Start fake event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watchers.PodWatcher, watchers.ReplicaSetWatcher, watchers.RunWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
@@ -437,6 +437,11 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		webhook.RunCleaner(ctx, pool, log.WithField("subsystem", "webhook_cleaner"))
+		return nil
+	})
+
+	wg.Go(func() error {
+		event.RunCleaner(ctx, pool, log.WithField("subsystem", "workload_event_cleaner"))
 		return nil
 	})
 
