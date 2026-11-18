@@ -46,3 +46,16 @@ func MissingSource(message string) (string, bool) {
 	}
 	return "", false
 }
+
+// InstanceCreationFailure describes why new instances could not be created, based on a Kubernetes failure message.
+func InstanceCreationFailure(message string) string {
+	switch {
+	case strings.Contains(message, "exceeded quota"):
+		return "New instances could not be created because the team's resource quota is exceeded."
+	case strings.Contains(message, "violates PodSecurity"):
+		return "New instances were rejected by the platform's security policy."
+	case strings.Contains(message, "admission webhook") && strings.Contains(message, "denied the request"):
+		return "New instances were rejected by a platform policy."
+	}
+	return "New instances could not be created."
+}

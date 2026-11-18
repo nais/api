@@ -211,15 +211,7 @@ func translateEvicted(note string) (WorkloadWarningEventKind, string, bool) {
 }
 
 func translateFailedCreate(note string) (WorkloadWarningEventKind, string, bool) {
-	switch {
-	case strings.Contains(note, "exceeded quota"):
-		return WorkloadWarningEventKindInstanceCreationFailed, "New instances could not be created because the team's resource quota is exceeded.", true
-	case strings.Contains(note, "violates PodSecurity"):
-		return WorkloadWarningEventKindInstanceCreationFailed, "New instances were rejected by the platform's security policy.", true
-	case strings.Contains(note, "admission webhook") && strings.Contains(note, "denied the request"):
-		return WorkloadWarningEventKindInstanceCreationFailed, "New instances were rejected by a platform policy.", true
-	}
-	return WorkloadWarningEventKindInstanceCreationFailed, "New instances could not be created.", true
+	return WorkloadWarningEventKindInstanceCreationFailed, translate.InstanceCreationFailure(note), true
 }
 
 func translateFailedMetrics(string) (WorkloadWarningEventKind, string, bool) {

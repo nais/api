@@ -66,6 +66,7 @@ type ResolverRoot interface {
 	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
+	ApplicationRolloutStuckIssue() ApplicationRolloutStuckIssueResolver
 	AvailableValues() AvailableValuesResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
@@ -395,6 +396,15 @@ type ComplexityRoot struct {
 		ResourceName      func(childComplexity int) int
 		ResourceType      func(childComplexity int) int
 		TeamSlug          func(childComplexity int) int
+	}
+
+	ApplicationRolloutStuckIssue struct {
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Reason          func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
 	}
 
 	ApplicationScaledActivityLogEntry struct {
@@ -5377,6 +5387,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ApplicationRestartedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.id":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.ID(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.message":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Message(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.reason":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Reason(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.severity":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Severity(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.teamEnvironment":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.TeamEnvironment(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.workload":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Workload(childComplexity), true
 
 	case "ApplicationScaledActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationScaledActivityLogEntry.Actor == nil {
@@ -27443,6 +27495,8 @@ enum IssueType {
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
+	"Raised when a new version of an application is not being rolled out."
+	APPLICATION_ROLLOUT_STUCK
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -27658,6 +27712,31 @@ type ApplicationRestartLoopIssue implements Issue & Node {
 	lastExitReason: String!
 	"The timestamp of the last container exit."
 	lastExitTimestamp: Time!
+}
+
+"An issue raised when a new version of an application is not being rolled out."
+type ApplicationRolloutStuckIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"The team environment where the issue was detected."
+	teamEnvironment: TeamEnvironment!
+	"The severity of the issue."
+	severity: Severity!
+	"A human-readable description of the issue."
+	message: String!
+
+	"The workload whose rollout is stuck."
+	workload: Workload!
+	"Why the rollout is stuck."
+	reason: ApplicationRolloutStuckReason!
+}
+
+"Why a rollout of a new application version is stuck."
+enum ApplicationRolloutStuckReason {
+	"The new version did not become ready within the allowed time."
+	TIMED_OUT
+	"Instances of the new version could not be created, for example because of a quota or a platform policy."
+	INSTANCE_CREATION_FAILED
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {

@@ -266,6 +266,15 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 			Base:                               base,
 			ApplicationRestartLoopIssueDetails: *d,
 		}, nil
+	case IssueTypeApplicationRolloutStuck:
+		d, err := unmarshal[ApplicationRolloutStuckIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &ApplicationRolloutStuckIssue{
+			Base:                                base,
+			ApplicationRolloutStuckIssueDetails: *d,
+		}, nil
 	}
 
 	return nil, fmt.Errorf("unknown issue type: %s", issue.IssueType)

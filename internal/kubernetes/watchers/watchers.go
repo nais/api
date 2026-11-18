@@ -49,6 +49,7 @@ type (
 	SecretWatcher         = watcher.Watcher[*secret.Secret]
 	ConfigWatcher         = watcher.Watcher[*config.Config]
 	ReplicaSetWatcher     = watcher.Watcher[*appsv1.ReplicaSet]
+	DeploymentWatcher     = watcher.Watcher[*appsv1.Deployment]
 	TunnelWatcher         = watcher.Watcher[*tunnel.Tunnel]
 	NaisValkeyWatcher     = watcher.Watcher[*valkey.Valkey]
 )
@@ -74,6 +75,7 @@ type Watchers struct {
 	SecretWatcher         *SecretWatcher
 	ConfigWatcher         *ConfigWatcher
 	ReplicaSetWatcher     *ReplicaSetWatcher
+	DeploymentWatcher     *DeploymentWatcher
 	TunnelWatcher         *TunnelWatcher
 	NaisValkeyWatcher     *NaisValkeyWatcher
 }
@@ -104,6 +106,7 @@ func SetupWatchers(
 		SecretWatcher:         secret.NewWatcher(ctx, watcherMgr),
 		ConfigWatcher:         config.NewWatcher(ctx, watcherMgr),
 		ReplicaSetWatcher:     instancegroup.NewWatcher(ctx, watcherMgr),
+		DeploymentWatcher:     application.NewDeploymentWatcher(ctx, watcherMgr),
 		TunnelWatcher:         tunnel.NewWatcher(ctx, watcherMgr),
 		NaisValkeyWatcher:     valkey.NewNaisValkeyWatcher(ctx, watcherMgr),
 	}
