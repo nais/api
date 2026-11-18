@@ -188,7 +188,10 @@ func terminatedMessage(t *corev1.ContainerStateTerminated) string {
 }
 
 func (i *ApplicationInstance) lastTerminationInfo() (*string, *int, *time.Time) {
-	last := i.ApplicationContainerStatus.LastTerminationState.Terminated
+	last := i.ApplicationContainerStatus.State.Terminated
+	if last == nil {
+		last = i.ApplicationContainerStatus.LastTerminationState.Terminated
+	}
 	if last == nil {
 		return nil, nil, nil
 	}
