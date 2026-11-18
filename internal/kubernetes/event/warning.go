@@ -116,7 +116,7 @@ func translateWarning(reason, note string) (WorkloadWarningEventKind, string, bo
 	if !ok {
 		return "", "", false
 	}
-	return translate(note)
+	return translate(strings.TrimPrefix(note, "(combined from similar events): "))
 }
 
 func fixedWarning(kind WorkloadWarningEventKind, message string) warningTranslator {
