@@ -97,6 +97,29 @@ func TestApplicationInstanceStatusComponentProblem(t *testing.T) {
 			wantMessage: "Running, but not receiving traffic. A component added by the platform ran out of memory.",
 		},
 		{
+			name:        "running unready sidecar stops traffic to running app",
+			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
+			appReady:    true,
+			wantState:   ApplicationInstanceStateRunning,
+			wantMessage: "Running, but not receiving traffic. A component added by the platform is not ready.",
+		},
+		{
+			name:        "running unready init sidecar stops traffic to running app",
+			init:        []corev1.ContainerStatus{{Name: "init-sidecar", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
+			appReady:    true,
+			wantState:   ApplicationInstanceStateRunning,
+			wantMessage: "Running, but not receiving traffic. A component added by the platform is not ready.",
+		},
+		{
+			name:        "unready component does not make startup fail",
+			init:        []corev1.ContainerStatus{{Name: "init", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			app:         corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "PodInitializing"}},
+			wantState:   ApplicationInstanceStateStarting,
+			wantMessage: "Waiting for init containers to complete.",
+		},
+		{
 			name:        "application problem takes precedence",
 			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", State: crashing}},
 			app:         corev1.ContainerState{Waiting: &corev1.ContainerStateWaiting{Reason: "ErrImagePull"}},
@@ -108,7 +131,7 @@ func TestApplicationInstanceStatusComponentProblem(t *testing.T) {
 			init: []corev1.ContainerStatus{{Name: "init", State: corev1.ContainerState{Terminated: &corev1.ContainerStateTerminated{
 				Reason: "Completed",
 			}}}},
-			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
+			sidecars:    []corev1.ContainerStatus{{Name: "sidecar", Ready: true, State: corev1.ContainerState{Running: &corev1.ContainerStateRunning{}}}},
 			app:         corev1.ContainerState{Running: &corev1.ContainerStateRunning{}},
 			appReady:    true,
 			wantState:   ApplicationInstanceStateRunning,

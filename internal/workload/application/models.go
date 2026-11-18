@@ -225,6 +225,9 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 			// The instance does not receive traffic until all its containers are ready.
 			ready = false
 			msg = "Running, but not receiving traffic. " + componentProblem
+		} else if i.hasUnreadyComponent() {
+			ready = false
+			msg = "Running, but not receiving traffic. A component added by the platform is not ready."
 		} else if !ready {
 			msg = "Running, but not passing readiness check."
 		}
@@ -335,6 +338,15 @@ func componentStatuses(pod *corev1.Pod, applicationName string) []corev1.Contain
 		}
 	}
 	return ret
+}
+
+func (i *ApplicationInstance) hasUnreadyComponent() bool {
+	return slices.ContainsFunc(i.ComponentContainerStatuses, func(c corev1.ContainerStatus) bool {
+		if t := c.State.Terminated; t != nil && t.ExitCode == 0 {
+			return false
+		}
+		return !c.Ready
+	})
 }
 
 // componentProblem describes a failing container added by the platform. Container names are not exposed, as these
