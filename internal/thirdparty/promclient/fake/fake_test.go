@@ -213,7 +213,7 @@ func TestFakeQueryAll(t *testing.T) {
 		t.Fatalf("failed to create watcher manager: %v", err)
 	}
 
-	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), logrus.New())
+	ctx = application.NewLoaderContext(ctx, application.NewWatcher(ctx, mgr), application.NewIngressWatcher(ctx, mgr), nil, logrus.New())
 	ctx = team.NewLoaderContext(ctx, pool, nil)
 
 	ctxWait, cancel := context.WithTimeout(ctx, 1*time.Second)

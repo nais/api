@@ -78,6 +78,66 @@ func (q *Queries) CostForTeam(ctx context.Context, arg CostForTeamParams) (float
 	return column_1, err
 }
 
+const dailyCostForService = `-- name: DailyCostForService :many
+SELECT
+	date,
+	SUM(daily_cost)::REAL AS daily_cost
+FROM
+	cost
+WHERE
+	team_slug = $1::slug
+	AND environment = $2::TEXT
+	AND service = $3::TEXT
+	AND service_name = $4::TEXT
+	AND date >= $5::date
+	AND date <= $6::date
+GROUP BY
+	date
+ORDER BY
+	date
+`
+
+type DailyCostForServiceParams struct {
+	TeamSlug    slug.Slug
+	Environment string
+	Service     string
+	ServiceName string
+	FromDate    pgtype.Date
+	ToDate      pgtype.Date
+}
+
+type DailyCostForServiceRow struct {
+	Date      pgtype.Date
+	DailyCost float32
+}
+
+func (q *Queries) DailyCostForService(ctx context.Context, arg DailyCostForServiceParams) ([]*DailyCostForServiceRow, error) {
+	rows, err := q.db.Query(ctx, dailyCostForService,
+		arg.TeamSlug,
+		arg.Environment,
+		arg.Service,
+		arg.ServiceName,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*DailyCostForServiceRow{}
+	for rows.Next() {
+		var i DailyCostForServiceRow
+		if err := rows.Scan(&i.Date, &i.DailyCost); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const dailyCostForTeam = `-- name: DailyCostForTeam :many
 WITH
 	date_range AS (
@@ -453,6 +513,72 @@ func (q *Queries) ListTeamSlugsForCostUpdater(ctx context.Context) ([]slug.Slug,
 			return nil, err
 		}
 		items = append(items, slug)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const monthlyCostForService = `-- name: MonthlyCostForService :many
+WITH
+	last_run AS (
+		SELECT
+			DATE_TRUNC('month', MAX(date))::date AS MONTH
+		FROM
+			cost
+	)
+SELECT
+	DATE_TRUNC('month', c.date)::date AS MONTH,
+	MAX(c.date)::date AS last_recorded_date,
+	SUM(c.daily_cost)::REAL AS daily_cost
+FROM
+	cost c
+	CROSS JOIN last_run
+WHERE
+	c.team_slug = $1::slug
+	AND c.environment = $2::TEXT
+	AND c.service = $3::TEXT
+	AND c.service_name = $4::TEXT
+	AND c.date >= last_run.month - INTERVAL '11 months'
+	AND c.date < last_run.month + INTERVAL '1 month'
+GROUP BY
+	DATE_TRUNC('month', c.date)
+ORDER BY
+	MONTH DESC
+`
+
+type MonthlyCostForServiceParams struct {
+	TeamSlug    slug.Slug
+	Environment string
+	Service     string
+	ServiceName string
+}
+
+type MonthlyCostForServiceRow struct {
+	Month            pgtype.Date
+	LastRecordedDate pgtype.Date
+	DailyCost        float32
+}
+
+func (q *Queries) MonthlyCostForService(ctx context.Context, arg MonthlyCostForServiceParams) ([]*MonthlyCostForServiceRow, error) {
+	rows, err := q.db.Query(ctx, monthlyCostForService,
+		arg.TeamSlug,
+		arg.Environment,
+		arg.Service,
+		arg.ServiceName,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*MonthlyCostForServiceRow{}
+	for rows.Next() {
+		var i MonthlyCostForServiceRow
+		if err := rows.Scan(&i.Month, &i.LastRecordedDate, &i.DailyCost); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

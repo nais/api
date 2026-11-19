@@ -137,6 +137,29 @@ func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_credentia
 	return fc, nil
 }
 
+func (ec *executionContext) _CreateKafkaCredentialsPayload_environmentName(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.CreateKafkaCredentialsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_CreateKafkaCredentialsPayload_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_CreateKafkaCredentialsPayload_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("CreateKafkaCredentialsPayload", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _KafkaCredentials_username(ctx context.Context, field graphql.CollectedField, obj *kafkatopic.KafkaCredentials) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -2342,6 +2365,11 @@ func (ec *executionContext) _CreateKafkaCredentialsPayload(ctx context.Context, 
 			out.Values[i] = graphql.MarshalString("CreateKafkaCredentialsPayload")
 		case "credentials":
 			out.Values[i] = ec._CreateKafkaCredentialsPayload_credentials(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._CreateKafkaCredentialsPayload_environmentName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

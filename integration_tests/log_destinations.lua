@@ -3,6 +3,52 @@ Helper.readK8sResources("k8s_resources/log_destinations")
 local user = User.new("name", "email@email.com", "externalID")
 Team.new("logteam", "purpose", "#slack_channel")
 
+for _, workload in ipairs({ { field = "application", prefix = "app" }, { field = "job", prefix = "job" } }) do
+	for _, case in ipairs({
+		{ suffix = "",          loki = true },
+		{ suffix = "-loki",     loki = true },
+		{ suffix = "-disabled", loki = false },
+		{ suffix = "-secure",   loki = false },
+	}) do
+		local name = workload.prefix .. "-team-logs" .. case.suffix
+		Test.gql("Team Logs access for " .. name, function(t)
+			t.addHeader("x-user-email", user:email())
+			t.query([[
+				query {
+					team(slug: "logteam") {
+						environment(name: "dev") {
+							workload: ]] .. workload.field .. [[(name: "]] .. name .. [[") {
+								logDestinations { __typename id }
+								repeated: logDestinations { __typename id }
+								networkPolicy { outbound { rules { __typename } } }
+							}
+						}
+					}
+				}
+			]])
+
+			local destinations = {}
+			if case.loki then
+				table.insert(destinations, { __typename = "LogDestinationLoki", id = NotNull() })
+			end
+			table.insert(destinations, { __typename = "LogDestinationSecureLogs", id = NotNull() })
+			t.check {
+				data = {
+					team = {
+						environment = {
+							workload = {
+								logDestinations = destinations,
+								repeated = destinations,
+								networkPolicy = { outbound = { rules = {} } },
+							},
+						},
+					},
+				},
+			}
+		end)
+	end
+end
+
 for _, environment in ipairs({ "dev", "staging" }) do
 	Test.gql("Environment default log destinations in " .. environment, function(t)
 		t.addHeader("x-user-email", user:email())

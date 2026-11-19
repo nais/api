@@ -18,6 +18,10 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
+type PostgresCostResolver interface {
+	Daily(ctx context.Context, obj *cost.PostgresCost, from scalar.Date, to scalar.Date) (*cost.PostgresCostPeriod, error)
+	Monthly(ctx context.Context, obj *cost.PostgresCost) (*cost.PostgresCostPeriod, error)
+}
 type TeamCostResolver interface {
 	Daily(ctx context.Context, obj *cost.TeamCost, from scalar.Date, to scalar.Date, filter *cost.TeamCostDailyFilter) (*cost.TeamCostPeriod, error)
 	MonthlySummary(ctx context.Context, obj *cost.TeamCost) (*cost.TeamCostMonthlySummary, error)
@@ -36,6 +40,28 @@ type WorkloadCostSampleResolver interface {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_PostgresCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "from",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["from"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "to",
+		func(ctx context.Context, v any) (scalar.Date, error) {
+			return ec.unmarshalNDate2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋscalarᚐDate(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["to"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_TeamCost_daily_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -195,6 +221,137 @@ func (ec *executionContext) _OpenSearchCost_sum(ctx context.Context, field graph
 }
 func (ec *executionContext) fieldContext_OpenSearchCost_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("OpenSearchCost", field, false, false, errors.New("field of type Float does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCost_daily(ctx context.Context, field graphql.CollectedField, obj *cost.PostgresCost) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCost_daily(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.PostgresCost().Daily(ctx, obj, fc.Args["from"].(scalar.Date), fc.Args["to"].(scalar.Date))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.PostgresCostPeriod) graphql.Marshaler {
+			return ec.marshalOPostgresCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐPostgresCostPeriod(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCost_daily(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresCost",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresCostPeriod(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_PostgresCost_daily_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresCost_monthly(ctx context.Context, field graphql.CollectedField, obj *cost.PostgresCost) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCost_monthly(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.PostgresCost().Monthly(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *cost.PostgresCostPeriod) graphql.Marshaler {
+			return ec.marshalOPostgresCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐPostgresCostPeriod(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCost_monthly(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresCost",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_PostgresCostPeriod(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PostgresCostPeriod_sum(ctx context.Context, field graphql.CollectedField, obj *cost.PostgresCostPeriod) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCostPeriod_sum(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Sum(), nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v float64) graphql.Marshaler {
+			return ec.marshalNFloat2float64(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCostPeriod_sum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresCostPeriod", field, true, false, errors.New("field of type Float does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresCostPeriod_series(ctx context.Context, field graphql.CollectedField, obj *cost.PostgresCostPeriod) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresCostPeriod_series(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Series, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*cost.ServiceCostSeries) graphql.Marshaler {
+			return ec.marshalNServiceCostSeries2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSeriesᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresCostPeriod_series(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PostgresCostPeriod",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_ServiceCostSeries(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _ServiceCostSample_service(ctx context.Context, field graphql.CollectedField, obj *cost.ServiceCostSample) (ret graphql.Marshaler) {
@@ -1144,6 +1301,150 @@ func (ec *executionContext) _OpenSearchCost(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var postgresCostImplementors = []string{"PostgresCost"}
+
+func (ec *executionContext) _PostgresCost(ctx context.Context, sel ast.SelectionSet, obj *cost.PostgresCost) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresCostImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresCost")
+		case "daily":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresCost_daily(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "monthly":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._PostgresCost_monthly(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var postgresCostPeriodImplementors = []string{"PostgresCostPeriod"}
+
+func (ec *executionContext) _PostgresCostPeriod(ctx context.Context, sel ast.SelectionSet, obj *cost.PostgresCostPeriod) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, postgresCostPeriodImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PostgresCostPeriod")
+		case "sum":
+			out.Values[i] = ec._PostgresCostPeriod_sum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "series":
+			out.Values[i] = ec._PostgresCostPeriod_series(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var serviceCostSampleImplementors = []string{"ServiceCostSample"}
 
 func (ec *executionContext) _ServiceCostSample(ctx context.Context, sel ast.SelectionSet, obj *cost.ServiceCostSample) graphql.Marshaler {
@@ -1989,6 +2290,20 @@ func (ec *executionContext) marshalNOpenSearchCost2ᚖgithubᚗcomᚋnaisᚋapi�
 	return ec._OpenSearchCost(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPostgresCost2githubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐPostgresCost(ctx context.Context, sel ast.SelectionSet, v cost.PostgresCost) graphql.Marshaler {
+	return ec._PostgresCost(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPostgresCost2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐPostgresCost(ctx context.Context, sel ast.SelectionSet, v *cost.PostgresCost) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PostgresCost(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNServiceCostSample2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐServiceCostSampleᚄ(ctx context.Context, sel ast.SelectionSet, v []*cost.ServiceCostSample) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
@@ -2243,6 +2558,13 @@ func (ec *executionContext) marshalNWorkloadCostSeries2ᚖgithubᚗcomᚋnaisᚋ
 		return graphql.Null
 	}
 	return ec._WorkloadCostSeries(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPostgresCostPeriod2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐPostgresCostPeriod(ctx context.Context, sel ast.SelectionSet, v *cost.PostgresCostPeriod) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PostgresCostPeriod(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTeamCostDailyFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋcostᚐTeamCostDailyFilter(ctx context.Context, v any) (*cost.TeamCostDailyFilter, error) {

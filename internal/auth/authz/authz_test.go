@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/serviceaccount"
+	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/user"
 )
 
@@ -53,5 +55,33 @@ func TestCanGrantPostgresAccessRejectsServiceAccounts(t *testing.T) {
 	ctx := authz.ContextWithActor(context.Background(), actor, nil)
 	if err := authz.CanGrantPostgresAccess(ctx, "some-team"); !errors.Is(err, authz.ErrUnauthorized) {
 		t.Fatalf("expected unauthorized error, got %v", err)
+	}
+}
+
+func TestGlobalWebhookMutationsRequireAdmin(t *testing.T) {
+	for _, action := range []struct {
+		name      string
+		authorize func(context.Context, *slug.Slug) error
+	}{
+		{"create", authz.CanCreateWebhook},
+		{"update and test", authz.CanUpdateWebhook},
+		{"delete", authz.CanDeleteWebhook},
+	} {
+		for _, actor := range []struct {
+			name string
+			user authz.AuthenticatedUser
+			want error
+		}{
+			{"admin", &user.User{Admin: true}, nil},
+			{"non-admin user", &user.User{}, authz.ErrUnauthorized},
+			{"global service account", &serviceaccount.ServiceAccount{}, authz.ErrUnauthorized},
+		} {
+			t.Run(action.name+"/"+actor.name, func(t *testing.T) {
+				ctx := authz.ContextWithActor(t.Context(), actor.user, []*authz.Role{{Name: "Team owner"}})
+				if err := action.authorize(ctx, nil); !errors.Is(err, actor.want) {
+					t.Fatalf("authorization error = %v, want %v", err, actor.want)
+				}
+			})
+		}
 	}
 }

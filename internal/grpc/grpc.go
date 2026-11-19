@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/grpc/grpcserviceaccount"
 	"github.com/nais/api/internal/grpc/grpcteam"
 	"github.com/nais/api/internal/grpc/grpcuser"
+	"github.com/nais/api/internal/grpc/grpcworkload"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/sirupsen/logrus"
@@ -21,7 +22,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresBranchWatcher *watchers.PostgresBranchWatcher, log logrus.FieldLogger) error {
+func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresWatcher *watchers.PostgresWatcher, appWatcher *watchers.AppWatcher, jobWatcher *watchers.JobWatcher, log logrus.FieldLogger) error {
 	log.Info("GRPC serving on ", listenAddress)
 	lis, err := net.Listen("tcp", listenAddress)
 	if err != nil {
@@ -37,8 +38,9 @@ func Run(ctx context.Context, listenAddress string, pool *pgxpool.Pool, sqlDatab
 	protoapi.RegisterUsersServer(s, grpcuser.NewServer(pool))
 	protoapi.RegisterReconcilersServer(s, grpcreconciler.NewServer(pool))
 	protoapi.RegisterDeploymentsServer(s, grpcdeployment.NewServer(pool))
-	protoapi.RegisterDatabasesServer(s, grpcdatabase.NewServer(sqlDatabaseWatcher, postgresBranchWatcher))
+	protoapi.RegisterDatabasesServer(s, grpcdatabase.NewServer(sqlDatabaseWatcher, postgresWatcher))
 	protoapi.RegisterServiceAccountsServer(s, grpcserviceaccount.NewServer(pool))
+	protoapi.RegisterWorkloadsServer(s, grpcworkload.NewServer(appWatcher, jobWatcher))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error { return s.Serve(lis) })

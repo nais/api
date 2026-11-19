@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/cmd/api"
@@ -27,6 +28,7 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/loki"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/rest"
 	"github.com/nais/api/internal/servicemaintenance"
@@ -251,6 +253,11 @@ func newGQLRunner(
 
 	notifierCtx, notifyCancel := context.WithCancel(ctx)
 	notifier := notify.New(pool, log, notify.WithRetries(0))
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://api.example.test", false, watchers.IngressWatcher, log)
+	if err != nil {
+		notifyCancel()
+		return nil, nil, nil, fmt.Errorf("creating webhook dispatcher: %w", err)
+	}
 	go notifier.Run(notifierCtx)
 
 	contextDependencies, err := api.ConfigureGraph(
@@ -279,6 +286,15 @@ func newGQLRunner(
 				EndpointID: "endpoint-id",
 			},
 		},
+		kafkatopic.Environments{
+			"dev": {
+				Pool: "aiven-dev",
+			},
+			"dev-gcp": {
+				Pool:    "aiven-dev",
+				Aliases: []string{"legacy-dev"},
+			},
+		},
 		vMgr,
 		config.TenantName,
 		clusters(),
@@ -294,6 +310,7 @@ func newGQLRunner(
 		lokiClient,
 		"test-audit-project", // auditLogProjectID for testing
 		"test-location",      // auditLogLocation for testing
+		webhookDispatcher,
 		log,
 	)
 	if err != nil {
@@ -341,7 +358,8 @@ func newGQLRunner(
 }
 
 func startPostgresql(ctx context.Context) (*postgres.PostgresContainer, string, error) {
-	container, err := postgres.Run(ctx, "docker.io/postgres:16-alpine",
+	container, err := postgres.Run(
+		ctx, "docker.io/postgres:16-alpine",
 		postgres.WithDatabase("example"),
 		postgres.WithUsername("example"),
 		postgres.WithPassword("example"),

@@ -16,7 +16,7 @@ type PostgresParameter struct {
 	Value string `json:"value"`
 }
 
-func toPostgresConfiguration(configuration *nais_io_v1.PostgresBranchConfiguration) *PostgresConfiguration {
+func toPostgresConfiguration(configuration *nais_io_v1.PostgresConfiguration) *PostgresConfiguration {
 	if configuration == nil {
 		return nil
 	}

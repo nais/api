@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/validate"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,13 +32,6 @@ func TestToPostgresBranch(t *testing.T) {
 	}
 	if got.GetName() != obj.GetName() {
 		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
-	}
-	if got.ID().Type != "PBR" {
-		t.Errorf("PostgresBranch ID type = %q, want PBR", got.ID().Type)
-	}
-	team, env, pg, branch, err := parsePostgresBranchIdent(got.ID())
-	if err != nil || team != "my-team" || env != "dev" || pg != "orders" || branch != "restored" {
-		t.Errorf("branch ID = (%q, %q, %q, %q, %v)", team, env, pg, branch, err)
 	}
 }
 
@@ -80,7 +72,7 @@ func TestToPostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "restored" {
+	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "main" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
 	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {
@@ -137,7 +129,7 @@ func TestValidateQuantities(t *testing.T) {
 		{name: "inclusive limits", cpu: "8000m", memory: "32768Mi", disk: "1000Gi"},
 		{name: "cpu above maximum", cpu: "8.001", wantErr: true},
 		{name: "memory above maximum", memory: "33Gi", wantErr: true},
-		{name: "disk below minimum", disk: "9Gi", wantErr: true},
+		{name: "disk below minimum", disk: "4Gi", wantErr: true},
 		{name: "disk above maximum", disk: "1001Gi", wantErr: true},
 	}
 	for _, tt := range tests {
@@ -158,6 +150,37 @@ func TestValidateQuantities(t *testing.T) {
 			err := verr.NilIfEmpty()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("validation error = %v, want error %t", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestPostgresInputDiskSizeValidation(t *testing.T) {
+	for _, tt := range []struct {
+		diskSize string
+		wantErr  string
+	}{
+		{diskSize: "4Gi", wantErr: `diskSize: "4Gi" must be at least 5Gi.`},
+		{diskSize: "5119Mi", wantErr: `diskSize: "5119Mi" must be at least 5Gi.`},
+		{diskSize: "5Gi"},
+		{diskSize: "9Gi"},
+	} {
+		t.Run(tt.diskSize, func(t *testing.T) {
+			create := CreatePostgresInput{
+				Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a", MajorVersion: "18", DiskSize: &tt.diskSize,
+			}
+			update := UpdatePostgresInput{
+				Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a", DiskSize: &tt.diskSize,
+			}
+			for name, validationErrors := range map[string]*validate.ValidationErrors{
+				"create": create.ValidationErrors(context.Background()),
+				"update": update.ValidationErrors(context.Background()),
+			} {
+				t.Run(name, func(t *testing.T) {
+					if got := validationErrors.Error(); got != tt.wantErr {
+						t.Errorf("validation error = %q, want %q", got, tt.wantErr)
+					}
+				})
 			}
 		})
 	}
@@ -185,84 +208,6 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := postgresStateFromConditions(tt.conditions, tt.reconciled); got != tt.want {
 				t.Errorf("state = %s, want %s", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestDeletePostgresBranchInput_ValidationErrors(t *testing.T) {
-	tests := []struct {
-		name          string
-		input         DeletePostgresBranchInput
-		wantErrFields []string
-	}{
-		{
-			name: "all fields valid",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "main",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: nil,
-		},
-		{
-			name: "empty name",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: []string{"branch"},
-		},
-		{
-			name: "empty environmentName",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "main",
-				EnvironmentName: "",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: []string{"environmentName"},
-		},
-		{
-			name: "empty teamSlug",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "main",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug(""),
-			},
-			wantErrFields: []string{"teamSlug"},
-		},
-		{
-			name: "all fields empty",
-			input: DeletePostgresBranchInput{
-				Postgres: "", Branch: "",
-				EnvironmentName: "",
-				TeamSlug:        slug.Slug(""),
-			},
-			wantErrFields: []string{"postgres", "branch", "environmentName", "teamSlug"},
-		},
-		{
-			name: "whitespace-only name treated as empty",
-			input: DeletePostgresBranchInput{
-				Postgres: "my-db", Branch: "   ",
-				EnvironmentName: "dev",
-				TeamSlug:        slug.Slug("my-team"),
-			},
-			wantErrFields: []string{"branch"},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			verr := tt.input.ValidationErrors(context.Background())
-			var gotFields []string
-			for _, e := range verr.Errors {
-				if e.GraphQLField != nil {
-					gotFields = append(gotFields, *e.GraphQLField)
-				}
-			}
-			if !reflect.DeepEqual(gotFields, tt.wantErrFields) {
-				t.Errorf("ValidationErrors() fields = %v, want %v", gotFields, tt.wantErrFields)
 			}
 		})
 	}

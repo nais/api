@@ -37,7 +37,6 @@ func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 		"../../../integration_tests/k8s_resources/create_postgres_access",
 		"../../../integration_tests/k8s_resources/postgres_branches",
 		"../../../integration_tests/k8s_resources/postgres_workloads",
-		"../../../integration_tests/k8s_resources/postgres_branch_delete",
 		"../../../integration_tests/k8s_resources/postgres_audit_log",
 		"../../../integration_tests/k8s_resources/label_selectors",
 		"../../../data/k8s",
@@ -59,14 +58,13 @@ func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 	}
 }
 
-func TestLocalPostgresFixturesHaveResolvableActiveBranches(t *testing.T) {
+func TestLocalPostgresFixturesPublishDirectClusterIdentity(t *testing.T) {
 	client, _, _, err := fake.Clients(os.DirFS("../../../data/k8s"))("dev")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	postgreses := client.Resource(nais_io_v1.GroupVersion.WithResource("postgres")).Namespace("devteam")
-	branches := client.Resource(nais_io_v1.GroupVersion.WithResource("postgresbranches")).Namespace("devteam")
 	list, err := postgreses.List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		t.Fatal(err)
@@ -77,24 +75,16 @@ func TestLocalPostgresFixturesHaveResolvableActiveBranches(t *testing.T) {
 
 	for _, postgres := range list.Items {
 		name := postgres.GetName()
-		branch, found, err := unstructured.NestedString(postgres.Object, "status", "activeBranch")
+		cluster, found, err := unstructured.NestedString(postgres.Object, "status", "clusterName")
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !found || branch == "" {
-			t.Errorf("Postgres %s has no observed active branch", name)
+		if !found || cluster == "" {
+			t.Errorf("Postgres %s has no observed cluster", name)
 			continue
 		}
-		requested, _, err := unstructured.NestedString(postgres.Object, "spec", "activeBranch")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if requested != branch {
-			t.Errorf("Postgres %s requests branch %q but observes %q", name, requested, branch)
-		}
-		objectName := nais_io_v1.PostgresBranchObjectName(name, branch)
-		if _, err := branches.Get(context.Background(), objectName, metav1.GetOptions{}); err != nil {
-			t.Errorf("active branch %s/%s must resolve to PostgresBranch %s: %v", name, branch, objectName, err)
+		if want := nais_io_v1.CNPGClusterName(nais_io_v1.PostgresPhysicalName(name)); cluster != want {
+			t.Errorf("cluster identity = %q, want %q", cluster, want)
 		}
 	}
 }

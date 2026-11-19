@@ -2,9 +2,11 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
@@ -20,10 +22,8 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/yaml"
@@ -70,6 +70,22 @@ func ListAllForTeamInEnvironment(ctx context.Context, teamSlug slug.Slug, enviro
 		ret[i] = toGraphApplication(obj.Obj, obj.Cluster)
 	}
 	return ret
+}
+
+// GetScalingStatus returns the automatic scaling state of an application, or nil if automatic scaling is not set up.
+func GetScalingStatus(ctx context.Context, scaling *ApplicationScaling) (*ApplicationScalingStatus, error) {
+	w := fromContext(ctx).hpaWatcher
+	if w == nil {
+		return nil, nil
+	}
+	hpa, err := w.Get(scaling.EnvironmentName, scaling.TeamSlug.String(), scaling.ApplicationName)
+	if err != nil {
+		if errors.Is(err, &watcher.ErrorNotFound{}) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return toScalingStatus(hpa), nil
 }
 
 func Get(ctx context.Context, teamSlug slug.Slug, environment, name string) (*Application, error) {
@@ -333,7 +349,7 @@ func ListAllInstances(ctx context.Context, teamSlug slug.Slug, environmentName, 
 
 	ret := make([]*ApplicationInstance, len(pods))
 	for i, pod := range pods {
-		ret[i] = toGraphInstance(pod, teamSlug, environmentName, appName)
+		ret[i] = ToApplicationInstance(pod, teamSlug, environmentName, appName)
 	}
 	return ret, nil
 }
@@ -349,7 +365,7 @@ func getInstanceByIdent(ctx context.Context, ident ident.Ident) (*ApplicationIns
 		return nil, err
 	}
 
-	return toGraphInstance(pod, teamSlug, env, appName), nil
+	return ToApplicationInstance(pod, teamSlug, env, appName), nil
 }
 
 func GetIngressType(ctx context.Context, ingress *Ingress) IngressType {
@@ -358,25 +374,14 @@ func GetIngressType(ctx context.Context, ingress *Ingress) IngressType {
 		return IngressTypeUnknown
 	}
 
-	selector := labels.NewSelector()
-	req, err := labels.NewRequirement("app", selection.Equals, []string{ingress.ApplicationName})
-	if err != nil {
-		return IngressTypeUnknown
-	}
-	selector = selector.Add(*req)
-
-	ings := fromContext(ctx).ingressWatcher.GetByNamespace(ingress.TeamSlug.String(), watcher.WithLabels(selector))
+	ings := fromContext(ctx).ingressWatcher.GetByIndex(IngressHostIndex, strings.TrimSuffix(strings.ToLower(uri.Host), "."))
 	for _, ing := range ings {
-		if ing.Cluster != ingress.EnvironmentName {
+		if ing.Cluster != ingress.EnvironmentName || ing.Obj.Namespace != ingress.TeamSlug.String() || ing.Obj.Labels["app"] != ingress.ApplicationName {
 			continue
 		}
-
 		for _, rule := range ing.Obj.Spec.Rules {
 			if rule.Host == uri.Host {
-				if ret, ok := ingressClassMapping[ptr.Deref(ing.Obj.Spec.IngressClassName, "")]; ok {
-					return ret
-				}
-				return IngressTypeUnknown
+				return ClassifyIngressClassName(ptr.Deref(ing.Obj.Spec.IngressClassName, ""))
 			}
 		}
 	}

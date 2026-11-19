@@ -277,6 +277,63 @@ type JobRunInstance implements Node {
 
 	"The name of the job run instance."
 	name: String!
+
+	"The container image of the job run instance."
+	image: ContainerImage!
+
+	"The number of times the job run instance has been restarted."
+	restarts: Int!
+
+	"The time the job run instance was created."
+	created: Time!
+
+	"The current status of the job run instance."
+	status: JobRunInstanceStatus!
+}
+
+"The status of a job run instance."
+type JobRunInstanceStatus {
+	"The current state of the job run instance."
+	state: JobRunInstanceState!
+
+	"A user-friendly description of the current state."
+	message: String!
+
+	"""
+	The reason the job run instance last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restarts.
+	"""
+	lastExitReason: String
+
+	"The exit code from the last termination of the job run instance, if applicable."
+	lastExitCode: Int
+
+	"""
+	The timestamp of the last termination of the job run instance, if applicable.
+	This is populated even when the instance is currently running, to help debug restarts.
+	"""
+	lastExitTimestamp: Time
+}
+
+"The state of a job run instance."
+enum JobRunInstanceState {
+	"The job run instance is running."
+	RUNNING
+
+	"The job run instance is waiting to be placed on a server, for example because there is not enough CPU or memory available."
+	PENDING
+
+	"The job run instance is starting."
+	STARTING
+
+	"The job run instance has a problem that prevents it from running or completing successfully."
+	FAILING
+
+	"The job run instance completed successfully."
+	SUCCEEDED
+
+	"The state of the job run instance is unknown."
+	UNKNOWN
 }
 
 type JobRunStatus {

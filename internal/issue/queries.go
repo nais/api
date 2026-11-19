@@ -31,7 +31,7 @@ func fromContext(ctx context.Context) *dependencies {
 }
 
 func GetByIdent(ctx context.Context, id ident.Ident) (Issue, error) {
-	uid, err := uuid.Parse(id.String())
+	uid, err := uuid.Parse(id.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +92,7 @@ func listIssues(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagina
 		}
 	}
 
+	params.LegacyResourceName = legacyPostgresIssueName(params.ResourceName)
 	ret, err := db(ctx).ListIssues(ctx, params)
 	if err != nil {
 		return nil, err
@@ -145,8 +146,13 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 	}
 
 	switch IssueType(issue.IssueType) {
+	case IssueTypePostgres:
+		return &PostgresIssue{Base: base}, nil
 	case IssueTypePostgresBranch:
-		return &PostgresBranchIssue{Base: base}, nil
+		// Old rows can outlive an API rollout until the next checker refresh.
+		// Preserve their ID, but never expose a branch issue as the domain model.
+		base.ResourceType = ResourceTypePostgres
+		return &PostgresIssue{Base: base, LegacyPhysicalName: issue.ResourceName}, nil
 	case IssueTypeOpenSearch:
 		d, err := unmarshal[AivenIssueDetails](issue.IssueDetails)
 		if err != nil {
@@ -259,6 +265,15 @@ func convert(issue *issuesql.Issue) (Issue, error) {
 		return &ApplicationRestartLoopIssue{
 			Base:                               base,
 			ApplicationRestartLoopIssueDetails: *d,
+		}, nil
+	case IssueTypeApplicationRolloutStuck:
+		d, err := unmarshal[ApplicationRolloutStuckIssueDetails](issue.IssueDetails)
+		if err != nil {
+			return nil, err
+		}
+		return &ApplicationRolloutStuckIssue{
+			Base:                                base,
+			ApplicationRolloutStuckIssueDetails: *d,
 		}, nil
 	}
 

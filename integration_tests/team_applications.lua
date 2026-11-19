@@ -29,6 +29,11 @@ Test.gql("Team with multiple applications", function(t)
 										threshold
 									}
 								}
+								status {
+									currentInstances
+									desiredInstances
+									state
+								}
 							}
 
 						}
@@ -53,6 +58,7 @@ Test.gql("Team with multiple applications", function(t)
 									maxInstances = 1,
 									minInstances = 1,
 									strategies = {},
+									status = Null,
 								},
 							},
 						},
@@ -67,6 +73,11 @@ Test.gql("Team with multiple applications", function(t)
 											__typename = "CPUScalingStrategy",
 											threshold = 50,
 										},
+									},
+									status = {
+										currentInstances = 4,
+										desiredInstances = 4,
+										state = "LIMITED_BY_MAXIMUM",
 									},
 								},
 							},

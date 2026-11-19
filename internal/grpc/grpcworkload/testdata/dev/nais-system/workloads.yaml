@@ -1,0 +1,6 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: platform
+spec:
+  image: europe-north1-docker.pkg.dev/nais-io/nais/images/platform:1.0

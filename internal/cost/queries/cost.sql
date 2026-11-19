@@ -292,6 +292,53 @@ ORDER BY
 	cost_data.app_label ASC
 ;
 
+-- name: DailyCostForService :many
+SELECT
+	date,
+	SUM(daily_cost)::REAL AS daily_cost
+FROM
+	cost
+WHERE
+	team_slug = @team_slug::slug
+	AND environment = @environment::TEXT
+	AND service = @service::TEXT
+	AND service_name = @service_name::TEXT
+	AND date >= @from_date::date
+	AND date <= @to_date::date
+GROUP BY
+	date
+ORDER BY
+	date
+;
+
+-- name: MonthlyCostForService :many
+WITH
+	last_run AS (
+		SELECT
+			DATE_TRUNC('month', MAX(date))::date AS MONTH
+		FROM
+			cost
+	)
+SELECT
+	DATE_TRUNC('month', c.date)::date AS MONTH,
+	MAX(c.date)::date AS last_recorded_date,
+	SUM(c.daily_cost)::REAL AS daily_cost
+FROM
+	cost c
+	CROSS JOIN last_run
+WHERE
+	c.team_slug = @team_slug::slug
+	AND c.environment = @environment::TEXT
+	AND c.service = @service::TEXT
+	AND c.service_name = @service_name::TEXT
+	AND c.date >= last_run.month - INTERVAL '11 months'
+	AND c.date < last_run.month + INTERVAL '1 month'
+GROUP BY
+	DATE_TRUNC('month', c.date)
+ORDER BY
+	MONTH DESC
+;
+
 -- name: ListTeamSlugsForCostUpdater :many
 SELECT
 	slug

@@ -4,23 +4,14 @@ kind: Postgres
 metadata:
   name: postgres-one
   namespace: labelteam
-spec:
-  majorVersion: "17"
-status:
-  activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: postgres-one-main-e58682b9
-  namespace: labelteam
   labels:
     tag: target
     priority: high
 spec:
-  postgres: postgres-one
-  branchName: main
+  majorVersion: "17"
 status:
+  activeBranch: main
+  clusterName: pg-postgres-one-main-e58682b9
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState
@@ -34,22 +25,13 @@ kind: Postgres
 metadata:
   name: postgres-two
   namespace: labelteam
+  labels:
+    tag: target
 spec:
   majorVersion: "17"
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: postgres-two-main-935c2b2a
-  namespace: labelteam
-  labels:
-    tag: target
-spec:
-  postgres: postgres-two
-  branchName: main
-status:
+  clusterName: pg-postgres-two-main-935c2b2a
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState
@@ -63,22 +45,13 @@ kind: Postgres
 metadata:
   name: postgres-three
   namespace: labelteam
+  labels:
+    tag: other
 spec:
   majorVersion: "17"
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: postgres-three-main-1013cb94
-  namespace: labelteam
-  labels:
-    tag: other
-spec:
-  postgres: postgres-three
-  branchName: main
-status:
+  clusterName: pg-postgres-three-main-1013cb94
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState

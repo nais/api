@@ -25,6 +25,14 @@ func (r *applicationRestartLoopIssueResolver) Workload(ctx context.Context, obj 
 	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
 }
 
+func (r *applicationRolloutStuckIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.ApplicationRolloutStuckIssue) (*team.TeamEnvironment, error) {
+	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
+}
+
+func (r *applicationRolloutStuckIssueResolver) Workload(ctx context.Context, obj *issue.ApplicationRolloutStuckIssue) (workload.Workload, error) {
+	return getWorkloadByResourceType(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName, obj.ResourceType)
+}
+
 func (r *deprecatedIngressIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.DeprecatedIngressIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
@@ -109,12 +117,15 @@ func (r *openSearchIssueResolver) OpenSearch(ctx context.Context, obj *issue.Ope
 	return opensearch.Get(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
-func (r *postgresBranchIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.PostgresBranchIssue) (*team.TeamEnvironment, error) {
+func (r *postgresIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.PostgresIssue) (*team.TeamEnvironment, error) {
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *postgresBranchIssueResolver) Branch(ctx context.Context, obj *issue.PostgresBranchIssue) (*postgres.PostgresBranch, error) {
-	return postgres.GetPostgresBranchByObjectName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
+func (r *postgresIssueResolver) Postgres(ctx context.Context, obj *issue.PostgresIssue) (*postgres.Postgres, error) {
+	if obj.LegacyPhysicalName != "" {
+		return postgres.GetPostgresByPhysicalName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.LegacyPhysicalName)
+	}
+	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 
 func (r *queryResolver) Issues(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) (*issue.IssueConnection, error) {
@@ -186,6 +197,10 @@ func (r *Resolver) ApplicationRestartLoopIssue() gengql.ApplicationRestartLoopIs
 	return &applicationRestartLoopIssueResolver{r}
 }
 
+func (r *Resolver) ApplicationRolloutStuckIssue() gengql.ApplicationRolloutStuckIssueResolver {
+	return &applicationRolloutStuckIssueResolver{r}
+}
+
 func (r *Resolver) DeprecatedIngressIssue() gengql.DeprecatedIngressIssueResolver {
 	return &deprecatedIngressIssueResolver{r}
 }
@@ -230,9 +245,7 @@ func (r *Resolver) OpenSearchIssue() gengql.OpenSearchIssueResolver {
 	return &openSearchIssueResolver{r}
 }
 
-func (r *Resolver) PostgresBranchIssue() gengql.PostgresBranchIssueResolver {
-	return &postgresBranchIssueResolver{r}
-}
+func (r *Resolver) PostgresIssue() gengql.PostgresIssueResolver { return &postgresIssueResolver{r} }
 
 func (r *Resolver) SqlInstanceStateIssue() gengql.SqlInstanceStateIssueResolver {
 	return &sqlInstanceStateIssueResolver{r}
@@ -258,6 +271,7 @@ func (r *Resolver) WorkloadProblemIssue() gengql.WorkloadProblemIssueResolver {
 
 type (
 	applicationRestartLoopIssueResolver             struct{ *Resolver }
+	applicationRolloutStuckIssueResolver            struct{ *Resolver }
 	deprecatedIngressIssueResolver                  struct{ *Resolver }
 	deprecatedRegistryIssueResolver                 struct{ *Resolver }
 	externalIngressUrgentVulnerabilityIssueResolver struct{ *Resolver }
@@ -269,7 +283,7 @@ type (
 	missingSbomIssueResolver                        struct{ *Resolver }
 	noRunningInstancesIssueResolver                 struct{ *Resolver }
 	openSearchIssueResolver                         struct{ *Resolver }
-	postgresBranchIssueResolver                     struct{ *Resolver }
+	postgresIssueResolver                           struct{ *Resolver }
 	sqlInstanceStateIssueResolver                   struct{ *Resolver }
 	sqlInstanceVersionIssueResolver                 struct{ *Resolver }
 	unleashReleaseChannelIssueResolver              struct{ *Resolver }

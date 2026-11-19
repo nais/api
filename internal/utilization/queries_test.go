@@ -57,7 +57,7 @@ func TestForTeamExcludesMissingWorkloads(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(manager.Stop)
-	ctx := application.NewLoaderContext(t.Context(), application.NewWatcher(t.Context(), manager), nil, logrus.New())
+	ctx := application.NewLoaderContext(t.Context(), application.NewWatcher(t.Context(), manager), nil, nil, logrus.New())
 	ctx = job.NewLoaderContext(ctx, job.NewWatcher(t.Context(), manager), nil)
 	waitCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

@@ -33,6 +33,48 @@ narc jita grant k8s-admin "$TENANT_NAME" --duration 1h --reason "port forward fo
 CONTEXT="dev" WITH_LOG_PROXY="true" mise run local|debug
 ```
 
+## Kafka environments
+
+`KAFKA_ENVIRONMENTS` maps canonical Nais environment names to Kafka
+pools and optional legacy aliases. Temporary credentials are created in the
+selected canonical environment, using the existing cluster-name mapping.
+For example, for Nav:
+
+```json
+{
+	"dev-gcp": {
+		"pool": "nav-dev",
+		"aliases": ["dev"]
+	},
+	"prod-gcp": {
+		"pool": "nav-prod",
+		"aliases": ["prod"]
+	}
+}
+```
+
+The Helm value is the JSON string `kafka.environments`. For ordinary
+tenant environments, Fasit generates a mapping when both `aiven_project` and
+`kafka_bootstrap_broker` are configured. The pool is the configured Aiven project,
+and credentials are created in the same Nais environment, without aliases.
+Nav retains the explicit legacy mappings above.
+
+Non-standard topologies can configure an explicit mapping. A direct Helm
+installation must also supply this value. An empty mapping disables Kafka
+credential creation, not other Kafka operations.
+
+The canonical environment must refer to a configured Kubernetes cluster through the existing environment-name
+mapping. Aliases cannot collide with canonical Nais environments or other aliases.
+Pool names are never inferred from environment names or the tenant name.
+An environment without a mapping is rejected before creating any resources.
+Selecting a shared pool does not route credential creation to another cluster.
+There is no routing from FSS to GCP.
+
+Existing clients can keep using configured aliases. The additive
+`CreateKafkaCredentialsPayload.environmentName` field returns the canonical name,
+allowing newer clients to warn about legacy aliases without duplicating this
+configuration. Activity log entries use the canonical name.
+
 ## Development practices
 
 Check practices used in this project here: [docs/practices.md](docs/practices.md)

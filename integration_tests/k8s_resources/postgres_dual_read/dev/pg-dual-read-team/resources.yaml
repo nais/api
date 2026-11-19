@@ -1,0 +1,72 @@
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: orders
+  namespace: pg-dual-read-team
+  generation: 1
+  creationTimestamp: "2026-01-02T03:04:05Z"
+spec:
+  majorVersion: "18"
+status:
+  clusterName: pg-orders-main-65648812
+  configuration:
+    parameters:
+      work_mem: 16MB
+  observedGeneration: 1
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      message: "Cluster is in phase: Cluster in healthy state"
+---
+apiVersion: nais.io/v1
+kind: Postgres
+metadata:
+  name: foobar
+  namespace: pg-dual-read-team
+  generation: 1
+spec:
+  majorVersion: "18"
+status:
+  activeBranch: main
+  clusterName: pg-foobar-main-a4f04c0c
+  configuration:
+    parameters:
+      work_mem: 8MB
+  observedGeneration: 1
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      message: "Cluster is in phase: Cluster in healthy state"
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: consumer
+  namespace: pg-dual-read-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: orders
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-orders-main-65648812
+  namespace: pg-dual-read-team
+status:
+  conditions:
+    - type: Ready
+      status: "True"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pg-foobar-main-a4f04c0c
+  namespace: pg-dual-read-team
+status:
+  conditions:
+    - type: Ready
+      status: "True"

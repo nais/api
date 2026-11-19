@@ -38,6 +38,35 @@ spec:
             - containerPort: 80
 
 ---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-name
+  labels:
+    app: app-name
+spec:
+  minReplicas: 2
+  maxReplicas: 4
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app-name
+status:
+  currentReplicas: 4
+  desiredReplicas: 4
+  conditions:
+    - type: AbleToScale
+      status: "True"
+      reason: ReadyForNewScale
+    - type: ScalingActive
+      status: "True"
+      reason: ValidMetricFound
+    - type: ScalingLimited
+      status: "True"
+      reason: TooManyReplicas
+      message: the desired replica count is more than the maximum replica count
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

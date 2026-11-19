@@ -22,9 +22,12 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	eventv1 "k8s.io/api/events/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -35,6 +38,8 @@ type Watcher struct {
 	queries        eventsql.Querier
 	clients        map[string]kubernetes.Interface
 	podWatcher     *watcher.Watcher[*corev1.Pod]
+	rsWatcher      *watcher.Watcher[*appsv1.ReplicaSet]
+	runWatcher     *watcher.Watcher[*batchv1.Job]
 	events         chan eventsql.UpsertParams
 	log            logrus.FieldLogger
 	logsSubscriber *pubsublog.Subscriber
@@ -46,7 +51,7 @@ type Watcher struct {
 	handlersCounter metric.Int64UpDownCounter
 }
 
-func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clients map[string]kubernetes.Interface, podWatcher *watcher.Watcher[*corev1.Pod], restMappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Watcher, error) {
+func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clients map[string]kubernetes.Interface, podWatcher *watcher.Watcher[*corev1.Pod], rsWatcher *watcher.Watcher[*appsv1.ReplicaSet], runWatcher *watcher.Watcher[*batchv1.Job], restMappers map[string]watcher.KindResolver, log logrus.FieldLogger) (*Watcher, error) {
 	chs := make([]chan bool, 0, len(clients))
 	for range clients {
 		chs = append(chs, make(chan bool, 1))
@@ -73,6 +78,8 @@ func NewWatcher(pool *pgxpool.Pool, logsSubscription *pubsub.Subscription, clien
 	return &Watcher{
 		clients:         clients,
 		podWatcher:      podWatcher,
+		rsWatcher:       rsWatcher,
+		runWatcher:      runWatcher,
 		events:          make(chan eventsql.UpsertParams, 20),
 		queries:         queries,
 		log:             log,
@@ -176,6 +183,7 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 	// Events we want to watch for
 	// SuccessfulRescale - Check for successful rescale events
 	// Killing - Check for liveness failures
+	// Warning - Check for problems with known reasons, see warningTranslators
 	closeAndDrain := func(w watch.Interface) {
 		w.Stop()
 		for range w.ResultChan() {
@@ -194,6 +202,12 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 		return fmt.Errorf("failed to watch for killing events: %w", err)
 	}
 	defer closeAndDrain(killing)
+
+	warnings, err := newWatcher("type=Warning,metadata.namespace!=nais-system")
+	if err != nil {
+		return fmt.Errorf("failed to watch for warning events: %w", err)
+	}
+	defer closeAndDrain(warnings)
 
 	handleEvent := func(event watch.Event, convert func(e *eventv1.Event) (eventsql.UpsertParams, bool)) {
 		if event.Type != watch.Added && event.Type != watch.Modified {
@@ -286,8 +300,65 @@ func (w *Watcher) watch(ctx context.Context, env string, client kubernetes.Inter
 
 				return eventsql.UpsertParams{}, false
 			})
+		case event, ok := <-warnings.ResultChan():
+			if !ok {
+				w.log.WithField("env", env).WithField("watcher", "warnings").Error("watching events returned closed channel")
+				return fmt.Errorf("watcher failed")
+			}
+
+			reason := "unsupported"
+			if e, ok := event.Object.(*eventv1.Event); ok {
+				if _, supported := warningTranslators[e.Reason]; supported {
+					reason = e.Reason
+				}
+			}
+			w.eventsCounter.Add(ctx, 1, metric.WithAttributes(
+				attribute.String("environment", string(env)),
+				attribute.String("type", string(event.Type)),
+				attribute.String("reason", reason)),
+			)
+
+			handleEvent(event, func(e *eventv1.Event) (eventsql.UpsertParams, bool) {
+				data, ok := warningData(e)
+				if !ok {
+					return eventsql.UpsertParams{}, false
+				}
+				return w.toUpsertParams(env, e, data)
+			})
 		}
 	}
+}
+
+// warningData returns the data to persist for a warning event, or false if the event should not be persisted.
+func warningData(e *eventv1.Event) (map[string]any, bool) {
+	if _, _, ok := translateWarning(e.Reason, e.Note); !ok {
+		return nil, false
+	}
+
+	count := 1
+	if e.Series != nil && e.Series.Count > 0 {
+		count = int(e.Series.Count)
+	} else if e.DeprecatedCount > 0 {
+		count = int(e.DeprecatedCount)
+	}
+
+	firstSeen := e.DeprecatedFirstTimestamp.Time
+	if firstSeen.IsZero() {
+		firstSeen = e.EventTime.Time
+	}
+	if firstSeen.IsZero() {
+		firstSeen = e.CreationTimestamp.Time
+	}
+
+	data := map[string]any{
+		"note":      e.Note,
+		"count":     count,
+		"firstSeen": firstSeen,
+	}
+	if e.Regarding.Kind == "Pod" {
+		data["instance"] = e.Regarding.Name
+	}
+	return data, true
 }
 
 func (w *Watcher) batchInsert(ctx context.Context) error {
@@ -328,8 +399,13 @@ func (w *Watcher) toUpsertParams(environmentName string, e *eventv1.Event, data 
 
 	// Persist the workload reference while the pod still exists. Pod names alone
 	// cannot safely identify a workload after the pod has been deleted.
-	if e.Regarding.Kind == "Pod" {
+	switch e.Regarding.Kind {
+	case "Pod":
 		w.addPodWorkload(environmentName, e, data)
+	case "ReplicaSet":
+		addOwnerWorkload(w, w.rsWatcher, environmentName, e, data, "Application")
+	case "Job":
+		addOwnerWorkload(w, w.runWatcher, environmentName, e, data, "Naisjob")
 	}
 
 	b, err := json.Marshal(data)
@@ -380,6 +456,31 @@ func (w *Watcher) addPodWorkload(environment string, e *eventv1.Event, data map[
 	case "Job":
 		kind = "Naisjob"
 	default:
+		return
+	}
+	data["workloadKind"] = kind
+	data["workloadName"] = name
+}
+
+// addOwnerWorkload resolves the workload of events regarding objects created on behalf of a workload, such as
+// application instance groups and job runs.
+func addOwnerWorkload[T interface {
+	watcher.Object
+	GetUID() types.UID
+}](w *Watcher, objects *watcher.Watcher[T], environment string, e *eventv1.Event, data map[string]any, kind string) {
+	if objects == nil {
+		return
+	}
+	obj, err := objects.Get(environment, e.Regarding.Namespace, e.Regarding.Name)
+	if err != nil {
+		w.log.WithError(err).WithField("object", e.Regarding.Name).Debug("unable to resolve event workload")
+		return
+	}
+	if e.Regarding.UID != "" && obj.GetUID() != e.Regarding.UID {
+		return
+	}
+	name := obj.GetLabels()["app"]
+	if name == "" {
 		return
 	}
 	data["workloadKind"] = kind

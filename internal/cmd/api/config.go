@@ -6,6 +6,7 @@ import (
 
 	"github.com/nais/api/internal/auth/middleware"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/persistence/kafkatopic"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/workload/logging"
 	"github.com/sethvargo/go-envconfig"
@@ -144,7 +145,8 @@ type Aiven struct {
 }
 
 type Config struct {
-	Aiven Aiven
+	Aiven             Aiven
+	KafkaEnvironments kafkatopic.Environments `env:"KAFKA_ENVIRONMENTS"`
 
 	// Tenant is the active tenant
 	Tenant string `env:"TENANT,default=dev-nais"`
@@ -205,6 +207,7 @@ type Config struct {
 }
 
 type Fakes struct {
+	WithInsecureWebhookURLs      bool `env:"WITH_INSECURE_WEBHOOK_URLS"`
 	WithInsecureUserHeader       bool `env:"WITH_INSECURE_USER_HEADER"`
 	WithFakeAivenClient          bool `env:"WITH_FAKE_AIVEN_CLIENT"`
 	WithFakeKubernetes           bool `env:"WITH_FAKE_KUBERNETES"`

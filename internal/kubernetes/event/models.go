@@ -79,5 +79,8 @@ func toGraphEvent(row *eventsql.K8sEvent) (WorkloadEvent, error) {
 		event.WorkloadEventBase = base
 		return &event, nil
 	}
+	if _, ok := warningTranslators[row.Reason]; ok {
+		return toWarningEvent(base, row.Reason, row.Data)
+	}
 	return nil, fmt.Errorf("unsupported workload event reason: %q", row.Reason)
 }

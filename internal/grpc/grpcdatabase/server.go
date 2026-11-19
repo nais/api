@@ -14,28 +14,27 @@ import (
 )
 
 type Server struct {
-	sqlDatabaseWatcher    *watchers.SqlDatabaseWatcher
-	postgresBranchWatcher *watchers.PostgresBranchWatcher
+	sqlDatabaseWatcher *watchers.SqlDatabaseWatcher
+	postgresWatcher    *watchers.PostgresWatcher
 	protoapi.UnimplementedDatabasesServer
 }
 
-func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresBranchWatcher *watchers.PostgresBranchWatcher) *Server {
+func NewServer(sqlDatabaseWatcher *watchers.SqlDatabaseWatcher, postgresWatcher *watchers.PostgresWatcher) *Server {
 	return &Server{
-		sqlDatabaseWatcher:    sqlDatabaseWatcher,
-		postgresBranchWatcher: postgresBranchWatcher,
+		sqlDatabaseWatcher: sqlDatabaseWatcher,
+		postgresWatcher:    postgresWatcher,
 	}
 }
 
 func (s *Server) List(_ context.Context, r *protoapi.ListDatabasesRequest) (*protoapi.ListDatabasesResponse, error) {
 	sqlDatabases := watcher.Objects(s.sqlDatabaseWatcher.GetByNamespace(r.TeamSlug))
-	postgresBranches := watcher.Objects(s.postgresBranchWatcher.GetByNamespace(r.TeamSlug))
-
-	all := make([]*protoapi.Database, 0, len(sqlDatabases)+len(postgresBranches))
+	postgreses := watcher.Objects(s.postgresWatcher.GetByNamespace(r.TeamSlug, watcher.WithoutDeleted()))
+	all := make([]*protoapi.Database, 0, len(sqlDatabases)+len(postgreses))
 	for _, d := range sqlDatabases {
 		all = append(all, sqlDatabaseToProto(d))
 	}
-	for _, p := range postgresBranches {
-		all = append(all, postgresBranchToProto(p))
+	for _, p := range postgreses {
+		all = append(all, postgresToProto(p))
 	}
 
 	// Sort by (type, environment, name, database) for deterministic pagination.
@@ -77,13 +76,9 @@ func sqlDatabaseToProto(d *sqlinstance.SQLDatabase) *protoapi.Database {
 	}
 }
 
-func postgresBranchToProto(p *postgres.PostgresBranch) *protoapi.Database {
-	name := p.PostgresName
-	if p.Name != "main" {
-		name += "/" + p.Name
-	}
+func postgresToProto(p *postgres.Postgres) *protoapi.Database {
 	return &protoapi.Database{
-		Name:        name,
+		Name:        p.Name,
 		Database:    "app",
 		Environment: p.EnvironmentName,
 		TeamSlug:    p.TeamSlug.String(),

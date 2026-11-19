@@ -49,14 +49,17 @@ func (ValkeyIssue) IsIssue() {}
 
 func (ValkeyIssue) IsNode() {}
 
-// PostgresBranchIssue reports a failure on a Postgres branch.
-type PostgresBranchIssue struct {
+// PostgresIssue reports a failure on a Postgres database.
+type PostgresIssue struct {
 	Base
+	// LegacyPhysicalName is only populated for rows written before contraction.
+	// The checker replaces these rows on its next refresh.
+	LegacyPhysicalName string `json:"-"`
 }
 
-func (PostgresBranchIssue) IsIssue() {}
+func (PostgresIssue) IsIssue() {}
 
-func (PostgresBranchIssue) IsNode() {}
+func (PostgresIssue) IsNode() {}
 
 type SqlInstanceVersionIssue struct {
 	Base
@@ -136,6 +139,7 @@ const (
 	ResourceTypeApplication    ResourceType = "APPLICATION"
 	ResourceTypeJob            ResourceType = "JOB"
 	ResourceTypeUnleash        ResourceType = "UNLEASH"
+	ResourceTypePostgres       ResourceType = "POSTGRES"
 	ResourceTypePostgresBranch ResourceType = "POSTGRES_BRANCH"
 )
 
@@ -146,12 +150,13 @@ var AllResourceType = []ResourceType{
 	ResourceTypeApplication,
 	ResourceTypeJob,
 	ResourceTypeUnleash,
+	ResourceTypePostgres,
 	ResourceTypePostgresBranch,
 }
 
 func (e ResourceType) IsValid() bool {
 	switch e {
-	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash, ResourceTypePostgresBranch:
+	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash, ResourceTypePostgres, ResourceTypePostgresBranch:
 		return true
 	}
 	return false
@@ -222,6 +227,8 @@ const (
 	IssueTypeExternalIngressUrgentVulnerability IssueType = "EXTERNAL_INGRESS_URGENT_VULNERABILITY"
 	IssueTypeUnleashReleaseChannel              IssueType = "UNLEASH_RELEASE_CHANNEL"
 	IssueTypeApplicationRestartLoop             IssueType = "APPLICATION_RESTART_LOOP"
+	IssueTypeApplicationRolloutStuck            IssueType = "APPLICATION_ROLLOUT_STUCK"
+	IssueTypePostgres                           IssueType = "POSTGRES"
 	IssueTypePostgresBranch                     IssueType = "POSTGRES_BRANCH"
 )
 
@@ -242,6 +249,8 @@ var AllIssueType = []IssueType{
 	IssueTypeExternalIngressUrgentVulnerability,
 	IssueTypeUnleashReleaseChannel,
 	IssueTypeApplicationRestartLoop,
+	IssueTypeApplicationRolloutStuck,
+	IssueTypePostgres,
 	IssueTypePostgresBranch,
 }
 
@@ -253,7 +262,7 @@ func (e IssueType) IsValid() bool {
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM,
 		IssueTypeExternalIngressUrgentVulnerability, IssueTypeUnleashReleaseChannel,
-		IssueTypeApplicationRestartLoop, IssueTypePostgresBranch:
+		IssueTypeApplicationRestartLoop, IssueTypeApplicationRolloutStuck, IssueTypePostgres, IssueTypePostgresBranch:
 		return true
 	}
 	return false
@@ -576,3 +585,59 @@ type ApplicationRestartLoopIssue struct {
 func (ApplicationRestartLoopIssue) IsIssue() {}
 
 func (ApplicationRestartLoopIssue) IsNode() {}
+
+// ApplicationRolloutStuckIssueDetails holds details about a stuck rollout.
+type ApplicationRolloutStuckIssueDetails struct {
+	Reason ApplicationRolloutStuckReason `json:"reason"`
+}
+
+// ApplicationRolloutStuckIssue is an issue raised when a new version of an application is not being rolled out.
+type ApplicationRolloutStuckIssue struct {
+	Base
+	ApplicationRolloutStuckIssueDetails
+}
+
+func (ApplicationRolloutStuckIssue) IsIssue() {}
+
+func (ApplicationRolloutStuckIssue) IsNode() {}
+
+type ApplicationRolloutStuckReason string
+
+const (
+	ApplicationRolloutStuckReasonTimedOut               ApplicationRolloutStuckReason = "TIMED_OUT"
+	ApplicationRolloutStuckReasonInstanceCreationFailed ApplicationRolloutStuckReason = "INSTANCE_CREATION_FAILED"
+)
+
+var AllApplicationRolloutStuckReason = []ApplicationRolloutStuckReason{
+	ApplicationRolloutStuckReasonTimedOut,
+	ApplicationRolloutStuckReasonInstanceCreationFailed,
+}
+
+func (e ApplicationRolloutStuckReason) IsValid() bool {
+	switch e {
+	case ApplicationRolloutStuckReasonTimedOut, ApplicationRolloutStuckReasonInstanceCreationFailed:
+		return true
+	}
+	return false
+}
+
+func (e ApplicationRolloutStuckReason) String() string {
+	return string(e)
+}
+
+func (e *ApplicationRolloutStuckReason) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ApplicationRolloutStuckReason(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ApplicationRolloutStuckReason", str)
+	}
+	return nil
+}
+
+func (e ApplicationRolloutStuckReason) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

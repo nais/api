@@ -8,6 +8,14 @@ spec:
   majorVersion: "17"
 status:
   activeBranch: main
+  clusterName: pg-foobar-main-a4f04c0c
+  reconcilePhase: Completed
+  conditions:
+    - type: cluster.postgresql.cnpg.io/ObservedState
+      status: "True"
+      reason: Reconciled
+      message: "Cluster is in phase: Cluster in healthy state"
+      lastTransitionTime: "2026-09-17T00:00:00Z"
 ---
 apiVersion: nais.io/v1
 kind: Postgres

@@ -39,6 +39,8 @@ func ComputeFacets(ctx context.Context, connection *IssueConnection) (*IssueFace
 		}
 	}
 
+	params.LegacyScopeResourceName = legacyPostgresIssueName(params.ScopeResourceName)
+	params.LegacyFilterResourceName = legacyPostgresIssueName(params.FilterResourceName)
 	rows, err := db(ctx).FacetsForIssues(ctx, params)
 	if err != nil {
 		return nil, err

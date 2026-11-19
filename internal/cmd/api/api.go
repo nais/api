@@ -14,6 +14,7 @@ import (
 	aiven_service "github.com/aiven/go-client-codegen"
 	"github.com/joho/godotenv"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
@@ -251,6 +252,19 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	notifier := notify.New(pool, log.WithField("subsystem", "notifier"))
 	go notifier.Run(ctx)
 
+	// Webhook dispatcher — drains the webhook_events outbox table on PG NOTIFY
+	webhookDispatcher, err := webhook.NewDispatcher(pool, notifier, "https://console."+cfg.Tenant+".cloud.nais.io/cloudevents", cfg.Fakes.WithInsecureWebhookURLs, watchers.IngressWatcher, log)
+	if err != nil {
+		return fmt.Errorf("creating webhook dispatcher: %w", err)
+	}
+	wg.Go(func() error {
+		if !watchers.IngressWatcher.WaitForCacheSync(ctx) {
+			return ctx.Err()
+		}
+		webhookDispatcher.Run(ctx)
+		return nil
+	})
+
 	if !cfg.Fakes.WithFakeKubernetes {
 		k8sClients, err := kubernetes.NewClientSets(clusterConfig)
 		if err != nil {
@@ -258,14 +272,14 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		}
 
 		log.WithField("envs", len(k8sClients)).Info("Start event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), k8sClients, watchers.PodWatcher, watchers.ReplicaSetWatcher, watchers.RunWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
 		go eventWatcher.Run(ctx)
 	} else {
 		log.Info("Start fake event watcher")
-		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watchers.PodWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
+		eventWatcher, err := event.NewWatcher(pool, pubsubClient.Subscription(cfg.PubSub.EventsSubscription), nil, watchers.PodWatcher, watchers.ReplicaSetWatcher, watchers.RunWatcher, watcherMgr.ResourceMappers(), log.WithField("subsystem", "event_watcher"))
 		if err != nil {
 			return fmt.Errorf("creating event watcher: %w", err)
 		}
@@ -323,6 +337,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		serviceMaintenanceManager,
 		aivenClient,
 		cfg.Aiven.Projects,
+		cfg.KafkaEnvironments,
 		vulnMgr,
 		cfg.Tenant,
 		cfg.K8s.AllClusterNames(),
@@ -334,6 +349,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		lokiClient,
 		cfg.AuditLog.ProjectID,
 		cfg.AuditLog.Location,
+		webhookDispatcher,
 		log.WithField("subsystem", "http"),
 	)
 	if err != nil {
@@ -399,7 +415,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	})
 
 	wg.Go(func() error {
-		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresBranchWatcher, log.WithField("subsystem", "grpc")); err != nil {
+		if err := grpc.Run(ctx, cfg.GRPCListenAddress, pool, watchers.SqlDatabaseWatcher, watchers.PostgresWatcher, watchers.AppWatcher, watchers.JobWatcher, log.WithField("subsystem", "grpc")); err != nil {
 			log.WithError(err).Errorf("error in GRPC server")
 			return err
 		}
@@ -416,6 +432,16 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	wg.Go(func() error {
 		deployment.RunCleaner(ctx, pool, log.WithField("subsystem", "deployment_cleaner"))
+		return nil
+	})
+
+	wg.Go(func() error {
+		webhook.RunCleaner(ctx, pool, log.WithField("subsystem", "webhook_cleaner"))
+		return nil
+	})
+
+	wg.Go(func() error {
+		event.RunCleaner(ctx, pool, log.WithField("subsystem", "workload_event_cleaner"))
 		return nil
 	})
 
@@ -480,7 +506,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}()
 
 	select {
-	case <-time.After(10 * time.Second):
+	case <-time.After(30 * time.Second):
 		log.Warn("timed out waiting for graceful shutdown")
 	case err := <-ch:
 		return err

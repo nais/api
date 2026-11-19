@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/authz"
@@ -156,7 +157,7 @@ func newHTTPRouter(
 			))
 			r.Method("POST", "/", graphHandler)
 		})
-		r.Mount("/api/loki", otelhttp.NewHandler(http.StripPrefix("/api", lokiProxy), "loki"))
+		r.Mount("/api/loki", otelhttp.NewHandler(http.StripPrefix("/api", postgres.WithLogScope(lokiProxy)), "loki"))
 	})
 
 	router.Route("/oauth2", func(r chi.Router) {
@@ -212,6 +213,7 @@ func ConfigureGraph(
 	serviceMaintenanceManager *servicemaintenance.Manager,
 	aivenClient aiven.AivenClient,
 	aivenProjects aiven.Projects,
+	kafkaEnvironments kafkatopic.Environments,
 	vulnMgr *vulnerability.Manager,
 	tenantName string,
 	clusters []string,
@@ -223,8 +225,12 @@ func ConfigureGraph(
 	lokiClient loki.Client,
 	auditLogProjectID string,
 	auditLogLocation string,
+	webhookDispatcher *webhook.Dispatcher,
 	log logrus.FieldLogger,
 ) (func(http.Handler) http.Handler, error) {
+	if err := kafkaEnvironments.Validate(clusters); err != nil {
+		return nil, fmt.Errorf("configure Kafka environments: %w", err)
+	}
 	logStep := func(name string, fn func() error) error {
 		log.WithField("step", name).Info("starting setup step")
 		start := time.Now()
@@ -364,11 +370,11 @@ func ConfigureGraph(
 	setupContext := func(ctx context.Context) context.Context {
 		ctx = crd.NewLoaderContext(ctx, watchers.AvailableValues)
 		ctx = podlog.NewLoaderContext(ctx, podLogStreamer)
-		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, log)
+		ctx = application.NewLoaderContext(ctx, watchers.AppWatcher, watchers.IngressWatcher, watchers.HorizontalPodAutoscalerWatcher, log)
 		ctx = bigquery.NewLoaderContext(ctx, watchers.BqWatcher)
 		ctx = bucket.NewLoaderContext(ctx, watchers.BucketWatcher)
 		ctx = job.NewLoaderContext(ctx, watchers.JobWatcher, watchers.RunWatcher)
-		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher, log)
+		ctx = kafkatopic.NewLoaderContext(ctx, watchers.KafkaTopicWatcher, log, kafkaEnvironments)
 		ctx = workload.NewLoaderContext(ctx, watchers.PodWatcher)
 		ctx = secret.NewLoaderContext(ctx, watchers.SecretWatcher, secretClientCreator, dynamicClients, clusters, log)
 		ctx = config.NewLoaderContext(ctx, watchers.ConfigWatcher, log)
@@ -381,7 +387,7 @@ func ConfigureGraph(
 		ctx = alerts.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = metrics.NewLoaderContext(ctx, prometheusClient, log)
 		ctx = sqlinstance.NewLoaderContext(ctx, sqlAdminService, watchers.SqlDatabaseWatcher, watchers.SqlInstanceWatcher, auditLogProjectID, auditLogLocation)
-		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresBranchWatcher, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation, tenantName, dynamicClients)
+		ctx = postgres.NewLoaderContext(ctx, watchers.PostgresWatcher, auditLogProjectID, auditLogLocation, tenantName, dynamicClients)
 		ctx = aivencredentials.NewClientContext(ctx, dynamicClients, log)
 		ctx = database.NewLoaderContext(ctx, pool)
 		ctx = issue.NewContext(ctx, pool)
@@ -405,6 +411,7 @@ func ConfigureGraph(
 		ctx = tunnel.WithLoaders(ctx, tunnel.NewLoaders(watchers.TunnelWatcher))
 		ctx = logging.NewPackageContext(ctx, tenantName, environmentDestinations)
 		ctx = environment.NewLoaderContext(ctx, pool)
+		ctx = webhook.NewLoaderContext(ctx, pool, webhookDispatcher)
 		unleashAvailable := unleashCfg.Enabled && watchers.UnleashWatcher != nil && watchers.UnleashWatcher.Enabled()
 		ctx = feature.NewLoaderContext(
 			ctx,

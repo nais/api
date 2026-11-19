@@ -7,6 +7,7 @@ spec:
   majorVersion: "18"
   activeBranch: pending
 status:
+  clusterName: pg-orders-main-65648812
   activeBranch: green
 ---
 apiVersion: nais.io/v1
@@ -35,24 +36,6 @@ metadata:
 spec:
   postgres: orders
   branchName: pr-123
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: orders-binding-1ada99de
-  namespace: pg-selection-team
-spec:
-  postgres: orders
-  branchName: binding
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: orders-old-9cdd54c9
-  namespace: pg-selection-team
-spec:
-  postgres: orders
-  branchName: old
 ---
 apiVersion: nais.io/v1
 kind: PostgresBranch
@@ -97,7 +80,7 @@ spec:
   uses:
     postgres:
       - name: orders
-        branch: pr-123
+        branch: main
 ---
 apiVersion: nais.io/v1
 kind: Naisjob
@@ -109,16 +92,23 @@ spec:
   schedule: "0 0 * * *"
 ---
 apiVersion: nais.io/v1
-kind: PostgresBinding
+kind: Postgres
 metadata:
-  name: standalone-binding
+  name: missing-branch
   namespace: pg-selection-team
 spec:
-  postgres: orders
-  branch: binding
-  consumer:
-    workload:
-      name: standalone
-      type: application
-  credentials:
-    - read
+  majorVersion: "18"
+status:
+  activeBranch: restored
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: missing-branch-app
+  namespace: pg-selection-team
+spec:
+  image: ghcr.io/nais/testapp:latest
+  uses:
+    postgres:
+      - name: missing-branch
+        branch: main

@@ -267,8 +267,8 @@ enum Severity {
 }
 
 enum ResourceType {
-	"A branch of a Postgres database."
-	POSTGRES_BRANCH
+	"Postgres database."
+	POSTGRES
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -278,8 +278,8 @@ enum ResourceType {
 }
 
 enum IssueType {
-	"Raised when a Postgres branch has reported a failure."
-	POSTGRES_BRANCH
+	"Postgres database failure."
+	POSTGRES
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -299,6 +299,8 @@ enum IssueType {
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
+	"Raised when a new version of an application is not being rolled out."
+	APPLICATION_ROLLOUT_STUCK
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -410,18 +412,18 @@ type ValkeyIssue implements Issue & Node {
 	event: String!
 }
 
-"A failure reported by a Postgres branch, including inactive branches."
-type PostgresBranchIssue implements Issue & Node {
+"A failure reported by a Postgres database."
+type PostgresIssue implements Issue & Node {
 	"Unique identifier for this issue."
 	id: ID!
-	"Team environment containing the affected branch."
+	"Team environment containing the affected Postgres database."
 	teamEnvironment: TeamEnvironment!
 	"Severity of the reported failure."
 	severity: Severity!
 	"Description of the reported failure."
 	message: String!
-	"The branch that reported the failure."
-	branch: PostgresBranch!
+	"The Postgres database that reported the failure."
+	postgres: Postgres!
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {
@@ -514,4 +516,29 @@ type ApplicationRestartLoopIssue implements Issue & Node {
 	lastExitReason: String!
 	"The timestamp of the last container exit."
 	lastExitTimestamp: Time!
+}
+
+"An issue raised when a new version of an application is not being rolled out."
+type ApplicationRolloutStuckIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"The team environment where the issue was detected."
+	teamEnvironment: TeamEnvironment!
+	"The severity of the issue."
+	severity: Severity!
+	"A human-readable description of the issue."
+	message: String!
+
+	"The workload whose rollout is stuck."
+	workload: Workload!
+	"Why the rollout is stuck."
+	reason: ApplicationRolloutStuckReason!
+}
+
+"Why a rollout of a new application version is stuck."
+enum ApplicationRolloutStuckReason {
+	"The new version did not become ready within the allowed time."
+	TIMED_OUT
+	"Instances of the new version could not be created, for example because of a quota or a platform policy."
+	INSTANCE_CREATION_FAILED
 }

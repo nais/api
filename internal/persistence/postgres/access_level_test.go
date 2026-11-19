@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/nais/api/internal/slug"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 )
 
 func TestPostgresAccessLevels(t *testing.T) {
@@ -39,8 +38,8 @@ func TestPostgresAccessLevels(t *testing.T) {
 				Postgres: "orders", Branch: "main", TeamSlug: slug.Slug("team-a"), AccessLevel: level,
 			}, "user@example.com", "personal-access", expiresAt)
 			wantSpec := map[string]any{
-				"postgresBranch": nais_io_v1.PostgresBranchObjectName("orders", "main"),
-				"username":       "user@example.com", "accessLevel": tt.crd, "expiresAt": expiresAt.Format(time.RFC3339),
+				"postgres": "orders",
+				"username": "user@example.com", "accessLevel": tt.crd, "expiresAt": expiresAt.Format(time.RFC3339),
 			}
 			if diff := cmp.Diff(wantSpec, resource.Object["spec"]); diff != "" {
 				t.Errorf("resource spec mismatch (-want +got):\n%s", diff)

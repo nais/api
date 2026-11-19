@@ -239,7 +239,7 @@ extend enum SearchType {
 input CreateKafkaCredentialsInput {
 	"The team that owns the Kafka topic."
 	teamSlug: Slug!
-	"The environment name that the Kafka topic belongs to."
+	"The environment to create Kafka credentials for."
 	environmentName: String!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
 	ttl: String!
@@ -263,6 +263,8 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+	"The environment the Kafka credentials were created for."
+	environmentName: String!
 }
 
 "Payload of the updateKafkaTopic mutation."

@@ -12,10 +12,12 @@ import (
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/kubernetes/translate"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/workload"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -90,6 +92,10 @@ type ApplicationInstance struct {
 	TeamSlug                   slug.Slug              `json:"-"`
 	ApplicationName            string                 `json:"-"`
 	ApplicationContainerStatus corev1.ContainerStatus `json:"-"`
+	// SchedulingFailure is the reason the instance cannot be placed on a server, if any.
+	SchedulingFailure *string `json:"-"`
+	// ComponentContainerStatuses are the statuses of containers added by the platform, including init containers.
+	ComponentContainerStatuses []corev1.ContainerStatus `json:"-"`
 }
 
 func (ApplicationInstance) IsNode() {}
@@ -183,7 +189,10 @@ func terminatedMessage(t *corev1.ContainerStateTerminated) string {
 }
 
 func (i *ApplicationInstance) lastTerminationInfo() (*string, *int, *time.Time) {
-	last := i.ApplicationContainerStatus.LastTerminationState.Terminated
+	last := i.ApplicationContainerStatus.State.Terminated
+	if last == nil {
+		last = i.ApplicationContainerStatus.LastTerminationState.Terminated
+	}
 	if last == nil {
 		return nil, nil, nil
 	}
@@ -199,11 +208,31 @@ func (i *ApplicationInstance) lastTerminationInfo() (*string, *int, *time.Time) 
 func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 	lastExitReason, lastExitCode, lastExitTimestamp := i.lastTerminationInfo()
 	ready := i.ApplicationContainerStatus.Ready
+	current := i.ApplicationContainerStatus.State
+
+	componentProblem, hasComponentProblem := i.ComponentProblem()
 
 	switch {
+	case i.SchedulingFailure != nil && current.Running == nil && current.Terminated == nil:
+		return &ApplicationInstanceStatus{
+			State:             ApplicationInstanceStatePending,
+			Message:           translate.SchedulingFailure(*i.SchedulingFailure),
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
+		}
+
 	case i.ApplicationContainerStatus.State.Running != nil:
 		msg := "Running and ready."
-		if !ready {
+		if hasComponentProblem {
+			// The instance does not receive traffic until all its containers are ready.
+			ready = false
+			msg = "Running, but not receiving traffic. " + componentProblem
+		} else if i.hasUnreadyComponent() {
+			ready = false
+			msg = "Running, but not receiving traffic. A component added by the platform is not ready."
+		} else if !ready {
 			msg = "Running, but not passing readiness check."
 		}
 		return &ApplicationInstanceStatus{
@@ -236,10 +265,24 @@ func (i *ApplicationInstance) Status() *ApplicationInstanceStatus {
 		state := ApplicationInstanceStateFailing
 		if kind == "benign" {
 			state = ApplicationInstanceStateStarting
+			if hasComponentProblem {
+				state = ApplicationInstanceStateFailing
+				msg = componentProblem
+			}
 		}
 		return &ApplicationInstanceStatus{
 			State:             state,
 			Message:           msg,
+			Ready:             false,
+			LastExitReason:    lastExitReason,
+			LastExitCode:      lastExitCode,
+			LastExitTimestamp: lastExitTimestamp,
+		}
+
+	case hasComponentProblem:
+		return &ApplicationInstanceStatus{
+			State:             ApplicationInstanceStateFailing,
+			Message:           componentProblem,
 			Ready:             false,
 			LastExitReason:    lastExitReason,
 			LastExitCode:      lastExitCode,
@@ -262,7 +305,8 @@ func (i *ApplicationInstance) State() ApplicationInstanceState {
 	return i.Status().State
 }
 
-func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
+// ToApplicationInstance converts a pod to an ApplicationInstance.
+func ToApplicationInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string, applicationName string) *ApplicationInstance {
 	var containerStatus corev1.ContainerStatus
 	for _, c := range pod.Status.ContainerStatuses {
 		if c.Name == applicationName {
@@ -271,18 +315,84 @@ func toGraphInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName string
 		}
 	}
 
-	ret := &ApplicationInstance{
+	var imageString string
+	if len(pod.Spec.Containers) > 0 {
+		imageString = pod.Spec.Containers[0].Image
+	}
+
+	return &ApplicationInstance{
 		Name:                       pod.Name,
 		Restarts:                   int(containerStatus.RestartCount),
 		Created:                    pod.CreationTimestamp.Time,
 		EnvironmentName:            environmentName,
-		ImageString:                pod.Spec.Containers[0].Image,
+		ImageString:                imageString,
 		TeamSlug:                   teamSlug,
 		ApplicationName:            applicationName,
 		ApplicationContainerStatus: containerStatus,
+		SchedulingFailure:          schedulingFailure(pod),
+		ComponentContainerStatuses: componentStatuses(pod, applicationName),
 	}
+}
 
+func componentStatuses(pod *corev1.Pod, applicationName string) []corev1.ContainerStatus {
+	ret := slices.Clone(pod.Status.InitContainerStatuses)
+	for _, c := range pod.Status.ContainerStatuses {
+		if c.Name != applicationName {
+			ret = append(ret, c)
+		}
+	}
 	return ret
+}
+
+func (i *ApplicationInstance) hasUnreadyComponent() bool {
+	return slices.ContainsFunc(i.ComponentContainerStatuses, func(c corev1.ContainerStatus) bool {
+		if t := c.State.Terminated; t != nil && t.ExitCode == 0 {
+			return false
+		}
+		return !c.Ready
+	})
+}
+
+// ComponentProblem describes a failing container added by the platform. Container names are not exposed, as these
+// containers are not part of the application manifest.
+func (i *ApplicationInstance) ComponentProblem() (string, bool) {
+	const prefix = "A component added by the platform "
+	for _, c := range i.ComponentContainerStatuses {
+		if w := c.State.Waiting; w != nil {
+			if kind, _ := classifyWaiting(w); kind != "problem" {
+				continue
+			}
+			switch strings.TrimSpace(w.Reason) {
+			case "CrashLoopBackOff":
+				return prefix + "keeps crashing.", true
+			case "ErrImagePull", "ImagePullBackOff", "InvalidImageName":
+				return prefix + "could not download its image.", true
+			case "CreateContainerConfigError":
+				if msg, ok := translate.MissingSource(w.Message); ok {
+					return prefix + "is missing configuration. " + msg, true
+				}
+				return prefix + "is missing configuration.", true
+			default:
+				return prefix + "could not start.", true
+			}
+		}
+		if t := c.State.Terminated; t != nil && t.ExitCode != 0 {
+			if t.Reason == "OOMKilled" {
+				return prefix + "ran out of memory.", true
+			}
+			return prefix + "stopped unexpectedly.", true
+		}
+	}
+	return "", false
+}
+
+func schedulingFailure(pod *corev1.Pod) *string {
+	for _, c := range pod.Status.Conditions {
+		if c.Type == corev1.PodScheduled && c.Status == corev1.ConditionFalse && c.Reason == corev1.PodReasonUnschedulable {
+			return &c.Message
+		}
+	}
+	return nil
 }
 
 func (i ApplicationInstance) Image() *workload.ContainerImage {
@@ -343,6 +453,100 @@ type ApplicationScaling struct {
 	MinInstances int               `json:"minInstances"`
 	MaxInstances int               `json:"maxInstances"`
 	Strategies   []ScalingStrategy `json:"strategies"`
+
+	TeamSlug        slug.Slug `json:"-"`
+	EnvironmentName string    `json:"-"`
+	ApplicationName string    `json:"-"`
+}
+
+type ApplicationScalingStatus struct {
+	CurrentInstances int                     `json:"currentInstances"`
+	DesiredInstances int                     `json:"desiredInstances"`
+	State            ApplicationScalingState `json:"state"`
+	Message          string                  `json:"message"`
+}
+
+type ApplicationScalingState string
+
+const (
+	ApplicationScalingStateActive             ApplicationScalingState = "ACTIVE"
+	ApplicationScalingStateLimitedByMaximum   ApplicationScalingState = "LIMITED_BY_MAXIMUM"
+	ApplicationScalingStateMetricsUnavailable ApplicationScalingState = "METRICS_UNAVAILABLE"
+	ApplicationScalingStateUnableToScale      ApplicationScalingState = "UNABLE_TO_SCALE"
+	ApplicationScalingStateDisabled           ApplicationScalingState = "DISABLED"
+)
+
+var AllApplicationScalingState = []ApplicationScalingState{
+	ApplicationScalingStateActive,
+	ApplicationScalingStateLimitedByMaximum,
+	ApplicationScalingStateMetricsUnavailable,
+	ApplicationScalingStateUnableToScale,
+	ApplicationScalingStateDisabled,
+}
+
+func (e ApplicationScalingState) IsValid() bool {
+	return slices.Contains(AllApplicationScalingState, e)
+}
+
+func (e ApplicationScalingState) String() string {
+	return string(e)
+}
+
+func (e *ApplicationScalingState) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ApplicationScalingState(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ApplicationScalingState", str)
+	}
+	return nil
+}
+
+func (e ApplicationScalingState) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// toScalingStatus translates the state of a horizontal pod autoscaler. When several conditions apply, the one that
+// is most severe for the user is reported.
+func toScalingStatus(hpa *autoscalingv2.HorizontalPodAutoscaler) *ApplicationScalingStatus {
+	ret := &ApplicationScalingStatus{
+		CurrentInstances: int(hpa.Status.CurrentReplicas),
+		DesiredInstances: int(hpa.Status.DesiredReplicas),
+		State:            ApplicationScalingStateActive,
+		Message:          "Automatic scaling is active.",
+	}
+
+	var ableToScale, scalingActive, scalingLimited *autoscalingv2.HorizontalPodAutoscalerCondition
+	for i, c := range hpa.Status.Conditions {
+		switch c.Type {
+		case autoscalingv2.AbleToScale:
+			ableToScale = &hpa.Status.Conditions[i]
+		case autoscalingv2.ScalingActive:
+			scalingActive = &hpa.Status.Conditions[i]
+		case autoscalingv2.ScalingLimited:
+			scalingLimited = &hpa.Status.Conditions[i]
+		}
+	}
+
+	switch {
+	case ableToScale != nil && ableToScale.Status == corev1.ConditionFalse:
+		ret.State = ApplicationScalingStateUnableToScale
+		ret.Message = "The platform is currently unable to change the number of instances."
+	case scalingActive != nil && scalingActive.Status == corev1.ConditionFalse && scalingActive.Reason == "ScalingDisabled":
+		ret.State = ApplicationScalingStateDisabled
+		ret.Message = "Automatic scaling is turned off because the application has been scaled down to zero instances."
+	case scalingActive != nil && scalingActive.Status == corev1.ConditionFalse:
+		ret.State = ApplicationScalingStateMetricsUnavailable
+		ret.Message = "The platform cannot read the metrics used for automatic scaling, so the number of instances is not adjusted."
+	case scalingLimited != nil && scalingLimited.Status == corev1.ConditionTrue && scalingLimited.Reason == "TooManyReplicas":
+		ret.State = ApplicationScalingStateLimitedByMaximum
+		ret.Message = "The application needs more instances than the configured maximum. Consider increasing the maximum number of instances or the resources of each instance."
+	}
+
+	return ret
 }
 
 type CPUScalingStrategy struct {
@@ -376,7 +580,11 @@ func (a *Application) Resources() *ApplicationResources {
 	ret := &ApplicationResources{
 		Limits:   &workload.WorkloadResourceQuantity{},
 		Requests: &workload.WorkloadResourceQuantity{},
-		Scaling:  &ApplicationScaling{},
+		Scaling: &ApplicationScaling{
+			TeamSlug:        a.TeamSlug,
+			EnvironmentName: a.EnvironmentName,
+			ApplicationName: a.Name,
+		},
 	}
 
 	if resources := a.Spec.Resources; resources != nil {
@@ -541,6 +749,7 @@ type ApplicationInstanceState string
 
 const (
 	ApplicationInstanceStateRunning    ApplicationInstanceState = "RUNNING"
+	ApplicationInstanceStatePending    ApplicationInstanceState = "PENDING"
 	ApplicationInstanceStateStarting   ApplicationInstanceState = "STARTING"
 	ApplicationInstanceStateFailing    ApplicationInstanceState = "FAILING"
 	ApplicationInstanceStateTerminated ApplicationInstanceState = "TERMINATED"
@@ -549,6 +758,7 @@ const (
 
 var AllApplicationInstanceState = []ApplicationInstanceState{
 	ApplicationInstanceStateRunning,
+	ApplicationInstanceStatePending,
 	ApplicationInstanceStateStarting,
 	ApplicationInstanceStateFailing,
 	ApplicationInstanceStateTerminated,
@@ -557,7 +767,7 @@ var AllApplicationInstanceState = []ApplicationInstanceState{
 
 func (e ApplicationInstanceState) IsValid() bool {
 	switch e {
-	case ApplicationInstanceStateRunning, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateTerminated, ApplicationInstanceStateUnknown:
+	case ApplicationInstanceStateRunning, ApplicationInstanceStatePending, ApplicationInstanceStateStarting, ApplicationInstanceStateFailing, ApplicationInstanceStateTerminated, ApplicationInstanceStateUnknown:
 		return true
 	}
 	return false

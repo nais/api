@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -14,54 +15,84 @@ const countForWorkload = `-- name: CountForWorkload :one
 SELECT
 	COUNT(*)
 FROM
-	k8s_events
+	k8s_events AS e
 WHERE
-	involved_namespace = $1
-	AND environment_name = $2
-	AND reason IN ('SuccessfulRescale', 'Killing')
+	e.involved_namespace = $1
+	AND e.environment_name = $2
+	AND e.reason = ANY ($3::TEXT[])
 	AND (
 		(
-			involved_kind = ANY ($3::TEXT[])
-			AND involved_name = $4
+			e.involved_kind = ANY ($4::TEXT[])
+			AND e.involved_name = $5
 		)
 		OR (
-			data ->> 'workloadKind' = $5::TEXT
-			AND data ->> 'workloadName' = $4
+			e.data ->> 'workloadKind' = $6::TEXT
+			AND e.data ->> 'workloadName' = $5
 		)
-	)
-	AND (
-		$6::TIMESTAMPTZ IS NULL
-		OR triggered_at >= $6
 	)
 	AND (
 		$7::TIMESTAMPTZ IS NULL
-		OR triggered_at < $7
+		OR e.triggered_at >= $7
+	)
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR e.triggered_at < $8
+	)
+	AND (
+		NOT e.reason = ANY ($9::TEXT[])
+		OR NOT EXISTS (
+			SELECT
+				1
+			FROM
+				k8s_events AS newer
+			WHERE
+				newer.uid = e.uid
+				AND (newer.triggered_at, newer.id) > (e.triggered_at, e.id)
+				AND (
+					$8::TIMESTAMPTZ IS NULL
+					OR newer.triggered_at < $8
+				)
+		)
 	)
 `
 
 type CountForWorkloadParams struct {
-	Namespace       string
-	EnvironmentName string
-	Kinds           []string
-	Name            string
-	WorkloadKind    string
-	From            pgtype.Timestamptz
-	To              pgtype.Timestamptz
+	Namespace         string
+	EnvironmentName   string
+	Reasons           []string
+	Kinds             []string
+	Name              string
+	WorkloadKind      string
+	From              pgtype.Timestamptz
+	To                pgtype.Timestamptz
+	AggregatedReasons []string
 }
 
 func (q *Queries) CountForWorkload(ctx context.Context, arg CountForWorkloadParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countForWorkload,
 		arg.Namespace,
 		arg.EnvironmentName,
+		arg.Reasons,
 		arg.Kinds,
 		arg.Name,
 		arg.WorkloadKind,
 		arg.From,
 		arg.To,
+		arg.AggregatedReasons,
 	)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const deleteOlderThan = `-- name: DeleteOlderThan :execresult
+DELETE FROM k8s_events
+WHERE
+	triggered_at < $1
+`
+
+func (q *Queries) DeleteOlderThan(ctx context.Context, before pgtype.Timestamptz) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteOlderThan, before)
 }
 
 const listByIDs = `-- name: ListByIDs :many
@@ -71,14 +102,19 @@ FROM
 	k8s_events
 WHERE
 	id = ANY ($1::UUID[])
-	AND reason IN ('SuccessfulRescale', 'Killing')
+	AND reason = ANY ($2::TEXT[])
 ORDER BY
 	triggered_at DESC,
 	id DESC
 `
 
-func (q *Queries) ListByIDs(ctx context.Context, ids []uuid.UUID) ([]*K8sEvent, error) {
-	rows, err := q.db.Query(ctx, listByIDs, ids)
+type ListByIDsParams struct {
+	Ids     []uuid.UUID
+	Reasons []string
+}
+
+func (q *Queries) ListByIDs(ctx context.Context, arg ListByIDsParams) ([]*K8sEvent, error) {
+	rows, err := q.db.Query(ctx, listByIDs, arg.Ids, arg.Reasons)
 	if err != nil {
 		return nil, err
 	}
@@ -111,59 +147,80 @@ const listForWorkload = `-- name: ListForWorkload :many
 SELECT
 	uid, environment_name, involved_kind, involved_name, involved_namespace, data, reason, triggered_at, id
 FROM
-	k8s_events
+	k8s_events AS e
 WHERE
-	involved_namespace = $1
-	AND environment_name = $2
-	AND reason IN ('SuccessfulRescale', 'Killing')
+	e.involved_namespace = $1
+	AND e.environment_name = $2
+	AND e.reason = ANY ($3::TEXT[])
 	AND (
 		(
-			involved_kind = ANY ($3::TEXT[])
-			AND involved_name = $4
+			e.involved_kind = ANY ($4::TEXT[])
+			AND e.involved_name = $5
 		)
 		OR (
-			data ->> 'workloadKind' = $5::TEXT
-			AND data ->> 'workloadName' = $4
+			e.data ->> 'workloadKind' = $6::TEXT
+			AND e.data ->> 'workloadName' = $5
 		)
-	)
-	AND (
-		$6::TIMESTAMPTZ IS NULL
-		OR triggered_at >= $6
 	)
 	AND (
 		$7::TIMESTAMPTZ IS NULL
-		OR triggered_at < $7
+		OR e.triggered_at >= $7
+	)
+	AND (
+		$8::TIMESTAMPTZ IS NULL
+		OR e.triggered_at < $8
+	)
+	-- Repeated occurrences of aggregated reasons are stored as separate rows. Only the latest row within the time range is returned.
+	AND (
+		NOT e.reason = ANY ($9::TEXT[])
+		OR NOT EXISTS (
+			SELECT
+				1
+			FROM
+				k8s_events AS newer
+			WHERE
+				newer.uid = e.uid
+				AND (newer.triggered_at, newer.id) > (e.triggered_at, e.id)
+				AND (
+					$8::TIMESTAMPTZ IS NULL
+					OR newer.triggered_at < $8
+				)
+		)
 	)
 ORDER BY
-	triggered_at DESC,
-	id DESC
+	e.triggered_at DESC,
+	e.id DESC
 LIMIT
-	$9
+	$11
 OFFSET
-	$8
+	$10
 `
 
 type ListForWorkloadParams struct {
-	Namespace       string
-	EnvironmentName string
-	Kinds           []string
-	Name            string
-	WorkloadKind    string
-	From            pgtype.Timestamptz
-	To              pgtype.Timestamptz
-	Offset          int32
-	Limit           int32
+	Namespace         string
+	EnvironmentName   string
+	Reasons           []string
+	Kinds             []string
+	Name              string
+	WorkloadKind      string
+	From              pgtype.Timestamptz
+	To                pgtype.Timestamptz
+	AggregatedReasons []string
+	Offset            int32
+	Limit             int32
 }
 
 func (q *Queries) ListForWorkload(ctx context.Context, arg ListForWorkloadParams) ([]*K8sEvent, error) {
 	rows, err := q.db.Query(ctx, listForWorkload,
 		arg.Namespace,
 		arg.EnvironmentName,
+		arg.Reasons,
 		arg.Kinds,
 		arg.Name,
 		arg.WorkloadKind,
 		arg.From,
 		arg.To,
+		arg.AggregatedReasons,
 		arg.Offset,
 		arg.Limit,
 	)

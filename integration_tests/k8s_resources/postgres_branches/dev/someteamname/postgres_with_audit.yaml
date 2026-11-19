@@ -8,16 +8,7 @@ spec:
   majorVersion: "16"
 status:
   activeBranch: main
----
-apiVersion: nais.io/v1
-kind: PostgresBranch
-metadata:
-  name: with-audit-main-cb3cab0a
-  namespace: someteamname
-spec:
-  postgres: with-audit
-  branchName: main
-status:
+  clusterName: pg-with-audit-main-cb3cab0a
   reconcilePhase: Completed
   conditions:
     - type: cluster.postgresql.cnpg.io/ObservedState

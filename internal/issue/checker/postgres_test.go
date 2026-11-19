@@ -24,7 +24,7 @@ func TestPostgresWithoutWatcher(t *testing.T) {
 		check Postgres
 	}{
 		{name: "nil watcher"},
-		{name: "disabled watcher", check: Postgres{PostgresBranchWatcher: &watcher.Watcher[*postgres.PostgresBranch]{}}},
+		{name: "disabled watcher", check: Postgres{PostgresWatcher: &watcher.Watcher[*postgres.Postgres]{}}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			issues, err := tt.check.Run(t.Context())
@@ -35,7 +35,7 @@ func TestPostgresWithoutWatcher(t *testing.T) {
 	}
 }
 
-func TestPostgresBranchIssues(t *testing.T) {
+func TestPostgresIssuesWithoutBranchWatcher(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -52,30 +52,30 @@ func TestPostgresBranchIssues(t *testing.T) {
 	t.Cleanup(mgr.Stop)
 	ctx, cancel := context.WithCancel(t.Context())
 	t.Cleanup(cancel)
-	client := mgr.GetDynamicClients()["dev"].Resource(nais_io_v1.GroupVersion.WithResource("postgresbranches")).Namespace("team")
+	client := mgr.GetDynamicClients()["dev"].Resource(nais_io_v1.GroupVersion.WithResource("postgres")).Namespace("team")
 	obj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restore"), "namespace": "team", "generation": int64(1)},
-		"spec":     map[string]any{"postgres": "orders", "branchName": "restore"},
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "team", "generation": int64(1)},
+		"spec":     map[string]any{"majorVersion": "18"},
 	}}
 	if _, err := client.Create(ctx, obj, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	w := postgres.NewPostgresBranchWatcher(ctx, mgr)
+	w := postgres.NewPostgresWatcher(ctx, mgr)
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
 	if !mgr.WaitForReady(ready) {
-		t.Fatal("PostgresBranch watcher did not synchronize")
+		t.Fatal("Postgres watcher did not synchronize")
 	}
-	check := Postgres{PostgresBranchWatcher: w}
+	check := Postgres{PostgresWatcher: w}
 	want := []Issue{{
-		IssueType:    issue.IssueTypePostgresBranch,
+		IssueType:    issue.IssueTypePostgres,
 		ResourceName: obj.GetName(),
-		ResourceType: issue.ResourceTypePostgresBranch,
+		ResourceType: issue.ResourceTypePostgres,
 		Team:         "team",
 		Env:          "dev",
 		Severity:     issue.SeverityCritical,
-		Message:      `Postgres branch "restore" of "orders" has reported a failure.`,
+		Message:      `Postgres "orders" has reported a failure.`,
 	}}
 	for _, tt := range []struct {
 		name   string
@@ -99,13 +99,20 @@ func TestPostgresBranchIssues(t *testing.T) {
 		}, state: postgres.PostgresBranchStateDegraded, want: want},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.status != nil {
+				tt.status["clusterName"] = nais_io_v1.CNPGClusterName(nais_io_v1.PostgresPhysicalName(obj.GetName()))
+			}
 			obj.Object["status"] = tt.status
 			if _, err := client.UpdateStatus(ctx, obj, metav1.UpdateOptions{}); err != nil {
 				t.Fatal(err)
 			}
 			if err := wait.PollUntilContextTimeout(ctx, 10*time.Millisecond, 5*time.Second, true, func(context.Context) (bool, error) {
-				branch, err := w.Get("dev", "team", obj.GetName())
-				return err == nil && branch.State == tt.state, err
+				pg, err := w.Get("dev", "team", obj.GetName())
+				if err != nil {
+					return false, err
+				}
+				state, _, err := postgres.PhysicalStatus(ctx, pg)
+				return state == tt.state, err
 			}); err != nil {
 				t.Fatal(err)
 			}
@@ -127,6 +134,6 @@ func TestPostgresBranchIssues(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, err := check.Run(ctx); err != nil || len(got) != 0 {
-		t.Fatalf("deleted branch should have no issues, got %v, %v", got, err)
+		t.Fatalf("deleted Postgres should have no issues, got %v, %v", got, err)
 	}
 }

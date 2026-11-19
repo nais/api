@@ -4,20 +4,25 @@ import (
 	"context"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/nais/api/internal/kubernetes/watcher"
 	nais_io_v1alpha1 "github.com/nais/liberator/pkg/apis/nais.io/v1alpha1"
 	"github.com/sirupsen/logrus"
+	autoscalingv2 "k8s.io/api/autoscaling/v2"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/tools/cache"
 )
 
 type ctxKey int
 
 const loadersKey ctxKey = iota
 
-func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], log logrus.FieldLogger) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, log))
+const IngressHostIndex = "ingressHost"
+
+func NewLoaderContext(ctx context.Context, appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], hpaWatcher *watcher.Watcher[*autoscalingv2.HorizontalPodAutoscaler], log logrus.FieldLogger) context.Context {
+	return context.WithValue(ctx, loadersKey, newLoaders(appWatcher, ingressWatcher, hpaWatcher, log))
 }
 
 func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nais_io_v1alpha1.Application] {
@@ -27,9 +32,35 @@ func NewWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*nai
 }
 
 func NewIngressWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*netv1.Ingress] {
-	w := watcher.Watch(mgr, &netv1.Ingress{}, watcher.WithTransformer(transformIngress))
+	w := watcher.Watch(mgr, &netv1.Ingress{},
+		watcher.WithTransformer(transformIngress),
+		watcher.WithIndexers(cache.Indexers{IngressHostIndex: indexIngressHosts}),
+	)
 	w.Start(ctx)
 	return w
+}
+
+func indexIngressHosts(obj any) ([]string, error) {
+	ingress := obj.(*unstructured.Unstructured)
+	rules, _, err := unstructured.NestedSlice(ingress.Object, "spec", "rules")
+	if err != nil {
+		return nil, err
+	}
+	hosts := make([]string, 0, len(rules))
+	for _, rule := range rules {
+		r := rule.(map[string]any)
+		if r["host"] == nil {
+			continue
+		}
+		host, _, err := unstructured.NestedString(r, "host")
+		if err != nil {
+			return nil, err
+		}
+		if host != "" {
+			hosts = append(hosts, strings.TrimSuffix(strings.ToLower(host), "."))
+		}
+	}
+	return hosts, nil
 }
 
 func fromContext(ctx context.Context) *loaders {
@@ -39,13 +70,15 @@ func fromContext(ctx context.Context) *loaders {
 type loaders struct {
 	appWatcher     *watcher.Watcher[*nais_io_v1alpha1.Application]
 	ingressWatcher *watcher.Watcher[*netv1.Ingress]
+	hpaWatcher     *watcher.Watcher[*autoscalingv2.HorizontalPodAutoscaler]
 	log            logrus.FieldLogger
 }
 
-func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], log logrus.FieldLogger) *loaders {
+func newLoaders(appWatcher *watcher.Watcher[*nais_io_v1alpha1.Application], ingressWatcher *watcher.Watcher[*netv1.Ingress], hpaWatcher *watcher.Watcher[*autoscalingv2.HorizontalPodAutoscaler], log logrus.FieldLogger) *loaders {
 	return &loaders{
 		appWatcher:     appWatcher,
 		ingressWatcher: ingressWatcher,
+		hpaWatcher:     hpaWatcher,
 		log:            log,
 	}
 }

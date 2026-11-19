@@ -231,6 +231,74 @@ func (_c *MockQuerier_CostUpsert_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
+// DailyCostForService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) DailyCostForService(ctx context.Context, arg DailyCostForServiceParams) ([]*DailyCostForServiceRow, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DailyCostForService")
+	}
+
+	var r0 []*DailyCostForServiceRow
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, DailyCostForServiceParams) ([]*DailyCostForServiceRow, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, DailyCostForServiceParams) []*DailyCostForServiceRow); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*DailyCostForServiceRow)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, DailyCostForServiceParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_DailyCostForService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DailyCostForService'
+type MockQuerier_DailyCostForService_Call struct {
+	*mock.Call
+}
+
+// DailyCostForService is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg DailyCostForServiceParams
+func (_e *MockQuerier_Expecter) DailyCostForService(ctx interface{}, arg interface{}) *MockQuerier_DailyCostForService_Call {
+	return &MockQuerier_DailyCostForService_Call{Call: _e.mock.On("DailyCostForService", ctx, arg)}
+}
+
+func (_c *MockQuerier_DailyCostForService_Call) Run(run func(ctx context.Context, arg DailyCostForServiceParams)) *MockQuerier_DailyCostForService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 DailyCostForServiceParams
+		if args[1] != nil {
+			arg1 = args[1].(DailyCostForServiceParams)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockQuerier_DailyCostForService_Call) Return(dailyCostForServiceRows []*DailyCostForServiceRow, err error) *MockQuerier_DailyCostForService_Call {
+	_c.Call.Return(dailyCostForServiceRows, err)
+	return _c
+}
+
+func (_c *MockQuerier_DailyCostForService_Call) RunAndReturn(run func(ctx context.Context, arg DailyCostForServiceParams) ([]*DailyCostForServiceRow, error)) *MockQuerier_DailyCostForService_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DailyCostForTeam provides a mock function for the type MockQuerier
 func (_mock *MockQuerier) DailyCostForTeam(ctx context.Context, arg DailyCostForTeamParams) ([]*DailyCostForTeamRow, error) {
 	ret := _mock.Called(ctx, arg)
@@ -621,6 +689,74 @@ func (_c *MockQuerier_ListTeamSlugsForCostUpdater_Call) Return(slugs []slug.Slug
 }
 
 func (_c *MockQuerier_ListTeamSlugsForCostUpdater_Call) RunAndReturn(run func(ctx context.Context) ([]slug.Slug, error)) *MockQuerier_ListTeamSlugsForCostUpdater_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MonthlyCostForService provides a mock function for the type MockQuerier
+func (_mock *MockQuerier) MonthlyCostForService(ctx context.Context, arg MonthlyCostForServiceParams) ([]*MonthlyCostForServiceRow, error) {
+	ret := _mock.Called(ctx, arg)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MonthlyCostForService")
+	}
+
+	var r0 []*MonthlyCostForServiceRow
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, MonthlyCostForServiceParams) ([]*MonthlyCostForServiceRow, error)); ok {
+		return returnFunc(ctx, arg)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, MonthlyCostForServiceParams) []*MonthlyCostForServiceRow); ok {
+		r0 = returnFunc(ctx, arg)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*MonthlyCostForServiceRow)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, MonthlyCostForServiceParams) error); ok {
+		r1 = returnFunc(ctx, arg)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockQuerier_MonthlyCostForService_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MonthlyCostForService'
+type MockQuerier_MonthlyCostForService_Call struct {
+	*mock.Call
+}
+
+// MonthlyCostForService is a helper method to define mock.On call
+//   - ctx context.Context
+//   - arg MonthlyCostForServiceParams
+func (_e *MockQuerier_Expecter) MonthlyCostForService(ctx interface{}, arg interface{}) *MockQuerier_MonthlyCostForService_Call {
+	return &MockQuerier_MonthlyCostForService_Call{Call: _e.mock.On("MonthlyCostForService", ctx, arg)}
+}
+
+func (_c *MockQuerier_MonthlyCostForService_Call) Run(run func(ctx context.Context, arg MonthlyCostForServiceParams)) *MockQuerier_MonthlyCostForService_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 MonthlyCostForServiceParams
+		if args[1] != nil {
+			arg1 = args[1].(MonthlyCostForServiceParams)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockQuerier_MonthlyCostForService_Call) Return(monthlyCostForServiceRows []*MonthlyCostForServiceRow, err error) *MockQuerier_MonthlyCostForService_Call {
+	_c.Call.Return(monthlyCostForServiceRows, err)
+	return _c
+}
+
+func (_c *MockQuerier_MonthlyCostForService_Call) RunAndReturn(run func(ctx context.Context, arg MonthlyCostForServiceParams) ([]*MonthlyCostForServiceRow, error)) *MockQuerier_MonthlyCostForService_Call {
 	_c.Call.Return(run)
 	return _c
 }

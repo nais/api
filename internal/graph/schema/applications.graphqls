@@ -369,6 +369,67 @@ type ApplicationScaling {
 	Scaling strategies for the application.
 	"""
 	strategies: [ScalingStrategy!]!
+
+	"""
+	The current state of automatic scaling for the application.
+	Null if automatic scaling is not set up for the application in the environment.
+	"""
+	status: ApplicationScalingStatus
+}
+
+"""
+The current state of automatic scaling for an application.
+"""
+type ApplicationScalingStatus {
+	"""
+	The number of instances currently running.
+	"""
+	currentInstances: Int!
+
+	"""
+	The number of instances that automatic scaling wants to run.
+	"""
+	desiredInstances: Int!
+
+	"""
+	The state of automatic scaling.
+	"""
+	state: ApplicationScalingState!
+
+	"""
+	A user-friendly description of the current state.
+	"""
+	message: String!
+}
+
+"""
+The state of automatic scaling for an application.
+"""
+enum ApplicationScalingState {
+	"""
+	Automatic scaling is working as expected.
+	"""
+	ACTIVE
+
+	"""
+	The application needs more instances than the configured maximum.
+	"""
+	LIMITED_BY_MAXIMUM
+
+	"""
+	The metrics used for automatic scaling cannot be read, so the number of instances is not adjusted.
+	"""
+	METRICS_UNAVAILABLE
+
+	"""
+	The platform is currently unable to change the number of instances.
+	"""
+	UNABLE_TO_SCALE
+
+	"""
+	Automatic scaling is turned off because the application has been scaled down to zero instances.
+	"""
+	DISABLED
 }
 
 """
@@ -673,7 +734,8 @@ type ApplicationInstanceStatus {
 	"""
 	message: String!
 	"""
-	Whether the container is passing its readiness check and can receive traffic.
+	Whether the instance is passing its readiness check and can receive traffic.
+	An instance does not receive traffic while a component added by the platform is failing.
 	"""
 	ready: Boolean!
 	"""
@@ -695,6 +757,8 @@ type ApplicationInstanceStatus {
 
 enum ApplicationInstanceState {
 	RUNNING
+	"The instance is waiting to be placed on a server, for example because there is not enough CPU or memory available."
+	PENDING
 	STARTING
 	FAILING
 	TERMINATED

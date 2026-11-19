@@ -28,7 +28,7 @@ type ContainerImageResolver interface {
 	ActivityLog(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) (*activitylog.ActivityLogEntryConnection, error)
 	Sbom(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ContainerImageSBOM, error)
 	HasSbom(ctx context.Context, obj *workload.ContainerImage) (bool, error)
-	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) (*pagination.Connection[*vulnerability.ImageVulnerability], error)
+	Vulnerabilities(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.ImageVulnerabilityFilter, orderBy *vulnerability.ImageVulnerabilityOrder) (*vulnerability.ImageVulnerabilityConnection, error)
 	VulnerabilitySummary(ctx context.Context, obj *workload.ContainerImage) (*vulnerability.ImageVulnerabilitySummary, error)
 	WorkloadReferences(ctx context.Context, obj *workload.ContainerImage, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*vulnerability.ContainerImageWorkloadReference], error)
 }
@@ -391,8 +391,8 @@ func (ec *executionContext) _ContainerImage_vulnerabilities(ctx context.Context,
 			return ec.Resolvers.ContainerImage().Vulnerabilities(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["filter"].(*vulnerability.ImageVulnerabilityFilter), fc.Args["orderBy"].(*vulnerability.ImageVulnerabilityOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*vulnerability.ImageVulnerability]) graphql.Marshaler {
-			return ec.marshalNImageVulnerabilityConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *vulnerability.ImageVulnerabilityConnection) graphql.Marshaler {
+			return ec.marshalNImageVulnerabilityConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋvulnerabilityᚐImageVulnerabilityConnection(ctx, selections, v)
 		},
 		true,
 		true,

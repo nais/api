@@ -62,6 +62,7 @@ type PostgresBranch struct {
 	State           PostgresBranchState    `json:"state"`
 	Labels          []*model.ResourceLabel `json:"labels"`
 	Configuration   *PostgresConfiguration `json:"configuration,omitempty"`
+	ClusterName     string                 `json:"-"`
 }
 
 type TeamPostgresFilter struct {
@@ -79,9 +80,9 @@ type (
 )
 
 type PostgresWorkload struct {
-	Workload     workload.Workload `json:"workload"`
-	PostgresName string            `json:"-"`
-	BranchName   string            `json:"-"`
+	Workload   workload.Workload `json:"workload"`
+	Postgres   *Postgres         `json:"postgres"`
+	BranchName string            `json:"-"`
 }
 
 type PostgresUserRole string
@@ -116,7 +117,15 @@ type Postgres struct {
 	HighAvailability    bool                   `json:"highAvailability"`
 	Resources           PostgresResources      `json:"resources"`
 	Labels              []*model.ResourceLabel `json:"labels"`
+	CreatedAt           time.Time              `json:"createdAt"`
+	Recovery            *PostgresRecovery      `json:"recovery,omitempty"`
+	directClusterName   *string
+	physicalState       PostgresBranchState
+	configuration       *PostgresConfiguration
 }
+
+// PostgresState shares the established database-state semantics with legacy branches.
+type PostgresState = PostgresBranchState
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
 type PostgresResources struct {
@@ -193,67 +202,6 @@ func (e PostgresBranchState) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (PostgresBranch) IsPersistence() {}
-
-func (PostgresBranch) IsNode() {}
-
-type CreatePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	SourceBranch    string    `json:"sourceBranch"`
-	TargetTime      time.Time `json:"targetTime"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-type CreatePostgresBranchPayload struct {
-	PostgresBranch *PostgresBranch `json:"postgresBranch"`
-}
-
-type ActivatePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-type ActivatePostgresBranchPayload struct {
-	Postgres *Postgres `json:"postgres"`
-}
-
-func (i *ActivatePostgresBranchInput) Validate(ctx context.Context) error {
-	base := DeletePostgresBranchInput{Postgres: i.Postgres, Branch: i.Branch, EnvironmentName: i.EnvironmentName, TeamSlug: i.TeamSlug}
-	verr := base.ValidationErrors(ctx)
-	i.Postgres, i.Branch, i.EnvironmentName = base.Postgres, base.Branch, base.EnvironmentName
-	for field, name := range map[string]string{"postgres": i.Postgres, "branch": i.Branch} {
-		if len(name) > 63 || len(validation.IsDNS1123Label(name)) > 0 {
-			verr.Add(field, "Must be a DNS label of at most 63 lowercase letters, numbers or hyphens.")
-		}
-	}
-	return verr.NilIfEmpty()
-}
-
-func (i *CreatePostgresBranchInput) Validate(ctx context.Context) error {
-	base := DeletePostgresBranchInput{Postgres: i.Postgres, Branch: i.Branch, EnvironmentName: i.EnvironmentName, TeamSlug: i.TeamSlug}
-	verr := base.ValidationErrors(ctx)
-	i.Postgres, i.Branch, i.EnvironmentName = base.Postgres, base.Branch, base.EnvironmentName
-	i.SourceBranch = strings.TrimSpace(i.SourceBranch)
-	for field, name := range map[string]string{"postgres": i.Postgres, "branch": i.Branch, "sourceBranch": i.SourceBranch} {
-		if len(name) > 63 || len(validation.IsDNS1123Label(name)) > 0 {
-			verr.Add(field, "Must be a DNS label of at most 63 lowercase letters, numbers or hyphens.")
-		}
-	}
-	if i.Branch == i.SourceBranch {
-		verr.Add("branch", "Branch must differ from sourceBranch.")
-	}
-	if i.TargetTime.IsZero() || i.TargetTime.After(time.Now()) {
-		verr.Add("targetTime", "Target time must be an explicit instant no later than now.")
-	} else if i.TargetTime.Nanosecond() != 0 {
-		verr.Add("targetTime", "Target time must have whole-second precision.")
-	}
-	return verr.NilIfEmpty()
-}
-
 type DeletePostgresInput struct {
 	Name            string    `json:"name"`
 	TeamSlug        slug.Slug `json:"teamSlug"`
@@ -278,43 +226,6 @@ func (i *DeletePostgresInput) Validate(_ context.Context) error {
 
 type DeletePostgresPayload struct {
 	DeletionRequested bool `json:"deletionRequested"`
-}
-
-type DeletePostgresBranchInput struct {
-	Postgres        string    `json:"postgres"`
-	Branch          string    `json:"branch"`
-	EnvironmentName string    `json:"environmentName"`
-	TeamSlug        slug.Slug `json:"teamSlug"`
-}
-
-func (i *DeletePostgresBranchInput) Validate(ctx context.Context) error {
-	return i.ValidationErrors(ctx).NilIfEmpty()
-}
-
-func (i *DeletePostgresBranchInput) ValidationErrors(_ context.Context) *validate.ValidationErrors {
-	verr := validate.New()
-	i.Postgres = strings.TrimSpace(i.Postgres)
-	i.Branch = strings.TrimSpace(i.Branch)
-	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
-
-	if i.Postgres == "" {
-		verr.Add("postgres", "Postgres must not be empty.")
-	}
-	if i.Branch == "" {
-		verr.Add("branch", "Branch must not be empty.")
-	}
-	if i.EnvironmentName == "" {
-		verr.Add("environmentName", "Environment name must not be empty.")
-	}
-	if i.TeamSlug == "" {
-		verr.Add("teamSlug", "Team slug must not be empty.")
-	}
-
-	return verr
-}
-
-type DeletePostgresBranchPayload struct {
-	PostgresBranchDeleted *bool `json:"postgresBranchDeleted,omitempty"`
 }
 
 // CreatePostgresAccessInput requests a new, time-limited personal database access.
@@ -344,9 +255,6 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 	if i.Postgres == "" {
 		verr.Add("postgres", "Postgres must not be empty.")
 	}
-	if i.Branch == "" {
-		verr.Add("branch", "Branch must not be empty.")
-	}
 	if i.EnvironmentName == "" {
 		verr.Add("environmentName", "Environment name must not be empty.")
 	}
@@ -363,7 +271,7 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		verr.Add("ttl", "%s", err)
 	}
 
-	if i.Postgres == "" || i.Branch == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
+	if i.Postgres == "" || i.EnvironmentName == "" || i.TeamSlug == "" {
 		return verr
 	}
 
@@ -374,8 +282,13 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		} else {
 			verr.Add("branch", "%s", err)
 		}
-	} else if instance.State != PostgresBranchStateAvailable {
-		verr.Add("branch", "Postgres branch %q is not available.", i.Branch)
+	} else {
+		// Keep the choice made from the fresh parent for readiness and the
+		// eventual immutable access resource, rather than resolving it again.
+		i.Branch = instance.Name
+		if instance.State != PostgresBranchStateAvailable {
+			verr.Add("branch", "Postgres branch %q is not available.", i.Branch)
+		}
 	}
 
 	return verr
@@ -444,10 +357,6 @@ func (p *PostgresBranch) GetLabels() map[string]string {
 	return nil
 }
 
-func (p *PostgresBranch) ID() ident.Ident {
-	return newIdent(p.TeamSlug, p.EnvironmentName, p.PostgresName, p.Name)
-}
-
 func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*PostgresBranch, error) {
 	obj := &nais_io_v1.PostgresBranch{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
@@ -471,8 +380,22 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		return nil, fmt.Errorf("converting Postgres: %w", err)
 	}
 	var active *string
+	var clusterName *string
+	state := PostgresBranchStateProgressing
+	var configuration *PostgresConfiguration
 	if obj.Status != nil && obj.Status.ActiveBranch != "" {
-		active = &obj.Status.ActiveBranch
+		// The implicit compatibility relation is always virtual main. Stale
+		// legacy metadata must not turn a provisioning read into a non-main lookup.
+		active = new(nais_io_v1.DefaultBranchName)
+	}
+	if obj.Status != nil && obj.Status.ClusterName != "" {
+		if len(validation.IsDNS1123Label(obj.Status.ClusterName)) > 0 {
+			return nil, fmt.Errorf("Postgres %q has invalid clusterName %q", obj.Name, obj.Status.ClusterName)
+		}
+		clusterName = new(obj.Status.ClusterName)
+		active = new(nais_io_v1.DefaultBranchName)
+		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
+		configuration = toPostgresConfiguration(obj.Status.Configuration)
 	}
 	quantity := func(value resource.Quantity) *string {
 		if value.IsZero() {
@@ -485,6 +408,20 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	for _, extension := range obj.Spec.Extensions {
 		extensions = append(extensions, extension.Name)
 	}
+	var recovery *PostgresRecovery
+	if obj.Spec.Recovery != nil {
+		recovery = &PostgresRecovery{SourcePostgres: obj.Spec.Recovery.SourcePostgres, TargetTime: obj.Spec.Recovery.TargetTime.Time}
+		if obj.Status != nil {
+			for _, condition := range obj.Status.Conditions {
+				if condition.Type == "RecoveryCompleted" && condition.Status == metav1.ConditionTrue {
+					recovery.Completed = obj.Status.Ownership != nil && obj.Status.Ownership.ClusterUID != "" && condition.Message == obj.Status.Ownership.ClusterUID
+				}
+				if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue {
+					recovery.FailureMessage = new(condition.Message)
+				}
+			}
+		}
+	}
 	return &Postgres{
 		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
 		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, Extensions: extensions, HighAvailability: obj.Spec.HighAvailability,
@@ -492,7 +429,9 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
 		},
-		Labels: model.UserLabels(obj.Labels),
+		Labels:    model.UserLabels(obj.Labels),
+		CreatedAt: obj.CreationTimestamp.Time, directClusterName: clusterName,
+		physicalState: state, configuration: configuration, Recovery: recovery,
 	}, nil
 }
 
@@ -600,6 +539,7 @@ type PostgresAccess struct {
 	TeamSlug           slug.Slug           `json:"-"`
 	EnvironmentName    string              `json:"-"`
 	PostgresBranchName string              `json:"postgresBranch"`
+	PostgresName       string              `json:"-"`
 	Username           string              `json:"username"`
 	AccessLevel        PostgresAccessLevel `json:"accessLevel"`
 	ExpiresAt          time.Time           `json:"expiresAt"`
@@ -720,6 +660,21 @@ type CreatePostgresInput struct {
 	DiskSize         *string                `json:"diskSize,omitempty"`
 	Extensions       []string               `json:"extensions,omitempty"`
 	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
+	Recovery         *PostgresRecoveryInput `json:"recovery,omitempty"`
+}
+
+// PostgresRecoveryInput can only select a source in the new database's team
+// and environment. Physical archive identifiers are resolved by the API.
+type PostgresRecoveryInput struct {
+	SourcePostgres string    `json:"sourcePostgres"`
+	TargetTime     time.Time `json:"targetTime"`
+}
+
+type PostgresRecovery struct {
+	SourcePostgres string    `json:"sourcePostgres"`
+	TargetTime     time.Time `json:"targetTime"`
+	Completed      bool      `json:"completed"`
+	FailureMessage *string   `json:"failureMessage,omitempty"`
 }
 
 type CreatePostgresPayload struct {
@@ -780,6 +735,19 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
 	validatePostgresUserLabels(verr, i.Labels)
+	if i.Recovery != nil {
+		i.Recovery.SourcePostgres = strings.TrimSpace(i.Recovery.SourcePostgres)
+		if i.Recovery.SourcePostgres == "" || len(validation.IsDNS1123Subdomain(i.Recovery.SourcePostgres)) > 0 {
+			verr.Add("recovery.sourcePostgres", "Select a valid source database.")
+		} else if i.Recovery.SourcePostgres == i.Name {
+			verr.Add("name", "The recovered database must have a different name from its source.")
+		}
+		if i.Recovery.TargetTime.IsZero() || i.Recovery.TargetTime.After(time.Now()) {
+			verr.Add("recovery.targetTime", "Choose an explicit restore time no later than now.")
+		} else if i.Recovery.TargetTime.Nanosecond() != 0 {
+			verr.Add("recovery.targetTime", "Restore time must have whole-second precision.")
+		}
+	}
 	return verr
 }
 
@@ -824,7 +792,7 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 	}{
 		{field: "cpu", value: cpu, max: resource.MustParse("8")},
 		{field: "memory", value: memory, max: resource.MustParse("32Gi")},
-		{field: "diskSize", value: diskSize, min: resource.MustParse("10Gi"), hasMin: true, max: resource.MustParse("1000Gi")},
+		{field: "diskSize", value: diskSize, min: resource.MustParse("5Gi"), hasMin: true, max: resource.MustParse("1000Gi")},
 	}
 	for _, limit := range limits {
 		field, value := limit.field, limit.value

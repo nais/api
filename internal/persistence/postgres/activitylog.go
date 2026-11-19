@@ -22,23 +22,83 @@ const (
 func init() {
 	activitylog.RegisterTransformer(ActivityLogEntryResourceTypePostgres, transformPostgresActivityLogEntry)
 
-	activitylog.RegisterFilter("POSTGRES_GRANT_ACCESS", activityLogEntryActionGrantAccess, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CREATED", activityLogEntryActionCreatePersonalAccess, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_PERSONAL_ACCESS_CONNECTION", activityLogEntryActionGetPersonalAccessConnection, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_CREATED", activitylog.ActivityLogEntryActionCreated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_UPDATED", activitylog.ActivityLogEntryActionUpdated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETED", activitylog.ActivityLogEntryActionDeleted, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_DELETION_REQUESTED", activityLogEntryActionDeletionRequested, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_CREATED", activityLogEntryActionBranchCreated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_ACTIVATED", activityLogEntryActionBranchActivated, ActivityLogEntryResourceTypePostgres)
-	activitylog.RegisterFilter("POSTGRES_BRANCH_DELETED", activityLogEntryActionBranchDeleted, ActivityLogEntryResourceTypePostgres)
+	activitylog.RegisterActivityType(
+		"POSTGRES_GRANT_ACCESS",
+		activityLogEntryActionGrantAccess,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when temporary access to Postgres is granted.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_PERSONAL_ACCESS_CREATED",
+		activityLogEntryActionCreatePersonalAccess,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when personal access to a Postgres branch is requested.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_PERSONAL_ACCESS_CONNECTION",
+		activityLogEntryActionGetPersonalAccessConnection,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when connection details for personal Postgres access are retrieved.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_CREATED",
+		activitylog.ActivityLogEntryActionCreated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres instance is created.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_UPDATED",
+		activitylog.ActivityLogEntryActionUpdated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres instance is updated.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_DELETED",
+		activitylog.ActivityLogEntryActionDeleted,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is deleted (legacy event without a branch name).",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_DELETION_REQUESTED",
+		activityLogEntryActionDeletionRequested,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when deletion of a Postgres instance is requested; cleanup is pending.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_CREATED",
+		activityLogEntryActionBranchCreated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is created.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_ACTIVATED",
+		activityLogEntryActionBranchActivated,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is activated.",
+	)
+	activitylog.RegisterActivityType(
+		"POSTGRES_BRANCH_DELETED",
+		activityLogEntryActionBranchDeleted,
+		ActivityLogEntryResourceTypePostgres,
+		"Triggered when a Postgres branch is deleted.",
+	)
 }
 
 func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry) (activitylog.ActivityLogEntry, error) {
 	switch entry.Action {
 	case activitylog.ActivityLogEntryActionCreated:
+		message := "Created Postgres"
+		if len(entry.Data) > 0 {
+			data, err := activitylog.UnmarshalData[PostgresCreatedActivityLogEntryData](entry)
+			if err != nil {
+				return nil, fmt.Errorf("transforming Postgres creation data: %w", err)
+			}
+			if data.Recovery != nil {
+				message = fmt.Sprintf("Requested Postgres recovery from %s to %s", data.Recovery.SourcePostgres, data.Recovery.TargetTime.UTC().Format(time.RFC3339))
+			}
+		}
 		return PostgresCreatedActivityLogEntry{
-			GenericActivityLogEntry: entry.WithMessage("Created Postgres"),
+			GenericActivityLogEntry: entry.WithMessage(message),
 		}, nil
 	case activitylog.ActivityLogEntryActionUpdated:
 		data, err := activitylog.UnmarshalData[PostgresUpdatedActivityLogEntryData](entry)
@@ -143,6 +203,11 @@ type PostgresDeletedActivityLogEntry struct {
 
 type PostgresCreatedActivityLogEntry struct {
 	activitylog.GenericActivityLogEntry
+}
+
+type PostgresCreatedActivityLogEntryData struct {
+	Recovery  *PostgresRecoveryInput `json:"recovery,omitempty"`
+	SourceUID string                 `json:"sourceUID,omitempty"`
 }
 
 type PostgresUpdatedActivityLogEntry struct {

@@ -77,7 +77,7 @@ func TestPostgresBranchConfigurationFromStatus(t *testing.T) {
 	}
 }
 
-func TestPostgresBranchWatcherConfigurationUpdates(t *testing.T) {
+func TestPostgresWatcherConfigurationUpdates(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -95,15 +95,15 @@ func TestPostgresBranchWatcherConfigurationUpdates(t *testing.T) {
 	ctx, cancel := context.WithCancel(t.Context())
 	t.Cleanup(cancel)
 	obj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main"), "namespace": "team", "generation": int64(1)},
-		"spec":     map[string]any{"postgres": "orders", "branchName": "main"},
+		"apiVersion": "nais.io/v1", "kind": "Postgres",
+		"metadata": map[string]any{"name": "orders", "namespace": "team", "generation": int64(1)},
+		"spec":     map[string]any{"majorVersion": "18"},
 	}}
-	client := mgr.GetDynamicClients()["dev"].Resource(nais_io_v1.GroupVersion.WithResource("postgresbranches")).Namespace("team")
+	client := mgr.GetDynamicClients()["dev"].Resource(nais_io_v1.GroupVersion.WithResource("postgres")).Namespace("team")
 	if _, err := client.Create(ctx, obj, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	w := NewPostgresBranchWatcher(ctx, mgr)
+	w := NewPostgresWatcher(ctx, mgr)
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
 	if !mgr.WaitForReady(ready) {
@@ -117,9 +117,9 @@ func TestPostgresBranchWatcherConfigurationUpdates(t *testing.T) {
 		{parameters: map[string]any{}, want: &PostgresConfiguration{Parameters: []*PostgresParameter{}}},
 		{},
 	} {
-		obj.Object["status"] = map[string]any{}
+		obj.Object["status"] = map[string]any{"clusterName": "pg-orders-main"}
 		if tt.parameters != nil {
-			obj.Object["status"] = map[string]any{"configuration": map[string]any{"parameters": tt.parameters}}
+			obj.Object["status"] = map[string]any{"clusterName": "pg-orders-main", "configuration": map[string]any{"parameters": tt.parameters}}
 		}
 		// Status updates do not change the resource generation.
 		if _, err := client.UpdateStatus(ctx, obj, metav1.UpdateOptions{}); err != nil {
@@ -127,7 +127,7 @@ func TestPostgresBranchWatcherConfigurationUpdates(t *testing.T) {
 		}
 		if err := wait.PollUntilContextTimeout(ctx, 10*time.Millisecond, 5*time.Second, true, func(context.Context) (bool, error) {
 			branch, err := w.Get("dev", "team", obj.GetName())
-			return err == nil && cmp.Equal(tt.want, branch.Configuration), err
+			return err == nil && cmp.Equal(tt.want, branch.configuration), err
 		}); err != nil {
 			t.Fatalf("watcher did not observe configuration %#v: %v", tt.want, err)
 		}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/activitylog/webhook"
 	"github.com/nais/api/internal/alerts"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/cost"
@@ -65,6 +66,8 @@ type ResolverRoot interface {
 	ApplicationConnection() ApplicationConnectionResolver
 	ApplicationInstance() ApplicationInstanceResolver
 	ApplicationRestartLoopIssue() ApplicationRestartLoopIssueResolver
+	ApplicationRolloutStuckIssue() ApplicationRolloutStuckIssueResolver
+	ApplicationScaling() ApplicationScalingResolver
 	AvailableValues() AvailableValuesResolver
 	BigQueryDataset() BigQueryDatasetResolver
 	BigQueryDatasetConnection() BigQueryDatasetConnectionResolver
@@ -109,11 +112,9 @@ type ResolverRoot interface {
 	OpenSearchMaintenance() OpenSearchMaintenanceResolver
 	Postgres() PostgresResolver
 	PostgresAccess() PostgresAccessResolver
-	PostgresBranch() PostgresBranchResolver
-	PostgresBranchConnection() PostgresBranchConnectionResolver
-	PostgresBranchIssue() PostgresBranchIssueResolver
 	PostgresConnection() PostgresConnectionResolver
-	PostgresWorkload() PostgresWorkloadResolver
+	PostgresCost() PostgresCostResolver
+	PostgresIssue() PostgresIssueResolver
 	PrometheusAlert() PrometheusAlertResolver
 	Query() QueryResolver
 	Reconciler() ReconcilerResolver
@@ -156,6 +157,7 @@ type ResolverRoot interface {
 	ValkeyIssue() ValkeyIssueResolver
 	ValkeyMaintenance() ValkeyMaintenanceResolver
 	VulnerableImageIssue() VulnerableImageIssueResolver
+	WebhookSubscription() WebhookSubscriptionResolver
 	WorkloadCost() WorkloadCostResolver
 	WorkloadCostSample() WorkloadCostSampleResolver
 	WorkloadProblemIssue() WorkloadProblemIssueResolver
@@ -169,10 +171,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	ActivatePostgresBranchPayload struct {
-		Postgres func(childComplexity int) int
-	}
-
 	ActivityLogActivityTypeFacetItem struct {
 		ActivityType func(childComplexity int) int
 		Count        func(childComplexity int) int
@@ -401,6 +399,15 @@ type ComplexityRoot struct {
 		TeamSlug          func(childComplexity int) int
 	}
 
+	ApplicationRolloutStuckIssue struct {
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Reason          func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+		Workload        func(childComplexity int) int
+	}
+
 	ApplicationScaledActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -422,7 +429,15 @@ type ComplexityRoot struct {
 	ApplicationScaling struct {
 		MaxInstances func(childComplexity int) int
 		MinInstances func(childComplexity int) int
+		Status       func(childComplexity int) int
 		Strategies   func(childComplexity int) int
+	}
+
+	ApplicationScalingStatus struct {
+		CurrentInstances func(childComplexity int) int
+		DesiredInstances func(childComplexity int) int
+		Message          func(childComplexity int) int
+		State            func(childComplexity int) int
 	}
 
 	ApplicationStateFacetItem struct {
@@ -751,7 +766,8 @@ type ComplexityRoot struct {
 	}
 
 	CreateKafkaCredentialsPayload struct {
-		Credentials func(childComplexity int) int
+		Credentials     func(childComplexity int) int
+		EnvironmentName func(childComplexity int) int
 	}
 
 	CreateOpenSearchCredentialsPayload struct {
@@ -765,10 +781,6 @@ type ComplexityRoot struct {
 	CreatePostgresAccessPayload struct {
 		ExpiresAt func(childComplexity int) int
 		Name      func(childComplexity int) int
-	}
-
-	CreatePostgresBranchPayload struct {
-		PostgresBranch func(childComplexity int) int
 	}
 
 	CreatePostgresPayload struct {
@@ -809,6 +821,10 @@ type ComplexityRoot struct {
 		Valkey func(childComplexity int) int
 	}
 
+	CreateWebhookPayload struct {
+		Webhook func(childComplexity int) int
+	}
+
 	CurrentUnitPrices struct {
 		CPU    func(childComplexity int) int
 		Memory func(childComplexity int) int
@@ -835,10 +851,6 @@ type ComplexityRoot struct {
 
 	DeleteOpenSearchPayload struct {
 		OpenSearchDeleted func(childComplexity int) int
-	}
-
-	DeletePostgresBranchPayload struct {
-		PostgresBranchDeleted func(childComplexity int) int
 	}
 
 	DeletePostgresPayload struct {
@@ -868,6 +880,10 @@ type ComplexityRoot struct {
 
 	DeleteValkeyPayload struct {
 		ValkeyDeleted func(childComplexity int) int
+	}
+
+	DeleteWebhookPayload struct {
+		WebhookID func(childComplexity int) int
 	}
 
 	Deployment struct {
@@ -1123,6 +1139,7 @@ type ComplexityRoot struct {
 
 	ImageVulnerabilityConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -1130,6 +1147,10 @@ type ComplexityRoot struct {
 	ImageVulnerabilityEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	ImageVulnerabilityFacets struct {
+		PackageTypes func(childComplexity int) int
 	}
 
 	ImageVulnerabilityHistory struct {
@@ -1393,8 +1414,12 @@ type ComplexityRoot struct {
 	}
 
 	JobRunInstance struct {
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Created  func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Image    func(childComplexity int) int
+		Name     func(childComplexity int) int
+		Restarts func(childComplexity int) int
+		Status   func(childComplexity int) int
 	}
 
 	JobRunInstanceConnection struct {
@@ -1406,6 +1431,14 @@ type ComplexityRoot struct {
 	JobRunInstanceEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	JobRunInstanceStatus struct {
+		LastExitCode      func(childComplexity int) int
+		LastExitReason    func(childComplexity int) int
+		LastExitTimestamp func(childComplexity int) int
+		Message           func(childComplexity int) int
+		State             func(childComplexity int) int
 	}
 
 	JobRunStatus struct {
@@ -1652,7 +1685,6 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ActivatePostgresBranch           func(childComplexity int, input postgres.ActivatePostgresBranchInput) int
 		AddConfigValue                   func(childComplexity int, input config.AddConfigValueInput) int
 		AddRepositoryToTeam              func(childComplexity int, input repository.AddRepositoryToTeamInput) int
 		AddSecretValue                   func(childComplexity int, input secret.AddSecretValueInput) int
@@ -1669,7 +1701,6 @@ type ComplexityRoot struct {
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreatePostgres                   func(childComplexity int, input postgres.CreatePostgresInput) int
 		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
-		CreatePostgresBranch             func(childComplexity int, input postgres.CreatePostgresBranchInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1678,19 +1709,20 @@ type ComplexityRoot struct {
 		CreateUnleashForTeam             func(childComplexity int, input unleash.CreateUnleashForTeamInput) int
 		CreateValkey                     func(childComplexity int, input valkey.CreateValkeyInput) int
 		CreateValkeyCredentials          func(childComplexity int, input valkey.CreateValkeyCredentialsInput) int
+		CreateWebhook                    func(childComplexity int, input webhook.CreateWebhookInput) int
 		DeleteApplication                func(childComplexity int, input application.DeleteApplicationInput) int
 		DeleteConfig                     func(childComplexity int, input config.DeleteConfigInput) int
 		DeleteJob                        func(childComplexity int, input job.DeleteJobInput) int
 		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
 		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
-		DeletePostgresBranch             func(childComplexity int, input postgres.DeletePostgresBranchInput) int
 		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken        func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
 		DeleteTunnel                     func(childComplexity int, input tunnel.DeleteTunnelInput) int
 		DeleteUnleashInstance            func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
 		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
+		DeleteWebhook                    func(childComplexity int, input webhook.DeleteWebhookInput) int
 		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
 		RemoveConfigValue                func(childComplexity int, input config.RemoveConfigValueInput) int
@@ -1705,6 +1737,7 @@ type ComplexityRoot struct {
 		SetTeamMemberRole                func(childComplexity int, input team.SetTeamMemberRoleInput) int
 		StartOpenSearchMaintenance       func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
+		TestWebhook                      func(childComplexity int, input webhook.TestWebhookInput) int
 		TriggerJob                       func(childComplexity int, input job.TriggerJobInput) int
 		UpdateApplication                func(childComplexity int, input application.UpdateApplicationInput) int
 		UpdateConfig                     func(childComplexity int, input config.UpdateConfigInput) int
@@ -1722,6 +1755,7 @@ type ComplexityRoot struct {
 		UpdateTeamEnvironment            func(childComplexity int, input team.UpdateTeamEnvironmentInput) int
 		UpdateUnleashInstance            func(childComplexity int, input unleash.UpdateUnleashInstanceInput) int
 		UpdateValkey                     func(childComplexity int, input valkey.UpdateValkeyInput) int
+		UpdateWebhook                    func(childComplexity int, input webhook.UpdateWebhookInput) int
 		ViewSecretValues                 func(childComplexity int, input secret.ViewSecretValuesInput) int
 	}
 
@@ -1939,18 +1973,21 @@ type ComplexityRoot struct {
 	}
 
 	Postgres struct {
-		ActiveBranch        func(childComplexity int) int
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		Branch              func(childComplexity int, name string) int
-		Branches            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *postgres.PostgresBranchOrder) int
-		DesiredActiveBranch func(childComplexity int) int
+		Configuration       func(childComplexity int) int
+		Cost                func(childComplexity int) int
+		CreatedAt           func(childComplexity int) int
+		EarliestRestoreTime func(childComplexity int) int
 		Extensions          func(childComplexity int) int
 		HighAvailability    func(childComplexity int) int
 		ID                  func(childComplexity int) int
+		Issues              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
 		Labels              func(childComplexity int) int
 		MajorVersion        func(childComplexity int) int
 		Name                func(childComplexity int) int
+		Recovery            func(childComplexity int) int
 		Resources           func(childComplexity int) int
+		State               func(childComplexity int) int
 		Team                func(childComplexity int) int
 		TeamEnvironment     func(childComplexity int) int
 		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
@@ -1963,7 +2000,7 @@ type ComplexityRoot struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
 		Name            func(childComplexity int) int
-		PostgresBranch  func(childComplexity int) int
+		Postgres        func(childComplexity int) int
 		RelayAccess     func(childComplexity int) int
 		State           func(childComplexity int) int
 		Team            func(childComplexity int) int
@@ -1978,21 +2015,6 @@ type ComplexityRoot struct {
 		RelayToken    func(childComplexity int) int
 		ServerName    func(childComplexity int) int
 		Username      func(childComplexity int) int
-	}
-
-	PostgresBranch struct {
-		Configuration       func(childComplexity int) int
-		CreatedAt           func(childComplexity int) int
-		EarliestRestoreTime func(childComplexity int) int
-		ID                  func(childComplexity int) int
-		Issues              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
-		Labels              func(childComplexity int) int
-		Name                func(childComplexity int) int
-		Postgres            func(childComplexity int) int
-		State               func(childComplexity int) int
-		Team                func(childComplexity int) int
-		TeamEnvironment     func(childComplexity int) int
-		Workloads           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 	}
 
 	PostgresBranchActivatedActivityLogEntry struct {
@@ -2012,13 +2034,6 @@ type ComplexityRoot struct {
 		Branch       func(childComplexity int) int
 		SourceBranch func(childComplexity int) int
 		TargetTime   func(childComplexity int) int
-	}
-
-	PostgresBranchConnection struct {
-		Edges    func(childComplexity int) int
-		Facets   func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
 	}
 
 	PostgresBranchCreatedActivityLogEntry struct {
@@ -2047,30 +2062,6 @@ type ComplexityRoot struct {
 		TeamSlug          func(childComplexity int) int
 	}
 
-	PostgresBranchEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
-
-	PostgresBranchFacets struct {
-		Environments func(childComplexity int) int
-		Labels       func(childComplexity int) int
-		States       func(childComplexity int) int
-	}
-
-	PostgresBranchIssue struct {
-		Branch          func(childComplexity int) int
-		ID              func(childComplexity int) int
-		Message         func(childComplexity int) int
-		Severity        func(childComplexity int) int
-		TeamEnvironment func(childComplexity int) int
-	}
-
-	PostgresBranchStateFacetItem struct {
-		Count func(childComplexity int) int
-		State func(childComplexity int) int
-	}
-
 	PostgresConfiguration struct {
 		Parameters func(childComplexity int) int
 	}
@@ -2080,6 +2071,16 @@ type ComplexityRoot struct {
 		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
+	}
+
+	PostgresCost struct {
+		Daily   func(childComplexity int, from scalar.Date, to scalar.Date) int
+		Monthly func(childComplexity int) int
+	}
+
+	PostgresCostPeriod struct {
+		Series func(childComplexity int) int
+		Sum    func(childComplexity int) int
 	}
 
 	PostgresCreatedActivityLogEntry struct {
@@ -2133,6 +2134,14 @@ type ComplexityRoot struct {
 		Until   func(childComplexity int) int
 	}
 
+	PostgresIssue struct {
+		ID              func(childComplexity int) int
+		Message         func(childComplexity int) int
+		Postgres        func(childComplexity int) int
+		Severity        func(childComplexity int) int
+		TeamEnvironment func(childComplexity int) int
+	}
+
 	PostgresParameter struct {
 		Name  func(childComplexity int) int
 		Value func(childComplexity int) int
@@ -2170,6 +2179,13 @@ type ComplexityRoot struct {
 		Username    func(childComplexity int) int
 	}
 
+	PostgresRecovery struct {
+		Completed      func(childComplexity int) int
+		FailureMessage func(childComplexity int) int
+		SourcePostgres func(childComplexity int) int
+		TargetTime     func(childComplexity int) int
+	}
+
 	PostgresResources struct {
 		CPU      func(childComplexity int) int
 		DiskSize func(childComplexity int) int
@@ -2200,7 +2216,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresWorkload struct {
-		Branch   func(childComplexity int) int
+		Postgres func(childComplexity int) int
 		Workload func(childComplexity int) int
 	}
 
@@ -2250,6 +2266,7 @@ type ComplexityRoot struct {
 		Environment               func(childComplexity int, name string) int
 		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
 		Features                  func(childComplexity int) int
+		GlobalWebhooks            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
 		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
 		Me                        func(childComplexity int) int
@@ -2269,6 +2286,7 @@ type ComplexityRoot struct {
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
+		WebhookEventTypes         func(childComplexity int) int
 	}
 
 	Reconciler struct {
@@ -3132,6 +3150,7 @@ type ComplexityRoot struct {
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
+		Webhooks                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		WorkloadUtilization       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Workloads                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
 	}
@@ -3343,10 +3362,6 @@ type ComplexityRoot struct {
 		Total func(childComplexity int) int
 	}
 
-	TeamInventoryCountPostgresBranches struct {
-		Total func(childComplexity int) int
-	}
-
 	TeamInventoryCountSecrets struct {
 		Total func(childComplexity int) int
 	}
@@ -3367,7 +3382,6 @@ type ComplexityRoot struct {
 		Jobs             func(childComplexity int) int
 		KafkaTopics      func(childComplexity int) int
 		OpenSearches     func(childComplexity int) int
-		PostgresBranches func(childComplexity int) int
 		SQLInstances     func(childComplexity int) int
 		Secrets          func(childComplexity int) int
 		Valkeys          func(childComplexity int) int
@@ -3534,6 +3548,10 @@ type ComplexityRoot struct {
 		RiskScore        func(childComplexity int) int
 		SbomCount        func(childComplexity int) int
 		Unassigned       func(childComplexity int) int
+	}
+
+	TestWebhookPayload struct {
+		Delivery func(childComplexity int) int
 	}
 
 	TokenXAuthIntegration struct {
@@ -3743,6 +3761,10 @@ type ComplexityRoot struct {
 
 	UpdateValkeyPayload struct {
 		Valkey func(childComplexity int) int
+	}
+
+	UpdateWebhookPayload struct {
+		Webhook func(childComplexity int) int
 	}
 
 	User struct {
@@ -4050,6 +4072,136 @@ type ComplexityRoot struct {
 		Workload        func(childComplexity int) int
 	}
 
+	WebhookActivityLogEntryData struct {
+		Name func(childComplexity int) int
+	}
+
+	WebhookCreatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	WebhookDeletedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	WebhookDelivery struct {
+		CreatedAt             func(childComplexity int) int
+		DeliveryState         func(childComplexity int) int
+		DurationMs            func(childComplexity int) int
+		ErrorMessage          func(childComplexity int) int
+		EventType             func(childComplexity int) int
+		ID                    func(childComplexity int) int
+		IsTest                func(childComplexity int) int
+		RequestBody           func(childComplexity int) int
+		RequestHeaders        func(childComplexity int) int
+		ResponseBody          func(childComplexity int) int
+		ResponseBodyTruncated func(childComplexity int) int
+		ResponseHeaders       func(childComplexity int) int
+		ResponseStatus        func(childComplexity int) int
+		Success               func(childComplexity int) int
+	}
+
+	WebhookDeliveryConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WebhookDeliveryEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	WebhookDeliveryState struct {
+		AttemptCount func(childComplexity int) int
+		NextRetryAt  func(childComplexity int) int
+		Status       func(childComplexity int) int
+	}
+
+	WebhookEventTypeInfo struct {
+		CloudEventType func(childComplexity int) int
+		Description    func(childComplexity int) int
+		Group          func(childComplexity int) int
+		TeamScoped     func(childComplexity int) int
+		Type           func(childComplexity int) int
+	}
+
+	WebhookHeader struct {
+		Name   func(childComplexity int) int
+		Values func(childComplexity int) int
+	}
+
+	WebhookSubscription struct {
+		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		AllEvents           func(childComplexity int) int
+		ConsecutiveFailures func(childComplexity int) int
+		CreatedAt           func(childComplexity int) int
+		Deliveries          func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		DisabledAt          func(childComplexity int) int
+		Enabled             func(childComplexity int) int
+		EventTypes          func(childComplexity int) int
+		HasSecret           func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		Name                func(childComplexity int) int
+		SourceTeamSlugs     func(childComplexity int) int
+		TeamSlug            func(childComplexity int) int
+		URL                 func(childComplexity int) int
+		UpdatedAt           func(childComplexity int) int
+	}
+
+	WebhookSubscriptionConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	WebhookSubscriptionEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	WebhookUpdatedActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	WebhookUpdatedActivityLogEntryData struct {
+		Name          func(childComplexity int) int
+		UpdatedFields func(childComplexity int) int
+	}
+
+	WebhookUpdatedActivityLogEntryDataUpdatedField struct {
+		Field    func(childComplexity int) int
+		NewValue func(childComplexity int) int
+		OldValue func(childComplexity int) int
+	}
+
 	WorkloadConnection struct {
 		Edges    func(childComplexity int) int
 		Nodes    func(childComplexity int) int
@@ -4109,7 +4261,6 @@ type ComplexityRoot struct {
 	}
 
 	WorkloadPostgres struct {
-		Branch    func(childComplexity int) int
 		EnvPrefix func(childComplexity int) int
 		Postgres  func(childComplexity int) int
 		Role      func(childComplexity int) int
@@ -4190,6 +4341,16 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	WorkloadWarningEvent struct {
+		Count       func(childComplexity int) int
+		FirstSeenAt func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Instance    func(childComplexity int) int
+		Kind        func(childComplexity int) int
+		Message     func(childComplexity int) int
+		TriggeredAt func(childComplexity int) int
+	}
+
 	WorkloadWithVulnerability struct {
 		ID            func(childComplexity int) int
 		Vulnerability func(childComplexity int) int
@@ -4222,13 +4383,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := newExecutionContext(nil, e, nil)
 	_ = ec
 	switch typeName + "." + field {
-
-	case "ActivatePostgresBranchPayload.postgres":
-		if e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres == nil {
-			break
-		}
-
-		return e.ComplexityRoot.ActivatePostgresBranchPayload.Postgres(childComplexity), true
 
 	case "ActivityLogActivityTypeFacetItem.activityType":
 		if e.ComplexityRoot.ActivityLogActivityTypeFacetItem.ActivityType == nil {
@@ -5255,6 +5409,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationRestartedActivityLogEntry.TeamSlug(childComplexity), true
 
+	case "ApplicationRolloutStuckIssue.id":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.ID(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.message":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Message(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.reason":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Reason(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.severity":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Severity(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.teamEnvironment":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.TeamEnvironment(childComplexity), true
+
+	case "ApplicationRolloutStuckIssue.workload":
+		if e.ComplexityRoot.ApplicationRolloutStuckIssue.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationRolloutStuckIssue.Workload(childComplexity), true
+
 	case "ApplicationScaledActivityLogEntry.actor":
 		if e.ComplexityRoot.ApplicationScaledActivityLogEntry.Actor == nil {
 			break
@@ -5353,12 +5549,47 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ApplicationScaling.MinInstances(childComplexity), true
 
+	case "ApplicationScaling.status":
+		if e.ComplexityRoot.ApplicationScaling.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScaling.Status(childComplexity), true
+
 	case "ApplicationScaling.strategies":
 		if e.ComplexityRoot.ApplicationScaling.Strategies == nil {
 			break
 		}
 
 		return e.ComplexityRoot.ApplicationScaling.Strategies(childComplexity), true
+
+	case "ApplicationScalingStatus.currentInstances":
+		if e.ComplexityRoot.ApplicationScalingStatus.CurrentInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.CurrentInstances(childComplexity), true
+
+	case "ApplicationScalingStatus.desiredInstances":
+		if e.ComplexityRoot.ApplicationScalingStatus.DesiredInstances == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.DesiredInstances(childComplexity), true
+
+	case "ApplicationScalingStatus.message":
+		if e.ComplexityRoot.ApplicationScalingStatus.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.Message(childComplexity), true
+
+	case "ApplicationScalingStatus.state":
+		if e.ComplexityRoot.ApplicationScalingStatus.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ApplicationScalingStatus.State(childComplexity), true
 
 	case "ApplicationStateFacetItem.count":
 		if e.ComplexityRoot.ApplicationStateFacetItem.Count == nil {
@@ -6700,6 +6931,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateKafkaCredentialsPayload.Credentials(childComplexity), true
 
+	case "CreateKafkaCredentialsPayload.environmentName":
+		if e.ComplexityRoot.CreateKafkaCredentialsPayload.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateKafkaCredentialsPayload.EnvironmentName(childComplexity), true
+
 	case "CreateOpenSearchCredentialsPayload.credentials":
 		if e.ComplexityRoot.CreateOpenSearchCredentialsPayload.Credentials == nil {
 			break
@@ -6727,13 +6965,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
-
-	case "CreatePostgresBranchPayload.postgresBranch":
-		if e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch == nil {
-			break
-		}
-
-		return e.ComplexityRoot.CreatePostgresBranchPayload.PostgresBranch(childComplexity), true
 
 	case "CreatePostgresPayload.postgres":
 		if e.ComplexityRoot.CreatePostgresPayload.Postgres == nil {
@@ -6812,6 +7043,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreateValkeyPayload.Valkey(childComplexity), true
 
+	case "CreateWebhookPayload.webhook":
+		if e.ComplexityRoot.CreateWebhookPayload.Webhook == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreateWebhookPayload.Webhook(childComplexity), true
+
 	case "CurrentUnitPrices.cpu":
 		if e.ComplexityRoot.CurrentUnitPrices.CPU == nil {
 			break
@@ -6882,13 +7120,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted(childComplexity), true
 
-	case "DeletePostgresBranchPayload.postgresBranchDeleted":
-		if e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted == nil {
-			break
-		}
-
-		return e.ComplexityRoot.DeletePostgresBranchPayload.PostgresBranchDeleted(childComplexity), true
-
 	case "DeletePostgresPayload.deletionRequested":
 		if e.ComplexityRoot.DeletePostgresPayload.DeletionRequested == nil {
 			break
@@ -6944,6 +7175,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteValkeyPayload.ValkeyDeleted(childComplexity), true
+
+	case "DeleteWebhookPayload.webhookID":
+		if e.ComplexityRoot.DeleteWebhookPayload.WebhookID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteWebhookPayload.WebhookID(childComplexity), true
 
 	case "Deployment.commitSha":
 		if e.ComplexityRoot.Deployment.CommitSha == nil {
@@ -8057,6 +8295,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ImageVulnerabilityConnection.Edges(childComplexity), true
 
+	case "ImageVulnerabilityConnection.facets":
+		if e.ComplexityRoot.ImageVulnerabilityConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilityConnection.Facets(childComplexity), true
+
 	case "ImageVulnerabilityConnection.nodes":
 		if e.ComplexityRoot.ImageVulnerabilityConnection.Nodes == nil {
 			break
@@ -8084,6 +8329,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.ImageVulnerabilityEdge.Node(childComplexity), true
+
+	case "ImageVulnerabilityFacets.packageTypes":
+		if e.ComplexityRoot.ImageVulnerabilityFacets.PackageTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.ImageVulnerabilityFacets.PackageTypes(childComplexity), true
 
 	case "ImageVulnerabilityHistory.samples":
 		if e.ComplexityRoot.ImageVulnerabilityHistory.Samples == nil {
@@ -9292,6 +9544,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunEdge.Node(childComplexity), true
 
+	case "JobRunInstance.created":
+		if e.ComplexityRoot.JobRunInstance.Created == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Created(childComplexity), true
+
 	case "JobRunInstance.id":
 		if e.ComplexityRoot.JobRunInstance.ID == nil {
 			break
@@ -9299,12 +9558,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.JobRunInstance.ID(childComplexity), true
 
+	case "JobRunInstance.image":
+		if e.ComplexityRoot.JobRunInstance.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Image(childComplexity), true
+
 	case "JobRunInstance.name":
 		if e.ComplexityRoot.JobRunInstance.Name == nil {
 			break
 		}
 
 		return e.ComplexityRoot.JobRunInstance.Name(childComplexity), true
+
+	case "JobRunInstance.restarts":
+		if e.ComplexityRoot.JobRunInstance.Restarts == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Restarts(childComplexity), true
+
+	case "JobRunInstance.status":
+		if e.ComplexityRoot.JobRunInstance.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstance.Status(childComplexity), true
 
 	case "JobRunInstanceConnection.edges":
 		if e.ComplexityRoot.JobRunInstanceConnection.Edges == nil {
@@ -9340,6 +9620,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.JobRunInstanceEdge.Node(childComplexity), true
+
+	case "JobRunInstanceStatus.lastExitCode":
+		if e.ComplexityRoot.JobRunInstanceStatus.LastExitCode == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.LastExitCode(childComplexity), true
+
+	case "JobRunInstanceStatus.lastExitReason":
+		if e.ComplexityRoot.JobRunInstanceStatus.LastExitReason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.LastExitReason(childComplexity), true
+
+	case "JobRunInstanceStatus.lastExitTimestamp":
+		if e.ComplexityRoot.JobRunInstanceStatus.LastExitTimestamp == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.LastExitTimestamp(childComplexity), true
+
+	case "JobRunInstanceStatus.message":
+		if e.ComplexityRoot.JobRunInstanceStatus.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.Message(childComplexity), true
+
+	case "JobRunInstanceStatus.state":
+		if e.ComplexityRoot.JobRunInstanceStatus.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.JobRunInstanceStatus.State(childComplexity), true
 
 	case "JobRunStatus.message":
 		if e.ComplexityRoot.JobRunStatus.Message == nil {
@@ -10291,18 +10606,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.MissingSbomIssue.Workload(childComplexity), true
 
-	case "Mutation.activatePostgresBranch":
-		if e.ComplexityRoot.Mutation.ActivatePostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_activatePostgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.ActivatePostgresBranch(childComplexity, args["input"].(postgres.ActivatePostgresBranchInput)), true
-
 	case "Mutation.addConfigValue":
 		if e.ComplexityRoot.Mutation.AddConfigValue == nil {
 			break
@@ -10495,18 +10798,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
 
-	case "Mutation.createPostgresBranch":
-		if e.ComplexityRoot.Mutation.CreatePostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createPostgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.CreatePostgresBranch(childComplexity, args["input"].(postgres.CreatePostgresBranchInput)), true
-
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
 			break
@@ -10603,6 +10894,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreateValkeyCredentials(childComplexity, args["input"].(valkey.CreateValkeyCredentialsInput)), true
 
+	case "Mutation.createWebhook":
+		if e.ComplexityRoot.Mutation.CreateWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreateWebhook(childComplexity, args["input"].(webhook.CreateWebhookInput)), true
+
 	case "Mutation.deleteApplication":
 		if e.ComplexityRoot.Mutation.DeleteApplication == nil {
 			break
@@ -10675,18 +10978,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
 
-	case "Mutation.deletePostgresBranch":
-		if e.ComplexityRoot.Mutation.DeletePostgresBranch == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_deletePostgresBranch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Mutation.DeletePostgresBranch(childComplexity, args["input"].(postgres.DeletePostgresBranchInput)), true
-
 	case "Mutation.deleteSecret":
 		if e.ComplexityRoot.Mutation.DeleteSecret == nil {
 			break
@@ -10758,6 +11049,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeleteValkey(childComplexity, args["input"].(valkey.DeleteValkeyInput)), true
+
+	case "Mutation.deleteWebhook":
+		if e.ComplexityRoot.Mutation.DeleteWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteWebhook(childComplexity, args["input"].(webhook.DeleteWebhookInput)), true
 
 	case "Mutation.disableReconciler":
 		if e.ComplexityRoot.Mutation.DisableReconciler == nil {
@@ -10926,6 +11229,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.StartValkeyMaintenance(childComplexity, args["input"].(servicemaintenance.StartValkeyMaintenanceInput)), true
+
+	case "Mutation.testWebhook":
+		if e.ComplexityRoot.Mutation.TestWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_testWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.TestWebhook(childComplexity, args["input"].(webhook.TestWebhookInput)), true
 
 	case "Mutation.triggerJob":
 		if e.ComplexityRoot.Mutation.TriggerJob == nil {
@@ -11130,6 +11445,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.UpdateValkey(childComplexity, args["input"].(valkey.UpdateValkeyInput)), true
+
+	case "Mutation.updateWebhook":
+		if e.ComplexityRoot.Mutation.UpdateWebhook == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateWebhook_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.UpdateWebhook(childComplexity, args["input"].(webhook.UpdateWebhookInput)), true
 
 	case "Mutation.viewSecretValues":
 		if e.ComplexityRoot.Mutation.ViewSecretValues == nil {
@@ -12066,13 +12393,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PageInfo.TotalCount(childComplexity), true
 
-	case "Postgres.activeBranch":
-		if e.ComplexityRoot.Postgres.ActiveBranch == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Postgres.ActiveBranch(childComplexity), true
-
 	case "Postgres.activityLog":
 		if e.ComplexityRoot.Postgres.ActivityLog == nil {
 			break
@@ -12085,36 +12405,33 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
 
-	case "Postgres.branch":
-		if e.ComplexityRoot.Postgres.Branch == nil {
+	case "Postgres.configuration":
+		if e.ComplexityRoot.Postgres.Configuration == nil {
 			break
 		}
 
-		args, err := ec.field_Postgres_branch_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.ComplexityRoot.Postgres.Configuration(childComplexity), true
 
-		return e.ComplexityRoot.Postgres.Branch(childComplexity, args["name"].(string)), true
-
-	case "Postgres.branches":
-		if e.ComplexityRoot.Postgres.Branches == nil {
+	case "Postgres.cost":
+		if e.ComplexityRoot.Postgres.Cost == nil {
 			break
 		}
 
-		args, err := ec.field_Postgres_branches_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.ComplexityRoot.Postgres.Cost(childComplexity), true
 
-		return e.ComplexityRoot.Postgres.Branches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*postgres.PostgresBranchOrder)), true
-
-	case "Postgres.desiredActiveBranch":
-		if e.ComplexityRoot.Postgres.DesiredActiveBranch == nil {
+	case "Postgres.createdAt":
+		if e.ComplexityRoot.Postgres.CreatedAt == nil {
 			break
 		}
 
-		return e.ComplexityRoot.Postgres.DesiredActiveBranch(childComplexity), true
+		return e.ComplexityRoot.Postgres.CreatedAt(childComplexity), true
+
+	case "Postgres.earliestRestoreTime":
+		if e.ComplexityRoot.Postgres.EarliestRestoreTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.EarliestRestoreTime(childComplexity), true
 
 	case "Postgres.extensions":
 		if e.ComplexityRoot.Postgres.Extensions == nil {
@@ -12137,6 +12454,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.ID(childComplexity), true
 
+	case "Postgres.issues":
+		if e.ComplexityRoot.Postgres.Issues == nil {
+			break
+		}
+
+		args, err := ec.field_Postgres_issues_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Postgres.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
+
 	case "Postgres.labels":
 		if e.ComplexityRoot.Postgres.Labels == nil {
 			break
@@ -12158,12 +12487,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Postgres.Name(childComplexity), true
 
+	case "Postgres.recovery":
+		if e.ComplexityRoot.Postgres.Recovery == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.Recovery(childComplexity), true
+
 	case "Postgres.resources":
 		if e.ComplexityRoot.Postgres.Resources == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Postgres.Resources(childComplexity), true
+
+	case "Postgres.state":
+		if e.ComplexityRoot.Postgres.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.State(childComplexity), true
 
 	case "Postgres.team":
 		if e.ComplexityRoot.Postgres.Team == nil {
@@ -12233,12 +12576,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresAccess.Name(childComplexity), true
 
-	case "PostgresAccess.postgresBranch":
-		if e.ComplexityRoot.PostgresAccess.PostgresBranch == nil {
+	case "PostgresAccess.postgres":
+		if e.ComplexityRoot.PostgresAccess.Postgres == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresAccess.PostgresBranch(childComplexity), true
+		return e.ComplexityRoot.PostgresAccess.Postgres(childComplexity), true
 
 	case "PostgresAccess.relayAccess":
 		if e.ComplexityRoot.PostgresAccess.RelayAccess == nil {
@@ -12316,100 +12659,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
-
-	case "PostgresBranch.configuration":
-		if e.ComplexityRoot.PostgresBranch.Configuration == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Configuration(childComplexity), true
-
-	case "PostgresBranch.createdAt":
-		if e.ComplexityRoot.PostgresBranch.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.CreatedAt(childComplexity), true
-
-	case "PostgresBranch.earliestRestoreTime":
-		if e.ComplexityRoot.PostgresBranch.EarliestRestoreTime == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.EarliestRestoreTime(childComplexity), true
-
-	case "PostgresBranch.id":
-		if e.ComplexityRoot.PostgresBranch.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.ID(childComplexity), true
-
-	case "PostgresBranch.issues":
-		if e.ComplexityRoot.PostgresBranch.Issues == nil {
-			break
-		}
-
-		args, err := ec.field_PostgresBranch_issues_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Issues(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*issue.IssueOrder), args["filter"].(*issue.ResourceIssueFilter)), true
-
-	case "PostgresBranch.labels":
-		if e.ComplexityRoot.PostgresBranch.Labels == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Labels(childComplexity), true
-
-	case "PostgresBranch.name":
-		if e.ComplexityRoot.PostgresBranch.Name == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Name(childComplexity), true
-
-	case "PostgresBranch.postgres":
-		if e.ComplexityRoot.PostgresBranch.Postgres == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Postgres(childComplexity), true
-
-	case "PostgresBranch.state":
-		if e.ComplexityRoot.PostgresBranch.State == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.State(childComplexity), true
-
-	case "PostgresBranch.team":
-		if e.ComplexityRoot.PostgresBranch.Team == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Team(childComplexity), true
-
-	case "PostgresBranch.teamEnvironment":
-		if e.ComplexityRoot.PostgresBranch.TeamEnvironment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranch.TeamEnvironment(childComplexity), true
-
-	case "PostgresBranch.workloads":
-		if e.ComplexityRoot.PostgresBranch.Workloads == nil {
-			break
-		}
-
-		args, err := ec.field_PostgresBranch_workloads_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.PostgresBranch.Workloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "PostgresBranchActivatedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresBranchActivatedActivityLogEntry.Actor == nil {
@@ -12501,34 +12750,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresBranchActivityLogEntryData.TargetTime(childComplexity), true
-
-	case "PostgresBranchConnection.edges":
-		if e.ComplexityRoot.PostgresBranchConnection.Edges == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchConnection.Edges(childComplexity), true
-
-	case "PostgresBranchConnection.facets":
-		if e.ComplexityRoot.PostgresBranchConnection.Facets == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchConnection.Facets(childComplexity), true
-
-	case "PostgresBranchConnection.nodes":
-		if e.ComplexityRoot.PostgresBranchConnection.Nodes == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchConnection.Nodes(childComplexity), true
-
-	case "PostgresBranchConnection.pageInfo":
-		if e.ComplexityRoot.PostgresBranchConnection.PageInfo == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchConnection.PageInfo(childComplexity), true
 
 	case "PostgresBranchCreatedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresBranchCreatedActivityLogEntry.Actor == nil {
@@ -12670,90 +12891,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBranchDeletedActivityLogEntry.TeamSlug(childComplexity), true
 
-	case "PostgresBranchEdge.cursor":
-		if e.ComplexityRoot.PostgresBranchEdge.Cursor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchEdge.Cursor(childComplexity), true
-
-	case "PostgresBranchEdge.node":
-		if e.ComplexityRoot.PostgresBranchEdge.Node == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchEdge.Node(childComplexity), true
-
-	case "PostgresBranchFacets.environments":
-		if e.ComplexityRoot.PostgresBranchFacets.Environments == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchFacets.Environments(childComplexity), true
-
-	case "PostgresBranchFacets.labels":
-		if e.ComplexityRoot.PostgresBranchFacets.Labels == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchFacets.Labels(childComplexity), true
-
-	case "PostgresBranchFacets.states":
-		if e.ComplexityRoot.PostgresBranchFacets.States == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchFacets.States(childComplexity), true
-
-	case "PostgresBranchIssue.branch":
-		if e.ComplexityRoot.PostgresBranchIssue.Branch == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchIssue.Branch(childComplexity), true
-
-	case "PostgresBranchIssue.id":
-		if e.ComplexityRoot.PostgresBranchIssue.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchIssue.ID(childComplexity), true
-
-	case "PostgresBranchIssue.message":
-		if e.ComplexityRoot.PostgresBranchIssue.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchIssue.Message(childComplexity), true
-
-	case "PostgresBranchIssue.severity":
-		if e.ComplexityRoot.PostgresBranchIssue.Severity == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchIssue.Severity(childComplexity), true
-
-	case "PostgresBranchIssue.teamEnvironment":
-		if e.ComplexityRoot.PostgresBranchIssue.TeamEnvironment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchIssue.TeamEnvironment(childComplexity), true
-
-	case "PostgresBranchStateFacetItem.count":
-		if e.ComplexityRoot.PostgresBranchStateFacetItem.Count == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchStateFacetItem.Count(childComplexity), true
-
-	case "PostgresBranchStateFacetItem.state":
-		if e.ComplexityRoot.PostgresBranchStateFacetItem.State == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresBranchStateFacetItem.State(childComplexity), true
-
 	case "PostgresConfiguration.parameters":
 		if e.ComplexityRoot.PostgresConfiguration.Parameters == nil {
 			break
@@ -12788,6 +12925,39 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresConnection.PageInfo(childComplexity), true
+
+	case "PostgresCost.daily":
+		if e.ComplexityRoot.PostgresCost.Daily == nil {
+			break
+		}
+
+		args, err := ec.field_PostgresCost_daily_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.PostgresCost.Daily(childComplexity, args["from"].(scalar.Date), args["to"].(scalar.Date)), true
+
+	case "PostgresCost.monthly":
+		if e.ComplexityRoot.PostgresCost.Monthly == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCost.Monthly(childComplexity), true
+
+	case "PostgresCostPeriod.series":
+		if e.ComplexityRoot.PostgresCostPeriod.Series == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCostPeriod.Series(childComplexity), true
+
+	case "PostgresCostPeriod.sum":
+		if e.ComplexityRoot.PostgresCostPeriod.Sum == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresCostPeriod.Sum(childComplexity), true
 
 	case "PostgresCreatedActivityLogEntry.actor":
 		if e.ComplexityRoot.PostgresCreatedActivityLogEntry.Actor == nil {
@@ -13020,6 +13190,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
 
+	case "PostgresIssue.id":
+		if e.ComplexityRoot.PostgresIssue.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.ID(childComplexity), true
+
+	case "PostgresIssue.message":
+		if e.ComplexityRoot.PostgresIssue.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Message(childComplexity), true
+
+	case "PostgresIssue.postgres":
+		if e.ComplexityRoot.PostgresIssue.Postgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Postgres(childComplexity), true
+
+	case "PostgresIssue.severity":
+		if e.ComplexityRoot.PostgresIssue.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.Severity(childComplexity), true
+
+	case "PostgresIssue.teamEnvironment":
+		if e.ComplexityRoot.PostgresIssue.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresIssue.TeamEnvironment(childComplexity), true
+
 	case "PostgresParameter.name":
 		if e.ComplexityRoot.PostgresParameter.Name == nil {
 			break
@@ -13195,6 +13400,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username(childComplexity), true
 
+	case "PostgresRecovery.completed":
+		if e.ComplexityRoot.PostgresRecovery.Completed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.Completed(childComplexity), true
+
+	case "PostgresRecovery.failureMessage":
+		if e.ComplexityRoot.PostgresRecovery.FailureMessage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.FailureMessage(childComplexity), true
+
+	case "PostgresRecovery.sourcePostgres":
+		if e.ComplexityRoot.PostgresRecovery.SourcePostgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.SourcePostgres(childComplexity), true
+
+	case "PostgresRecovery.targetTime":
+		if e.ComplexityRoot.PostgresRecovery.TargetTime == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.TargetTime(childComplexity), true
+
 	case "PostgresResources.cpu":
 		if e.ComplexityRoot.PostgresResources.CPU == nil {
 			break
@@ -13314,12 +13547,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
 
-	case "PostgresWorkload.branch":
-		if e.ComplexityRoot.PostgresWorkload.Branch == nil {
+	case "PostgresWorkload.postgres":
+		if e.ComplexityRoot.PostgresWorkload.Postgres == nil {
 			break
 		}
 
-		return e.ComplexityRoot.PostgresWorkload.Branch(childComplexity), true
+		return e.ComplexityRoot.PostgresWorkload.Postgres(childComplexity), true
 
 	case "PostgresWorkload.workload":
 		if e.ComplexityRoot.PostgresWorkload.Workload == nil {
@@ -13573,6 +13806,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Query.Features(childComplexity), true
 
+	case "Query.globalWebhooks":
+		if e.ComplexityRoot.Query.GlobalWebhooks == nil {
+			break
+		}
+
+		args, err := ec.field_Query_globalWebhooks_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.GlobalWebhooks(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Query.imageVulnerabilityHistory":
 		if e.ComplexityRoot.Query.ImageVulnerabilityHistory == nil {
 			break
@@ -13790,6 +14035,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter)), true
+
+	case "Query.webhookEventTypes":
+		if e.ComplexityRoot.Query.WebhookEventTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.WebhookEventTypes(childComplexity), true
 
 	case "Reconciler.activityLog":
 		if e.ComplexityRoot.Reconciler.ActivityLog == nil {
@@ -17722,6 +17974,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter)), true
 
+	case "Team.webhooks":
+		if e.ComplexityRoot.Team.Webhooks == nil {
+			break
+		}
+
+		args, err := ec.field_Team_webhooks_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.Webhooks(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
 	case "Team.workloadUtilization":
 		if e.ComplexityRoot.Team.WorkloadUtilization == nil {
 			break
@@ -18650,13 +18914,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamInventoryCountOpenSearches.Total(childComplexity), true
 
-	case "TeamInventoryCountPostgresBranches.total":
-		if e.ComplexityRoot.TeamInventoryCountPostgresBranches.Total == nil {
-			break
-		}
-
-		return e.ComplexityRoot.TeamInventoryCountPostgresBranches.Total(childComplexity), true
-
 	case "TeamInventoryCountSecrets.total":
 		if e.ComplexityRoot.TeamInventoryCountSecrets.Total == nil {
 			break
@@ -18726,13 +18983,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamInventoryCounts.OpenSearches(childComplexity), true
-
-	case "TeamInventoryCounts.postgresBranches":
-		if e.ComplexityRoot.TeamInventoryCounts.PostgresBranches == nil {
-			break
-		}
-
-		return e.ComplexityRoot.TeamInventoryCounts.PostgresBranches(childComplexity), true
 
 	case "TeamInventoryCounts.sqlInstances":
 		if e.ComplexityRoot.TeamInventoryCounts.SQLInstances == nil {
@@ -19475,6 +19725,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TenantVulnerabilitySummary.Unassigned(childComplexity), true
+
+	case "TestWebhookPayload.delivery":
+		if e.ComplexityRoot.TestWebhookPayload.Delivery == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TestWebhookPayload.Delivery(childComplexity), true
 
 	case "TokenXAuthIntegration.name":
 		if e.ComplexityRoot.TokenXAuthIntegration.Name == nil {
@@ -20271,6 +20528,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.UpdateValkeyPayload.Valkey(childComplexity), true
+
+	case "UpdateWebhookPayload.webhook":
+		if e.ComplexityRoot.UpdateWebhookPayload.Webhook == nil {
+			break
+		}
+
+		return e.ComplexityRoot.UpdateWebhookPayload.Webhook(childComplexity), true
 
 	case "User.email":
 		if e.ComplexityRoot.User.Email == nil {
@@ -21592,6 +21856,611 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerableImageIssue.Workload(childComplexity), true
 
+	case "WebhookActivityLogEntryData.name":
+		if e.ComplexityRoot.WebhookActivityLogEntryData.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookActivityLogEntryData.Name(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.actor":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.Actor(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.data":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.Data(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.id":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.ID(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.message":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.Message(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "WebhookCreatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.WebhookCreatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookCreatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.actor":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.Actor(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.data":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.Data(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.id":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.ID(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.message":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.Message(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "WebhookDeletedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.WebhookDeletedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeletedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "WebhookDelivery.createdAt":
+		if e.ComplexityRoot.WebhookDelivery.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.CreatedAt(childComplexity), true
+
+	case "WebhookDelivery.deliveryState":
+		if e.ComplexityRoot.WebhookDelivery.DeliveryState == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.DeliveryState(childComplexity), true
+
+	case "WebhookDelivery.durationMs":
+		if e.ComplexityRoot.WebhookDelivery.DurationMs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.DurationMs(childComplexity), true
+
+	case "WebhookDelivery.errorMessage":
+		if e.ComplexityRoot.WebhookDelivery.ErrorMessage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ErrorMessage(childComplexity), true
+
+	case "WebhookDelivery.eventType":
+		if e.ComplexityRoot.WebhookDelivery.EventType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.EventType(childComplexity), true
+
+	case "WebhookDelivery.id":
+		if e.ComplexityRoot.WebhookDelivery.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ID(childComplexity), true
+
+	case "WebhookDelivery.isTest":
+		if e.ComplexityRoot.WebhookDelivery.IsTest == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.IsTest(childComplexity), true
+
+	case "WebhookDelivery.requestBody":
+		if e.ComplexityRoot.WebhookDelivery.RequestBody == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.RequestBody(childComplexity), true
+
+	case "WebhookDelivery.requestHeaders":
+		if e.ComplexityRoot.WebhookDelivery.RequestHeaders == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.RequestHeaders(childComplexity), true
+
+	case "WebhookDelivery.responseBody":
+		if e.ComplexityRoot.WebhookDelivery.ResponseBody == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseBody(childComplexity), true
+
+	case "WebhookDelivery.responseBodyTruncated":
+		if e.ComplexityRoot.WebhookDelivery.ResponseBodyTruncated == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseBodyTruncated(childComplexity), true
+
+	case "WebhookDelivery.responseHeaders":
+		if e.ComplexityRoot.WebhookDelivery.ResponseHeaders == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseHeaders(childComplexity), true
+
+	case "WebhookDelivery.responseStatus":
+		if e.ComplexityRoot.WebhookDelivery.ResponseStatus == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.ResponseStatus(childComplexity), true
+
+	case "WebhookDelivery.success":
+		if e.ComplexityRoot.WebhookDelivery.Success == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDelivery.Success(childComplexity), true
+
+	case "WebhookDeliveryConnection.edges":
+		if e.ComplexityRoot.WebhookDeliveryConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryConnection.Edges(childComplexity), true
+
+	case "WebhookDeliveryConnection.nodes":
+		if e.ComplexityRoot.WebhookDeliveryConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryConnection.Nodes(childComplexity), true
+
+	case "WebhookDeliveryConnection.pageInfo":
+		if e.ComplexityRoot.WebhookDeliveryConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryConnection.PageInfo(childComplexity), true
+
+	case "WebhookDeliveryEdge.cursor":
+		if e.ComplexityRoot.WebhookDeliveryEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryEdge.Cursor(childComplexity), true
+
+	case "WebhookDeliveryEdge.node":
+		if e.ComplexityRoot.WebhookDeliveryEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryEdge.Node(childComplexity), true
+
+	case "WebhookDeliveryState.attemptCount":
+		if e.ComplexityRoot.WebhookDeliveryState.AttemptCount == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryState.AttemptCount(childComplexity), true
+
+	case "WebhookDeliveryState.nextRetryAt":
+		if e.ComplexityRoot.WebhookDeliveryState.NextRetryAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryState.NextRetryAt(childComplexity), true
+
+	case "WebhookDeliveryState.status":
+		if e.ComplexityRoot.WebhookDeliveryState.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookDeliveryState.Status(childComplexity), true
+
+	case "WebhookEventTypeInfo.cloudEventType":
+		if e.ComplexityRoot.WebhookEventTypeInfo.CloudEventType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.CloudEventType(childComplexity), true
+
+	case "WebhookEventTypeInfo.description":
+		if e.ComplexityRoot.WebhookEventTypeInfo.Description == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.Description(childComplexity), true
+
+	case "WebhookEventTypeInfo.group":
+		if e.ComplexityRoot.WebhookEventTypeInfo.Group == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.Group(childComplexity), true
+
+	case "WebhookEventTypeInfo.teamScoped":
+		if e.ComplexityRoot.WebhookEventTypeInfo.TeamScoped == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.TeamScoped(childComplexity), true
+
+	case "WebhookEventTypeInfo.type":
+		if e.ComplexityRoot.WebhookEventTypeInfo.Type == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookEventTypeInfo.Type(childComplexity), true
+
+	case "WebhookHeader.name":
+		if e.ComplexityRoot.WebhookHeader.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookHeader.Name(childComplexity), true
+
+	case "WebhookHeader.values":
+		if e.ComplexityRoot.WebhookHeader.Values == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookHeader.Values(childComplexity), true
+
+	case "WebhookSubscription.activityLog":
+		if e.ComplexityRoot.WebhookSubscription.ActivityLog == nil {
+			break
+		}
+
+		args, err := ec.field_WebhookSubscription_activityLog_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
+	case "WebhookSubscription.allEvents":
+		if e.ComplexityRoot.WebhookSubscription.AllEvents == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.AllEvents(childComplexity), true
+
+	case "WebhookSubscription.consecutiveFailures":
+		if e.ComplexityRoot.WebhookSubscription.ConsecutiveFailures == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.ConsecutiveFailures(childComplexity), true
+
+	case "WebhookSubscription.createdAt":
+		if e.ComplexityRoot.WebhookSubscription.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.CreatedAt(childComplexity), true
+
+	case "WebhookSubscription.deliveries":
+		if e.ComplexityRoot.WebhookSubscription.Deliveries == nil {
+			break
+		}
+
+		args, err := ec.field_WebhookSubscription_deliveries_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.Deliveries(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
+
+	case "WebhookSubscription.disabledAt":
+		if e.ComplexityRoot.WebhookSubscription.DisabledAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.DisabledAt(childComplexity), true
+
+	case "WebhookSubscription.enabled":
+		if e.ComplexityRoot.WebhookSubscription.Enabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.Enabled(childComplexity), true
+
+	case "WebhookSubscription.eventTypes":
+		if e.ComplexityRoot.WebhookSubscription.EventTypes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.EventTypes(childComplexity), true
+
+	case "WebhookSubscription.hasSecret":
+		if e.ComplexityRoot.WebhookSubscription.HasSecret == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.HasSecret(childComplexity), true
+
+	case "WebhookSubscription.id":
+		if e.ComplexityRoot.WebhookSubscription.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.ID(childComplexity), true
+
+	case "WebhookSubscription.name":
+		if e.ComplexityRoot.WebhookSubscription.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.Name(childComplexity), true
+
+	case "WebhookSubscription.sourceTeamSlugs":
+		if e.ComplexityRoot.WebhookSubscription.SourceTeamSlugs == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.SourceTeamSlugs(childComplexity), true
+
+	case "WebhookSubscription.teamSlug":
+		if e.ComplexityRoot.WebhookSubscription.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.TeamSlug(childComplexity), true
+
+	case "WebhookSubscription.url":
+		if e.ComplexityRoot.WebhookSubscription.URL == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.URL(childComplexity), true
+
+	case "WebhookSubscription.updatedAt":
+		if e.ComplexityRoot.WebhookSubscription.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscription.UpdatedAt(childComplexity), true
+
+	case "WebhookSubscriptionConnection.edges":
+		if e.ComplexityRoot.WebhookSubscriptionConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionConnection.Edges(childComplexity), true
+
+	case "WebhookSubscriptionConnection.nodes":
+		if e.ComplexityRoot.WebhookSubscriptionConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionConnection.Nodes(childComplexity), true
+
+	case "WebhookSubscriptionConnection.pageInfo":
+		if e.ComplexityRoot.WebhookSubscriptionConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionConnection.PageInfo(childComplexity), true
+
+	case "WebhookSubscriptionEdge.cursor":
+		if e.ComplexityRoot.WebhookSubscriptionEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionEdge.Cursor(childComplexity), true
+
+	case "WebhookSubscriptionEdge.node":
+		if e.ComplexityRoot.WebhookSubscriptionEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookSubscriptionEdge.Node(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.actor":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Actor(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.createdAt":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.data":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Data(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.environmentName":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.id":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ID(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.message":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.Message(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.resourceName":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceName(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.resourceType":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.ResourceType(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryData.name":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.Name(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryData.updatedFields":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.UpdatedFields == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryData.UpdatedFields(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryDataUpdatedField.field":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.Field == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.Field(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryDataUpdatedField.newValue":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.NewValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.NewValue(childComplexity), true
+
+	case "WebhookUpdatedActivityLogEntryDataUpdatedField.oldValue":
+		if e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.OldValue == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WebhookUpdatedActivityLogEntryDataUpdatedField.OldValue(childComplexity), true
+
 	case "WorkloadConnection.edges":
 		if e.ComplexityRoot.WorkloadConnection.Edges == nil {
 			break
@@ -21792,13 +22661,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WorkloadLogLine.Time(childComplexity), true
-
-	case "WorkloadPostgres.branch":
-		if e.ComplexityRoot.WorkloadPostgres.Branch == nil {
-			break
-		}
-
-		return e.ComplexityRoot.WorkloadPostgres.Branch(childComplexity), true
 
 	case "WorkloadPostgres.envPrefix":
 		if e.ComplexityRoot.WorkloadPostgres.EnvPrefix == nil {
@@ -22145,6 +23007,55 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadVulnerabilitySummaryEdge.Node(childComplexity), true
 
+	case "WorkloadWarningEvent.count":
+		if e.ComplexityRoot.WorkloadWarningEvent.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Count(childComplexity), true
+
+	case "WorkloadWarningEvent.firstSeenAt":
+		if e.ComplexityRoot.WorkloadWarningEvent.FirstSeenAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.FirstSeenAt(childComplexity), true
+
+	case "WorkloadWarningEvent.id":
+		if e.ComplexityRoot.WorkloadWarningEvent.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.ID(childComplexity), true
+
+	case "WorkloadWarningEvent.instance":
+		if e.ComplexityRoot.WorkloadWarningEvent.Instance == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Instance(childComplexity), true
+
+	case "WorkloadWarningEvent.kind":
+		if e.ComplexityRoot.WorkloadWarningEvent.Kind == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Kind(childComplexity), true
+
+	case "WorkloadWarningEvent.message":
+		if e.ComplexityRoot.WorkloadWarningEvent.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.Message(childComplexity), true
+
+	case "WorkloadWarningEvent.triggeredAt":
+		if e.ComplexityRoot.WorkloadWarningEvent.TriggeredAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadWarningEvent.TriggeredAt(childComplexity), true
+
 	case "WorkloadWithVulnerability.id":
 		if e.ComplexityRoot.WorkloadWithVulnerability.ID == nil {
 			break
@@ -22216,7 +23127,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputActivatePostgresBranchInput,
 		ec.unmarshalInputActivityLogFilter,
 		ec.unmarshalInputAddConfigValueInput,
 		ec.unmarshalInputAddRepositoryToTeamInput,
@@ -22247,7 +23157,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreatePostgresAccessInput,
-		ec.unmarshalInputCreatePostgresBranchInput,
 		ec.unmarshalInputCreatePostgresInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
@@ -22257,12 +23166,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateUnleashForTeamInput,
 		ec.unmarshalInputCreateValkeyCredentialsInput,
 		ec.unmarshalInputCreateValkeyInput,
+		ec.unmarshalInputCreateWebhookInput,
 		ec.unmarshalInputDeleteApplicationInput,
 		ec.unmarshalInputDeleteConfigInput,
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
-		ec.unmarshalInputDeletePostgresBranchInput,
 		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
@@ -22270,6 +23179,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteTunnelInput,
 		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
+		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeploymentFilter,
 		ec.unmarshalInputDeploymentOrder,
 		ec.unmarshalInputDisableReconcilerInput,
@@ -22294,8 +23204,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
-		ec.unmarshalInputPostgresBranchFilter,
-		ec.unmarshalInputPostgresBranchOrder,
+		ec.unmarshalInputPostgresRecoveryInput,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
 		ec.unmarshalInputRemoveRepositoryFromTeamInput,
@@ -22335,6 +23244,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTenantActivityLogFilter,
 		ec.unmarshalInputTenantIssueFilter,
 		ec.unmarshalInputTenantVulnerabilitySummaryFilter,
+		ec.unmarshalInputTestWebhookInput,
 		ec.unmarshalInputTriggerJobInput,
 		ec.unmarshalInputUpdateApplicationInput,
 		ec.unmarshalInputUpdateApplicationReplicasInput,
@@ -22353,6 +23263,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateTeamInput,
 		ec.unmarshalInputUpdateUnleashInstanceInput,
 		ec.unmarshalInputUpdateValkeyInput,
+		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkloadEnvironmentVariableInput,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
@@ -22361,6 +23272,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
+		ec.unmarshalInputWebhookEventSelection,
 		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
@@ -22693,6 +23605,26 @@ extend type ServiceAccount implements ActivityLogger {
 		"""
 		Filter items.
 		"""
+		filter: ActivityLogFilter
+	): ActivityLogEntryConnection!
+}
+
+extend type WebhookSubscription implements ActivityLogger {
+	"Activity log for this webhook subscription, scoped to its unique identifier."
+	activityLog(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+
+		"Filter activity log entries for this subscription."
 		filter: ActivityLogFilter
 	): ActivityLogEntryConnection!
 }
@@ -23583,6 +24515,67 @@ type ApplicationScaling {
 	Scaling strategies for the application.
 	"""
 	strategies: [ScalingStrategy!]!
+
+	"""
+	The current state of automatic scaling for the application.
+	Null if automatic scaling is not set up for the application in the environment.
+	"""
+	status: ApplicationScalingStatus
+}
+
+"""
+The current state of automatic scaling for an application.
+"""
+type ApplicationScalingStatus {
+	"""
+	The number of instances currently running.
+	"""
+	currentInstances: Int!
+
+	"""
+	The number of instances that automatic scaling wants to run.
+	"""
+	desiredInstances: Int!
+
+	"""
+	The state of automatic scaling.
+	"""
+	state: ApplicationScalingState!
+
+	"""
+	A user-friendly description of the current state.
+	"""
+	message: String!
+}
+
+"""
+The state of automatic scaling for an application.
+"""
+enum ApplicationScalingState {
+	"""
+	Automatic scaling is working as expected.
+	"""
+	ACTIVE
+
+	"""
+	The application needs more instances than the configured maximum.
+	"""
+	LIMITED_BY_MAXIMUM
+
+	"""
+	The metrics used for automatic scaling cannot be read, so the number of instances is not adjusted.
+	"""
+	METRICS_UNAVAILABLE
+
+	"""
+	The platform is currently unable to change the number of instances.
+	"""
+	UNABLE_TO_SCALE
+
+	"""
+	Automatic scaling is turned off because the application has been scaled down to zero instances.
+	"""
+	DISABLED
 }
 
 """
@@ -23887,7 +24880,8 @@ type ApplicationInstanceStatus {
 	"""
 	message: String!
 	"""
-	Whether the container is passing its readiness check and can receive traffic.
+	Whether the instance is passing its readiness check and can receive traffic.
+	An instance does not receive traffic while a component added by the platform is failing.
 	"""
 	ready: Boolean!
 	"""
@@ -23909,6 +24903,8 @@ type ApplicationInstanceStatus {
 
 enum ApplicationInstanceState {
 	RUNNING
+	"The instance is waiting to be placed on a server, for example because there is not enough CPU or memory available."
+	PENDING
 	STARTING
 	FAILING
 	TERMINATED
@@ -25427,7 +26423,7 @@ type ServiceCostSeries {
 	"The sum of the cost across all services."
 	sum: Float!
 
-	"The cost for the services used by the workload."
+	"The cost for the services used by the resource."
 	services: [ServiceCostSample!]!
 }
 
@@ -25483,6 +26479,34 @@ extend type BigQueryDataset {
 
 type BigQueryDatasetCost {
 	sum: Float!
+}
+
+extend type Postgres {
+	"The cost for this Postgres. Billing data is delayed by at least two days."
+	cost: PostgresCost!
+}
+
+"The cost for a Postgres."
+type PostgresCost {
+	"Daily cost in ascending date order. Dates without cost data are omitted. Null when there is no cost data in the period."
+	daily(
+		"Start date of the period, inclusive."
+		from: Date!
+
+		"End date of the period, inclusive; must not be in the future."
+		to: Date!
+	): PostgresCostPeriod
+
+	"Monthly cost for the last 12 months, newest first. The date is the last day with cost data in the month. Null when there is no cost data."
+	monthly: PostgresCostPeriod
+}
+
+type PostgresCostPeriod {
+	"The total cost in euros for the period."
+	sum: Float!
+
+	"The cost series."
+	series: [ServiceCostSeries!]!
 }
 
 extend type SqlInstance {
@@ -26619,8 +27643,8 @@ enum Severity {
 }
 
 enum ResourceType {
-	"A branch of a Postgres database."
-	POSTGRES_BRANCH
+	"Postgres database."
+	POSTGRES
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE
@@ -26630,8 +27654,8 @@ enum ResourceType {
 }
 
 enum IssueType {
-	"Raised when a Postgres branch has reported a failure."
-	POSTGRES_BRANCH
+	"Postgres database failure."
+	POSTGRES
 	OPENSEARCH
 	VALKEY
 	SQLINSTANCE_STATE
@@ -26651,6 +27675,8 @@ enum IssueType {
 	UNLEASH_RELEASE_CHANNEL
 	"Raised when an application is stuck in a restart loop."
 	APPLICATION_RESTART_LOOP
+	"Raised when a new version of an application is not being rolled out."
+	APPLICATION_ROLLOUT_STUCK
 }
 
 type VulnerableImageIssue implements Issue & Node {
@@ -26762,18 +27788,18 @@ type ValkeyIssue implements Issue & Node {
 	event: String!
 }
 
-"A failure reported by a Postgres branch, including inactive branches."
-type PostgresBranchIssue implements Issue & Node {
+"A failure reported by a Postgres database."
+type PostgresIssue implements Issue & Node {
 	"Unique identifier for this issue."
 	id: ID!
-	"Team environment containing the affected branch."
+	"Team environment containing the affected Postgres database."
 	teamEnvironment: TeamEnvironment!
 	"Severity of the reported failure."
 	severity: Severity!
 	"Description of the reported failure."
 	message: String!
-	"The branch that reported the failure."
-	branch: PostgresBranch!
+	"The Postgres database that reported the failure."
+	postgres: Postgres!
 }
 
 type SqlInstanceVersionIssue implements Issue & Node {
@@ -26866,6 +27892,31 @@ type ApplicationRestartLoopIssue implements Issue & Node {
 	lastExitReason: String!
 	"The timestamp of the last container exit."
 	lastExitTimestamp: Time!
+}
+
+"An issue raised when a new version of an application is not being rolled out."
+type ApplicationRolloutStuckIssue implements Issue & Node {
+	"Unique identifier for this issue."
+	id: ID!
+	"The team environment where the issue was detected."
+	teamEnvironment: TeamEnvironment!
+	"The severity of the issue."
+	severity: Severity!
+	"A human-readable description of the issue."
+	message: String!
+
+	"The workload whose rollout is stuck."
+	workload: Workload!
+	"Why the rollout is stuck."
+	reason: ApplicationRolloutStuckReason!
+}
+
+"Why a rollout of a new application version is stuck."
+enum ApplicationRolloutStuckReason {
+	"The new version did not become ready within the allowed time."
+	TIMED_OUT
+	"Instances of the new version could not be created, for example because of a quota or a platform policy."
+	INSTANCE_CREATION_FAILED
 }
 `, BuiltIn: false},
 	{Name: "../schema/jobs.graphqls", Input: `extend type Team {
@@ -27147,6 +28198,63 @@ type JobRunInstance implements Node {
 
 	"The name of the job run instance."
 	name: String!
+
+	"The container image of the job run instance."
+	image: ContainerImage!
+
+	"The number of times the job run instance has been restarted."
+	restarts: Int!
+
+	"The time the job run instance was created."
+	created: Time!
+
+	"The current status of the job run instance."
+	status: JobRunInstanceStatus!
+}
+
+"The status of a job run instance."
+type JobRunInstanceStatus {
+	"The current state of the job run instance."
+	state: JobRunInstanceState!
+
+	"A user-friendly description of the current state."
+	message: String!
+
+	"""
+	The reason the job run instance last terminated, if applicable.
+	This is populated even when the instance is currently running, to help debug restarts.
+	"""
+	lastExitReason: String
+
+	"The exit code from the last termination of the job run instance, if applicable."
+	lastExitCode: Int
+
+	"""
+	The timestamp of the last termination of the job run instance, if applicable.
+	This is populated even when the instance is currently running, to help debug restarts.
+	"""
+	lastExitTimestamp: Time
+}
+
+"The state of a job run instance."
+enum JobRunInstanceState {
+	"The job run instance is running."
+	RUNNING
+
+	"The job run instance is waiting to be placed on a server, for example because there is not enough CPU or memory available."
+	PENDING
+
+	"The job run instance is starting."
+	STARTING
+
+	"The job run instance has a problem that prevents it from running or completing successfully."
+	FAILING
+
+	"The job run instance completed successfully."
+	SUCCEEDED
+
+	"The state of the job run instance is unknown."
+	UNKNOWN
 }
 
 type JobRunStatus {
@@ -27838,7 +28946,7 @@ extend enum SearchType {
 input CreateKafkaCredentialsInput {
 	"The team that owns the Kafka topic."
 	teamSlug: Slug!
-	"The environment name that the Kafka topic belongs to."
+	"The environment to create Kafka credentials for."
 	environmentName: String!
 	"Time-to-live for the credentials (e.g. '1d', '7d'). Maximum 365 days."
 	ttl: String!
@@ -27862,6 +28970,8 @@ type KafkaCredentials {
 type CreateKafkaCredentialsPayload {
 	"The generated credentials."
 	credentials: KafkaCredentials!
+	"The environment the Kafka credentials were created for."
+	environmentName: String!
 }
 
 "Payload of the updateKafkaTopic mutation."
@@ -28916,7 +30026,7 @@ type WorkloadLogLine {
 }
 
 extend type Team {
-	"Postgres databases owned by the team, including those without branches."
+	"Postgres databases owned by the team."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -28945,7 +30055,7 @@ extend type TeamEnvironment {
 }
 
 extend interface Workload {
-	"Postgres references configured in uses.postgres, including their resolved branch."
+	"Postgres references configured in uses.postgres."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -28959,7 +30069,7 @@ extend interface Workload {
 }
 
 extend type Application {
-	"Postgres references configured in uses.postgres, including their resolved branch."
+	"Postgres references configured in uses.postgres."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -28973,7 +30083,7 @@ extend type Application {
 }
 
 extend type Job {
-	"Postgres references configured in uses.postgres, including their resolved branch."
+	"Postgres references configured in uses.postgres."
 	postgreses(
 		"Get the first n items in the connection. This can be used in combination with the after parameter."
 		first: Int
@@ -28994,84 +30104,7 @@ input TeamPostgresFilter {
 	labels: [LabelFilter!]
 }
 
-input PostgresBranchOrder {
-	field: PostgresBranchOrderField!
-	direction: OrderDirection!
-}
-
-"""
-Input for filtering Postgres branches.
-"""
-input PostgresBranchFilter {
-	"Filter by the name of the branch."
-	name: String
-
-	"Filter by environments."
-	environments: [String!]
-
-	"Filter by branch state."
-	states: [PostgresBranchState!]
-
-	"Filter by user-defined labels. All listed labels must match."
-	labels: [LabelFilter!]
-}
-
-enum PostgresBranchOrderField {
-	NAME
-	ENVIRONMENT
-}
-
-"A named PostgresBranch belonging to a Postgres."
-type PostgresBranch implements Persistence & Node {
-	id: ID!
-	"Local name of this branch within its Postgres."
-	name: String!
-	"Time when this branch was created."
-	createdAt: Time!
-	"Earliest time the branch can currently be restored from its archived backups."
-	earliestRestoreTime: Time
-	"Configured PostgreSQL settings for this branch. Null until configuration is available."
-	configuration: PostgresConfiguration
-	team: Team!
-	teamEnvironment: TeamEnvironment!
-	"Postgres owning this PostgresBranch."
-	postgres: Postgres!
-	"Workloads explicitly using this branch, or following it while it is active."
-	workloads(
-		"Get the first n items in the connection. This can be used in combination with the after parameter."
-		first: Int
-
-		"Get items after this cursor."
-		after: Cursor
-
-		"Get the last n items in the connection. This can be used in combination with the before parameter."
-		last: Int
-
-		"Get items before this cursor."
-		before: Cursor
-	): WorkloadConnection!
-	"Current observed state of the branch."
-	state: PostgresBranchState!
-	"Issues affecting this branch."
-	issues(
-		"Get the first n items in the connection."
-		first: Int
-		"Get items after this cursor."
-		after: Cursor
-		"Get the last n items in the connection."
-		last: Int
-		"Get items before this cursor."
-		before: Cursor
-		"Ordering options for the issues."
-		orderBy: IssueOrder
-		"Filtering options for the issues."
-		filter: ResourceIssueFilter
-	): IssueConnection!
-	"User-defined labels on this branch."
-	labels: [ResourceLabel!]!
-}
-
-"Configured PostgreSQL settings for a branch."
+"Configured PostgreSQL settings for a database."
 type PostgresConfiguration {
 	"Explicitly configured PostgreSQL parameters, sorted by name. Implicit default values are not included."
 	parameters: [PostgresParameter!]!
@@ -29085,7 +30118,7 @@ type PostgresParameter {
 	value: String!
 }
 
-"A Postgres whose active branch can change."
+"A managed Postgres database."
 type Postgres implements Node {
 	"Opaque identifier for this Postgres."
 	id: ID!
@@ -29095,6 +30128,31 @@ type Postgres implements Node {
 	teamEnvironment: TeamEnvironment!
 	"Name of this Postgres."
 	name: String!
+	"When this Postgres was created."
+	createdAt: Time!
+	"Observed database state; availability does not guarantee successful client connections."
+	state: PostgresState!
+	"Observed PostgreSQL configuration, when available."
+	configuration: PostgresConfiguration
+	"Earliest point in time covered by available backups, when known."
+	earliestRestoreTime: Time
+	"Where this database was restored from, if it was created by a recovery."
+	recovery: PostgresRecovery
+	"Issues reported for this database."
+	issues(
+		"Get the first n items in the connection."
+		first: Int
+		"Get items after this cursor."
+		after: Cursor
+		"Get the last n items in the connection."
+		last: Int
+		"Get items before this cursor."
+		before: Cursor
+		"Order issues."
+		orderBy: IssueOrder
+		"Filter issues."
+		filter: ResourceIssueFilter
+	): IssueConnection!
 	"Configured PostgreSQL major version."
 	majorVersion: String!
 	"Names of PostgreSQL extensions configured for this Postgres."
@@ -29103,11 +30161,7 @@ type Postgres implements Node {
 	highAvailability: Boolean!
 	"Requested CPU, memory and disk size, when present on this Postgres."
 	resources: PostgresResources!
-	"Branch requested for activation; may differ from the active branch while activation is in progress."
-	desiredActiveBranch: String
-	"Currently observed active branch, if selected."
-	activeBranch: PostgresBranch
-	"Workloads referencing this Postgres, including references to inactive branches and workloads following the active branch. Each workload is included once."
+	"Workloads referencing this Postgres. Each workload is included once."
 	workloads(
 		"Get the first n items in the connection."
 		first: Int
@@ -29118,26 +30172,26 @@ type Postgres implements Node {
 		"Get items before this cursor."
 		before: Cursor
 	): PostgresWorkloadConnection!
-	"Branch with this local name in this Postgres."
-	branch(name: String!): PostgresBranch!
-	"Branches belonging to this Postgres."
-	branches(
-		first: Int
-		after: Cursor
-		last: Int
-		before: Cursor
-		orderBy: PostgresBranchOrder
-	): PostgresBranchConnection!
 	"User-defined labels on this Postgres."
 	labels: [ResourceLabel!]!
 }
 
-"A workload referencing a Postgres and the branch it uses."
+"Observed state of a Postgres database."
+enum PostgresState {
+	"The database reports that it is available."
+	AVAILABLE
+	"The database is being provisioned or reconciled."
+	PROGRESSING
+	"The database reports an error requiring intervention."
+	DEGRADED
+}
+
+"A workload referencing a Postgres database."
 type PostgresWorkload {
 	"The application or job referencing this Postgres."
 	workload: Workload!
-	"The explicitly referenced branch, or the observed active branch when no branch is specified. Defaults to main when no active branch has been observed; a requested activation does not change this selection until observed."
-	branch: PostgresBranch!
+	"The database referenced by this workload."
+	postgres: Postgres!
 }
 
 "A Postgres reference from a workload's uses.postgres configuration."
@@ -29146,8 +30200,6 @@ type WorkloadPostgres {
 	envPrefix: String
 	"Database privileges granted to the workload. Defaults to admin."
 	role: PostgresUserRole!
-	"The branch this workload resolves to: the explicit branch, observed active branch, or main before an active branch is observed."
-	branch: PostgresBranch!
 	"The Postgres resource referenced by this use."
 	postgres: Postgres!
 }
@@ -29176,25 +30228,25 @@ type WorkloadPostgresConnection {
 type WorkloadPostgresEdge {
 	"Cursor for this Postgres use in the connection."
 	cursor: Cursor!
-	"The Postgres use and the branch it resolves to."
+	"The configured Postgres use."
 	node: WorkloadPostgres!
 }
 
-"A paginated list of workload and branch relationships. Each workload is included once."
+"A paginated list of workload and database relationships. Each workload is included once."
 type PostgresWorkloadConnection {
 	"Pagination information, including the total number of workloads before pagination."
 	pageInfo: PageInfo!
-	"Workload and branch relationships on this page."
+	"Workload and database relationships on this page."
 	nodes: [PostgresWorkload!]!
-	"Workload and branch relationships with their pagination cursors."
+	"Workload and database relationships with their pagination cursors."
 	edges: [PostgresWorkloadEdge!]!
 }
 
-"A workload and branch relationship with its pagination cursor."
+"A workload and database relationship with its pagination cursor."
 type PostgresWorkloadEdge {
 	"Cursor for this workload in the connection."
 	cursor: Cursor!
-	"The workload and the branch it uses."
+	"The workload and the database it uses."
 	node: PostgresWorkload!
 }
 
@@ -29226,58 +30278,6 @@ type PostgresResources {
 	memory: String
 	"Requested disk size."
 	diskSize: String
-}
-
-"Provisioning state and observed health of a PostgresBranch."
-enum PostgresBranchState {
-	"The branch is healthy and ready."
-	AVAILABLE
-	"The branch is provisioning or its state has not been observed yet."
-	PROGRESSING
-	"The branch has reported a failure."
-	DEGRADED
-}
-
-type PostgresBranchConnection {
-	pageInfo: PageInfo!
-	nodes: [PostgresBranch!]!
-	edges: [PostgresBranchEdge!]!
-
-	"""
-	Facets for Postgres branches. Provides distribution counts to help narrow down results.
-	Facet counts are computed over the full result set (ignoring pagination) but respect the current filter.
-	"""
-	facets: PostgresBranchFacets
-}
-
-type PostgresBranchEdge {
-	cursor: Cursor!
-	node: PostgresBranch!
-}
-
-"""
-Facets for Postgres branches, providing distribution counts across different dimensions.
-"""
-type PostgresBranchFacets {
-	"Distribution of branches by environment."
-	environments: [StringFacetItem!]!
-
-	"Distribution of branches by state."
-	states: [PostgresBranchStateFacetItem!]!
-
-	"Distribution of branches by user-defined labels."
-	labels: [LabelFacetItem!]!
-}
-
-"""
-A single facet item for Postgres branch states.
-"""
-type PostgresBranchStateFacetItem {
-	"The Postgres branch state."
-	state: PostgresBranchState!
-
-	"Number of matching branches."
-	count: Int!
 }
 
 extend union SearchNode = Postgres
@@ -29590,21 +30590,15 @@ extend enum ActivityLogActivityType {
 extend type Mutation {
 	"""
 	EXPERIMENTAL: DO NOT USE
-	Create time-limited personal access to a Postgres branch.
+	Create time-limited personal access to a Postgres database.
 	When the access is ready, retrieve its connection materials through PostgresAccess.connection.
 	"""
 	createPostgresAccess(input: CreatePostgresAccessInput!): CreatePostgresAccessPayload!
-	"Create a new Postgres. Its first branch, main, is created and activated by the platform."
+	"Create a new Postgres database."
 	createPostgres(input: CreatePostgresInput!): CreatePostgresPayload!
 	"Update an existing Postgres. The PostgreSQL major version cannot be changed."
 	updatePostgres(input: UpdatePostgresInput!): UpdatePostgresPayload!
-	"Create an inactive PostgresBranch recovered from a source branch archive at a UTC point in time."
-	createPostgresBranch(input: CreatePostgresBranchInput!): CreatePostgresBranchPayload!
-	"Request activation of an available PostgresBranch. The observed active branch may lag behind the request."
-	activatePostgresBranch(input: ActivatePostgresBranchInput!): ActivatePostgresBranchPayload!
-	"Delete a PostgresBranch that is not active on its Postgres."
-	deletePostgresBranch(input: DeletePostgresBranchInput!): DeletePostgresBranchPayload!
-	"Request deletion of an entire Postgres and all its branches/data. Fails while workloads or bindings reference it; cleanup is asynchronous."
+	"Request deletion of a Postgres database and its data. Fails while workloads or bindings reference it; cleanup is asynchronous."
 	deletePostgres(input: DeletePostgresInput!): DeletePostgresPayload!
 }
 
@@ -29618,13 +30612,11 @@ type CreatePostgresAccessPayload {
 
 "Input for creating a time-limited personal Postgres access."
 input CreatePostgresAccessInput {
-	"Name of the Postgres containing the branch."
+	"Name of the Postgres to access."
 	postgres: String!
-	"Local name of the branch to access."
-	branch: String!
-	"Team that owns the Postgres branch."
+	"Team that owns the Postgres."
 	teamSlug: Slug!
-	"Environment containing the Postgres branch."
+	"Environment containing the Postgres."
 	environmentName: String!
 	"Privileges requested for the personal database role."
 	accessLevel: PostgresAccessLevel!
@@ -29651,47 +30643,7 @@ enum PostgresAccessLevel {
 	MAINTAIN
 }
 
-"Recovery request for a new, inactive branch. A branch cannot be re-created with different recovery settings."
-input CreatePostgresBranchInput {
-	"Name of the owning Postgres."
-	postgres: String!
-	"Local name of the new branch."
-	branch: String!
-	"Local name of the source branch in the same Postgres."
-	sourceBranch: String!
-	"Explicit UTC recovery target; must not be in the future."
-	targetTime: Time!
-	"Environment containing the Postgres."
-	environmentName: String!
-	"Team owning the Postgres."
-	teamSlug: Slug!
-}
-
-"Result of creating a branch; provisioning continues asynchronously."
-type CreatePostgresBranchPayload {
-	"The new branch."
-	postgresBranch: PostgresBranch!
-}
-
-"Request a branch for normal workloads. It becomes active once its database is ready."
-input ActivatePostgresBranchInput {
-	"Name of the owning Postgres."
-	postgres: String!
-	"Local name of the branch to activate."
-	branch: String!
-	"Environment containing the Postgres."
-	environmentName: String!
-	"Team owning the Postgres."
-	teamSlug: Slug!
-}
-
-"Result of requesting activation; compare desiredActiveBranch to activeBranch while activation is in progress."
-type ActivatePostgresBranchPayload {
-	"Postgres with desired and observed branch selection."
-	postgres: Postgres!
-}
-
-"Select the Postgres to delete. All branches and stored data are removed asynchronously by the platform."
+"Select the Postgres to delete. Its resources and stored data are removed asynchronously by the platform."
 input DeletePostgresInput {
 	"Name of the Postgres."
 	name: String!
@@ -29707,32 +30659,7 @@ type DeletePostgresPayload {
 	deletionRequested: Boolean!
 }
 
-input DeletePostgresBranchInput {
-	"Name of the Postgres containing the branch."
-	postgres: String!
-	"Local name of the branch to delete."
-	branch: String!
-	"The environment containing the PostgresBranch."
-	environmentName: String!
-	"The team that owns the PostgresBranch."
-	teamSlug: Slug!
-}
-
-type DeletePostgresBranchPayload {
-	"Whether the PostgresBranch was deleted."
-	postgresBranchDeleted: Boolean
-}
-
-extend type TeamInventoryCounts {
-	postgresBranches: TeamInventoryCountPostgresBranches!
-}
-
-type TeamInventoryCountPostgresBranches {
-	"Total number of Postgres branches."
-	total: Int!
-}
-
-"A time-limited personal access request for a Postgres branch."
+"A time-limited personal access request for a Postgres database."
 type PostgresAccess implements Node {
 	"Opaque ID for this PostgresAccess resource."
 	id: ID!
@@ -29742,8 +30669,8 @@ type PostgresAccess implements Node {
 	team: Team!
 	"Environment for the access."
 	teamEnvironment: TeamEnvironment!
-	"PostgresBranch selected by this access."
-	postgresBranch: PostgresBranch!
+	"Postgres selected by this access."
+	postgres: Postgres!
 	"Requested access level."
 	accessLevel: PostgresAccessLevel!
 	"Server-controlled expiry for this personal access."
@@ -29799,20 +30726,42 @@ input CreatePostgresInput {
 	environmentName: String!
 	"The team that owns the Postgres."
 	teamSlug: Slug!
-	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values."
+	"PostgreSQL major version, selected from the environment's availableValues.postgresMajorVersions.values. Must match the source when restoring."
 	majorVersion: String!
-	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions."
+	"Extensions to make available to databases in this Postgres instance. Select values from environment.availableValues.postgresExtensions. When restoring, defaults to the source's extensions and must include them all."
 	extensions: [String!]
-	"Add a third instance and enable synchronous replication. Defaults to false."
+	"Add a third instance and enable synchronous replication. Defaults to false, or to the source's setting when restoring."
 	highAvailability: Boolean
-	"Requested CPU, for example '100m'. If omitted, the platform default is used."
+	"Requested CPU, for example '100m'. If omitted, the platform default is used, or the source's value when restoring."
 	cpu: String
-	"Requested memory, for example '512Mi'. If omitted, the platform default is used."
+	"Requested memory, for example '512Mi'. If omitted, the platform default is used, or the source's value when restoring."
 	memory: String
-	"Requested disk size, for example '10Gi'. If omitted, the platform default is used."
+	"Requested disk size, for example '10Gi'. If omitted, the platform default is used, or the source's value when restoring. Must not be smaller than the source's."
 	diskSize: String
 	"Initial user-defined labels to apply."
 	labels: [ResourceLabelInput!]
+	"Initialize from an existing database in the same team and environment instead of creating an empty database. Omitted availability, resource and extension settings are taken from the source."
+	recovery: PostgresRecoveryInput
+}
+
+"An explicit point-in-time recovery source for a new Postgres database."
+input PostgresRecoveryInput {
+	"Name of the source Postgres in the destination team and environment."
+	sourcePostgres: String!
+	"Point in time to restore to, in whole seconds. Must be within the available backups and not in the future."
+	targetTime: Time!
+}
+
+"Origin and progress of a database created by recovery."
+type PostgresRecovery {
+	"Name of the source database. It may have been deleted since."
+	sourcePostgres: String!
+	"The point in time restored to."
+	targetTime: Time!
+	"True once the database is independent of the source and has its own backup."
+	completed: Boolean!
+	"Why recovery failed, if it did."
+	failureMessage: String
 }
 
 "Result of creating a Postgres."
@@ -33932,9 +34881,11 @@ type TeamEnvironmentUpdatedActivityLogEntryDataUpdatedField {
 type TeamExternalResources {
 	"The Entra ID (f.k.a. Azure AD) group for the team."
 	entraIDGroup: TeamEntraIDGroup
+		@deprecated(reason: "This field will soon no longer be managed by Nais.")
 
 	"The teams GitHub team."
 	gitHubTeam: TeamGitHubTeam
+		@deprecated(reason: "This field will soon no longer be managed by Nais.")
 
 	"The Google group for the team."
 	googleGroup: TeamGoogleGroup
@@ -36120,6 +37071,12 @@ Input for filtering image vulnerabilities.
 """
 input ImageVulnerabilityFilter {
 	"""
+	Only return vulnerabilities for this PURL type, for example maven or npm.
+	Omit to include all package types.
+	"""
+	packageType: String
+
+	"""
 	Only return vulnerabilities with the given severity.
 	"""
 	severity: ImageVulnerabilitySeverity
@@ -36218,6 +37175,11 @@ type ImageVulnerabilitySummaryCountsByPriority {
 }
 
 type ImageVulnerabilityConnection {
+	"""
+	Facets over all matching findings, ignoring pagination and respecting the current filter.
+	"""
+	facets: ImageVulnerabilityFacets
+
 	"Information to aid in pagination."
 	pageInfo: PageInfo!
 
@@ -36226,6 +37188,14 @@ type ImageVulnerabilityConnection {
 
 	"List of nodes."
 	nodes: [ImageVulnerability!]!
+}
+
+"""
+Distribution counts over all matching image findings, ignoring pagination and respecting the current filter.
+"""
+type ImageVulnerabilityFacets {
+	"Distribution of matching findings by PURL type."
+	packageTypes: [StringFacetItem!]!
 }
 
 type ImageVulnerabilitySample {
@@ -36952,6 +37922,477 @@ enum SBOMStatus {
 	FAILED
 }
 `, BuiltIn: false},
+	{Name: "../schema/webhooks.graphqls", Input: `"""
+A webhook subscription that receives HTTP callbacks when activity log events occur.
+Team-owned webhooks receive events from selected teams or all teams. Global webhooks also receive global events.
+"""
+type WebhookSubscription implements Node {
+	"Globally unique ID of the webhook subscription."
+	id: ID!
+
+	"The display name of the webhook subscription. Must be unique within the owning team."
+	name: String!
+
+	"The team that owns and manages this webhook. Null for admin-only global webhooks."
+	teamSlug: Slug
+
+	"The teams whose events this webhook receives. Empty means all teams. Team-owned webhooks never receive global events."
+	sourceTeamSlugs: [Slug!]!
+
+	"The HTTPS URL that will receive webhook HTTP POST requests. Credentials and fragments are not allowed."
+	url: String!
+
+	"Whether this webhook receives all available event types within its scope."
+	allEvents: Boolean!
+
+	"The event types this webhook receives. Empty when allEvents is true."
+	eventTypes: [String!]!
+
+	"Whether the webhook is currently enabled."
+	enabled: Boolean!
+
+	"Number of consecutive delivery failures. Resets to 0 on a successful delivery."
+	consecutiveFailures: Int!
+
+	"When the webhook was automatically disabled due to repeated failures. Null if not auto-disabled."
+	disabledAt: Time
+
+	"When the webhook was created."
+	createdAt: Time!
+
+	"When the webhook was last updated."
+	updatedAt: Time!
+
+	"Whether a signing secret is set. The stored secret is never returned."
+	hasSecret: Boolean!
+
+	"Recent delivery attempts for this webhook."
+	deliveries(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookDeliveryConnection!
+}
+
+"A paginated list of webhook subscriptions."
+type WebhookSubscriptionConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"The webhook subscriptions in this page."
+	nodes: [WebhookSubscription!]!
+
+	"The webhook subscription edges in this page."
+	edges: [WebhookSubscriptionEdge!]!
+}
+
+"An edge in a webhook subscription connection."
+type WebhookSubscriptionEdge {
+	"The cursor for this edge."
+	cursor: Cursor!
+
+	"The webhook subscription at this edge."
+	node: WebhookSubscription!
+}
+
+"""
+A record of a webhook delivery attempt, including the request sent and the response received.
+"""
+type WebhookDelivery implements Node {
+	"Globally unique ID of the delivery."
+	id: ID!
+
+	"The event type that triggered this delivery."
+	eventType: String!
+
+	"The CloudEvents JSON payload that was sent."
+	requestBody: String!
+
+	"Recorded diagnostic request headers. Credentials and unapproved custom headers are omitted."
+	requestHeaders: [WebhookHeader!]!
+
+	"The HTTP status code returned by the webhook endpoint. Null if the request failed before receiving a response."
+	responseStatus: Int
+
+	"The response body as UTF-8 text. Null when no response was received or the body is not valid UTF-8."
+	responseBody: String
+
+	"Recorded response headers. Known authentication and cookie headers are omitted."
+	responseHeaders: [WebhookHeader!]!
+
+	"Whether the recorded response body was truncated to the 10 KiB limit."
+	responseBodyTruncated: Boolean!
+
+	"A description of a request or response-read failure, if any."
+	errorMessage: String
+
+	"Whether this is a user-triggered test event. Tests make one attempt and never change subscription health."
+	isTest: Boolean!
+
+	"The recorded result and retry information for this attempt, unaffected by later attempts or queue changes."
+	deliveryState: WebhookDeliveryState!
+
+	"How long the delivery took in milliseconds."
+	durationMs: Int!
+
+	"Whether the delivery was successful (HTTP 2xx response)."
+	success: Boolean!
+
+	"When the delivery was attempted."
+	createdAt: Time!
+}
+
+"A recorded HTTP header and its values."
+type WebhookHeader {
+	"The HTTP header name."
+	name: String!
+	"All recorded values for this header."
+	values: [String!]!
+}
+
+"The recorded result and retry information for one HTTP delivery attempt."
+type WebhookDeliveryState {
+	"Whether this attempt succeeded or failed, regardless of later retries."
+	status: WebhookDeliveryStatus!
+	"The number of attempts made up to and including this attempt. Manual tests always have one attempt."
+	attemptCount: Int!
+	"The retry time scheduled after this failed attempt, if any. This historical timestamp does not change when the retry runs or the subscription is disabled."
+	nextRetryAt: Time
+}
+
+"The outcome of an individual HTTP delivery attempt."
+enum WebhookDeliveryStatus {
+	"This attempt succeeded."
+	COMPLETED
+	"This attempt failed, whether or not a retry was scheduled."
+	FAILED
+}
+
+"A paginated list of webhook deliveries."
+type WebhookDeliveryConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+
+	"The webhook deliveries in this page."
+	nodes: [WebhookDelivery!]!
+
+	"The webhook delivery edges in this page."
+	edges: [WebhookDeliveryEdge!]!
+}
+
+"An edge in a webhook delivery connection."
+type WebhookDeliveryEdge {
+	"The cursor for this edge."
+	cursor: Cursor!
+
+	"The webhook delivery at this edge."
+	node: WebhookDelivery!
+}
+
+extend type Team {
+	"Webhook subscriptions registered for this team."
+	webhooks(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookSubscriptionConnection!
+}
+
+extend type Query {
+	"List all globally registered webhook subscriptions. Only accessible by admins."
+	globalWebhooks(
+		"Get the first n items in the connection."
+		first: Int
+
+		"Get items after this cursor."
+		after: Cursor
+
+		"Get the last n items in the connection."
+		last: Int
+
+		"Get items before this cursor."
+		before: Cursor
+	): WebhookSubscriptionConnection!
+
+	"""
+	List all supported webhook event types with human-readable descriptions and grouping.
+	Use the 'type' field value when registering event_types on a webhook subscription.
+	"""
+	webhookEventTypes: [WebhookEventTypeInfo!]!
+}
+
+"""
+Metadata about a webhook-subscribable event type.
+"""
+type WebhookEventTypeInfo {
+	"The identifier to use in webhook subscription eventTypes (e.g. 'TEAM_MEMBER_ADDED')."
+	type: String!
+
+	"The CloudEvents 1.0 type string that will appear in delivered payloads (e.g. 'io.nais.team.member.added')."
+	cloudEventType: String!
+
+	"A human-readable description of the event (e.g. 'Team member added')."
+	description: String!
+
+	"Logical group for UI display (e.g. 'Team', 'Service Account')."
+	group: String!
+
+	"Indicates if this event type is subscribable by team-scoped webhooks."
+	teamScoped: Boolean!
+}
+
+extend type Mutation {
+	"""
+	Create a new webhook subscription.
+
+	The owning team can select source teams without permission from those teams, or subscribe to all teams.
+	By default, a team-owned webhook receives only its own team's events.
+	If no owner team slug is provided, the webhook is global and receives all events (admin only).
+	Creation does not send an HTTP request; use testWebhook to check the endpoint.
+	"""
+	createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
+
+	"""
+	Update an existing webhook subscription.
+
+	Can be used to change the name, source teams, URL, secret, event types, or enabled status. Ownership and the subscription ID cannot be changed.
+	"""
+	updateWebhook(input: UpdateWebhookInput!): UpdateWebhookPayload!
+
+	"""
+	Delete a webhook subscription.
+
+	All associated delivery records will also be deleted.
+	"""
+	deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload!
+
+	"""
+	Send a signed synthetic event to an existing webhook and return the recorded result.
+	Requires permission to update the webhook. Allowed even when the webhook is disabled.
+	Limited to one test per subscription every 30 seconds. Tests are not retried and do not affect automatic disabling.
+	"""
+	testWebhook(input: TestWebhookInput!): TestWebhookPayload!
+}
+
+"Input for sending a webhook test event."
+input TestWebhookInput {
+	"The ID of the webhook subscription to test."
+	id: ID!
+}
+
+"The result of a single manual webhook test."
+type TestWebhookPayload {
+	"The recorded attempt, including failures."
+	delivery: WebhookDelivery!
+}
+
+"Choose exactly one way to select webhook events."
+input WebhookEventSelection @oneOf {
+	"Receive all available event types within the webhook's scope. Must be true."
+	allEvents: Boolean
+
+	"The event types to receive. Must contain at least one event type."
+	eventTypes: [String!]
+}
+
+"Input for creating a new webhook subscription."
+input CreateWebhookInput {
+	"The required display name of the webhook, unique within the owning team. Leading and trailing whitespace is removed; blank names are not allowed."
+	name: String!
+
+	"The team that owns and manages this webhook. Omit for an admin-only global webhook."
+	teamSlug: Slug
+
+	"The teams whose events to receive. Omit or pass null to receive only the owner's events. An empty list selects all teams, excluding global events for team-owned webhooks."
+	sourceTeamSlugs: [Slug!]
+
+	"The HTTPS URL that will receive webhook HTTP POST requests. Credentials and fragments are not allowed."
+	url: String!
+
+	"The required secret used for HMAC-SHA256 signing of webhook payloads. Must contain at least 8 characters."
+	secret: String!
+
+	"The events this webhook receives. Select all events or a non-empty list of event types."
+	events: WebhookEventSelection!
+}
+
+"Payload returned after creating a webhook."
+type CreateWebhookPayload {
+	"The created webhook subscription."
+	webhook: WebhookSubscription!
+}
+
+"Input for updating an existing webhook subscription."
+input UpdateWebhookInput {
+	"The ID of the webhook subscription to update."
+	id: ID!
+
+	"The replacement display name, unique within the owning team. Omit or pass null to keep the current name. Leading and trailing whitespace is removed; blank names are not allowed."
+	name: String
+
+	"The teams whose events to receive. Omit or pass null to keep the current selection. An empty list selects all teams, excluding global events for team-owned webhooks."
+	sourceTeamSlugs: [Slug!]
+
+	"The new HTTPS URL for the webhook, without credentials or a fragment. Null to keep the current value."
+	url: String
+
+	"The replacement signing secret, containing at least 8 characters. Omit or pass null to keep the current secret. The stored secret is never returned."
+	secret: String
+
+	"The replacement event selection. Omit or pass null to keep the current selection."
+	events: WebhookEventSelection
+
+	"Whether the webhook should be enabled. Null to keep the current value."
+	enabled: Boolean
+}
+
+"Payload returned after updating a webhook."
+type UpdateWebhookPayload {
+	"The updated webhook subscription."
+	webhook: WebhookSubscription!
+}
+
+"Input for deleting a webhook subscription."
+input DeleteWebhookInput {
+	"The ID of the webhook subscription to delete."
+	id: ID!
+}
+
+"Payload returned after deleting a webhook."
+type DeleteWebhookPayload {
+	"The ID of the deleted webhook subscription."
+	webhookID: ID!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A webhook subscription."
+	WEBHOOK
+}
+
+extend enum ActivityLogActivityType {
+	"A webhook subscription was created."
+	WEBHOOK_CREATED
+
+	"A webhook subscription was updated."
+	WEBHOOK_UPDATED
+
+	"A webhook subscription was deleted."
+	WEBHOOK_DELETED
+}
+
+"An activity log entry for creating a webhook subscription."
+type WebhookCreatedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who created the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+	"The webhook name captured when it was created."
+	data: WebhookActivityLogEntryData!
+}
+
+"Display information captured at the time of a webhook activity. Later renames or deletion do not change it."
+type WebhookActivityLogEntryData {
+	"The display name of the webhook at the time of the activity."
+	name: String!
+}
+
+"An activity log entry for updating a webhook subscription."
+type WebhookUpdatedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who updated the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+	"The fields changed by the update. Signing secrets and endpoint URL values are never included."
+	data: WebhookUpdatedActivityLogEntryData!
+}
+
+"Details of a webhook subscription update."
+type WebhookUpdatedActivityLogEntryData {
+	"The display name after this update, captured independently of later renames or deletion."
+	name: String!
+
+	"The fields whose values changed. Empty when the update made no changes."
+	updatedFields: [WebhookUpdatedActivityLogEntryDataUpdatedField!]!
+}
+
+"A changed webhook subscription field."
+type WebhookUpdatedActivityLogEntryDataUpdatedField {
+	"The name of the field."
+	field: String!
+	"The previous value. Null for signing secrets and endpoint URLs."
+	oldValue: String
+	"The replacement value. Null for signing secrets and endpoint URLs."
+	newValue: String
+}
+
+"An activity log entry for deleting a webhook subscription."
+type WebhookDeletedActivityLogEntry implements ActivityLogEntry & Node {
+	"The ID of the entry."
+	id: ID!
+	"The identity of the actor who deleted the webhook."
+	actor: String!
+	"GitHub Actions identity claims captured when the action was authenticated by a repository."
+	gitHubActorClaims: GitHubActorClaims
+	"When the entry was created."
+	createdAt: Time!
+	"A summary of the activity."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The unique identifier of the webhook subscription."
+	resourceName: String!
+	"The owning team. Null for a global webhook."
+	teamSlug: Slug
+	"The environment associated with the activity, if any."
+	environmentName: String
+	"The webhook name captured when it was deleted."
+	data: WebhookActivityLogEntryData!
+}
+`, BuiltIn: false},
 	{Name: "../schema/workload_events.graphqls", Input: `extend interface Workload {
 	"Workload events, newest first."
 	events(
@@ -37052,6 +38493,51 @@ type WorkloadKillingEvent implements WorkloadEvent & Node {
 	container: String!
 	"Restart reason."
 	reason: String!
+}
+
+"""
+A problem detected while running the workload.
+Repeated occurrences of the same problem are combined into a single event.
+"""
+type WorkloadWarningEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the problem was last observed."
+	triggeredAt: Time!
+	"Description of the problem."
+	message: String!
+	"The kind of problem."
+	kind: WorkloadWarningEventKind!
+	"Name of the affected instance, if the problem concerns a single instance."
+	instance: String
+	"Number of times the problem has been observed."
+	count: Int!
+	"When the problem was first observed."
+	firstSeenAt: Time!
+}
+
+"The kind of problem reported by a warning event."
+enum WorkloadWarningEventKind {
+	"No server with enough available resources was found to run the instance."
+	PLACEMENT_FAILED
+	"Files or storage could not be mounted into the instance."
+	MOUNT_FAILED
+	"The container image could not be downloaded."
+	IMAGE_PULL_FAILED
+	"The instance could not be started, for example because of missing configuration."
+	START_FAILED
+	"The instance keeps crashing and is restarted with increasing delay."
+	CRASH_LOOP
+	"A readiness, liveness or startup check failed."
+	HEALTH_CHECK_FAILED
+	"The instance was stopped by the platform, for example to free up resources."
+	INSTANCE_STOPPED
+	"New instances could not be created, for example because of a quota or a platform policy."
+	INSTANCE_CREATION_FAILED
+	"Automatic scaling is unable to adjust the number of instances."
+	SCALING_FAILED
+	"A job run failed permanently."
+	RUN_FAILED
 }
 
 "A paginated collection of events."
@@ -37579,14 +39065,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
 
-func (ec *executionContext) childFields_ActivatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "postgres":
-		return ec.fieldContext_ActivatePostgresBranchPayload_postgres(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type ActivatePostgresBranchPayload", field.Name)
-}
-
 func (ec *executionContext) childFields_ActivityLogActivityTypeFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "activityType":
@@ -37965,8 +39443,24 @@ func (ec *executionContext) childFields_ApplicationScaling(ctx context.Context, 
 		return ec.fieldContext_ApplicationScaling_maxInstances(ctx, field)
 	case "strategies":
 		return ec.fieldContext_ApplicationScaling_strategies(ctx, field)
+	case "status":
+		return ec.fieldContext_ApplicationScaling_status(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ApplicationScaling", field.Name)
+}
+
+func (ec *executionContext) childFields_ApplicationScalingStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "currentInstances":
+		return ec.fieldContext_ApplicationScalingStatus_currentInstances(ctx, field)
+	case "desiredInstances":
+		return ec.fieldContext_ApplicationScalingStatus_desiredInstances(ctx, field)
+	case "state":
+		return ec.fieldContext_ApplicationScalingStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_ApplicationScalingStatus_message(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ApplicationScalingStatus", field.Name)
 }
 
 func (ec *executionContext) childFields_ApplicationStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38489,6 +39983,8 @@ func (ec *executionContext) childFields_CreateKafkaCredentialsPayload(ctx contex
 	switch field.Name {
 	case "credentials":
 		return ec.fieldContext_CreateKafkaCredentialsPayload_credentials(ctx, field)
+	case "environmentName":
+		return ec.fieldContext_CreateKafkaCredentialsPayload_environmentName(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CreateKafkaCredentialsPayload", field.Name)
 }
@@ -38517,14 +40013,6 @@ func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.
 		return ec.fieldContext_CreatePostgresAccessPayload_expiresAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
-}
-
-func (ec *executionContext) childFields_CreatePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "postgresBranch":
-		return ec.fieldContext_CreatePostgresBranchPayload_postgresBranch(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresBranchPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_CreatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38603,6 +40091,14 @@ func (ec *executionContext) childFields_CreateValkeyPayload(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type CreateValkeyPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreateWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "webhook":
+		return ec.fieldContext_CreateWebhookPayload_webhook(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreateWebhookPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CurrentUnitPrices(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "cpu":
@@ -38657,14 +40153,6 @@ func (ec *executionContext) childFields_DeleteOpenSearchPayload(ctx context.Cont
 		return ec.fieldContext_DeleteOpenSearchPayload_openSearchDeleted(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type DeleteOpenSearchPayload", field.Name)
-}
-
-func (ec *executionContext) childFields_DeletePostgresBranchPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "postgresBranchDeleted":
-		return ec.fieldContext_DeletePostgresBranchPayload_postgresBranchDeleted(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresBranchPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -38723,6 +40211,14 @@ func (ec *executionContext) childFields_DeleteValkeyPayload(ctx context.Context,
 		return ec.fieldContext_DeleteValkeyPayload_valkeyDeleted(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type DeleteValkeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeleteWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "webhookID":
+		return ec.fieldContext_DeleteWebhookPayload_webhookID(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteWebhookPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_Deployment(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -39071,6 +40567,8 @@ func (ec *executionContext) childFields_ImageVulnerability(ctx context.Context, 
 
 func (ec *executionContext) childFields_ImageVulnerabilityConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
+	case "facets":
+		return ec.fieldContext_ImageVulnerabilityConnection_facets(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_ImageVulnerabilityConnection_pageInfo(ctx, field)
 	case "edges":
@@ -39089,6 +40587,14 @@ func (ec *executionContext) childFields_ImageVulnerabilityEdge(ctx context.Conte
 		return ec.fieldContext_ImageVulnerabilityEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_ImageVulnerabilityFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "packageTypes":
+		return ec.fieldContext_ImageVulnerabilityFacets_packageTypes(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type ImageVulnerabilityFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_ImageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -39525,6 +41031,14 @@ func (ec *executionContext) childFields_JobRunInstance(ctx context.Context, fiel
 		return ec.fieldContext_JobRunInstance_id(ctx, field)
 	case "name":
 		return ec.fieldContext_JobRunInstance_name(ctx, field)
+	case "image":
+		return ec.fieldContext_JobRunInstance_image(ctx, field)
+	case "restarts":
+		return ec.fieldContext_JobRunInstance_restarts(ctx, field)
+	case "created":
+		return ec.fieldContext_JobRunInstance_created(ctx, field)
+	case "status":
+		return ec.fieldContext_JobRunInstance_status(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobRunInstance", field.Name)
 }
@@ -39549,6 +41063,22 @@ func (ec *executionContext) childFields_JobRunInstanceEdge(ctx context.Context, 
 		return ec.fieldContext_JobRunInstanceEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type JobRunInstanceEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_JobRunInstanceStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "state":
+		return ec.fieldContext_JobRunInstanceStatus_state(ctx, field)
+	case "message":
+		return ec.fieldContext_JobRunInstanceStatus_message(ctx, field)
+	case "lastExitReason":
+		return ec.fieldContext_JobRunInstanceStatus_lastExitReason(ctx, field)
+	case "lastExitCode":
+		return ec.fieldContext_JobRunInstanceStatus_lastExitCode(ctx, field)
+	case "lastExitTimestamp":
+		return ec.fieldContext_JobRunInstanceStatus_lastExitTimestamp(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type JobRunInstanceStatus", field.Name)
 }
 
 func (ec *executionContext) childFields_JobRunStatus(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -40157,6 +41687,18 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_teamEnvironment(ctx, field)
 	case "name":
 		return ec.fieldContext_Postgres_name(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_Postgres_createdAt(ctx, field)
+	case "state":
+		return ec.fieldContext_Postgres_state(ctx, field)
+	case "configuration":
+		return ec.fieldContext_Postgres_configuration(ctx, field)
+	case "earliestRestoreTime":
+		return ec.fieldContext_Postgres_earliestRestoreTime(ctx, field)
+	case "recovery":
+		return ec.fieldContext_Postgres_recovery(ctx, field)
+	case "issues":
+		return ec.fieldContext_Postgres_issues(ctx, field)
 	case "majorVersion":
 		return ec.fieldContext_Postgres_majorVersion(ctx, field)
 	case "extensions":
@@ -40165,20 +41707,14 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_highAvailability(ctx, field)
 	case "resources":
 		return ec.fieldContext_Postgres_resources(ctx, field)
-	case "desiredActiveBranch":
-		return ec.fieldContext_Postgres_desiredActiveBranch(ctx, field)
-	case "activeBranch":
-		return ec.fieldContext_Postgres_activeBranch(ctx, field)
 	case "workloads":
 		return ec.fieldContext_Postgres_workloads(ctx, field)
-	case "branch":
-		return ec.fieldContext_Postgres_branch(ctx, field)
-	case "branches":
-		return ec.fieldContext_Postgres_branches(ctx, field)
 	case "labels":
 		return ec.fieldContext_Postgres_labels(ctx, field)
 	case "activityLog":
 		return ec.fieldContext_Postgres_activityLog(ctx, field)
+	case "cost":
+		return ec.fieldContext_Postgres_cost(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Postgres", field.Name)
 }
@@ -40193,8 +41729,8 @@ func (ec *executionContext) childFields_PostgresAccess(ctx context.Context, fiel
 		return ec.fieldContext_PostgresAccess_team(ctx, field)
 	case "teamEnvironment":
 		return ec.fieldContext_PostgresAccess_teamEnvironment(ctx, field)
-	case "postgresBranch":
-		return ec.fieldContext_PostgresAccess_postgresBranch(ctx, field)
+	case "postgres":
+		return ec.fieldContext_PostgresAccess_postgres(ctx, field)
 	case "accessLevel":
 		return ec.fieldContext_PostgresAccess_accessLevel(ctx, field)
 	case "expiresAt":
@@ -40231,36 +41767,6 @@ func (ec *executionContext) childFields_PostgresAccessConnectionDetails(ctx cont
 	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnectionDetails", field.Name)
 }
 
-func (ec *executionContext) childFields_PostgresBranch(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "id":
-		return ec.fieldContext_PostgresBranch_id(ctx, field)
-	case "name":
-		return ec.fieldContext_PostgresBranch_name(ctx, field)
-	case "createdAt":
-		return ec.fieldContext_PostgresBranch_createdAt(ctx, field)
-	case "earliestRestoreTime":
-		return ec.fieldContext_PostgresBranch_earliestRestoreTime(ctx, field)
-	case "configuration":
-		return ec.fieldContext_PostgresBranch_configuration(ctx, field)
-	case "team":
-		return ec.fieldContext_PostgresBranch_team(ctx, field)
-	case "teamEnvironment":
-		return ec.fieldContext_PostgresBranch_teamEnvironment(ctx, field)
-	case "postgres":
-		return ec.fieldContext_PostgresBranch_postgres(ctx, field)
-	case "workloads":
-		return ec.fieldContext_PostgresBranch_workloads(ctx, field)
-	case "state":
-		return ec.fieldContext_PostgresBranch_state(ctx, field)
-	case "issues":
-		return ec.fieldContext_PostgresBranch_issues(ctx, field)
-	case "labels":
-		return ec.fieldContext_PostgresBranch_labels(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresBranch", field.Name)
-}
-
 func (ec *executionContext) childFields_PostgresBranchActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "branch":
@@ -40271,52 +41777,6 @@ func (ec *executionContext) childFields_PostgresBranchActivityLogEntryData(ctx c
 		return ec.fieldContext_PostgresBranchActivityLogEntryData_targetTime(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchActivityLogEntryData", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresBranchConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "pageInfo":
-		return ec.fieldContext_PostgresBranchConnection_pageInfo(ctx, field)
-	case "nodes":
-		return ec.fieldContext_PostgresBranchConnection_nodes(ctx, field)
-	case "edges":
-		return ec.fieldContext_PostgresBranchConnection_edges(ctx, field)
-	case "facets":
-		return ec.fieldContext_PostgresBranchConnection_facets(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchConnection", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresBranchEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "cursor":
-		return ec.fieldContext_PostgresBranchEdge_cursor(ctx, field)
-	case "node":
-		return ec.fieldContext_PostgresBranchEdge_node(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchEdge", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresBranchFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "environments":
-		return ec.fieldContext_PostgresBranchFacets_environments(ctx, field)
-	case "states":
-		return ec.fieldContext_PostgresBranchFacets_states(ctx, field)
-	case "labels":
-		return ec.fieldContext_PostgresBranchFacets_labels(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchFacets", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresBranchStateFacetItem(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "state":
-		return ec.fieldContext_PostgresBranchStateFacetItem_state(ctx, field)
-	case "count":
-		return ec.fieldContext_PostgresBranchStateFacetItem_count(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresBranchStateFacetItem", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -40339,6 +41799,26 @@ func (ec *executionContext) childFields_PostgresConnection(ctx context.Context, 
 		return ec.fieldContext_PostgresConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresCost(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "daily":
+		return ec.fieldContext_PostgresCost_daily(ctx, field)
+	case "monthly":
+		return ec.fieldContext_PostgresCost_monthly(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresCost", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresCostPeriod(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sum":
+		return ec.fieldContext_PostgresCostPeriod_sum(ctx, field)
+	case "series":
+		return ec.fieldContext_PostgresCostPeriod_series(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresCostPeriod", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -40393,6 +41873,20 @@ func (ec *executionContext) childFields_PostgresPersonalAccessCreatedActivityLog
 	return nil, fmt.Errorf("no field named %q was found under type PostgresPersonalAccessCreatedActivityLogEntryData", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresRecovery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "sourcePostgres":
+		return ec.fieldContext_PostgresRecovery_sourcePostgres(ctx, field)
+	case "targetTime":
+		return ec.fieldContext_PostgresRecovery_targetTime(ctx, field)
+	case "completed":
+		return ec.fieldContext_PostgresRecovery_completed(ctx, field)
+	case "failureMessage":
+		return ec.fieldContext_PostgresRecovery_failureMessage(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresRecovery", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresResources(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "cpu":
@@ -40429,8 +41923,8 @@ func (ec *executionContext) childFields_PostgresWorkload(ctx context.Context, fi
 	switch field.Name {
 	case "workload":
 		return ec.fieldContext_PostgresWorkload_workload(ctx, field)
-	case "branch":
-		return ec.fieldContext_PostgresWorkload_branch(ctx, field)
+	case "postgres":
+		return ec.fieldContext_PostgresWorkload_postgres(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresWorkload", field.Name)
 }
@@ -41543,6 +43037,8 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_vulnerabilitySummary(ctx, field)
 	case "vulnerabilitySummaries":
 		return ec.fieldContext_Team_vulnerabilitySummaries(ctx, field)
+	case "webhooks":
+		return ec.fieldContext_Team_webhooks(ctx, field)
 	case "workloads":
 		return ec.fieldContext_Team_workloads(ctx, field)
 	}
@@ -41841,14 +43337,6 @@ func (ec *executionContext) childFields_TeamInventoryCountOpenSearches(ctx conte
 	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountOpenSearches", field.Name)
 }
 
-func (ec *executionContext) childFields_TeamInventoryCountPostgresBranches(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "total":
-		return ec.fieldContext_TeamInventoryCountPostgresBranches_total(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type TeamInventoryCountPostgresBranches", field.Name)
-}
-
 func (ec *executionContext) childFields_TeamInventoryCountSecrets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "total":
@@ -41889,8 +43377,6 @@ func (ec *executionContext) childFields_TeamInventoryCounts(ctx context.Context,
 		return ec.fieldContext_TeamInventoryCounts_kafkaTopics(ctx, field)
 	case "openSearches":
 		return ec.fieldContext_TeamInventoryCounts_openSearches(ctx, field)
-	case "postgresBranches":
-		return ec.fieldContext_TeamInventoryCounts_postgresBranches(ctx, field)
 	case "secrets":
 		return ec.fieldContext_TeamInventoryCounts_secrets(ctx, field)
 	case "sqlInstances":
@@ -42121,6 +43607,14 @@ func (ec *executionContext) childFields_TenantVulnerabilitySummary(ctx context.C
 		return ec.fieldContext_TenantVulnerabilitySummary_lastUpdated(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type TenantVulnerabilitySummary", field.Name)
+}
+
+func (ec *executionContext) childFields_TestWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "delivery":
+		return ec.fieldContext_TestWebhookPayload_delivery(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TestWebhookPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_TriggerJobPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -42383,6 +43877,14 @@ func (ec *executionContext) childFields_UpdateValkeyPayload(ctx context.Context,
 		return ec.fieldContext_UpdateValkeyPayload_valkey(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type UpdateValkeyPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_UpdateWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "webhook":
+		return ec.fieldContext_UpdateWebhookPayload_webhook(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type UpdateWebhookPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_User(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -42773,6 +44275,188 @@ func (ec *executionContext) childFields_VulnerabilityRiskAssessment(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityRiskAssessment", field.Name)
 }
 
+func (ec *executionContext) childFields_WebhookActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_WebhookActivityLogEntryData_name(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDelivery(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_WebhookDelivery_id(ctx, field)
+	case "eventType":
+		return ec.fieldContext_WebhookDelivery_eventType(ctx, field)
+	case "requestBody":
+		return ec.fieldContext_WebhookDelivery_requestBody(ctx, field)
+	case "requestHeaders":
+		return ec.fieldContext_WebhookDelivery_requestHeaders(ctx, field)
+	case "responseStatus":
+		return ec.fieldContext_WebhookDelivery_responseStatus(ctx, field)
+	case "responseBody":
+		return ec.fieldContext_WebhookDelivery_responseBody(ctx, field)
+	case "responseHeaders":
+		return ec.fieldContext_WebhookDelivery_responseHeaders(ctx, field)
+	case "responseBodyTruncated":
+		return ec.fieldContext_WebhookDelivery_responseBodyTruncated(ctx, field)
+	case "errorMessage":
+		return ec.fieldContext_WebhookDelivery_errorMessage(ctx, field)
+	case "isTest":
+		return ec.fieldContext_WebhookDelivery_isTest(ctx, field)
+	case "deliveryState":
+		return ec.fieldContext_WebhookDelivery_deliveryState(ctx, field)
+	case "durationMs":
+		return ec.fieldContext_WebhookDelivery_durationMs(ctx, field)
+	case "success":
+		return ec.fieldContext_WebhookDelivery_success(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_WebhookDelivery_createdAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDelivery", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDeliveryConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WebhookDeliveryConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WebhookDeliveryConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WebhookDeliveryConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDeliveryEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WebhookDeliveryEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WebhookDeliveryEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookDeliveryState(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "status":
+		return ec.fieldContext_WebhookDeliveryState_status(ctx, field)
+	case "attemptCount":
+		return ec.fieldContext_WebhookDeliveryState_attemptCount(ctx, field)
+	case "nextRetryAt":
+		return ec.fieldContext_WebhookDeliveryState_nextRetryAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookDeliveryState", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookEventTypeInfo(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "type":
+		return ec.fieldContext_WebhookEventTypeInfo_type(ctx, field)
+	case "cloudEventType":
+		return ec.fieldContext_WebhookEventTypeInfo_cloudEventType(ctx, field)
+	case "description":
+		return ec.fieldContext_WebhookEventTypeInfo_description(ctx, field)
+	case "group":
+		return ec.fieldContext_WebhookEventTypeInfo_group(ctx, field)
+	case "teamScoped":
+		return ec.fieldContext_WebhookEventTypeInfo_teamScoped(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookEventTypeInfo", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookHeader(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_WebhookHeader_name(ctx, field)
+	case "values":
+		return ec.fieldContext_WebhookHeader_values(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookHeader", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookSubscription(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_WebhookSubscription_id(ctx, field)
+	case "name":
+		return ec.fieldContext_WebhookSubscription_name(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_WebhookSubscription_teamSlug(ctx, field)
+	case "sourceTeamSlugs":
+		return ec.fieldContext_WebhookSubscription_sourceTeamSlugs(ctx, field)
+	case "url":
+		return ec.fieldContext_WebhookSubscription_url(ctx, field)
+	case "allEvents":
+		return ec.fieldContext_WebhookSubscription_allEvents(ctx, field)
+	case "eventTypes":
+		return ec.fieldContext_WebhookSubscription_eventTypes(ctx, field)
+	case "enabled":
+		return ec.fieldContext_WebhookSubscription_enabled(ctx, field)
+	case "consecutiveFailures":
+		return ec.fieldContext_WebhookSubscription_consecutiveFailures(ctx, field)
+	case "disabledAt":
+		return ec.fieldContext_WebhookSubscription_disabledAt(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_WebhookSubscription_createdAt(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_WebhookSubscription_updatedAt(ctx, field)
+	case "hasSecret":
+		return ec.fieldContext_WebhookSubscription_hasSecret(ctx, field)
+	case "deliveries":
+		return ec.fieldContext_WebhookSubscription_deliveries(ctx, field)
+	case "activityLog":
+		return ec.fieldContext_WebhookSubscription_activityLog(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscription", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookSubscriptionConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_WebhookSubscriptionConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_WebhookSubscriptionConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_WebhookSubscriptionConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscriptionConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookSubscriptionEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_WebhookSubscriptionEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_WebhookSubscriptionEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookSubscriptionEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookUpdatedActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryData_name(ctx, field)
+	case "updatedFields":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryData_updatedFields(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookUpdatedActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_WebhookUpdatedActivityLogEntryDataUpdatedField(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "field":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryDataUpdatedField_field(ctx, field)
+	case "oldValue":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryDataUpdatedField_oldValue(ctx, field)
+	case "newValue":
+		return ec.fieldContext_WebhookUpdatedActivityLogEntryDataUpdatedField_newValue(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WebhookUpdatedActivityLogEntryDataUpdatedField", field.Name)
+}
+
 func (ec *executionContext) childFields_WorkloadConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "pageInfo":
@@ -42879,8 +44563,6 @@ func (ec *executionContext) childFields_WorkloadPostgres(ctx context.Context, fi
 		return ec.fieldContext_WorkloadPostgres_envPrefix(ctx, field)
 	case "role":
 		return ec.fieldContext_WorkloadPostgres_role(ctx, field)
-	case "branch":
-		return ec.fieldContext_WorkloadPostgres_branch(ctx, field)
 	case "postgres":
 		return ec.fieldContext_WorkloadPostgres_postgres(ctx, field)
 	}

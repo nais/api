@@ -100,6 +100,51 @@ type WorkloadKillingEvent implements WorkloadEvent & Node {
 	reason: String!
 }
 
+"""
+A problem detected while running the workload.
+Repeated occurrences of the same problem are combined into a single event.
+"""
+type WorkloadWarningEvent implements WorkloadEvent & Node {
+	"Unique event identifier."
+	id: ID!
+	"When the problem was last observed."
+	triggeredAt: Time!
+	"Description of the problem."
+	message: String!
+	"The kind of problem."
+	kind: WorkloadWarningEventKind!
+	"Name of the affected instance, if the problem concerns a single instance."
+	instance: String
+	"Number of times the problem has been observed."
+	count: Int!
+	"When the problem was first observed."
+	firstSeenAt: Time!
+}
+
+"The kind of problem reported by a warning event."
+enum WorkloadWarningEventKind {
+	"No server with enough available resources was found to run the instance."
+	PLACEMENT_FAILED
+	"Files or storage could not be mounted into the instance."
+	MOUNT_FAILED
+	"The container image could not be downloaded."
+	IMAGE_PULL_FAILED
+	"The instance could not be started, for example because of missing configuration."
+	START_FAILED
+	"The instance keeps crashing and is restarted with increasing delay."
+	CRASH_LOOP
+	"A readiness, liveness or startup check failed."
+	HEALTH_CHECK_FAILED
+	"The instance was stopped by the platform, for example to free up resources."
+	INSTANCE_STOPPED
+	"New instances could not be created, for example because of a quota or a platform policy."
+	INSTANCE_CREATION_FAILED
+	"Automatic scaling is unable to adjust the number of instances."
+	SCALING_FAILED
+	"A job run failed permanently."
+	RUN_FAILED
+}
+
 "A paginated collection of events."
 type WorkloadEventConnection {
 	"Pagination information."

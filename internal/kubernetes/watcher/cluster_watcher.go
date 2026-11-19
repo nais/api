@@ -62,6 +62,12 @@ func newClusterWatcher[T Object](mgr *clusterManager, cluster string, watcher *W
 		}
 	}
 
+	if len(settings.indexers) > 0 {
+		if err := inf.Informer().AddIndexers(settings.indexers); err != nil {
+			panic(err)
+		}
+	}
+
 	if _, err := inf.Informer().AddEventHandler(w); err != nil {
 		panic(err)
 	}

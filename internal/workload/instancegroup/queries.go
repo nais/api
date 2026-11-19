@@ -553,41 +553,13 @@ func ListInstances(ctx context.Context, ig *InstanceGroup) ([]*application.Appli
 		// Match pod to this instance group via ownerReferences
 		for _, ref := range pod.Obj.OwnerReferences {
 			if ref.Kind == "ReplicaSet" && ref.Name == ig.Name {
-				instances = append(instances, toApplicationInstance(pod.Obj, ig.TeamSlug, ig.EnvironmentName, ig.ApplicationName))
+				instances = append(instances, application.ToApplicationInstance(pod.Obj, ig.TeamSlug, ig.EnvironmentName, ig.ApplicationName))
 				break
 			}
 		}
 	}
 
 	return instances, nil
-}
-
-// toApplicationInstance converts a pod to an ApplicationInstance.
-// This mirrors the logic in the application package.
-func toApplicationInstance(pod *corev1.Pod, teamSlug slug.Slug, environmentName, applicationName string) *application.ApplicationInstance {
-	var containerStatus corev1.ContainerStatus
-	for _, c := range pod.Status.ContainerStatuses {
-		if c.Name == applicationName {
-			containerStatus = c
-			break
-		}
-	}
-
-	var imageString string
-	if len(pod.Spec.Containers) > 0 {
-		imageString = pod.Spec.Containers[0].Image
-	}
-
-	return &application.ApplicationInstance{
-		Name:                       pod.Name,
-		Restarts:                   int(containerStatus.RestartCount),
-		Created:                    pod.CreationTimestamp.Time,
-		EnvironmentName:            environmentName,
-		ImageString:                imageString,
-		TeamSlug:                   teamSlug,
-		ApplicationName:            applicationName,
-		ApplicationContainerStatus: containerStatus,
-	}
 }
 
 // getSecretKeys fetches the key names from a Secret in the given namespace via direct K8s API call.

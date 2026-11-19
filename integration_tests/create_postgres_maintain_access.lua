@@ -10,7 +10,7 @@ Helper.readK8sResources("k8s_resources/create_postgres_access")
 
 local request = [[
 	mutation { createPostgresAccess(input: {
-		postgres: "foobar", branch: "main", environmentName: "dev", teamSlug: "someteamname",
+		postgres: "foobar", environmentName: "dev", teamSlug: "someteamname",
 		accessLevel: MAINTAIN, reason: "Investigating database maintenance", ttl: "30m"
 	}) { name expiresAt } }
 ]]
@@ -53,7 +53,7 @@ Test.k8s("Personal maintain access uses the authenticated identity and maintain 
 		kind = "PostgresAccess",
 		metadata = Ignore(),
 		spec = {
-			postgresBranch = "foobar-main-a4f04c0c",
+			postgres = "foobar",
 			username = user:email(),
 			accessLevel = "maintain",
 			expiresAt = NotNull(),
