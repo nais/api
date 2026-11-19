@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
@@ -10,12 +9,9 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
-	"github.com/nais/api/internal/slug"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/util/wait"
 )
 
 func physicalPostgresObject(name string, status map[string]any) *unstructured.Unstructured {
@@ -47,16 +43,16 @@ func TestDirectPostgresPhysicalStatus(t *testing.T) {
 		change func(map[string]any)
 		want   PostgresState
 	}{
-		{name: "healthy", want: PostgresBranchStateAvailable},
-		{name: "old observed generation", change: func(s map[string]any) { s["observedGeneration"] = int64(1) }, want: PostgresBranchStateProgressing},
-		{name: "not completed", change: func(s map[string]any) { s["reconcilePhase"] = "Preparing" }, want: PostgresBranchStateProgressing},
-		{name: "no physical condition", change: func(s map[string]any) { delete(s, "conditions") }, want: PostgresBranchStateProgressing},
+		{name: "healthy", want: PostgresStateAvailable},
+		{name: "old observed generation", change: func(s map[string]any) { s["observedGeneration"] = int64(1) }, want: PostgresStateProgressing},
+		{name: "not completed", change: func(s map[string]any) { s["reconcilePhase"] = "Preparing" }, want: PostgresStateProgressing},
+		{name: "no physical condition", change: func(s map[string]any) { delete(s, "conditions") }, want: PostgresStateProgressing},
 		{name: "degraded", change: func(s map[string]any) {
 			s["conditions"].([]any)[0].(map[string]any)["message"] = "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"
-		}, want: PostgresBranchStateDegraded},
+		}, want: PostgresStateDegraded},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			status := healthyPhysicalStatus("pg-existing-main-12345678")
+			status := healthyPhysicalStatus("pg-existing-12345678")
 			if tt.change != nil {
 				tt.change(status)
 			}
@@ -64,7 +60,6 @@ func TestDirectPostgresPhysicalStatus(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			// No branch watcher or context is needed once direct status is selected.
 			state, config, err := PhysicalStatus(t.Context(), pg)
 			if err != nil || state != tt.want {
 				t.Fatalf("status = %q, error = %v; want %q", state, err, tt.want)
@@ -73,13 +68,9 @@ func TestDirectPostgresPhysicalStatus(t *testing.T) {
 			if diff := cmp.Diff(wantConfig, config); diff != "" {
 				t.Errorf("configuration (-want +got):\n%s", diff)
 			}
-			branch := mainBranchView(pg)
-			legacy := &PostgresBranch{Name: "main", PostgresName: pg.Name, TeamSlug: pg.TeamSlug, EnvironmentName: pg.EnvironmentName}
-			if branch.GetName() != legacy.GetName() {
-				t.Error("physical view changed the legacy resource identity")
-			}
-			if branch.clusterName() != *pg.directClusterName {
-				t.Error("virtual main did not preserve the observed physical target")
+			cluster, err := physicalClusterName(t.Context(), pg)
+			if err != nil || cluster == nil || *cluster != "pg-existing-12345678" {
+				t.Fatalf("physical target = %v, %v", cluster, err)
 			}
 		})
 	}
@@ -98,22 +89,7 @@ func TestDirectPostgresInvalidStatus(t *testing.T) {
 	}
 }
 
-func TestMainViewUsesOnlyDirectStatus(t *testing.T) {
-	pg := &Postgres{Name: "orders", TeamSlug: "team", EnvironmentName: "dev", directClusterName: new("pg-existing"), physicalState: PostgresBranchStateDegraded}
-	views := MainViews([]*Postgres{pg})
-	if len(views) != 1 {
-		t.Fatalf("views = %d, want 1", len(views))
-	}
-	for _, branch := range views {
-		if branch.PostgresName == pg.Name && branch.TeamSlug == pg.TeamSlug && branch.EnvironmentName == pg.EnvironmentName {
-			if branch.Name != "main" || branch.State != PostgresBranchStateDegraded {
-				t.Errorf("stale branch won over direct status: %+v", branch)
-			}
-		}
-	}
-}
-
-func TestRetiredBranchCannotSupplyReadiness(t *testing.T) {
+func TestPostgresAccessCorroboratesFreshPhysicalStatus(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -136,16 +112,6 @@ func TestRetiredBranchCannotSupplyReadiness(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	branchObj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresPhysicalName("orders"), "namespace": "team", "generation": int64(2)},
-		"spec":     map[string]any{"postgres": "orders", "branchName": "main"},
-		"status":   healthyPhysicalStatus("pg-legacy"),
-	}}
-	branchClient := client.Resource(nais_io_v1.GroupVersion.WithResource("postgresbranches")).Namespace("team")
-	if _, err := branchClient.Create(ctx, branchObj, metav1.CreateOptions{}); err != nil {
-		t.Fatal(err)
-	}
 	postgreses := NewPostgresWatcher(ctx, mgr)
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
@@ -153,72 +119,39 @@ func TestRetiredBranchCannotSupplyReadiness(t *testing.T) {
 		t.Fatal("watchers did not synchronize")
 	}
 	ctx = NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
-	pg, err := GetPostgres(ctx, slug.Slug("team"), "dev", "orders")
-	if err != nil {
-		t.Fatal(err)
-	}
-	state, config, err := PhysicalStatus(ctx, pg)
-	if err != nil || state != PostgresBranchStateProgressing || config != nil {
-		t.Fatalf("retired branch supplied status = %q, %v, %v", state, config, err)
+	state, err := readyPostgresState(ctx, "team", "dev", "orders")
+	if err != nil || state != PostgresStateProgressing {
+		t.Fatalf("provisioning = %q, %v", state, err)
 	}
 
-	// Direct status is intentionally incomplete: stale healthy main must not win.
-	obj.Object["status"] = map[string]any{"clusterName": "pg-preserved-main-12345678"}
+	// Access reads must use fresh status, even before the informer catches up.
+	obj.Object["status"] = healthyPhysicalStatus("pg-preserved-12345678")
 	if _, err := pgClient.UpdateStatus(ctx, obj, metav1.UpdateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	if err := wait.PollUntilContextTimeout(ctx, 10*time.Millisecond, 5*time.Second, true, func(context.Context) (bool, error) {
-		pg, err := postgreses.Get("dev", "team", "orders")
-		return err == nil && pg.directClusterName != nil, err
-	}); err != nil {
-		t.Fatal("Postgres watcher did not observe direct status:", err)
-	}
-	main, err := GetPostgresBranch(ctx, "team", "dev", "orders", "main")
-	if err != nil || main.State != PostgresBranchStateProgressing || main.Configuration != nil {
-		t.Fatalf("direct main = %+v, error = %v", main, err)
-	}
-	if _, err := GetPostgresBranch(ctx, "team", "dev", "orders", "restore"); !errors.Is(err, &watcher.ErrorNotFound{}) {
-		t.Errorf("non-main unexpectedly resolved: %v", err)
-	}
-	if err := branchClient.Delete(ctx, branchObj.GetName(), metav1.DeleteOptions{}); err != nil {
-		t.Fatal(err)
-	}
-	if err := wait.PollUntilContextTimeout(ctx, 10*time.Millisecond, 5*time.Second, true, func(context.Context) (bool, error) {
-		views := ListAllForTeam(ctx, "team", nil)
-		return len(views) == 1 && views[0].ClusterName == "pg-preserved-main-12345678" && views[0].State == PostgresBranchStateProgressing, nil
-	}); err != nil {
-		t.Fatal("listing did not switch to direct status:", err)
-	}
-	main, err = GetPostgresBranchByObjectName(ctx, "team", "dev", branchObj.GetName())
-	if err != nil || main.clusterName() != "pg-preserved-main-12345678" {
-		t.Fatalf("legacy access reference after detach = %+v, error = %v", main, err)
-	}
-
-	// The access check must use the freshly observed direct target, not a
-	// branch-name reconstruction or stale parent from the list informer.
-	obj.Object["status"] = healthyPhysicalStatus("pg-preserved-main-12345678")
-	if _, err := pgClient.UpdateStatus(ctx, obj, metav1.UpdateOptions{}); err != nil {
-		t.Fatal(err)
+	state, err = readyPostgresState(ctx, "team", "dev", "orders")
+	if err != nil || state != PostgresStateProgressing {
+		t.Fatalf("missing cluster = %q, %v", state, err)
 	}
 	cluster := &unstructured.Unstructured{Object: map[string]any{
 		"apiVersion": "postgresql.cnpg.io/v1", "kind": "Cluster",
-		"metadata": map[string]any{"name": "pg-preserved-main-12345678", "namespace": "team"},
+		"metadata": map[string]any{"name": "pg-preserved-12345678", "namespace": "team"},
 		"status":   map[string]any{"conditions": []any{map[string]any{"type": "Ready", "status": "True"}}},
 	}}
 	clustersClient := client.Resource(cnpgClusterGVR).Namespace("team")
 	if _, err := clustersClient.Create(ctx, cluster, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	main, err = GetReadyPostgresBranch(ctx, "team", "dev", "orders", "main")
-	if err != nil || main.State != PostgresBranchStateAvailable {
-		t.Fatalf("direct ready access target = %+v, error = %v", main, err)
+	state, err = readyPostgresState(ctx, "team", "dev", "orders")
+	if err != nil || state != PostgresStateAvailable {
+		t.Fatalf("ready = %q, %v", state, err)
 	}
 	cluster.Object["status"] = map[string]any{"conditions": []any{map[string]any{"type": "Ready", "status": "False"}}}
 	if _, err := clustersClient.UpdateStatus(ctx, cluster, metav1.UpdateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	main, err = GetReadyPostgresBranch(ctx, "team", "dev", "orders", "main")
-	if err != nil || main.State != PostgresBranchStateProgressing {
-		t.Fatalf("access must not trust healthy parent over CNPG readiness: %+v, error = %v", main, err)
+	state, err = readyPostgresState(ctx, "team", "dev", "orders")
+	if err != nil || state != PostgresStateProgressing {
+		t.Fatalf("unready cluster = %q, %v", state, err)
 	}
 }

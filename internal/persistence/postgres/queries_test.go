@@ -265,14 +265,14 @@ func TestUniquePostgresUses(t *testing.T) {
 		wantErr string
 	}{
 		{
-			name: "duplicate references to the same branch collapse",
-			uses: []liberatorv1.PostgresUse{{Name: "orders", Branch: "main"}, {Name: "orders", Branch: "main"}},
-			want: []liberatorv1.PostgresUse{{Name: "orders", Branch: "main"}},
+			name: "duplicate references collapse",
+			uses: []liberatorv1.PostgresUse{{Name: "orders"}, {Name: "orders"}},
+			want: []liberatorv1.PostgresUse{{Name: "orders"}},
 		},
 		{
-			name:    "one Postgres cannot reference multiple branches",
-			uses:    []liberatorv1.PostgresUse{{Name: "orders", Branch: "main"}, {Name: "orders", Branch: "green"}},
-			wantErr: "multiple branches for Postgres \"orders\"",
+			name: "distinct databases remain separate",
+			uses: []liberatorv1.PostgresUse{{Name: "orders"}, {Name: "archive"}},
+			want: []liberatorv1.PostgresUse{{Name: "orders"}, {Name: "archive"}},
 		},
 	}
 	for _, tt := range tests {
@@ -297,7 +297,7 @@ func TestUniquePostgresUses(t *testing.T) {
 func TestNewPostgresAccessResource(t *testing.T) {
 	expiresAt := time.Date(2026, time.September, 17, 12, 0, 0, 0, time.UTC)
 	resource := newPostgresAccessResource(CreatePostgresAccessInput{
-		Postgres: "orders", Branch: "main",
+		Postgres:        "orders",
 		TeamSlug:        slug.Slug("team-a"),
 		EnvironmentName: "dev",
 		AccessLevel:     PostgresAccessLevelReadWrite,
@@ -523,7 +523,7 @@ func TestPostgresAccessConnectionDetails(t *testing.T) {
 	}
 }
 
-func TestPostgresAccessNameIsStablePerUserAndBranch(t *testing.T) {
+func TestPostgresAccessNameIsStablePerUserAndDatabase(t *testing.T) {
 	name := postgresAccessName("user@example.com", "orders-main-abc")
 	if name != postgresAccessName("user@example.com", "orders-main-abc") {
 		t.Error("name must be stable, so a second request for the same pair conflicts")
@@ -531,11 +531,11 @@ func TestPostgresAccessNameIsStablePerUserAndBranch(t *testing.T) {
 	for _, other := range []string{
 		postgresAccessName("other@example.com", "orders-main-abc"),
 		postgresAccessName("user@example.com", "orders-recovered-abc"),
-		// Shifting the boundary between user and branch must not collide.
+		// Shifting the boundary between user and database must not collide.
 		postgresAccessName("user@example.comorders", "-main-abc"),
 	} {
 		if other == name {
-			t.Errorf("different user/branch produced the same name %q", name)
+			t.Errorf("different user/database produced the same name %q", name)
 		}
 	}
 	if errs := validation.IsDNS1123Subdomain(name); len(errs) > 0 {

@@ -16,7 +16,6 @@ spec:
     memory: 2Gi
     diskSize: 2Gi
 status:
-  activeBranch: main
   clusterName: pg-foobar-main-a4f04c0c
   configuration:
     parameters:

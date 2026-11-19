@@ -5,7 +5,6 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: main
   clusterName: pg-foobar-main-a4f04c0c
   configuration:
     parameters:

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -52,7 +51,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		t.Fatalf("application uses not loaded: %+v", apps)
 	}
 	instances, err := ListPostgresForWorkload(ctx, team, "dev", apps[0].Spec.Uses.Postgres)
-	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
+	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[1].Name != "orders" || instances[2].Name != "reports" {
 		t.Fatalf("referenced Postgres = %+v, error = %v", instances, err)
 	}
 	jobs := job.ListAllForTeamInEnvironment(ctx, team, "dev")
@@ -60,50 +59,36 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 		t.Fatalf("job uses not loaded: %+v", jobs)
 	}
 	instances, err = ListPostgresForWorkload(ctx, team, "dev", jobs[0].Spec.Uses.Postgres)
-	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[0].ActiveBranch != nil || instances[1].Name != "orders" || instances[2].Name != "reports" {
+	if err != nil || len(instances) != 3 || instances[0].Name != "archive" || instances[1].Name != "orders" || instances[2].Name != "reports" {
 		t.Fatalf("job referenced Postgres = %+v, error = %v", instances, err)
 	}
 	page, err := pagination.ParsePage(new(3), nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, test := range []struct {
-		name   string
-		uses   []liberatorv1.PostgresUse
-		branch map[string]string
-	}{
-		{name: "application", uses: apps[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "main", "reports": "main"}},
-		{name: "job", uses: jobs[0].Spec.Uses.Postgres, branch: map[string]string{"archive": "main", "orders": "main", "reports": "main"}},
-	} {
-		usages, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", test.uses, page)
-		if err != nil {
-			t.Fatalf("%s Postgres uses: %v", test.name, err)
+	for _, uses := range [][]liberatorv1.PostgresUse{apps[0].Spec.Uses.Postgres, jobs[0].Spec.Uses.Postgres} {
+		usages, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", uses, page)
+		if err != nil || totalCount != 3 || len(usages) != 3 {
+			t.Fatalf("Postgres uses = %+v, %d, %v", usages, totalCount, err)
 		}
-		if totalCount != len(test.branch) || len(usages) != len(test.branch) {
-			t.Fatalf("%s Postgres uses = (%d, %d), want %d", test.name, len(usages), totalCount, len(test.branch))
-		}
-		for _, usage := range usages {
-			if want := test.branch[usage.Postgres.Name]; usage.Branch.Name != want {
-				t.Errorf("%s Postgres %q branch = %q, want %q", test.name, usage.Postgres.Name, usage.Branch.Name, want)
+		for i, name := range []string{"archive", "orders", "reports"} {
+			if usages[i].Postgres.Name != name {
+				t.Errorf("Postgres use %d = %q, want %q", i, usages[i].Postgres.Name, name)
 			}
-			delete(test.branch, usage.Postgres.Name)
-		}
-		if len(test.branch) != 0 {
-			t.Errorf("%s Postgres uses missing references: %v", test.name, test.branch)
 		}
 	}
 
-	usesWithMissingOffPageBranch := append([]liberatorv1.PostgresUse(nil), apps[0].Spec.Uses.Postgres...)
-	for index := range usesWithMissingOffPageBranch {
-		if usesWithMissingOffPageBranch[index].Name == "reports" {
-			usesWithMissingOffPageBranch[index].Branch = "missing"
+	usesWithMissingOffPage := append([]liberatorv1.PostgresUse(nil), apps[0].Spec.Uses.Postgres...)
+	for index := range usesWithMissingOffPage {
+		if usesWithMissingOffPage[index].Name == "reports" {
+			usesWithMissingOffPage[index].Name = "missing"
 		}
 	}
 	firstPage, err := pagination.ParsePage(new(1), nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	pageUses, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPageBranch, firstPage)
+	pageUses, totalCount, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPage, firstPage)
 	if err != nil || totalCount != 3 || len(pageUses) != 1 || pageUses[0].Postgres.Name != "archive" {
 		t.Fatalf("first Postgres use page = (%+v, %d), error = %v", pageUses, totalCount, err)
 	}
@@ -111,17 +96,10 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, _, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPageBranch, reportsPage); err == nil {
-		t.Fatal("expected an error for a missing branch on the requested page")
+	if _, _, err := WorkloadPostgresesForWorkload(ctx, team, "dev", usesWithMissingOffPage, reportsPage); err == nil {
+		t.Fatal("expected an error for a missing Postgres on the requested page")
 	}
 
-	for _, entry := range []struct{ postgres, branch string }{{"orders", "main"}, {"reports", "main"}} {
-		workloads := WorkloadsForInstance(ctx, team, "dev", entry.postgres, entry.branch)
-		wantCount := 2
-		if len(workloads) != wantCount || workloads[0].GetName() != "consumer" || wantCount == 2 && workloads[1].GetName() != "scheduled-reader" {
-			t.Errorf("workloads for %q = %+v", entry.branch, workloads)
-		}
-	}
 	for _, name := range []string{"orders", "reports", "archive"} {
 		pg, err := GetPostgres(ctx, team, "dev", name)
 		if err != nil {
@@ -150,7 +128,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	}
 }
 
-func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
+func TestReadyPostgresUsesObservedCluster(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -170,36 +148,20 @@ func TestReadyPostgresBranchUsesConcreteName(t *testing.T) {
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
-		t.Fatal("PostgresBranch watcher did not synchronize")
+		t.Fatal("Postgres watcher did not synchronize")
 	}
 	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
-	for _, name := range []string{"main"} {
-		instance, err := GetReadyPostgresBranch(ctx, team, "dev", "foobar", name)
-		if err != nil || instance.State != PostgresBranchStateAvailable || instance.Name != name || instance.PostgresName != "foobar" {
-			t.Errorf("%s: got instance %+v, error %v", name, instance, err)
-		}
+	state, err := readyPostgresState(ctx, team, "dev", "foobar")
+	if err != nil || state != PostgresStateAvailable {
+		t.Errorf("ready database = %q, %v", state, err)
 	}
-	instance, err := GetReadyPostgresBranch(ctx, team, "dev", "progressing", "main")
-	if err != nil || instance.State == PostgresBranchStateAvailable {
-		t.Errorf("progressing instance = %+v, error %v", instance, err)
+	state, err = readyPostgresState(ctx, team, "dev", "progressing")
+	if err != nil || state == PostgresStateAvailable {
+		t.Errorf("provisioning database = %q, %v", state, err)
 	}
-	_, err = GetReadyPostgresBranch(ctx, team, "dev", "foobar", "missing")
-	if !errors.Is(err, &watcher.ErrorNotFound{}) || strings.Contains(err.Error(), "foobar-missing-") {
-		t.Errorf("missing instance error = %v; want local branch name only", err)
-	}
-	_, err = GetPostgresBranch(ctx, team, "dev", "progressing", "recovered")
-	if !errors.Is(err, &watcher.ErrorNotFound{}) {
-		t.Errorf("branch in wrong Postgres error = %v", err)
-	}
-	pg, err := GetPostgres(ctx, team, "dev", "foobar")
-	if err != nil {
-		t.Fatal(err)
-	}
-	branches := ListForPostgres(ctx, pg, nil, nil)
-	nodes := branches.Nodes()
-	if len(nodes) != 1 || nodes[0].Name != "main" {
-		t.Errorf("Postgres branches = %+v", nodes)
+	if _, err := readyPostgresState(ctx, team, "dev", "missing"); err == nil {
+		t.Error("accepted missing database")
 	}
 }
 
@@ -222,17 +184,17 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 	wait, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if !mgr.WaitForReady(wait) {
-		t.Fatal("PostgresBranch watcher did not synchronize")
+		t.Fatal("Postgres watcher did not synchronize")
 	}
 	postgresWatcher := NewPostgresWatcher(ctx, mgr)
 	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
-		Postgres: "foobar", Branch: "missing", TeamSlug: slug.Slug("myteam"),
+		Postgres: "foobar", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,
 		Reason: "Investigating missing instance",
 	}
 	err = input.Validate(ctx)
-	if err == nil || !strings.Contains(err.Error(), `Could not find PostgresBranch "missing"`) {
+	if err == nil || !strings.Contains(err.Error(), `Could not find Postgres "foobar"`) {
 		t.Errorf("validation error = %v, want named missing instance", err)
 	}
 }

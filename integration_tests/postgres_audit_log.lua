@@ -1,5 +1,5 @@
--- The old per-instance audit flag and Cloud SQL Logs URL are not part of
--- nais.io/v1 PostgresBranch. Verify logical configuration instead.
+-- Cloud SQL-specific audit flags and log URLs do not apply to Postgres.
+-- Verify the database configuration instead.
 Helper.readK8sResources("k8s_resources/postgres_audit_log")
 local user = User.new("authenticated", "postgres-audit-user@example.com", "postgres-audit-user-id")
 local team = Team.new("audit-postgres-team", "Testing logical Postgres", "#audit-postgres")

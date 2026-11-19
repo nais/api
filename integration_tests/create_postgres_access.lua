@@ -99,8 +99,8 @@ Test.gql("Create personal postgres access rejects an unknown instance", function
 	t.check {
 		errors = {
 			{
-				extensions = { field = "branch" },
-				message = Contains("Could not find PostgresBranch"),
+				extensions = { field = "postgres" },
+				message = Contains("Could not find Postgres"),
 				path = { "createPostgresAccess" },
 			},
 		},
@@ -118,7 +118,7 @@ Test.gql("Create personal postgres access rejects a logical Postgres without a p
 		}) { name } }
 	]]
 	t.check {
-		errors = { { extensions = { field = "branch" }, message = Contains("is not available"), path = { "createPostgresAccess" } } },
+		errors = { { extensions = { field = "postgres" }, message = Contains("is not available"), path = { "createPostgresAccess" } } },
 		data = Null,
 	}
 end)
@@ -143,7 +143,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 	t.check {
 		errors = {
 			{
-				extensions = { field = "branch" },
+				extensions = { field = "postgres" },
 				message = Contains("is not available"),
 				path = { "createPostgresAccess" },
 			},

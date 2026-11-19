@@ -122,9 +122,6 @@ func (r *postgresIssueResolver) TeamEnvironment(ctx context.Context, obj *issue.
 }
 
 func (r *postgresIssueResolver) Postgres(ctx context.Context, obj *issue.PostgresIssue) (*postgres.Postgres, error) {
-	if obj.LegacyPhysicalName != "" {
-		return postgres.GetPostgresByPhysicalName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.LegacyPhysicalName)
-	}
 	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.ResourceName)
 }
 

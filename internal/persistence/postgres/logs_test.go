@@ -16,7 +16,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/fake"
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/loki"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -219,20 +218,6 @@ func postgresLogTestContext(t *testing.T) context.Context {
 		physicalPostgresObject("pending", nil),
 	} {
 		if _, err := client.Resource(postgresGVR()).Namespace("team").Create(ctx, pg, metav1.CreateOptions{}); err != nil {
-			t.Fatal(err)
-		}
-	}
-	for _, database := range []string{"legacy", "incomplete"} {
-		cluster := "pg-stale"
-		if database == "legacy" {
-			cluster = "pg-legacy-main-a4f04c0c"
-		}
-		branch := &unstructured.Unstructured{Object: map[string]any{
-			"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-			"metadata": map[string]any{"name": nais_io_v1.PostgresPhysicalName(database), "namespace": "team", "generation": int64(2)},
-			"spec":     map[string]any{"postgres": database, "branchName": "main"}, "status": healthyPhysicalStatus(cluster),
-		}}
-		if _, err := client.Resource(nais_io_v1.GroupVersion.WithResource("postgresbranches")).Namespace("team").Create(ctx, branch, metav1.CreateOptions{}); err != nil {
 			t.Fatal(err)
 		}
 	}

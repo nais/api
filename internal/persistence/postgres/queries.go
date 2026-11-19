@@ -37,8 +37,7 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
-// ListPostgresForWorkload resolves the Postgres databases referenced by a workload,
-// including databases without an active branch.
+// ListPostgresForWorkload resolves the Postgres databases referenced by a workload.
 func ListPostgresForWorkload(ctx context.Context, teamSlug slug.Slug, environmentName string, uses []liberatorv1.PostgresUse) ([]*Postgres, error) {
 	instances := make([]*Postgres, 0, len(uses))
 	for _, use := range uses {
@@ -77,11 +76,6 @@ func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, envi
 	workloadPostgreses := make([]*WorkloadPostgres, 0, len(instances))
 	for _, instance := range instances {
 		use := usesByName[instance.Name]
-		branchName := selectedBranchName(instance, use)
-		branch, err := BranchForPostgres(ctx, instance, branchName)
-		if err != nil {
-			return nil, 0, err
-		}
 		role, err := workloadPostgresRole(use.Role)
 		if err != nil {
 			return nil, 0, err
@@ -89,7 +83,6 @@ func WorkloadPostgresesForWorkload(ctx context.Context, teamSlug slug.Slug, envi
 		workloadPostgreses = append(workloadPostgreses, &WorkloadPostgres{
 			EnvPrefix: optionalPostgresUseString(use.EnvPrefix),
 			Role:      role,
-			Branch:    branch,
 			Postgres:  instance,
 		})
 	}
@@ -120,23 +113,13 @@ func uniquePostgresUses(uses []liberatorv1.PostgresUse) ([]liberatorv1.PostgresU
 	unique := make([]liberatorv1.PostgresUse, 0, len(uses))
 	byName := make(map[string]liberatorv1.PostgresUse, len(uses))
 	for _, use := range uses {
-		if existing, ok := byName[use.Name]; ok {
-			if existing.Branch != use.Branch {
-				return nil, fmt.Errorf("workload references multiple branches for Postgres %q", use.Name)
-			}
+		if _, ok := byName[use.Name]; ok {
 			continue
 		}
 		byName[use.Name] = use
 		unique = append(unique, use)
 	}
 	return unique, nil
-}
-
-func selectedBranchName(instance *Postgres, use liberatorv1.PostgresUse) string {
-	if use.Branch != "" {
-		return use.Branch
-	}
-	return observedBranchName(instance)
 }
 
 func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *TeamPostgresFilter) *PostgresConnection {
@@ -157,13 +140,8 @@ func ListPostgresForTeam(ctx context.Context, teamSlug slug.Slug, page *paginati
 	return pagination.NewFacetableConnection(conn, all, filter)
 }
 
-func ListAllForTeam(ctx context.Context, teamSlug slug.Slug, filter *PostgresBranchFilter) []*PostgresBranch {
-	postgreses := watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
-	return MainViews(postgreses)
-}
-
 func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
-	return len(ListAllForTeam(ctx, teamSlug, nil))
+	return len(watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted())))
 }
 
 func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
@@ -305,8 +283,8 @@ func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environm
 	if err != nil {
 		return nil, fmt.Errorf("converting PostgresAccess %q: %w", name, err)
 	}
-	if (obj.Spec.Postgres == "") == (obj.Spec.PostgresBranch == "") {
-		return nil, fmt.Errorf("PostgresAccess %q must have exactly one Postgres reference", name)
+	if obj.Spec.Postgres == "" {
+		return nil, fmt.Errorf("PostgresAccess %q must have a Postgres reference", name)
 	}
 	expiresAt := obj.Spec.ExpiresAt.Time
 	levelStr := obj.Spec.AccessLevel
@@ -323,17 +301,16 @@ func toPostgresAccess(u *unstructured.Unstructured, teamSlug slug.Slug, environm
 	}
 
 	return &PostgresAccess{
-		Name:               name,
-		TeamSlug:           teamSlug,
-		EnvironmentName:    environmentName,
-		PostgresBranchName: obj.Spec.PhysicalName(),
-		PostgresName:       obj.Spec.Postgres,
-		Username:           obj.Spec.Username,
-		AccessLevel:        level,
-		ExpiresAt:          expiresAt,
-		State:              state,
-		Message:            strPtr(message),
-		RelayAccess:        strPtr(relayName),
+		Name:            name,
+		TeamSlug:        teamSlug,
+		EnvironmentName: environmentName,
+		PostgresName:    obj.Spec.Postgres,
+		Username:        obj.Spec.Username,
+		AccessLevel:     level,
+		ExpiresAt:       expiresAt,
+		State:           state,
+		Message:         strPtr(message),
+		RelayAccess:     strPtr(relayName),
 	}, nil
 }
 
@@ -366,102 +343,46 @@ func postgresAccessState(obj *nais_io_v1.PostgresAccess, expiresAt time.Time) (P
 	return PostgresAccessStatePending, "waiting for controller"
 }
 
-func GetReadyPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
-	// Access is a write decision: select the model and target from a fresh parent
-	// rather than relying on the informer's potentially older ownership status.
+// readyPostgresState reads the parent fresh and corroborates its status with
+// CNPG's own Ready condition before personal access can be issued.
+func readyPostgresState(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName string) (PostgresState, error) {
 	pg, err := GetPostgres(ctx, teamSlug, environmentName, postgresName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	if branchName == "" {
-		branchName = observedBranchName(pg)
-	}
-	instance, err := BranchForPostgres(ctx, pg, branchName)
+	return corroboratedPostgresState(ctx, pg)
+}
+
+func corroboratedPostgresState(ctx context.Context, pg *Postgres) (PostgresState, error) {
+	state, _, err := PhysicalStatus(ctx, pg)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	if instance.State != PostgresBranchStateAvailable {
-		return instance, nil
+	if state != PostgresStateAvailable {
+		return state, nil
 	}
-	// The pgrator reconciliation condition reflects the CNPG phase, but must be
-	// corroborated with CNPG's own Ready condition before issuing access.
-	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters"}))
+	client, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, pg.EnvironmentName, watcher.WithImpersonatedClientGVR(schema.GroupVersionResource{Group: "postgresql.cnpg.io", Version: "v1", Resource: "clusters"}))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	cluster, err := client.Namespace(teamSlug.String()).Get(ctx, instance.clusterName(), metav1.GetOptions{})
+	cluster, err := client.Namespace(pg.TeamSlug.String()).Get(ctx, *pg.directClusterName, metav1.GetOptions{})
 	if k8serrors.IsNotFound(err) {
-		instance.State = PostgresBranchStateProgressing
-		return instance, nil
+		return PostgresStateProgressing, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("getting CNPG Cluster for PostgresBranch %q: %w", branchName, err)
+		return "", fmt.Errorf("getting CNPG Cluster for Postgres %q: %w", pg.Name, err)
 	}
-	conditions, found, err := unstructured.NestedSlice(cluster.Object, "status", "conditions")
+	conditions, _, err := unstructured.NestedSlice(cluster.Object, "status", "conditions")
 	if err != nil {
-		return nil, err
-	}
-	if !found {
-		instance.State = PostgresBranchStateProgressing
-		return instance, nil
+		return "", err
 	}
 	for _, raw := range conditions {
 		condition, ok := raw.(map[string]any)
 		if ok && condition["type"] == "Ready" && condition["status"] == "True" {
-			return instance, nil
+			return PostgresStateAvailable, nil
 		}
 	}
-	instance.State = PostgresBranchStateProgressing
-	return instance, nil
-}
-
-func GetPostgresBranch(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) (*PostgresBranch, error) {
-	pg, err := fromContext(ctx).postgresWatcher.Get(environmentName, teamSlug.String(), postgresName)
-	if err != nil {
-		return nil, err
-	}
-	return BranchForPostgres(ctx, pg, branchName)
-}
-
-// BranchForPostgres implements the legacy branch view for an already resolved
-// Postgres. It avoids extra Kubernetes requests and uses the parent's snapshot.
-func BranchForPostgres(ctx context.Context, pg *Postgres, branchName string) (*PostgresBranch, error) {
-	if branchName != nais_io_v1.DefaultBranchName {
-		return nil, &watcher.ErrorNotFound{Cluster: pg.EnvironmentName, Namespace: pg.TeamSlug.String(), Name: pg.Name + "/" + branchName}
-	}
-	return mainBranchView(pg), nil
-}
-
-// GetPostgresBranchByObjectName resolves the internal object name from PostgresAccess.
-func GetPostgresBranchByObjectName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*PostgresBranch, error) {
-	pg, err := GetPostgresByPhysicalName(ctx, teamSlug, environmentName, objectName)
-	if errors.Is(err, &watcher.ErrorNotFound{}) {
-		return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres branch"}
-	}
-	if err != nil {
-		return nil, err
-	}
-	return mainBranchView(pg), nil
-}
-
-// GetPostgresByPhysicalName adapts historical issue/access identities to their
-// logical parent without querying the retired branch API or exposing its naming
-// convention to clients. Namespace and environment are part of the lookup.
-func GetPostgresByPhysicalName(ctx context.Context, teamSlug slug.Slug, environmentName, objectName string) (*Postgres, error) {
-	for _, pg := range watcher.Objects(fromContext(ctx).postgresWatcher.GetByNamespace(teamSlug.String())) {
-		if pg.EnvironmentName == environmentName && nais_io_v1.PostgresPhysicalName(pg.Name) == objectName {
-			return pg, nil
-		}
-	}
-	return nil, &watcher.ErrorNotFound{Cluster: environmentName, Namespace: teamSlug.String(), Name: "Postgres"}
-}
-
-func ListForPostgres(ctx context.Context, pg *Postgres, page *pagination.Pagination, orderBy *PostgresBranchOrder) *PostgresBranchConnection {
-	all := []*PostgresBranch{mainBranchView(pg)}
-	if orderBy == nil {
-		orderBy = &PostgresBranchOrder{Field: PostgresBranchOrderFieldName, Direction: model.OrderDirectionAsc}
-	}
-	return SortFilterPostgresBranch.PaginatedList(ctx, all, page, orderBy.Field, orderBy.Direction, nil)
+	return PostgresStateProgressing, nil
 }
 
 func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name string) (*Postgres, error) {
@@ -509,11 +430,11 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 	if err != nil {
 		return nil, err
 	}
-	selected, err := BranchForPostgres(ctx, pg, input.Branch)
+	state, err := corroboratedPostgresState(ctx, pg)
 	if err != nil {
 		return nil, err
 	}
-	if selected.State != PostgresBranchStateAvailable {
+	if state != PostgresStateAvailable {
 		return nil, apierror.Errorf("Postgres %q is not available", pg.Name)
 	}
 
@@ -524,12 +445,10 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 
 	expiresAt := time.Now().Add(accessTTL).Truncate(time.Second)
 	username := authz.ActorFromContext(ctx).User.Identity()
-	branchObjectName := nais_io_v1.PostgresBranchObjectName(input.Postgres, input.Branch)
-
-	// One access per user and branch: pgrator derives a single personal database role from
-	// them, so a second access could never become ready. The name is derived from the pair, so
-	// the API server enforces this atomically through AlreadyExists.
-	name := postgresAccessName(username, branchObjectName)
+	// Keep the physical access identity stable so existing accesses cannot be
+	// duplicated during rollout. It is an opaque controller-owned identifier.
+	physicalName := nais_io_v1.PostgresPhysicalName(input.Postgres)
+	name := postgresAccessName(username, physicalName)
 	accesses := client.Namespace(input.TeamSlug.String())
 
 	res := newPostgresAccessResource(input, username, name, expiresAt)
@@ -546,7 +465,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 			if attempt == 0 {
 				continue // Deleted between Create and Get; retry once.
 			}
-			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
+			return nil, apierror.Errorf("Your previous access to this Postgres is still being cleaned up. Try again later.")
 		}
 		if getErr != nil {
 			return nil, getErr
@@ -555,7 +474,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 		if err != nil {
 			return nil, fmt.Errorf("reading existing PostgresAccess %q: %w", name, err)
 		}
-		if oldAccess.Spec.Username != username || oldAccess.Spec.PhysicalName() != branchObjectName || (oldAccess.Spec.Postgres == "") == (oldAccess.Spec.PostgresBranch == "") {
+		if oldAccess.Spec.Username != username || oldAccess.Spec.Postgres != input.Postgres {
 			return nil, apierror.Errorf("Existing PostgresAccess %q has a conflicting identity", name)
 		}
 		if existing.GetDeletionTimestamp() == nil && existingExpiry(existing).After(time.Now()) {
@@ -565,7 +484,7 @@ func CreatePostgresAccess(ctx context.Context, input CreatePostgresAccessInput) 
 			}
 		}
 		if attempt > 0 {
-			return nil, apierror.Errorf("Your previous access to this branch is still being cleaned up. Try again later.")
+			return nil, apierror.Errorf("Your previous access to this Postgres is still being cleaned up. Try again later.")
 		}
 		// The immutable access must disappear before it can be replaced after
 		// expiry or a change in access level.
@@ -615,7 +534,7 @@ func waitForPostgresAccessDeletion(ctx context.Context, accesses dynamic.Resourc
 		return current.GetUID() != uid, nil
 	})
 	if errors.Is(err, context.DeadlineExceeded) && ctx.Err() == nil {
-		return apierror.Errorf("Your previous access to this branch is still being cleaned up after 10 seconds (access %s). Try again later.", name)
+		return apierror.Errorf("Your previous access to this Postgres is still being cleaned up after 10 seconds (access %s). Try again later.", name)
 	}
 	return err
 }
@@ -626,11 +545,10 @@ func existingExpiry(access *unstructured.Unstructured) time.Time {
 	return t
 }
 
-// postgresAccessName derives the access name from user and branch, so the Kubernetes API
-// server rejects a second concurrent access for the same pair. The NUL separator keeps
-// different (user, branch) pairs from producing the same input.
-func postgresAccessName(username, branchObjectName string) string {
-	sum := sha256.Sum256([]byte(username + "\x00" + branchObjectName))
+// postgresAccessName derives a stable access name from user and physical database
+// identity. The NUL separator avoids ambiguous pairs; Kubernetes enforces uniqueness.
+func postgresAccessName(username, physicalName string) string {
+	sum := sha256.Sum256([]byte(username + "\x00" + physicalName))
 	return "postgres-access-" + hex.EncodeToString(sum[:])[:16]
 }
 
@@ -669,42 +587,13 @@ func newPostgresAccessResource(input CreatePostgresAccessInput, username, name s
 	return res
 }
 
-func WorkloadsForInstance(ctx context.Context, teamSlug slug.Slug, environmentName, postgresName, branchName string) []workload.Workload {
-	instance, err := GetPostgresBranch(ctx, teamSlug, environmentName, postgresName, branchName)
-	if err != nil {
-		return nil
-	}
-	postgres, err := GetPostgres(ctx, teamSlug, environmentName, instance.PostgresName)
-	if err != nil {
-		return nil
-	}
-	usesBranch := func(use liberatorv1.PostgresUse) bool {
-		return use.Name == instance.PostgresName && selectedBranchName(postgres, use) == branchName
-	}
-	return workloadsMatchingPostgresUse(ctx, teamSlug, environmentName, usesBranch)
-}
-
 func WorkloadsForPostgres(ctx context.Context, postgres *Postgres) []*PostgresWorkload {
 	workloads := workloadsMatchingPostgresUse(ctx, postgres.TeamSlug, postgres.EnvironmentName, func(use liberatorv1.PostgresUse) bool {
 		return use.Name == postgres.Name
 	})
 	ret := make([]*PostgresWorkload, 0, len(workloads))
 	for _, current := range workloads {
-		var uses []liberatorv1.PostgresUse
-		switch current := current.(type) {
-		case *application.Application:
-			uses = current.Spec.Uses.Postgres
-		case *job.Job:
-			uses = current.Spec.Uses.Postgres
-		}
-		branchName := nais_io_v1.DefaultBranchName
-		for _, use := range uses {
-			if use.Name == postgres.Name {
-				branchName = selectedBranchName(postgres, use)
-				break
-			}
-		}
-		ret = append(ret, &PostgresWorkload{Workload: current, Postgres: postgres, BranchName: branchName})
+		ret = append(ret, &PostgresWorkload{Workload: current, Postgres: postgres})
 	}
 	return ret
 }

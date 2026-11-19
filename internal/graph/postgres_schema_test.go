@@ -29,7 +29,7 @@ func TestPostgresBranchMutationsRemoved(t *testing.T) {
 	}
 }
 
-func TestPostgresSchemaRetainsDatabaseOperationsAndBranchHistory(t *testing.T) {
+func TestPostgresSchemaRetainsDatabaseOperationsAndHistory(t *testing.T) {
 	schema := gengql.NewExecutableSchema(gengql.Config{}).Schema()
 	for _, name := range []string{"createPostgres", "updatePostgres", "deletePostgres", "createPostgresAccess"} {
 		if schema.Mutation.Fields.ForName(name) == nil {
@@ -39,9 +39,7 @@ func TestPostgresSchemaRetainsDatabaseOperationsAndBranchHistory(t *testing.T) {
 	for _, name := range []string{
 		"Postgres",
 		"PostgresIssue",
-		"PostgresBranchCreatedActivityLogEntry",
-		"PostgresBranchActivatedActivityLogEntry",
-		"PostgresBranchDeletedActivityLogEntry",
+		"PostgresHistoricalActivityLogEntry",
 	} {
 		if schema.Types[name] == nil {
 			t.Errorf("type %s must remain available", name)
@@ -51,7 +49,7 @@ func TestPostgresSchemaRetainsDatabaseOperationsAndBranchHistory(t *testing.T) {
 
 func TestPostgresSchemaRetiresBranchReads(t *testing.T) {
 	schema := gengql.NewExecutableSchema(gengql.Config{}).Schema()
-	for _, name := range []string{"PostgresBranch", "PostgresBranchIssue", "PostgresBranchConnection", "PostgresBranchFilter", "PostgresBranchOrder", "PostgresBranchState", "PostgresBranchFacets", "TeamInventoryCountPostgresBranches"} {
+	for _, name := range []string{"PostgresBranch", "PostgresBranchIssue", "PostgresBranchConnection", "PostgresBranchFilter", "PostgresBranchOrder", "PostgresBranchState", "PostgresBranchFacets", "TeamInventoryCountPostgresBranches", "PostgresBranchCreatedActivityLogEntry", "PostgresBranchActivatedActivityLogEntry", "PostgresBranchDeletedActivityLogEntry", "PostgresBranchActivityLogEntryData"} {
 		if schema.Types[name] != nil {
 			t.Errorf("retired type %s is still exposed", name)
 		}

@@ -10,7 +10,6 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: main
   clusterName: pg-postgres-one-main-e58682b9
   reconcilePhase: Completed
   conditions:
@@ -30,7 +29,6 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: main
   clusterName: pg-postgres-two-main-935c2b2a
   reconcilePhase: Completed
   conditions:
@@ -50,7 +48,6 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: main
   clusterName: pg-postgres-three-main-1013cb94
   reconcilePhase: Completed
   conditions:

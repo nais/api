@@ -7,7 +7,6 @@ metadata:
 spec:
   majorVersion: "16"
 status:
-  activeBranch: main
   clusterName: pg-audit-enabled-main-74f70e60
   reconcilePhase: Completed
   conditions:

@@ -9,7 +9,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/nais/api/internal/graph/ident"
@@ -29,42 +28,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 
-type PostgresBranchEdge = pagination.Edge[*PostgresBranch]
-
-type PostgresBranchFilter struct {
-	Name         string                `json:"name"`
-	Environments []string              `json:"environments"`
-	States       []PostgresBranchState `json:"states"`
-	Labels       model.LabelFilters    `json:"labels,omitempty"`
-}
-
-type PostgresBranchConnection = pagination.FacetableConnection[*PostgresBranch, *PostgresBranchFilter]
-
-type PostgresBranchFacets struct {
-	AllInstances      []*PostgresBranch
-	Filter            *PostgresBranchFilter
-	filteredOnce      sync.Once
-	filteredInstances []*PostgresBranch
-}
-
-type PostgresBranchStateFacetItem struct {
-	State PostgresBranchState `json:"state"`
-	Count int                 `json:"count"`
-}
-
-// PostgresBranch represents an independently running database instance.
-type PostgresBranch struct {
-	Name            string                 `json:"name"`
-	CreatedAt       time.Time              `json:"createdAt"`
-	EnvironmentName string                 `json:"-"`
-	TeamSlug        slug.Slug              `json:"-"`
-	PostgresName    string                 `json:"postgres"`
-	State           PostgresBranchState    `json:"state"`
-	Labels          []*model.ResourceLabel `json:"labels"`
-	Configuration   *PostgresConfiguration `json:"configuration,omitempty"`
-	ClusterName     string                 `json:"-"`
-}
-
 type TeamPostgresFilter struct {
 	Environments []string           `json:"environments"`
 	Labels       model.LabelFilters `json:"labels,omitempty"`
@@ -80,9 +43,8 @@ type (
 )
 
 type PostgresWorkload struct {
-	Workload   workload.Workload `json:"workload"`
-	Postgres   *Postgres         `json:"postgres"`
-	BranchName string            `json:"-"`
+	Workload workload.Workload `json:"workload"`
+	Postgres *Postgres         `json:"postgres"`
 }
 
 type PostgresUserRole string
@@ -96,7 +58,6 @@ const (
 type WorkloadPostgres struct {
 	EnvPrefix *string          `json:"envPrefix,omitempty"`
 	Role      PostgresUserRole `json:"role"`
-	Branch    *PostgresBranch  `json:"branch"`
 	Postgres  *Postgres        `json:"postgres"`
 }
 
@@ -105,27 +66,22 @@ type PostgresFacets struct {
 	FilteredInstances []*Postgres
 }
 
-// Postgres selects the instance that workloads use.
+// Postgres represents a database used by workloads.
 type Postgres struct {
-	Name                string                 `json:"name"`
-	EnvironmentName     string                 `json:"-"`
-	TeamSlug            slug.Slug              `json:"-"`
-	ActiveBranch        *string                `json:"activeBranch,omitempty"`
-	DesiredActiveBranch *string                `json:"desiredActiveBranch,omitempty"`
-	MajorVersion        string                 `json:"majorVersion"`
-	Extensions          []string               `json:"extensions"`
-	HighAvailability    bool                   `json:"highAvailability"`
-	Resources           PostgresResources      `json:"resources"`
-	Labels              []*model.ResourceLabel `json:"labels"`
-	CreatedAt           time.Time              `json:"createdAt"`
-	Recovery            *PostgresRecovery      `json:"recovery,omitempty"`
-	directClusterName   *string
-	physicalState       PostgresBranchState
-	configuration       *PostgresConfiguration
+	Name              string                 `json:"name"`
+	EnvironmentName   string                 `json:"-"`
+	TeamSlug          slug.Slug              `json:"-"`
+	MajorVersion      string                 `json:"majorVersion"`
+	Extensions        []string               `json:"extensions"`
+	HighAvailability  bool                   `json:"highAvailability"`
+	Resources         PostgresResources      `json:"resources"`
+	Labels            []*model.ResourceLabel `json:"labels"`
+	CreatedAt         time.Time              `json:"createdAt"`
+	Recovery          *PostgresRecovery      `json:"recovery,omitempty"`
+	directClusterName *string
+	physicalState     PostgresState
+	configuration     *PostgresConfiguration
 }
-
-// PostgresState shares the established database-state semantics with legacy branches.
-type PostgresState = PostgresBranchState
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
 type PostgresResources struct {
@@ -145,50 +101,41 @@ func (p *Postgres) GetName() string                  { return p.Name }
 func (p *Postgres) GetNamespace() string             { return p.TeamSlug.String() }
 func (p *Postgres) GetLabels() map[string]string     { return nil }
 
-type PostgresBranchState string
+type PostgresState string
 
 const (
-	PostgresBranchStateAvailable   PostgresBranchState = "AVAILABLE"
-	PostgresBranchStateProgressing PostgresBranchState = "PROGRESSING"
-	PostgresBranchStateDegraded    PostgresBranchState = "DEGRADED"
+	PostgresStateAvailable   PostgresState = "AVAILABLE"
+	PostgresStateProgressing PostgresState = "PROGRESSING"
+	PostgresStateDegraded    PostgresState = "DEGRADED"
 )
 
-var AllPostgresBranchState = []PostgresBranchState{
-	PostgresBranchStateAvailable,
-	PostgresBranchStateProgressing,
-	PostgresBranchStateDegraded,
-}
+var AllPostgresState = []PostgresState{PostgresStateAvailable, PostgresStateProgressing, PostgresStateDegraded}
 
-func (e PostgresBranchState) IsValid() bool {
+func (e PostgresState) IsValid() bool {
 	switch e {
-	case PostgresBranchStateAvailable, PostgresBranchStateProgressing, PostgresBranchStateDegraded:
+	case PostgresStateAvailable, PostgresStateProgressing, PostgresStateDegraded:
 		return true
 	}
 	return false
 }
 
-func (e PostgresBranchState) String() string {
-	return string(e)
-}
+func (e PostgresState) String() string { return string(e) }
 
-func (e *PostgresBranchState) UnmarshalGQL(v any) error {
+func (e *PostgresState) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
-
-	*e = PostgresBranchState(str)
+	*e = PostgresState(str)
 	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid PostgresBranchState", str)
+		return fmt.Errorf("%s is not a valid PostgresState", str)
 	}
 	return nil
 }
 
-func (e PostgresBranchState) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
+func (e PostgresState) MarshalGQL(w io.Writer) { fmt.Fprint(w, strconv.Quote(e.String())) }
 
-func (e *PostgresBranchState) UnmarshalJSON(b []byte) error {
+func (e *PostgresState) UnmarshalJSON(b []byte) error {
 	s, err := strconv.Unquote(string(b))
 	if err != nil {
 		return err
@@ -196,7 +143,7 @@ func (e *PostgresBranchState) UnmarshalJSON(b []byte) error {
 	return e.UnmarshalGQL(s)
 }
 
-func (e PostgresBranchState) MarshalJSON() ([]byte, error) {
+func (e PostgresState) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -232,7 +179,6 @@ type DeletePostgresPayload struct {
 // The authenticated actor and final expiry are server-controlled.
 type CreatePostgresAccessInput struct {
 	Postgres        string              `json:"postgres"`
-	Branch          string              `json:"branch"`
 	TeamSlug        slug.Slug           `json:"teamSlug"`
 	EnvironmentName string              `json:"environmentName"`
 	AccessLevel     PostgresAccessLevel `json:"accessLevel"`
@@ -247,7 +193,6 @@ func (i *CreatePostgresAccessInput) Validate(ctx context.Context) error {
 func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *validate.ValidationErrors {
 	verr := validate.New()
 	i.Postgres = strings.TrimSpace(i.Postgres)
-	i.Branch = strings.TrimSpace(i.Branch)
 	i.EnvironmentName = strings.TrimSpace(i.EnvironmentName)
 	i.Reason = strings.TrimSpace(i.Reason)
 	i.TTL = strings.TrimSpace(i.TTL)
@@ -275,20 +220,15 @@ func (i *CreatePostgresAccessInput) ValidationErrors(ctx context.Context) *valid
 		return verr
 	}
 
-	instance, err := GetReadyPostgresBranch(ctx, i.TeamSlug, i.EnvironmentName, i.Postgres, i.Branch)
+	state, err := readyPostgresState(ctx, i.TeamSlug, i.EnvironmentName, i.Postgres)
 	if err != nil {
 		if k8serrors.IsNotFound(err) || errors.Is(err, &watcher.ErrorNotFound{}) {
-			verr.Add("branch", "Could not find PostgresBranch %q in Postgres %q", i.Branch, i.Postgres)
+			verr.Add("postgres", "Could not find Postgres %q", i.Postgres)
 		} else {
-			verr.Add("branch", "%s", err)
+			verr.Add("postgres", "%s", err)
 		}
-	} else {
-		// Keep the choice made from the fresh parent for readiness and the
-		// eventual immutable access resource, rather than resolving it again.
-		i.Branch = instance.Name
-		if instance.State != PostgresBranchStateAvailable {
-			verr.Add("branch", "Postgres branch %q is not available.", i.Branch)
-		}
+	} else if state != PostgresStateAvailable {
+		verr.Add("postgres", "Postgres %q is not available.", i.Postgres)
 	}
 
 	return verr
@@ -337,63 +277,19 @@ func (e PostgresAccessLevel) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-func (p *PostgresBranch) GetObjectKind() schema.ObjectKind {
-	return schema.EmptyObjectKind
-}
-
-func (p *PostgresBranch) DeepCopyObject() runtime.Object {
-	return p
-}
-
-func (p *PostgresBranch) GetName() string {
-	return nais_io_v1.PostgresBranchObjectName(p.PostgresName, p.Name)
-}
-
-func (p *PostgresBranch) GetNamespace() string {
-	return p.TeamSlug.String()
-}
-
-func (p *PostgresBranch) GetLabels() map[string]string {
-	return nil
-}
-
-func toPostgresBranch(u *unstructured.Unstructured, environmentName string) (*PostgresBranch, error) {
-	obj := &nais_io_v1.PostgresBranch{}
-	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
-		return nil, fmt.Errorf("converting PostgresBranch: %w", err)
-	}
-	if obj.Spec.Postgres == "" || obj.Spec.BranchName == "" || obj.Name != nais_io_v1.PostgresBranchObjectName(obj.Spec.Postgres, obj.Spec.BranchName) {
-		return nil, fmt.Errorf("PostgresBranch %q has invalid postgres or branchName", obj.Name)
-	}
-	state := PostgresBranchStateProgressing
-	var configuration *PostgresConfiguration
-	if obj.Status != nil {
-		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
-		configuration = toPostgresConfiguration(obj.Status.Configuration)
-	}
-	return &PostgresBranch{Name: obj.Spec.BranchName, CreatedAt: obj.CreationTimestamp.Time, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace), PostgresName: obj.Spec.Postgres, State: state, Labels: model.UserLabels(obj.Labels), Configuration: configuration}, nil
-}
-
 func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres, error) {
 	obj := &nais_io_v1.Postgres{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, obj); err != nil {
 		return nil, fmt.Errorf("converting Postgres: %w", err)
 	}
-	var active *string
 	var clusterName *string
-	state := PostgresBranchStateProgressing
+	state := PostgresStateProgressing
 	var configuration *PostgresConfiguration
-	if obj.Status != nil && obj.Status.ActiveBranch != "" {
-		// The implicit compatibility relation is always virtual main. Stale
-		// legacy metadata must not turn a provisioning read into a non-main lookup.
-		active = new(nais_io_v1.DefaultBranchName)
-	}
 	if obj.Status != nil && obj.Status.ClusterName != "" {
 		if len(validation.IsDNS1123Label(obj.Status.ClusterName)) > 0 {
 			return nil, fmt.Errorf("Postgres %q has invalid clusterName %q", obj.Name, obj.Status.ClusterName)
 		}
 		clusterName = new(obj.Status.ClusterName)
-		active = new(nais_io_v1.DefaultBranchName)
 		state = postgresStateFromConditions(obj.Status.Conditions, obj.Status.ReconcilePhase == "Completed" && obj.Status.ObservedGeneration >= obj.Generation)
 		configuration = toPostgresConfiguration(obj.Status.Configuration)
 	}
@@ -424,7 +320,7 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 	}
 	return &Postgres{
 		Name: obj.Name, EnvironmentName: environmentName, TeamSlug: slug.Slug(obj.Namespace),
-		ActiveBranch: active, DesiredActiveBranch: strPtr(obj.Spec.ActiveBranch), MajorVersion: obj.Spec.MajorVersion, Extensions: extensions, HighAvailability: obj.Spec.HighAvailability,
+		MajorVersion: obj.Spec.MajorVersion, Extensions: extensions, HighAvailability: obj.Spec.HighAvailability,
 		Resources: PostgresResources{
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
@@ -437,14 +333,14 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 
 // postgresStateFromConditions interprets pgrator and CNPG status conditions.
 // ObservedState=False means no phase has been observed, not a failed cluster.
-func postgresStateFromConditions(conditions []metav1.Condition, reconciled bool) PostgresBranchState {
+func postgresStateFromConditions(conditions []metav1.Condition, reconciled bool) PostgresState {
 	for _, condition := range conditions {
 		if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue && condition.Reason == "Unrecoverable" {
-			return PostgresBranchStateDegraded
+			return PostgresStateDegraded
 		}
 	}
 	if !reconciled {
-		return PostgresBranchStateProgressing
+		return PostgresStateProgressing
 	}
 	for _, condition := range conditions {
 		if condition.Type != "cluster.postgresql.cnpg.io/ObservedState" || condition.Status != metav1.ConditionTrue {
@@ -456,96 +352,31 @@ func postgresStateFromConditions(conditions []metav1.Condition, reconciled bool)
 		}
 		switch phase {
 		case "Cluster in healthy state":
-			return PostgresBranchStateAvailable
+			return PostgresStateAvailable
 		case "Cluster is unrecoverable and needs manual intervention",
 			"Cluster cannot proceed to reconciliation due to an unknown plugin being required",
 			"Cluster cannot proceed to reconciliation due to an error while interacting with plugins",
 			"Cluster has incomplete or invalid image catalog":
-			return PostgresBranchStateDegraded
+			return PostgresStateDegraded
 		}
 	}
-	return PostgresBranchStateProgressing
-}
-
-type PostgresBranchOrder struct {
-	Field     PostgresBranchOrderField `json:"field"`
-	Direction model.OrderDirection     `json:"direction"`
-}
-
-type PostgresBranchOrderField string
-
-const (
-	PostgresBranchOrderFieldName        PostgresBranchOrderField = "NAME"
-	PostgresBranchOrderFieldEnvironment PostgresBranchOrderField = "ENVIRONMENT"
-)
-
-var AllPostgresBranchOrderField = []PostgresBranchOrderField{
-	PostgresBranchOrderFieldName,
-	PostgresBranchOrderFieldEnvironment,
-}
-
-func (e PostgresBranchOrderField) IsValid() bool {
-	switch e {
-	case PostgresBranchOrderFieldName, PostgresBranchOrderFieldEnvironment:
-		return true
-	}
-	return false
-}
-
-func (e PostgresBranchOrderField) String() string {
-	return string(e)
-}
-
-func (e *PostgresBranchOrderField) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = PostgresBranchOrderField(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid PostgresBranchOrderField", str)
-	}
-	return nil
-}
-
-func (e PostgresBranchOrderField) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *PostgresBranchOrderField) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e PostgresBranchOrderField) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-type TeamInventoryCountPostgresBranches struct {
-	Total int `json:"total"`
+	return PostgresStateProgressing
 }
 
 // PostgresAccess exposes the API/CLI-facing state of a controller-owned personal
 // database access. Credentials are read from the controller-owned Secret on
 // demand; they are never cached by the watcher.
 type PostgresAccess struct {
-	Name               string              `json:"name"`
-	TeamSlug           slug.Slug           `json:"-"`
-	EnvironmentName    string              `json:"-"`
-	PostgresBranchName string              `json:"postgresBranch"`
-	PostgresName       string              `json:"-"`
-	Username           string              `json:"username"`
-	AccessLevel        PostgresAccessLevel `json:"accessLevel"`
-	ExpiresAt          time.Time           `json:"expiresAt"`
-	State              PostgresAccessState `json:"state"`
-	Message            *string             `json:"message,omitempty"`
-	RelayAccess        *string             `json:"relayAccess,omitempty"`
+	Name            string              `json:"name"`
+	TeamSlug        slug.Slug           `json:"-"`
+	EnvironmentName string              `json:"-"`
+	PostgresName    string              `json:"-"`
+	Username        string              `json:"username"`
+	AccessLevel     PostgresAccessLevel `json:"accessLevel"`
+	ExpiresAt       time.Time           `json:"expiresAt"`
+	State           PostgresAccessState `json:"state"`
+	Message         *string             `json:"message,omitempty"`
+	RelayAccess     *string             `json:"relayAccess,omitempty"`
 }
 
 func (PostgresAccess) IsNode() {}

@@ -2,7 +2,6 @@ package watchers_test
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -15,7 +14,6 @@ import (
 	"github.com/nais/api/internal/kubernetes/watcher"
 	"github.com/nais/api/internal/kubernetes/watchers"
 	"github.com/nais/api/internal/persistence/postgres"
-	"github.com/nais/api/internal/slug"
 	v1 "github.com/nais/pgrator/pkg/api/v1"
 	logtest "github.com/sirupsen/logrus/hooks/test"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -71,29 +69,22 @@ func TestPostgresContractsWithoutBranchAPI(t *testing.T) {
 		t.Fatal("watchers did not synchronize without branch API")
 	}
 	ctx = postgres.NewLoaderContext(ctx, registered.PostgresWatcher, "", "", "nav", mgr.GetDynamicClients())
-	views := postgres.ListAllForTeam(ctx, "team", nil)
-	if len(views) != 1 || views[0].Name != "main" || views[0].State != postgres.PostgresBranchStateAvailable {
-		t.Fatalf("main facade = %+v", views)
+	if count := postgres.CountForTeam(ctx, "team"); count != 1 {
+		t.Fatalf("Postgres count = %d, want 1", count)
 	}
-	if _, err := postgres.GetPostgresBranchByObjectName(ctx, "team", "dev", v1.PostgresPhysicalName("orders")); err != nil {
-		t.Fatal(err)
-	}
-	if parent, err := postgres.GetPostgresByPhysicalName(ctx, "team", "dev", v1.PostgresPhysicalName("orders")); err != nil || parent.Name != "orders" {
-		t.Fatalf("direct issue relation: %+v, %v", parent, err)
-	}
-	for _, scope := range []struct{ team, env string }{{"other-team", "dev"}, {"team", "prod"}} {
-		if _, err := postgres.GetPostgresByPhysicalName(ctx, slug.Slug(scope.team), scope.env, v1.PostgresPhysicalName("orders")); !errors.Is(err, &watcher.ErrorNotFound{}) {
-			t.Errorf("legacy issue lookup escaped scope %+v: %v", scope, err)
-		}
-	}
-	if selected, err := postgres.GetReadyPostgresBranch(ctx, "team", "dev", "orders", ""); err != nil || selected.State != postgres.PostgresBranchStateAvailable {
-		t.Fatalf("access target = %+v, %v", selected, err)
-	}
-	proxy := postgres.WithLogScope(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusNoContent) }))
 	parent, err := postgres.GetPostgres(ctx, "team", "dev", "orders")
 	if err != nil {
 		t.Fatal(err)
 	}
+	state, _, err := postgres.PhysicalStatus(ctx, parent)
+	if err != nil || state != postgres.PostgresStateAvailable {
+		t.Fatalf("physical status = %v, %v", state, err)
+	}
+	input := postgres.CreatePostgresAccessInput{Postgres: "orders", TeamSlug: "team", EnvironmentName: "dev", AccessLevel: postgres.PostgresAccessLevelRead, Reason: "Verifying direct database access"}
+	if err := input.Validate(ctx); err != nil {
+		t.Fatal(err)
+	}
+	proxy := postgres.WithLogScope(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusNoContent) }))
 	parameters := url.Values{"postgres": {parent.ID().String()}, "query": {`{service_name="orders"}`}}
 	response := httptest.NewRecorder()
 	proxy.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/loki/api/v1/query_range?"+parameters.Encode(), nil).WithContext(ctx))

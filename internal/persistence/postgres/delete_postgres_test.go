@@ -33,7 +33,7 @@ func TestPostgresDeletionActivityMessages(t *testing.T) {
 		action activitylog.ActivityLogEntryAction
 		want   string
 	}{
-		{"historical branch deletion", activitylog.ActivityLogEntryActionDeleted, "Deleted Postgres branch (name unavailable)"},
+		{"Postgres deletion", activitylog.ActivityLogEntryActionDeleted, "Deleted Postgres"},
 		{"whole Postgres deletion request", activityLogEntryActionDeletionRequested, "Requested deletion of Postgres; cleanup is pending"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

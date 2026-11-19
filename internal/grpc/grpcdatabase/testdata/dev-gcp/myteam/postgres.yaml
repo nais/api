@@ -7,7 +7,6 @@ metadata:
 spec:
   majorVersion: "17"
 status:
-  activeBranch: main
   clusterName: pg-pg-b-main-4a8c4391
   reconcilePhase: Completed
   conditions:
