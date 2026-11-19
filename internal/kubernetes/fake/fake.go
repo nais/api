@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -356,62 +355,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		}
 
 		return true, modified, nil
-	})
-
-	client.PrependReactor("patch", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
-		patchAction, ok := action.(k8stesting.PatchAction)
-		if !ok {
-			return false, nil, nil
-		}
-
-		if patchAction.GetPatchType() != types.ApplyPatchType {
-			return false, nil, nil
-		}
-
-		gvr := patchAction.GetResource()
-		ns := patchAction.GetNamespace()
-		name := patchAction.GetName()
-
-		desired := &unstructured.Unstructured{}
-		if err := json.Unmarshal(patchAction.GetPatch(), &desired.Object); err != nil {
-			return true, nil, fmt.Errorf("unmarshaling apply patch: %w", err)
-		}
-
-		existing, err := client.Tracker().Get(gvr, ns, name)
-		if err != nil {
-			if err := client.Tracker().Create(gvr, desired, ns); err != nil {
-				return true, nil, fmt.Errorf("creating object via apply: %w", err)
-			}
-			return true, desired, nil
-		}
-
-		existingUnstr, ok := existing.(*unstructured.Unstructured)
-		if !ok {
-			return true, nil, fmt.Errorf("expected *unstructured.Unstructured, got %T", existing)
-		}
-
-		merged := existingUnstr.DeepCopy()
-		for k, v := range desired.Object {
-			if k == "metadata" {
-				// Merge metadata rather than replacing it wholesale.
-				desiredMeta, ok1 := v.(map[string]any)
-				existingMeta, ok2 := merged.Object["metadata"].(map[string]any)
-				if ok1 && ok2 {
-					maps.Copy(existingMeta, desiredMeta)
-					merged.Object["metadata"] = existingMeta
-				} else {
-					merged.Object[k] = v
-				}
-			} else {
-				merged.Object[k] = v
-			}
-		}
-
-		if err := client.Tracker().Update(gvr, merged, ns); err != nil {
-			return true, nil, fmt.Errorf("updating object via apply: %w", err)
-		}
-
-		return true, merged, nil
 	})
 
 	return client
