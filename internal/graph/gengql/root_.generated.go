@@ -36732,6 +36732,9 @@ extend type Query {
 		"Get vulnerability summary from given date until today."
 		from: Date!
 	): ImageVulnerabilityHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 
 	"Get the vulnerability summary for the tenant."
 	vulnerabilitySummary(
@@ -36762,6 +36765,9 @@ extend type Query {
 
 	"Get the mean time to fix history for all teams."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 
 	"Get a specific CVE by its identifier."
 	cve(identifier: String!): CVE!
@@ -36825,9 +36831,15 @@ extend interface Workload {
 		"Get vulnerability summary from given date until today."
 		from: Date!
 	): ImageVulnerabilityHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 
 	"Get the mean time to fix history for a workload."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 }
 
 extend enum TeamOrderField {
@@ -36855,9 +36867,15 @@ extend type Application {
 		"Get vulnerability summary from given date until today."
 		from: Date!
 	): ImageVulnerabilityHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 
 	"Get the mean time to fix history for an application."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 }
 
 extend type Job {
@@ -36866,9 +36884,15 @@ extend type Job {
 		"Get vulnerability summary from given date until today."
 		from: Date!
 	): ImageVulnerabilityHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 
 	"Get the mean time to fix history for a job."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 }
 
 extend type Team {
@@ -36877,9 +36901,15 @@ extend type Team {
 		"Get vulnerability summary from given date until today."
 		from: Date!
 	): ImageVulnerabilityHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 
 	"Get the mean time to fix history for a team."
 	vulnerabilityFixHistory(from: Date!): VulnerabilityFixHistory!
+		@deprecated(
+			reason: "No longer used by Console. Retained for compatibility while consumer usage is assessed."
+		)
 }
 
 type ImageVulnerabilityHistory {
