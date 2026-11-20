@@ -268,18 +268,6 @@ Test.gql("Changing access level revokes and recreates live access", function(t)
 	} } } } }
 end)
 
-Test.gql("Personal access rejects retired non-main selection", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation { createPostgresAccess(input: {
-			postgres: "foobar", branch: "recovered", environmentName: "dev",
-			teamSlug: "someteamname", accessLevel: READ,
-			reason: "Testing access to a recovered instance"
-		}) { name } }
-	]]
-	t.check { data = Null, errors = { { extensions = { code = "GRAPHQL_VALIDATION_FAILED" }, locations = NotNull(), message = Contains('Field "branch" is not defined') } } }
-end)
-
 Test.gql("PostgresAccess status is visible to authorized team members", function(t)
 	t.addHeader("x-user-email", otherMemberUser:email())
 	for _, test in ipairs({

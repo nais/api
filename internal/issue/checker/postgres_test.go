@@ -35,7 +35,7 @@ func TestPostgresWithoutWatcher(t *testing.T) {
 	}
 }
 
-func TestPostgresIssuesWithoutBranchWatcher(t *testing.T) {
+func TestPostgresIssuesFollowDatabaseState(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)

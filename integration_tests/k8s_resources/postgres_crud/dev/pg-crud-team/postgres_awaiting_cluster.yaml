@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1
 kind: Postgres
 metadata:
-  name: branchless
+  name: awaiting-cluster
   namespace: pg-crud-team
   labels:
     usecase: reporting

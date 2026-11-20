@@ -53,11 +53,11 @@ Test.k8s("PITR pins source UID and physical archive identity", function(t)
 end)
 
 for _, case in ipairs({
-	{ name = "before archive",           source = "pitr-source", time = "2026-09-28T12:00:00Z", message = "earliest recoverable" },
-	{ name = "missing source",           source = "unknown",     time = "2026-09-30T12:00:00Z", message = "not found in this team and environment" },
-	{ name = "missing physical source",  source = "branchless",  time = "2026-09-30T12:00:00Z", message = "no recoverable cluster" },
-	{ name = "smaller disk",             source = "pitr-source", time = "2026-09-30T12:00:00Z", extra = 'diskSize: "10Gi"',                        message = "must not be smaller" },
-	{ name = "missing source extension", source = "pitr-source", time = "2026-09-30T12:00:00Z", extra = "extensions: []",                          message = "must include source extension" },
+	{ name = "before archive",           source = "pitr-source",      time = "2026-09-28T12:00:00Z", message = "earliest recoverable" },
+	{ name = "missing source",           source = "unknown",          time = "2026-09-30T12:00:00Z", message = "not found in this team and environment" },
+	{ name = "missing physical source",  source = "awaiting-cluster", time = "2026-09-30T12:00:00Z", message = "no recoverable cluster" },
+	{ name = "smaller disk",             source = "pitr-source",      time = "2026-09-30T12:00:00Z", extra = 'diskSize: "10Gi"',                        message = "must not be smaller" },
+	{ name = "missing source extension", source = "pitr-source",      time = "2026-09-30T12:00:00Z", extra = "extensions: []",                          message = "must include source extension" },
 }) do
 	Test.gql("PITR rejects " .. case.name, function(t)
 		t.addHeader("x-user-email", member:email())
