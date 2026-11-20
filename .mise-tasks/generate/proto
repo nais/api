@@ -10,4 +10,14 @@ protoc \
 	--go_out=. \
 	--go-grpc_out=.
 
+protoc \
+	-I internal/v0s/protoapi/schema/ \
+	internal/v0s/protoapi/schema/v0s.proto \
+	--go_opt='Mv0s.proto=github.com/nais/api/internal/v0s/protoapi;protoapi' \
+	--go_opt=module=github.com/nais/api \
+	--go_out=. \
+	--go-grpc_opt='Mv0s.proto=github.com/nais/api/internal/v0s/protoapi;protoapi' \
+	--go-grpc_opt=module=github.com/nais/api \
+	--go-grpc_out=.
+
 mise run fmt:go

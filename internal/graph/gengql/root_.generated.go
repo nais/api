@@ -41,6 +41,7 @@ import (
 	"github.com/nais/api/internal/unleash"
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/utilization"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -156,6 +157,7 @@ type ResolverRoot interface {
 	ValkeyConnection() ValkeyConnectionResolver
 	ValkeyIssue() ValkeyIssueResolver
 	ValkeyMaintenance() ValkeyMaintenanceResolver
+	VulnerabilityFinding() VulnerabilityFindingResolver
 	VulnerableImageIssue() VulnerableImageIssueResolver
 	WebhookSubscription() WebhookSubscriptionResolver
 	WorkloadCost() WorkloadCostResolver
@@ -247,41 +249,44 @@ type ComplexityRoot struct {
 	}
 
 	Application struct {
-		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		AuthIntegrations          func(childComplexity int) int
-		BigQueryDatasets          func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets                   func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Cost                      func(childComplexity int) int
-		DeletionStartedAt         func(childComplexity int) int
-		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
-		History                   func(childComplexity int) int
-		ID                        func(childComplexity int) int
-		Image                     func(childComplexity int) int
-		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
-		Ingresses                 func(childComplexity int) int
-		InstanceGroups            func(childComplexity int) int
-		Instances                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
-		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		Labels                    func(childComplexity int) int
-		LogDestinations           func(childComplexity int) int
-		Manifest                  func(childComplexity int) int
-		Name                      func(childComplexity int) int
-		NetworkPolicy             func(childComplexity int) int
-		OpenSearch                func(childComplexity int) int
-		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Resources                 func(childComplexity int) int
-		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ServiceAccount            func(childComplexity int) int
-		State                     func(childComplexity int) int
-		Team                      func(childComplexity int) int
-		TeamEnvironment           func(childComplexity int) int
-		Utilization               func(childComplexity int) int
-		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
-		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
+		ActivityLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		AuthIntegrations            func(childComplexity int) int
+		BigQueryDatasets            func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets                     func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Configs                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Cost                        func(childComplexity int) int
+		DeletionStartedAt           func(childComplexity int) int
+		Deployments                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
+		History                     func(childComplexity int) int
+		ID                          func(childComplexity int) int
+		Image                       func(childComplexity int) int
+		ImageVulnerabilityHistory   func(childComplexity int, from scalar.Date) int
+		Ingresses                   func(childComplexity int) int
+		InstanceGroups              func(childComplexity int) int
+		Instances                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Issues                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		KafkaTopicAcls              func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Labels                      func(childComplexity int) int
+		LogDestinations             func(childComplexity int) int
+		Manifest                    func(childComplexity int) int
+		Name                        func(childComplexity int) int
+		NetworkPolicy               func(childComplexity int) int
+		OpenSearch                  func(childComplexity int) int
+		Postgreses                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Resources                   func(childComplexity int) int
+		SQLInstances                func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Secrets                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ServiceAccount              func(childComplexity int) int
+		State                       func(childComplexity int) int
+		Team                        func(childComplexity int) int
+		TeamEnvironment             func(childComplexity int) int
+		Utilization                 func(childComplexity int) int
+		Valkeys                     func(childComplexity int, orderBy *valkey.ValkeyOrder) int
+		VulnerabilityCoverage       func(childComplexity int) int
+		VulnerabilityFindingSummary func(childComplexity int, filter *v0s.VulnerabilityFindingFilter) int
+		VulnerabilityFindings       func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory     func(childComplexity int, from scalar.Date) int
 	}
 
 	ApplicationConnection struct {
@@ -882,6 +887,10 @@ type ComplexityRoot struct {
 		ValkeyDeleted func(childComplexity int) int
 	}
 
+	DeleteVulnerabilitySuppressionsPayload struct {
+		Deleted func(childComplexity int) int
+	}
+
 	DeleteWebhookPayload struct {
 		WebhookID func(childComplexity int) int
 	}
@@ -1287,38 +1296,41 @@ type ComplexityRoot struct {
 	}
 
 	Job struct {
-		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		AuthIntegrations          func(childComplexity int) int
-		BigQueryDatasets          func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets                   func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Cost                      func(childComplexity int) int
-		DeletionStartedAt         func(childComplexity int) int
-		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
-		ID                        func(childComplexity int) int
-		Image                     func(childComplexity int) int
-		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
-		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
-		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		Labels                    func(childComplexity int) int
-		LogDestinations           func(childComplexity int) int
-		Manifest                  func(childComplexity int) int
-		Name                      func(childComplexity int) int
-		NetworkPolicy             func(childComplexity int) int
-		OpenSearch                func(childComplexity int) int
-		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Resources                 func(childComplexity int) int
-		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Schedule                  func(childComplexity int) int
-		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ServiceAccount            func(childComplexity int) int
-		State                     func(childComplexity int) int
-		Team                      func(childComplexity int) int
-		TeamEnvironment           func(childComplexity int) int
-		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
-		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
+		ActivityLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		AuthIntegrations            func(childComplexity int) int
+		BigQueryDatasets            func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets                     func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Configs                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Cost                        func(childComplexity int) int
+		DeletionStartedAt           func(childComplexity int) int
+		Deployments                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
+		ID                          func(childComplexity int) int
+		Image                       func(childComplexity int) int
+		ImageVulnerabilityHistory   func(childComplexity int, from scalar.Date) int
+		Issues                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		KafkaTopicAcls              func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Labels                      func(childComplexity int) int
+		LogDestinations             func(childComplexity int) int
+		Manifest                    func(childComplexity int) int
+		Name                        func(childComplexity int) int
+		NetworkPolicy               func(childComplexity int) int
+		OpenSearch                  func(childComplexity int) int
+		Postgreses                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Resources                   func(childComplexity int) int
+		Runs                        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		SQLInstances                func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Schedule                    func(childComplexity int) int
+		Secrets                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ServiceAccount              func(childComplexity int) int
+		State                       func(childComplexity int) int
+		Team                        func(childComplexity int) int
+		TeamEnvironment             func(childComplexity int) int
+		Valkeys                     func(childComplexity int, orderBy *valkey.ValkeyOrder) int
+		VulnerabilityCoverage       func(childComplexity int) int
+		VulnerabilityFindingSummary func(childComplexity int, filter *v0s.VulnerabilityFindingFilter) int
+		VulnerabilityFindings       func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory     func(childComplexity int, from scalar.Date) int
 	}
 
 	JobConnection struct {
@@ -1722,6 +1734,7 @@ type ComplexityRoot struct {
 		DeleteTunnel                     func(childComplexity int, input tunnel.DeleteTunnelInput) int
 		DeleteUnleashInstance            func(childComplexity int, input unleash.DeleteUnleashInstanceInput) int
 		DeleteValkey                     func(childComplexity int, input valkey.DeleteValkeyInput) int
+		DeleteVulnerabilitySuppressions  func(childComplexity int, input v0s.DeleteVulnerabilitySuppressionsInput) int
 		DeleteWebhook                    func(childComplexity int, input webhook.DeleteWebhookInput) int
 		DisableReconciler                func(childComplexity int, input reconciler.DisableReconcilerInput) int
 		EnableReconciler                 func(childComplexity int, input reconciler.EnableReconcilerInput) int
@@ -1735,6 +1748,7 @@ type ComplexityRoot struct {
 		RevokeRoleFromServiceAccount     func(childComplexity int, input serviceaccount.RevokeRoleFromServiceAccountInput) int
 		RevokeTeamAccessToUnleash        func(childComplexity int, input unleash.RevokeTeamAccessToUnleashInput) int
 		SetTeamMemberRole                func(childComplexity int, input team.SetTeamMemberRoleInput) int
+		SetVulnerabilitySuppressions     func(childComplexity int, input v0s.SetVulnerabilitySuppressionsInput) int
 		StartOpenSearchMaintenance       func(childComplexity int, input servicemaintenance.StartOpenSearchMaintenanceInput) int
 		StartValkeyMaintenance           func(childComplexity int, input servicemaintenance.StartValkeyMaintenanceInput) int
 		TestWebhook                      func(childComplexity int, input webhook.TestWebhookInput) int
@@ -1963,13 +1977,13 @@ type ComplexityRoot struct {
 	}
 
 	PageInfo struct {
+		Count           func(childComplexity int) int
 		EndCursor       func(childComplexity int) int
 		HasNextPage     func(childComplexity int) int
 		HasPreviousPage func(childComplexity int) int
 		PageEnd         func(childComplexity int) int
 		PageStart       func(childComplexity int) int
 		StartCursor     func(childComplexity int) int
-		TotalCount      func(childComplexity int) int
 	}
 
 	Postgres struct {
@@ -2212,36 +2226,41 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
-		CVE                       func(childComplexity int, identifier string) int
-		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
-		CurrentUnitPrices         func(childComplexity int) int
-		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
-		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
-		Environment               func(childComplexity int, name string) int
-		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
-		Features                  func(childComplexity int) int
-		GlobalWebhooks            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
-		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
-		Me                        func(childComplexity int) int
-		Node                      func(childComplexity int, id ident.Ident) int
-		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
-		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
-		ServiceAccount            func(childComplexity int, id ident.Ident) int
-		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team                      func(childComplexity int, slug slug.Slug) int
-		Teams                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
-		TeamsUtilization          func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		UnleashReleaseChannels    func(childComplexity int) int
-		User                      func(childComplexity int, email *string) int
-		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
-		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
-		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
-		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
-		WebhookEventTypes         func(childComplexity int) int
+		ActivityLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
+		CVE                         func(childComplexity int, identifier string) int
+		CostMonthlySummary          func(childComplexity int, from scalar.Date, to scalar.Date) int
+		CurrentUnitPrices           func(childComplexity int) int
+		Cves                        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
+		Deployments                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
+		Environment                 func(childComplexity int, name string) int
+		Environments                func(childComplexity int, orderBy *environment.EnvironmentOrder) int
+		Features                    func(childComplexity int) int
+		GlobalWebhooks              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ImageVulnerabilityHistory   func(childComplexity int, from scalar.Date) int
+		Issues                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
+		Me                          func(childComplexity int) int
+		Node                        func(childComplexity int, id ident.Ident) int
+		Reconcilers                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Roles                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
+		Search                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
+		ServiceAccount              func(childComplexity int, id ident.Ident) int
+		ServiceAccounts             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Team                        func(childComplexity int, slug slug.Slug) int
+		Teams                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
+		TeamsUtilization            func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		UnleashReleaseChannels      func(childComplexity int) int
+		User                        func(childComplexity int, email *string) int
+		UserSyncLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Users                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
+		Vulnerability               func(childComplexity int, identifier string) int
+		VulnerabilityCoverage       func(childComplexity int, scope *v0s.VulnerabilityScopeInput) int
+		VulnerabilityFindingSummary func(childComplexity int, filter *v0s.VulnerabilityFindingFilter) int
+		VulnerabilityFindings       func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory     func(childComplexity int, from scalar.Date) int
+		VulnerabilitySummaries      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
+		VulnerabilitySummary        func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
+		VulnerabilitySuppressions   func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		WebhookEventTypes           func(childComplexity int) int
 	}
 
 	Reconciler struct {
@@ -2899,6 +2918,10 @@ type ComplexityRoot struct {
 
 	SetTeamMemberRolePayload struct {
 		Member func(childComplexity int) int
+	}
+
+	SetVulnerabilitySuppressionsPayload struct {
+		Suppressions func(childComplexity int) int
 	}
 
 	SqlDatabase struct {
@@ -3968,12 +3991,89 @@ type ComplexityRoot struct {
 		Values func(childComplexity int) int
 	}
 
+	Vulnerability struct {
+		Aliases        func(childComplexity int) int
+		Cvss           func(childComplexity int) int
+		Description    func(childComplexity int) int
+		Epss           func(childComplexity int) int
+		ID             func(childComplexity int) int
+		Identifier     func(childComplexity int) int
+		KnownExploited func(childComplexity int) int
+		References     func(childComplexity int) int
+		Title          func(childComplexity int) int
+	}
+
 	VulnerabilityActivityLogEntryData struct {
 		Identifier          func(childComplexity int) int
 		NewSuppression      func(childComplexity int) int
 		Package             func(childComplexity int) int
 		PreviousSuppression func(childComplexity int) int
 		Severity            func(childComplexity int) int
+	}
+
+	VulnerabilityCoverage struct {
+		Error       func(childComplexity int) int
+		ImageDigest func(childComplexity int) int
+		ImageName   func(childComplexity int) int
+		ScannedAt   func(childComplexity int) int
+		Status      func(childComplexity int) int
+	}
+
+	VulnerabilityCoverageCounts struct {
+		Failed          func(childComplexity int) int
+		NoSbom          func(childComplexity int) int
+		Pending         func(childComplexity int) int
+		Scanned         func(childComplexity int) int
+		TotalWorkloads  func(childComplexity int) int
+		UnresolvedImage func(childComplexity int) int
+	}
+
+	VulnerabilityCvss struct {
+		Score   func(childComplexity int) int
+		Source  func(childComplexity int) int
+		Vector  func(childComplexity int) int
+		Version func(childComplexity int) int
+	}
+
+	VulnerabilityEpss struct {
+		Date  func(childComplexity int) int
+		Score func(childComplexity int) int
+	}
+
+	VulnerabilityFinding struct {
+		DataSource              func(childComplexity int) int
+		Epss                    func(childComplexity int) int
+		FixedVersion            func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		Image                   func(childComplexity int) int
+		InstalledVersion        func(childComplexity int) int
+		KnownExploited          func(childComplexity int) int
+		PackageKey              func(childComplexity int) int
+		Purl                    func(childComplexity int) int
+		Severity                func(childComplexity int) int
+		SeveritySource          func(childComplexity int) int
+		Suppression             func(childComplexity int) int
+		Vulnerability           func(childComplexity int) int
+		VulnerabilityIdentifier func(childComplexity int) int
+		Workload                func(childComplexity int) int
+	}
+
+	VulnerabilityFindingConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	VulnerabilityFindingEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	VulnerabilityFindingSummary struct {
+		CountsBySeverity       func(childComplexity int) int
+		FixableFindings        func(childComplexity int) int
+		KnownExploitedFindings func(childComplexity int) int
+		TotalFindings          func(childComplexity int) int
 	}
 
 	VulnerabilityFixHistory struct {
@@ -3990,6 +4090,11 @@ type ComplexityRoot struct {
 		TotalWorkloads func(childComplexity int) int
 	}
 
+	VulnerabilityImage struct {
+		Digest func(childComplexity int) int
+		Name   func(childComplexity int) int
+	}
+
 	VulnerabilityRemediation struct {
 		FixVersion    func(childComplexity int) int
 		LatestVersion func(childComplexity int) int
@@ -4004,6 +4109,56 @@ type ComplexityRoot struct {
 		Priority           func(childComplexity int) int
 	}
 
+	VulnerabilitySeverityCounts struct {
+		Critical func(childComplexity int) int
+		High     func(childComplexity int) int
+		Low      func(childComplexity int) int
+		Medium   func(childComplexity int) int
+		Unknown  func(childComplexity int) int
+	}
+
+	VulnerabilitySuppression struct {
+		Environment             func(childComplexity int) int
+		ID                      func(childComplexity int) int
+		ImageName               func(childComplexity int) int
+		PackageKey              func(childComplexity int) int
+		Reason                  func(childComplexity int) int
+		State                   func(childComplexity int) int
+		Team                    func(childComplexity int) int
+		UpdatedAt               func(childComplexity int) int
+		UpdatedBy               func(childComplexity int) int
+		VulnerabilityIdentifier func(childComplexity int) int
+		Workload                func(childComplexity int) int
+	}
+
+	VulnerabilitySuppressionActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		Data              func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	VulnerabilitySuppressionActivityLogEntryData struct {
+		Assessment func(childComplexity int) int
+	}
+
+	VulnerabilitySuppressionConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	VulnerabilitySuppressionEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	VulnerabilityUpdatedActivityLogEntry struct {
 		Actor             func(childComplexity int) int
 		CreatedAt         func(childComplexity int) int
@@ -4015,6 +4170,12 @@ type ComplexityRoot struct {
 		ResourceName      func(childComplexity int) int
 		ResourceType      func(childComplexity int) int
 		TeamSlug          func(childComplexity int) int
+	}
+
+	VulnerabilityWorkloadRef struct {
+		Environment func(childComplexity int) int
+		Name        func(childComplexity int) int
+		Team        func(childComplexity int) int
 	}
 
 	VulnerableImageIssue struct {
@@ -4856,6 +5017,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.Valkeys(childComplexity, args["orderBy"].(*valkey.ValkeyOrder)), true
+
+	case "Application.vulnerabilityCoverage":
+		if e.ComplexityRoot.Application.VulnerabilityCoverage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Application.VulnerabilityCoverage(childComplexity), true
+
+	case "Application.vulnerabilityFindingSummary":
+		if e.ComplexityRoot.Application.VulnerabilityFindingSummary == nil {
+			break
+		}
+
+		args, err := ec.field_Application_vulnerabilityFindingSummary_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.VulnerabilityFindingSummary(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter)), true
+
+	case "Application.vulnerabilityFindings":
+		if e.ComplexityRoot.Application.VulnerabilityFindings == nil {
+			break
+		}
+
+		args, err := ec.field_Application_vulnerabilityFindings_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Application.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
 
 	case "Application.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Application.VulnerabilityFixHistory == nil {
@@ -7131,6 +7323,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.DeleteValkeyPayload.ValkeyDeleted(childComplexity), true
 
+	case "DeleteVulnerabilitySuppressionsPayload.deleted":
+		if e.ComplexityRoot.DeleteVulnerabilitySuppressionsPayload.Deleted == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeleteVulnerabilitySuppressionsPayload.Deleted(childComplexity), true
+
 	case "DeleteWebhookPayload.webhookID":
 		if e.ComplexityRoot.DeleteWebhookPayload.WebhookID == nil {
 			break
@@ -9090,6 +9289,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Job.Valkeys(childComplexity, args["orderBy"].(*valkey.ValkeyOrder)), true
 
+	case "Job.vulnerabilityCoverage":
+		if e.ComplexityRoot.Job.VulnerabilityCoverage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Job.VulnerabilityCoverage(childComplexity), true
+
+	case "Job.vulnerabilityFindingSummary":
+		if e.ComplexityRoot.Job.VulnerabilityFindingSummary == nil {
+			break
+		}
+
+		args, err := ec.field_Job_vulnerabilityFindingSummary_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.VulnerabilityFindingSummary(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter)), true
+
+	case "Job.vulnerabilityFindings":
+		if e.ComplexityRoot.Job.VulnerabilityFindings == nil {
+			break
+		}
+
+		args, err := ec.field_Job_vulnerabilityFindings_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Job.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+
 	case "Job.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Job.VulnerabilityFixHistory == nil {
 			break
@@ -11005,6 +11235,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.DeleteValkey(childComplexity, args["input"].(valkey.DeleteValkeyInput)), true
 
+	case "Mutation.deleteVulnerabilitySuppressions":
+		if e.ComplexityRoot.Mutation.DeleteVulnerabilitySuppressions == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteVulnerabilitySuppressions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeleteVulnerabilitySuppressions(childComplexity, args["input"].(v0s.DeleteVulnerabilitySuppressionsInput)), true
+
 	case "Mutation.deleteWebhook":
 		if e.ComplexityRoot.Mutation.DeleteWebhook == nil {
 			break
@@ -11160,6 +11402,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.SetTeamMemberRole(childComplexity, args["input"].(team.SetTeamMemberRoleInput)), true
+
+	case "Mutation.setVulnerabilitySuppressions":
+		if e.ComplexityRoot.Mutation.SetVulnerabilitySuppressions == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_setVulnerabilitySuppressions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.SetVulnerabilitySuppressions(childComplexity, args["input"].(v0s.SetVulnerabilitySuppressionsInput)), true
 
 	case "Mutation.startOpenSearchMaintenance":
 		if e.ComplexityRoot.Mutation.StartOpenSearchMaintenance == nil {
@@ -12299,6 +12553,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.OutboundNetworkPolicy.Rules(childComplexity), true
 
+	case "PageInfo.totalCount":
+		if e.ComplexityRoot.PageInfo.Count == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PageInfo.Count(childComplexity), true
+
 	case "PageInfo.endCursor":
 		if e.ComplexityRoot.PageInfo.EndCursor == nil {
 			break
@@ -12340,13 +12601,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PageInfo.StartCursor(childComplexity), true
-
-	case "PageInfo.totalCount":
-		if e.ComplexityRoot.PageInfo.TotalCount == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PageInfo.TotalCount(childComplexity), true
 
 	case "Postgres.activityLog":
 		if e.ComplexityRoot.Postgres.ActivityLog == nil {
@@ -13724,6 +13978,54 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Query.Users(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*user.UserOrder)), true
 
+	case "Query.vulnerability":
+		if e.ComplexityRoot.Query.Vulnerability == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerability_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.Vulnerability(childComplexity, args["identifier"].(string)), true
+
+	case "Query.vulnerabilityCoverage":
+		if e.ComplexityRoot.Query.VulnerabilityCoverage == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerabilityCoverage_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilityCoverage(childComplexity, args["scope"].(*v0s.VulnerabilityScopeInput)), true
+
+	case "Query.vulnerabilityFindingSummary":
+		if e.ComplexityRoot.Query.VulnerabilityFindingSummary == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerabilityFindingSummary_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilityFindingSummary(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter)), true
+
+	case "Query.vulnerabilityFindings":
+		if e.ComplexityRoot.Query.VulnerabilityFindings == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerabilityFindings_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+
 	case "Query.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Query.VulnerabilityFixHistory == nil {
 			break
@@ -13759,6 +14061,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter)), true
+
+	case "Query.vulnerabilitySuppressions":
+		if e.ComplexityRoot.Query.VulnerabilitySuppressions == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vulnerabilitySuppressions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
 
 	case "Query.webhookEventTypes":
 		if e.ComplexityRoot.Query.WebhookEventTypes == nil {
@@ -16630,6 +16944,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.SetTeamMemberRolePayload.Member(childComplexity), true
+
+	case "SetVulnerabilitySuppressionsPayload.suppressions":
+		if e.ComplexityRoot.SetVulnerabilitySuppressionsPayload.Suppressions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.SetVulnerabilitySuppressionsPayload.Suppressions(childComplexity), true
 
 	case "SqlDatabase.charset":
 		if e.ComplexityRoot.SqlDatabase.Charset == nil {
@@ -21314,6 +21635,69 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.ViewSecretValuesPayload.Values(childComplexity), true
 
+	case "Vulnerability.aliases":
+		if e.ComplexityRoot.Vulnerability.Aliases == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.Aliases(childComplexity), true
+
+	case "Vulnerability.cvss":
+		if e.ComplexityRoot.Vulnerability.Cvss == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.Cvss(childComplexity), true
+
+	case "Vulnerability.description":
+		if e.ComplexityRoot.Vulnerability.Description == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.Description(childComplexity), true
+
+	case "Vulnerability.epss":
+		if e.ComplexityRoot.Vulnerability.Epss == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.Epss(childComplexity), true
+
+	case "Vulnerability.id":
+		if e.ComplexityRoot.Vulnerability.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.ID(childComplexity), true
+
+	case "Vulnerability.identifier":
+		if e.ComplexityRoot.Vulnerability.Identifier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.Identifier(childComplexity), true
+
+	case "Vulnerability.knownExploited":
+		if e.ComplexityRoot.Vulnerability.KnownExploited == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.KnownExploited(childComplexity), true
+
+	case "Vulnerability.references":
+		if e.ComplexityRoot.Vulnerability.References == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.References(childComplexity), true
+
+	case "Vulnerability.title":
+		if e.ComplexityRoot.Vulnerability.Title == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Vulnerability.Title(childComplexity), true
+
 	case "VulnerabilityActivityLogEntryData.identifier":
 		if e.ComplexityRoot.VulnerabilityActivityLogEntryData.Identifier == nil {
 			break
@@ -21348,6 +21732,293 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilityActivityLogEntryData.Severity(childComplexity), true
+
+	case "VulnerabilityCoverage.error":
+		if e.ComplexityRoot.VulnerabilityCoverage.Error == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverage.Error(childComplexity), true
+
+	case "VulnerabilityCoverage.imageDigest":
+		if e.ComplexityRoot.VulnerabilityCoverage.ImageDigest == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverage.ImageDigest(childComplexity), true
+
+	case "VulnerabilityCoverage.imageName":
+		if e.ComplexityRoot.VulnerabilityCoverage.ImageName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverage.ImageName(childComplexity), true
+
+	case "VulnerabilityCoverage.scannedAt":
+		if e.ComplexityRoot.VulnerabilityCoverage.ScannedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverage.ScannedAt(childComplexity), true
+
+	case "VulnerabilityCoverage.status":
+		if e.ComplexityRoot.VulnerabilityCoverage.Status == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverage.Status(childComplexity), true
+
+	case "VulnerabilityCoverageCounts.failed":
+		if e.ComplexityRoot.VulnerabilityCoverageCounts.Failed == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverageCounts.Failed(childComplexity), true
+
+	case "VulnerabilityCoverageCounts.noSbom":
+		if e.ComplexityRoot.VulnerabilityCoverageCounts.NoSbom == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverageCounts.NoSbom(childComplexity), true
+
+	case "VulnerabilityCoverageCounts.pending":
+		if e.ComplexityRoot.VulnerabilityCoverageCounts.Pending == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverageCounts.Pending(childComplexity), true
+
+	case "VulnerabilityCoverageCounts.scanned":
+		if e.ComplexityRoot.VulnerabilityCoverageCounts.Scanned == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverageCounts.Scanned(childComplexity), true
+
+	case "VulnerabilityCoverageCounts.totalWorkloads":
+		if e.ComplexityRoot.VulnerabilityCoverageCounts.TotalWorkloads == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverageCounts.TotalWorkloads(childComplexity), true
+
+	case "VulnerabilityCoverageCounts.unresolvedImage":
+		if e.ComplexityRoot.VulnerabilityCoverageCounts.UnresolvedImage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCoverageCounts.UnresolvedImage(childComplexity), true
+
+	case "VulnerabilityCvss.score":
+		if e.ComplexityRoot.VulnerabilityCvss.Score == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCvss.Score(childComplexity), true
+
+	case "VulnerabilityCvss.source":
+		if e.ComplexityRoot.VulnerabilityCvss.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCvss.Source(childComplexity), true
+
+	case "VulnerabilityCvss.vector":
+		if e.ComplexityRoot.VulnerabilityCvss.Vector == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCvss.Vector(childComplexity), true
+
+	case "VulnerabilityCvss.version":
+		if e.ComplexityRoot.VulnerabilityCvss.Version == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityCvss.Version(childComplexity), true
+
+	case "VulnerabilityEpss.date":
+		if e.ComplexityRoot.VulnerabilityEpss.Date == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityEpss.Date(childComplexity), true
+
+	case "VulnerabilityEpss.score":
+		if e.ComplexityRoot.VulnerabilityEpss.Score == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityEpss.Score(childComplexity), true
+
+	case "VulnerabilityFinding.dataSource":
+		if e.ComplexityRoot.VulnerabilityFinding.DataSource == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.DataSource(childComplexity), true
+
+	case "VulnerabilityFinding.epss":
+		if e.ComplexityRoot.VulnerabilityFinding.Epss == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Epss(childComplexity), true
+
+	case "VulnerabilityFinding.fixedVersion":
+		if e.ComplexityRoot.VulnerabilityFinding.FixedVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.FixedVersion(childComplexity), true
+
+	case "VulnerabilityFinding.id":
+		if e.ComplexityRoot.VulnerabilityFinding.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.ID(childComplexity), true
+
+	case "VulnerabilityFinding.image":
+		if e.ComplexityRoot.VulnerabilityFinding.Image == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Image(childComplexity), true
+
+	case "VulnerabilityFinding.installedVersion":
+		if e.ComplexityRoot.VulnerabilityFinding.InstalledVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.InstalledVersion(childComplexity), true
+
+	case "VulnerabilityFinding.knownExploited":
+		if e.ComplexityRoot.VulnerabilityFinding.KnownExploited == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.KnownExploited(childComplexity), true
+
+	case "VulnerabilityFinding.packageKey":
+		if e.ComplexityRoot.VulnerabilityFinding.PackageKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.PackageKey(childComplexity), true
+
+	case "VulnerabilityFinding.purl":
+		if e.ComplexityRoot.VulnerabilityFinding.Purl == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Purl(childComplexity), true
+
+	case "VulnerabilityFinding.severity":
+		if e.ComplexityRoot.VulnerabilityFinding.Severity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Severity(childComplexity), true
+
+	case "VulnerabilityFinding.severitySource":
+		if e.ComplexityRoot.VulnerabilityFinding.SeveritySource == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.SeveritySource(childComplexity), true
+
+	case "VulnerabilityFinding.suppression":
+		if e.ComplexityRoot.VulnerabilityFinding.Suppression == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Suppression(childComplexity), true
+
+	case "VulnerabilityFinding.vulnerability":
+		if e.ComplexityRoot.VulnerabilityFinding.Vulnerability == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Vulnerability(childComplexity), true
+
+	case "VulnerabilityFinding.vulnerabilityIdentifier":
+		if e.ComplexityRoot.VulnerabilityFinding.VulnerabilityIdentifier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.VulnerabilityIdentifier(childComplexity), true
+
+	case "VulnerabilityFinding.workload":
+		if e.ComplexityRoot.VulnerabilityFinding.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFinding.Workload(childComplexity), true
+
+	case "VulnerabilityFindingConnection.edges":
+		if e.ComplexityRoot.VulnerabilityFindingConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingConnection.Edges(childComplexity), true
+
+	case "VulnerabilityFindingConnection.nodes":
+		if e.ComplexityRoot.VulnerabilityFindingConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingConnection.Nodes(childComplexity), true
+
+	case "VulnerabilityFindingConnection.pageInfo":
+		if e.ComplexityRoot.VulnerabilityFindingConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingConnection.PageInfo(childComplexity), true
+
+	case "VulnerabilityFindingEdge.cursor":
+		if e.ComplexityRoot.VulnerabilityFindingEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingEdge.Cursor(childComplexity), true
+
+	case "VulnerabilityFindingEdge.node":
+		if e.ComplexityRoot.VulnerabilityFindingEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingEdge.Node(childComplexity), true
+
+	case "VulnerabilityFindingSummary.countsBySeverity":
+		if e.ComplexityRoot.VulnerabilityFindingSummary.CountsBySeverity == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingSummary.CountsBySeverity(childComplexity), true
+
+	case "VulnerabilityFindingSummary.fixableFindings":
+		if e.ComplexityRoot.VulnerabilityFindingSummary.FixableFindings == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingSummary.FixableFindings(childComplexity), true
+
+	case "VulnerabilityFindingSummary.knownExploitedFindings":
+		if e.ComplexityRoot.VulnerabilityFindingSummary.KnownExploitedFindings == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingSummary.KnownExploitedFindings(childComplexity), true
+
+	case "VulnerabilityFindingSummary.totalFindings":
+		if e.ComplexityRoot.VulnerabilityFindingSummary.TotalFindings == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingSummary.TotalFindings(childComplexity), true
 
 	case "VulnerabilityFixHistory.samples":
 		if e.ComplexityRoot.VulnerabilityFixHistory.Samples == nil {
@@ -21405,6 +22076,20 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFixSample.TotalWorkloads(childComplexity), true
 
+	case "VulnerabilityImage.digest":
+		if e.ComplexityRoot.VulnerabilityImage.Digest == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityImage.Digest(childComplexity), true
+
+	case "VulnerabilityImage.name":
+		if e.ComplexityRoot.VulnerabilityImage.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityImage.Name(childComplexity), true
+
 	case "VulnerabilityRemediation.fixVersion":
 		if e.ComplexityRoot.VulnerabilityRemediation.FixVersion == nil {
 			break
@@ -21460,6 +22145,230 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilityRiskAssessment.Priority(childComplexity), true
+
+	case "VulnerabilitySeverityCounts.critical":
+		if e.ComplexityRoot.VulnerabilitySeverityCounts.Critical == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySeverityCounts.Critical(childComplexity), true
+
+	case "VulnerabilitySeverityCounts.high":
+		if e.ComplexityRoot.VulnerabilitySeverityCounts.High == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySeverityCounts.High(childComplexity), true
+
+	case "VulnerabilitySeverityCounts.low":
+		if e.ComplexityRoot.VulnerabilitySeverityCounts.Low == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySeverityCounts.Low(childComplexity), true
+
+	case "VulnerabilitySeverityCounts.medium":
+		if e.ComplexityRoot.VulnerabilitySeverityCounts.Medium == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySeverityCounts.Medium(childComplexity), true
+
+	case "VulnerabilitySeverityCounts.unknown":
+		if e.ComplexityRoot.VulnerabilitySeverityCounts.Unknown == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySeverityCounts.Unknown(childComplexity), true
+
+	case "VulnerabilitySuppression.environment":
+		if e.ComplexityRoot.VulnerabilitySuppression.Environment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.Environment(childComplexity), true
+
+	case "VulnerabilitySuppression.id":
+		if e.ComplexityRoot.VulnerabilitySuppression.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.ID(childComplexity), true
+
+	case "VulnerabilitySuppression.imageName":
+		if e.ComplexityRoot.VulnerabilitySuppression.ImageName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.ImageName(childComplexity), true
+
+	case "VulnerabilitySuppression.packageKey":
+		if e.ComplexityRoot.VulnerabilitySuppression.PackageKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.PackageKey(childComplexity), true
+
+	case "VulnerabilitySuppression.reason":
+		if e.ComplexityRoot.VulnerabilitySuppression.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.Reason(childComplexity), true
+
+	case "VulnerabilitySuppression.state":
+		if e.ComplexityRoot.VulnerabilitySuppression.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.State(childComplexity), true
+
+	case "VulnerabilitySuppression.team":
+		if e.ComplexityRoot.VulnerabilitySuppression.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.Team(childComplexity), true
+
+	case "VulnerabilitySuppression.updatedAt":
+		if e.ComplexityRoot.VulnerabilitySuppression.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.UpdatedAt(childComplexity), true
+
+	case "VulnerabilitySuppression.updatedBy":
+		if e.ComplexityRoot.VulnerabilitySuppression.UpdatedBy == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.UpdatedBy(childComplexity), true
+
+	case "VulnerabilitySuppression.vulnerabilityIdentifier":
+		if e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier(childComplexity), true
+
+	case "VulnerabilitySuppression.workload":
+		if e.ComplexityRoot.VulnerabilitySuppression.Workload == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.Workload(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.actor":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.Actor(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.createdAt":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.data":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.Data == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.Data(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.environmentName":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.id":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.ID(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.message":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.Message(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.resourceName":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.ResourceName(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.resourceType":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.ResourceType(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "VulnerabilitySuppressionActivityLogEntryData.assessment":
+		if e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntryData.Assessment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionActivityLogEntryData.Assessment(childComplexity), true
+
+	case "VulnerabilitySuppressionConnection.edges":
+		if e.ComplexityRoot.VulnerabilitySuppressionConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionConnection.Edges(childComplexity), true
+
+	case "VulnerabilitySuppressionConnection.nodes":
+		if e.ComplexityRoot.VulnerabilitySuppressionConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionConnection.Nodes(childComplexity), true
+
+	case "VulnerabilitySuppressionConnection.pageInfo":
+		if e.ComplexityRoot.VulnerabilitySuppressionConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionConnection.PageInfo(childComplexity), true
+
+	case "VulnerabilitySuppressionEdge.cursor":
+		if e.ComplexityRoot.VulnerabilitySuppressionEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionEdge.Cursor(childComplexity), true
+
+	case "VulnerabilitySuppressionEdge.node":
+		if e.ComplexityRoot.VulnerabilitySuppressionEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionEdge.Node(childComplexity), true
 
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
@@ -21530,6 +22439,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "VulnerabilityWorkloadRef.environment":
+		if e.ComplexityRoot.VulnerabilityWorkloadRef.Environment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityWorkloadRef.Environment(childComplexity), true
+
+	case "VulnerabilityWorkloadRef.name":
+		if e.ComplexityRoot.VulnerabilityWorkloadRef.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityWorkloadRef.Name(childComplexity), true
+
+	case "VulnerabilityWorkloadRef.team":
+		if e.ComplexityRoot.VulnerabilityWorkloadRef.Team == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityWorkloadRef.Team(childComplexity), true
 
 	case "VulnerableImageIssue.critical":
 		if e.ComplexityRoot.VulnerableImageIssue.Critical == nil {
@@ -22903,6 +23833,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteTunnelInput,
 		ec.unmarshalInputDeleteUnleashInstanceInput,
 		ec.unmarshalInputDeleteValkeyInput,
+		ec.unmarshalInputDeleteVulnerabilitySuppressionsInput,
 		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeploymentFilter,
 		ec.unmarshalInputDeploymentOrder,
@@ -22925,6 +23856,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputLogSubscriptionInitialBatch,
 		ec.unmarshalInputMetricsQueryInput,
 		ec.unmarshalInputMetricsRangeInput,
+		ec.unmarshalInputNewVulnerabilitySuppressionInput,
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
@@ -22948,6 +23880,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputSecretOrder,
 		ec.unmarshalInputSecretValueInput,
 		ec.unmarshalInputSetTeamMemberRoleInput,
+		ec.unmarshalInputSetVulnerabilitySuppressionsInput,
 		ec.unmarshalInputSqlInstanceFilter,
 		ec.unmarshalInputSqlInstanceOrder,
 		ec.unmarshalInputSqlInstanceUserOrder,
@@ -22995,7 +23928,11 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyFilter,
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
+		ec.unmarshalInputVulnerabilityFindingFilter,
+		ec.unmarshalInputVulnerabilityScopeInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
+		ec.unmarshalInputVulnerabilitySuppressionFilter,
+		ec.unmarshalInputVulnerabilitySuppressionKeyInput,
 		ec.unmarshalInputWebhookEventSelection,
 		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
@@ -35802,6 +36739,504 @@ type ApplicationInstanceUtilization {
 	current: Float!
 }
 `, BuiltIn: false},
+	{Name: "../schema/v0s.graphqls", Input: `extend type Query {
+	"Current vulnerability findings for deployed applications and jobs."
+	vulnerabilityFindings(
+		"Filter the full finding selection."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Counts over the full filtered selection, not just the loaded page."
+	vulnerabilityFindingSummary(
+		"Filter the full finding selection."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityFindingSummary!
+	"Scan coverage of the currently deployed applications and jobs."
+	vulnerabilityCoverage(
+		"Limit coverage to a team, environment or workload. Omitted scope is tenant-wide."
+		scope: VulnerabilityScopeInput
+	): VulnerabilityCoverageCounts!
+	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
+	vulnerability(
+		"The vulnerability identifier or an alias identifying exactly one vulnerability."
+		identifier: String!
+	): Vulnerability
+	"Current workload assessments, including assessments without active findings."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend interface Workload {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this workload's findings. Do not provide scope."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Counts over this workload's full filtered finding selection."
+	vulnerabilityFindingSummary(
+		"Filter this workload's findings. Do not provide scope."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityFindingSummary!
+	"Scan coverage of the currently deployed image."
+	vulnerabilityCoverage: VulnerabilityCoverage!
+}
+
+extend type Application {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this application's findings. Do not provide scope."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Counts over this application's full filtered finding selection."
+	vulnerabilityFindingSummary(
+		"Filter this application's findings. Do not provide scope."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityFindingSummary!
+	"Scan coverage of the currently deployed image."
+	vulnerabilityCoverage: VulnerabilityCoverage!
+}
+
+extend type Job {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this job's findings. Do not provide scope."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Counts over this job's full filtered finding selection."
+	vulnerabilityFindingSummary(
+		"Filter this job's findings. Do not provide scope."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityFindingSummary!
+	"Scan coverage of the currently deployed image."
+	vulnerabilityCoverage: VulnerabilityCoverage!
+}
+
+"Limit a tenant-wide selection. A workload name requires both team and environment."
+input VulnerabilityScopeInput {
+	"The team owning the workload."
+	team: Slug
+	"The environment where the workload is deployed."
+	environment: String
+	"The application or job name."
+	workload: String
+}
+
+"Filters applied before finding pagination and aggregation."
+input VulnerabilityFindingFilter {
+	"Limit a root query to a team, environment or workload. Workload fields are already scoped."
+	scope: VulnerabilityScopeInput
+	"Match a vulnerability identifier or alias."
+	vulnerabilityIdentifier: String
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean = false
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean = false
+	"Whether assessed findings are included."
+	suppressed: SuppressedFilter = EXCLUDE
+}
+
+"How workload assessments affect the finding selection."
+enum SuppressedFilter {
+	"Exclude findings with an assessment."
+	EXCLUDE
+	"Include both assessed and unassessed findings."
+	INCLUDE
+	"Include only findings with an assessment."
+	ONLY
+}
+
+"Severity reported by the finding's advisory source."
+enum VulnerabilitySeverity {
+	"The source did not provide a recognized severity."
+	UNKNOWN
+	"Low severity."
+	LOW
+	"Medium severity."
+	MEDIUM
+	"High severity."
+	HIGH
+	"Critical severity."
+	CRITICAL
+}
+
+"A forward-paginated selection of vulnerability findings."
+type VulnerabilityFindingConnection {
+	"Findings and their continuation cursors."
+	edges: [VulnerabilityFindingEdge!]!
+	"The findings in the same order as edges."
+	nodes: [VulnerabilityFinding!]!
+	"Pagination information and the full filtered total."
+	pageInfo: PageInfo!
+}
+
+"A vulnerability finding and the cursor immediately after it."
+type VulnerabilityFindingEdge {
+	"A cursor for continuing after this finding with the same filter."
+	cursor: Cursor!
+	"The vulnerability finding."
+	node: VulnerabilityFinding!
+}
+
+"A vulnerability affecting one package in a workload's deployed image."
+type VulnerabilityFinding implements Node {
+	"The globally unique identifier of this finding."
+	id: ID!
+	"The workload affected by the finding."
+	workload: VulnerabilityWorkloadRef!
+	"The deployed image in which the finding was detected."
+	image: VulnerabilityImage!
+	"The canonical vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"Advisory details, if the vulnerability is still known."
+	vulnerability: Vulnerability
+	"The full package URL identifying the affected component."
+	purl: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The installed package version."
+	installedVersion: String!
+	"The first known fixed version, if provided by the source."
+	fixedVersion: String
+	"Severity reported by the advisory source."
+	severity: VulnerabilitySeverity!
+	"The source supplying the severity."
+	severitySource: String!
+	"The advisory source supplying the finding."
+	dataSource: String!
+	"The estimated probability of exploitation, if available."
+	epss: VulnerabilityEpss
+	"Known exploited according to CISA KEV. False is not proof of no exploitation."
+	knownExploited: Boolean!
+	"The current assessment for this workload, image repository, package and vulnerability."
+	suppression: VulnerabilitySuppression
+}
+
+"The identity of the application or job affected by a finding."
+type VulnerabilityWorkloadRef {
+	"The team owning the workload."
+	team: Slug!
+	"The environment where the workload is deployed."
+	environment: String!
+	"The application or job name."
+	name: String!
+}
+
+"A container image identified by repository name and manifest digest."
+type VulnerabilityImage {
+	"The image repository name."
+	name: String!
+	"The immutable manifest digest."
+	digest: String!
+}
+
+"Counts over the full filtered selection of current findings."
+type VulnerabilityFindingSummary {
+	"The total number of findings."
+	totalFindings: Int!
+	"Finding counts by severity."
+	countsBySeverity: VulnerabilitySeverityCounts!
+	"The number of findings with a known fixed version."
+	fixableFindings: Int!
+	"The number of findings whose vulnerability is listed in CISA KEV."
+	knownExploitedFindings: Int!
+}
+
+"Finding counts grouped by advisory severity."
+type VulnerabilitySeverityCounts {
+	"Findings without a recognized severity."
+	unknown: Int!
+	"Low-severity findings."
+	low: Int!
+	"Medium-severity findings."
+	medium: Int!
+	"High-severity findings."
+	high: Int!
+	"Critical-severity findings."
+	critical: Int!
+}
+
+"Coverage counts for the selected, currently deployed workloads."
+type VulnerabilityCoverageCounts {
+	"The total number of workloads in the selection."
+	totalWorkloads: Int!
+	"Workloads with a completed scan. This does not mean they have no vulnerabilities."
+	scanned: Int!
+	"Workloads waiting for inventory, a package inventory or a scan."
+	pending: Int!
+	"Workloads whose image has no package inventory."
+	noSbom: Int!
+	"Workloads whose image has not been scanned successfully because of an error."
+	failed: Int!
+	"Workloads whose deployed image could not be resolved."
+	unresolvedImage: Int!
+}
+
+"Scan coverage of one workload's currently deployed image."
+type VulnerabilityCoverage {
+	"How far the deployed image has progressed towards a completed scan."
+	status: VulnerabilityCoverageStatus!
+	"The resolved image repository name, if known."
+	imageName: String
+	"The resolved image manifest digest, if known."
+	imageDigest: String
+	"The last successful scan time, if available."
+	scannedAt: Time
+	"The latest resolution, fetching or scanning error, if any."
+	error: String
+}
+
+"How far a deployed image has progressed towards vulnerability findings."
+enum VulnerabilityCoverageStatus {
+	"Waiting for inventory, a package inventory or a scan."
+	PENDING
+	"A scan completed. Findings from the last successful scan survive a failed rescan."
+	SCANNED
+	"No package inventory was found for the image."
+	NO_SBOM
+	"An error prevented the image's first successful scan."
+	FAILED
+	"The deployed image could not be resolved."
+	UNRESOLVED_IMAGE
+}
+
+"A workload owner's current assessment of a vulnerability finding."
+enum VulnerabilitySuppressionState {
+	"The workload is not affected by the vulnerability."
+	NOT_AFFECTED
+	"The finding is a false positive."
+	FALSE_POSITIVE
+	"The workload owner has accepted the risk."
+	ACCEPTED_RISK
+}
+
+"Advisory information shared by findings for the same vulnerability."
+type Vulnerability implements Node {
+	"The globally unique identifier of the advisory."
+	id: ID!
+	"The canonical vulnerability identifier."
+	identifier: String!
+	"Alternative identifiers for this vulnerability."
+	aliases: [String!]!
+	"The advisory title."
+	title: String!
+	"The advisory description."
+	description: String!
+	"CVSS scores and vectors supplied by the advisory sources."
+	cvss: [VulnerabilityCvss!]!
+	"Reference URLs supplied by the advisory sources."
+	references: [String!]!
+	"The estimated probability of exploitation, if available."
+	epss: VulnerabilityEpss
+	"Known exploited according to CISA KEV. False is not proof of no exploitation."
+	knownExploited: Boolean!
+}
+
+"One source's CVSS score and vector, preserving absent values."
+type VulnerabilityCvss {
+	"The source supplying the CVSS assessment."
+	source: String!
+	"The CVSS version supplied by the source."
+	version: String!
+	"The CVSS score, or null when the source did not supply one."
+	score: Float
+	"The CVSS vector, or null when the source did not supply one."
+	vector: String
+}
+
+"An exploitation probability supplied by FIRST EPSS."
+type VulnerabilityEpss {
+	"The estimated probability of exploitation, between zero and one."
+	score: Float!
+	"The date of the probability estimate."
+	date: Date!
+}
+
+"Filters applied before assessment pagination."
+input VulnerabilitySuppressionFilter {
+	"Limit a root query to a team, environment or workload."
+	scope: VulnerabilityScopeInput
+	"Match a vulnerability identifier or alias."
+	vulnerabilityIdentifier: String
+	"Match an image repository name."
+	imageName: String
+}
+
+"A durable assessment for one workload, image repository, package and vulnerability."
+type VulnerabilitySuppression implements Node {
+	"The globally unique identifier of the assessment."
+	id: ID!
+	"The team owning the assessment."
+	team: Slug!
+	"The environment where the assessment applies."
+	environment: String!
+	"The application or job name."
+	workload: String!
+	"The image repository name. The assessment survives image version changes."
+	imageName: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The canonical vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"The current assessment state."
+	state: VulnerabilitySuppressionState!
+	"The workload owner's reason for the assessment."
+	reason: String!
+	"The identity of the actor who last set the assessment."
+	updatedBy: String!
+	"The time the assessment was last set."
+	updatedAt: Time!
+}
+
+"A forward-paginated selection of workload assessments."
+type VulnerabilitySuppressionConnection {
+	"Assessments and their continuation cursors."
+	edges: [VulnerabilitySuppressionEdge!]!
+	"The assessments in the same order as edges."
+	nodes: [VulnerabilitySuppression!]!
+	"Pagination information and the full filtered total."
+	pageInfo: PageInfo!
+}
+
+"A workload assessment and the cursor immediately after it."
+type VulnerabilitySuppressionEdge {
+	"A cursor for continuing after this assessment with the same filter."
+	cursor: Cursor!
+	"The workload assessment."
+	node: VulnerabilitySuppression!
+}
+
+"Identifies an assessment within the mutation's team."
+input VulnerabilitySuppressionKeyInput {
+	"The environment where the assessment applies."
+	environment: String!
+	"The application or job name."
+	workload: String!
+	"The image repository name, without a tag or digest."
+	imageName: String!
+	"A package key or full package URL. Version, qualifiers and subpath are ignored."
+	packageKey: String!
+	"A vulnerability identifier or an alias identifying exactly one vulnerability."
+	vulnerabilityIdentifier: String!
+}
+
+"An assessment to set for a workload."
+input NewVulnerabilitySuppressionInput {
+	"The workload, image repository, package and vulnerability being assessed."
+	key: VulnerabilitySuppressionKeyInput!
+	"The workload owner's assessment."
+	state: VulnerabilitySuppressionState!
+	"A non-empty explanation for the assessment."
+	reason: String!
+}
+
+"An atomic batch of assessments for one team."
+input SetVulnerabilitySuppressionsInput {
+	"The team owning every assessment in the batch."
+	team: Slug!
+	"The assessments to set. At least one item is required."
+	items: [NewVulnerabilitySuppressionInput!]!
+}
+
+"An atomic batch of assessments to delete for one team."
+input DeleteVulnerabilitySuppressionsInput {
+	"The team owning every assessment in the batch."
+	team: Slug!
+	"The assessments to delete. Missing assessments are ignored."
+	keys: [VulnerabilitySuppressionKeyInput!]!
+}
+
+"The assessments set by the batch, using canonical package and vulnerability identifiers."
+type SetVulnerabilitySuppressionsPayload {
+	"The assessments as stored."
+	suppressions: [VulnerabilitySuppression!]!
+}
+
+"The assessments that existed and were deleted by the batch."
+type DeleteVulnerabilitySuppressionsPayload {
+	"The deleted assessments."
+	deleted: [VulnerabilitySuppression!]!
+}
+
+extend type Mutation {
+	"Set workload assessments atomically. Until assessment writes are enabled, use updateImageVulnerability."
+	setVulnerabilitySuppressions(
+		"The team and assessments to update."
+		input: SetVulnerabilitySuppressionsInput!
+	): SetVulnerabilitySuppressionsPayload!
+	"Delete workload assessments atomically. Until assessment writes are enabled, use updateImageVulnerability."
+	deleteVulnerabilitySuppressions(
+		"The team and assessments to delete."
+		input: DeleteVulnerabilitySuppressionsInput!
+	): DeleteVulnerabilitySuppressionsPayload!
+}
+
+"An assessment change recorded in the activity log."
+type VulnerabilitySuppressionActivityLogEntry implements ActivityLogEntry & Node {
+	"The globally unique identifier of the entry."
+	id: ID!
+	"The identity of the actor who changed the assessment."
+	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+	"The time the activity was recorded."
+	createdAt: Time!
+	"A summary of the assessment change."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The name of the affected workload."
+	resourceName: String!
+	"The team owning the assessment."
+	teamSlug: Slug
+	"The environment where the assessment applies."
+	environmentName: String
+	"The assessment as set, or as it existed before deletion."
+	data: VulnerabilitySuppressionActivityLogEntryData!
+}
+
+"The assessment associated with an activity log entry."
+type VulnerabilitySuppressionActivityLogEntryData {
+	"The assessment as set, or as it existed before deletion."
+	assessment: VulnerabilitySuppression!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A workload vulnerability assessment."
+	VULNERABILITY_SUPPRESSION
+}
+
+extend enum ActivityLogActivityType {
+	"A workload vulnerability assessment was set."
+	VULNERABILITY_SUPPRESSION_UPDATED
+	"A workload vulnerability assessment was deleted."
+	VULNERABILITY_SUPPRESSION_DELETED
+}
+`, BuiltIn: false},
 	{Name: "../schema/valkey.graphqls", Input: `extend type Team {
 	"Valkey instances owned by the team."
 	valkeys(
@@ -38944,6 +40379,12 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_sqlInstances(ctx, field)
 	case "utilization":
 		return ec.fieldContext_Application_utilization(ctx, field)
+	case "vulnerabilityFindings":
+		return ec.fieldContext_Application_vulnerabilityFindings(ctx, field)
+	case "vulnerabilityFindingSummary":
+		return ec.fieldContext_Application_vulnerabilityFindingSummary(ctx, field)
+	case "vulnerabilityCoverage":
+		return ec.fieldContext_Application_vulnerabilityCoverage(ctx, field)
 	case "valkeys":
 		return ec.fieldContext_Application_valkeys(ctx, field)
 	case "imageVulnerabilityHistory":
@@ -39878,6 +41319,14 @@ func (ec *executionContext) childFields_DeleteValkeyPayload(ctx context.Context,
 	return nil, fmt.Errorf("no field named %q was found under type DeleteValkeyPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_DeleteVulnerabilitySuppressionsPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "deleted":
+		return ec.fieldContext_DeleteVulnerabilitySuppressionsPayload_deleted(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeleteVulnerabilitySuppressionsPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_DeleteWebhookPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "webhookID":
@@ -40570,6 +42019,12 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_serviceAccount(ctx, field)
 	case "sqlInstances":
 		return ec.fieldContext_Job_sqlInstances(ctx, field)
+	case "vulnerabilityFindings":
+		return ec.fieldContext_Job_vulnerabilityFindings(ctx, field)
+	case "vulnerabilityFindingSummary":
+		return ec.fieldContext_Job_vulnerabilityFindingSummary(ctx, field)
+	case "vulnerabilityCoverage":
+		return ec.fieldContext_Job_vulnerabilityCoverage(ctx, field)
 	case "valkeys":
 		return ec.fieldContext_Job_valkeys(ctx, field)
 	case "imageVulnerabilityHistory":
@@ -42324,6 +43779,14 @@ func (ec *executionContext) childFields_SetTeamMemberRolePayload(ctx context.Con
 	return nil, fmt.Errorf("no field named %q was found under type SetTeamMemberRolePayload", field.Name)
 }
 
+func (ec *executionContext) childFields_SetVulnerabilitySuppressionsPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "suppressions":
+		return ec.fieldContext_SetVulnerabilitySuppressionsPayload_suppressions(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type SetVulnerabilitySuppressionsPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_SqlDatabase(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "id":
@@ -43856,6 +45319,30 @@ func (ec *executionContext) childFields_ViewSecretValuesPayload(ctx context.Cont
 	return nil, fmt.Errorf("no field named %q was found under type ViewSecretValuesPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_Vulnerability(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_Vulnerability_id(ctx, field)
+	case "identifier":
+		return ec.fieldContext_Vulnerability_identifier(ctx, field)
+	case "aliases":
+		return ec.fieldContext_Vulnerability_aliases(ctx, field)
+	case "title":
+		return ec.fieldContext_Vulnerability_title(ctx, field)
+	case "description":
+		return ec.fieldContext_Vulnerability_description(ctx, field)
+	case "cvss":
+		return ec.fieldContext_Vulnerability_cvss(ctx, field)
+	case "references":
+		return ec.fieldContext_Vulnerability_references(ctx, field)
+	case "epss":
+		return ec.fieldContext_Vulnerability_epss(ctx, field)
+	case "knownExploited":
+		return ec.fieldContext_Vulnerability_knownExploited(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type Vulnerability", field.Name)
+}
+
 func (ec *executionContext) childFields_VulnerabilityActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "identifier":
@@ -43870,6 +45357,136 @@ func (ec *executionContext) childFields_VulnerabilityActivityLogEntryData(ctx co
 		return ec.fieldContext_VulnerabilityActivityLogEntryData_newSuppression(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityCoverage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "status":
+		return ec.fieldContext_VulnerabilityCoverage_status(ctx, field)
+	case "imageName":
+		return ec.fieldContext_VulnerabilityCoverage_imageName(ctx, field)
+	case "imageDigest":
+		return ec.fieldContext_VulnerabilityCoverage_imageDigest(ctx, field)
+	case "scannedAt":
+		return ec.fieldContext_VulnerabilityCoverage_scannedAt(ctx, field)
+	case "error":
+		return ec.fieldContext_VulnerabilityCoverage_error(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityCoverage", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityCoverageCounts(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "totalWorkloads":
+		return ec.fieldContext_VulnerabilityCoverageCounts_totalWorkloads(ctx, field)
+	case "scanned":
+		return ec.fieldContext_VulnerabilityCoverageCounts_scanned(ctx, field)
+	case "pending":
+		return ec.fieldContext_VulnerabilityCoverageCounts_pending(ctx, field)
+	case "noSbom":
+		return ec.fieldContext_VulnerabilityCoverageCounts_noSbom(ctx, field)
+	case "failed":
+		return ec.fieldContext_VulnerabilityCoverageCounts_failed(ctx, field)
+	case "unresolvedImage":
+		return ec.fieldContext_VulnerabilityCoverageCounts_unresolvedImage(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityCoverageCounts", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityCvss(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "source":
+		return ec.fieldContext_VulnerabilityCvss_source(ctx, field)
+	case "version":
+		return ec.fieldContext_VulnerabilityCvss_version(ctx, field)
+	case "score":
+		return ec.fieldContext_VulnerabilityCvss_score(ctx, field)
+	case "vector":
+		return ec.fieldContext_VulnerabilityCvss_vector(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityCvss", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityEpss(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "score":
+		return ec.fieldContext_VulnerabilityEpss_score(ctx, field)
+	case "date":
+		return ec.fieldContext_VulnerabilityEpss_date(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityEpss", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityFinding(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_VulnerabilityFinding_id(ctx, field)
+	case "workload":
+		return ec.fieldContext_VulnerabilityFinding_workload(ctx, field)
+	case "image":
+		return ec.fieldContext_VulnerabilityFinding_image(ctx, field)
+	case "vulnerabilityIdentifier":
+		return ec.fieldContext_VulnerabilityFinding_vulnerabilityIdentifier(ctx, field)
+	case "vulnerability":
+		return ec.fieldContext_VulnerabilityFinding_vulnerability(ctx, field)
+	case "purl":
+		return ec.fieldContext_VulnerabilityFinding_purl(ctx, field)
+	case "packageKey":
+		return ec.fieldContext_VulnerabilityFinding_packageKey(ctx, field)
+	case "installedVersion":
+		return ec.fieldContext_VulnerabilityFinding_installedVersion(ctx, field)
+	case "fixedVersion":
+		return ec.fieldContext_VulnerabilityFinding_fixedVersion(ctx, field)
+	case "severity":
+		return ec.fieldContext_VulnerabilityFinding_severity(ctx, field)
+	case "severitySource":
+		return ec.fieldContext_VulnerabilityFinding_severitySource(ctx, field)
+	case "dataSource":
+		return ec.fieldContext_VulnerabilityFinding_dataSource(ctx, field)
+	case "epss":
+		return ec.fieldContext_VulnerabilityFinding_epss(ctx, field)
+	case "knownExploited":
+		return ec.fieldContext_VulnerabilityFinding_knownExploited(ctx, field)
+	case "suppression":
+		return ec.fieldContext_VulnerabilityFinding_suppression(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFinding", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityFindingConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "edges":
+		return ec.fieldContext_VulnerabilityFindingConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_VulnerabilityFindingConnection_nodes(ctx, field)
+	case "pageInfo":
+		return ec.fieldContext_VulnerabilityFindingConnection_pageInfo(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityFindingEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_VulnerabilityFindingEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_VulnerabilityFindingEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityFindingSummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "totalFindings":
+		return ec.fieldContext_VulnerabilityFindingSummary_totalFindings(ctx, field)
+	case "countsBySeverity":
+		return ec.fieldContext_VulnerabilityFindingSummary_countsBySeverity(ctx, field)
+	case "fixableFindings":
+		return ec.fieldContext_VulnerabilityFindingSummary_fixableFindings(ctx, field)
+	case "knownExploitedFindings":
+		return ec.fieldContext_VulnerabilityFindingSummary_knownExploitedFindings(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingSummary", field.Name)
 }
 
 func (ec *executionContext) childFields_VulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -43900,6 +45517,16 @@ func (ec *executionContext) childFields_VulnerabilityFixSample(ctx context.Conte
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFixSample", field.Name)
 }
 
+func (ec *executionContext) childFields_VulnerabilityImage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "name":
+		return ec.fieldContext_VulnerabilityImage_name(ctx, field)
+	case "digest":
+		return ec.fieldContext_VulnerabilityImage_digest(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityImage", field.Name)
+}
+
 func (ec *executionContext) childFields_VulnerabilityRemediation(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "fixVersion":
@@ -43926,6 +45553,92 @@ func (ec *executionContext) childFields_VulnerabilityRiskAssessment(ctx context.
 		return ec.fieldContext_VulnerabilityRiskAssessment_knownRansomwareUse(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityRiskAssessment", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilitySeverityCounts(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "unknown":
+		return ec.fieldContext_VulnerabilitySeverityCounts_unknown(ctx, field)
+	case "low":
+		return ec.fieldContext_VulnerabilitySeverityCounts_low(ctx, field)
+	case "medium":
+		return ec.fieldContext_VulnerabilitySeverityCounts_medium(ctx, field)
+	case "high":
+		return ec.fieldContext_VulnerabilitySeverityCounts_high(ctx, field)
+	case "critical":
+		return ec.fieldContext_VulnerabilitySeverityCounts_critical(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySeverityCounts", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilitySuppression(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_VulnerabilitySuppression_id(ctx, field)
+	case "team":
+		return ec.fieldContext_VulnerabilitySuppression_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_VulnerabilitySuppression_environment(ctx, field)
+	case "workload":
+		return ec.fieldContext_VulnerabilitySuppression_workload(ctx, field)
+	case "imageName":
+		return ec.fieldContext_VulnerabilitySuppression_imageName(ctx, field)
+	case "packageKey":
+		return ec.fieldContext_VulnerabilitySuppression_packageKey(ctx, field)
+	case "vulnerabilityIdentifier":
+		return ec.fieldContext_VulnerabilitySuppression_vulnerabilityIdentifier(ctx, field)
+	case "state":
+		return ec.fieldContext_VulnerabilitySuppression_state(ctx, field)
+	case "reason":
+		return ec.fieldContext_VulnerabilitySuppression_reason(ctx, field)
+	case "updatedBy":
+		return ec.fieldContext_VulnerabilitySuppression_updatedBy(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_VulnerabilitySuppression_updatedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppression", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilitySuppressionActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "assessment":
+		return ec.fieldContext_VulnerabilitySuppressionActivityLogEntryData_assessment(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppressionActivityLogEntryData", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilitySuppressionConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "edges":
+		return ec.fieldContext_VulnerabilitySuppressionConnection_edges(ctx, field)
+	case "nodes":
+		return ec.fieldContext_VulnerabilitySuppressionConnection_nodes(ctx, field)
+	case "pageInfo":
+		return ec.fieldContext_VulnerabilitySuppressionConnection_pageInfo(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppressionConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilitySuppressionEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_VulnerabilitySuppressionEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_VulnerabilitySuppressionEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppressionEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilityWorkloadRef(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "team":
+		return ec.fieldContext_VulnerabilityWorkloadRef_team(ctx, field)
+	case "environment":
+		return ec.fieldContext_VulnerabilityWorkloadRef_environment(ctx, field)
+	case "name":
+		return ec.fieldContext_VulnerabilityWorkloadRef_name(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityWorkloadRef", field.Name)
 }
 
 func (ec *executionContext) childFields_WebhookActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

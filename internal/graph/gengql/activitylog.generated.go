@@ -28,6 +28,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/tunnel"
 	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -589,6 +590,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._VulnerabilityUpdatedActivityLogEntry(ctx, sel, obj)
+	case v0s.VulnerabilitySuppressionActivityLogEntry:
+		return ec._VulnerabilitySuppressionActivityLogEntry(ctx, sel, &obj)
+	case *v0s.VulnerabilitySuppressionActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._VulnerabilitySuppressionActivityLogEntry(ctx, sel, obj)
 	case valkey.ValkeyUpdatedActivityLogEntry:
 		return ec._ValkeyUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *valkey.ValkeyUpdatedActivityLogEntry:

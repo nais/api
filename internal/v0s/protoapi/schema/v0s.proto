@@ -1,0 +1,286 @@
+// Vendored from nais/v0s proto/v0s/v1/v0s.proto at
+// 1e0095d62c1bb4f385c8cdcba8bf05de38a65aa6. The generator overrides go_package.
+syntax = "proto3";
+
+package v0s.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/nais/v0s/api/v0s/v1;v0sv1";
+
+service VulnerabilityService {
+  rpc ListWorkloads(ListWorkloadsRequest) returns (ListWorkloadsResponse);
+  rpc ListFindings(ListFindingsRequest) returns (ListFindingsResponse);
+  rpc CountFindings(CountFindingsRequest) returns (CountFindingsResponse);
+  rpc GetVulnerability(GetVulnerabilityRequest) returns (GetVulnerabilityResponse);
+  rpc SearchComponents(SearchComponentsRequest) returns (SearchComponentsResponse);
+}
+
+service SuppressionService {
+  rpc SetSuppressions(SetSuppressionsRequest) returns (SetSuppressionsResponse);
+  rpc DeleteSuppressions(DeleteSuppressionsRequest) returns (DeleteSuppressionsResponse);
+  rpc ListSuppressions(ListSuppressionsRequest) returns (ListSuppressionsResponse);
+}
+
+enum Severity {
+  SEVERITY_UNSPECIFIED = 0;
+  SEVERITY_UNKNOWN = 1;
+  SEVERITY_LOW = 2;
+  SEVERITY_MEDIUM = 3;
+  SEVERITY_HIGH = 4;
+  SEVERITY_CRITICAL = 5;
+}
+
+enum ImageStatus {
+  IMAGE_STATUS_UNSPECIFIED = 0;
+  IMAGE_STATUS_PENDING = 1;
+  IMAGE_STATUS_SCANNED = 2;
+  IMAGE_STATUS_NO_SBOM = 3;
+  IMAGE_STATUS_FAILED = 4;
+}
+
+enum SuppressionState {
+  SUPPRESSION_STATE_UNSPECIFIED = 0;
+  SUPPRESSION_STATE_NOT_AFFECTED = 1;
+  SUPPRESSION_STATE_FALSE_POSITIVE = 2;
+  SUPPRESSION_STATE_ACCEPTED_RISK = 3;
+}
+
+message Image {
+  reserved 3, 4, 6, 7;
+  reserved "scanned_db_version";
+  string name = 1;
+  string digest = 2;
+  ImageStatus status = 8;
+  string error = 9;
+  google.protobuf.Timestamp scanned_at = 5;
+}
+
+message Workload {
+  string environment = 1;
+  string team = 2;
+  string name = 3;
+  string image_reference = 5;
+  Image image = 4;
+  string resolve_error = 6;
+}
+
+message FindingFilter {
+  reserved 1;
+  reserved "teams", "kev";
+  string team = 12;
+  string environment = 2;
+  string workload = 3;
+  string image_name = 4;
+  string image_digest = 5;
+  string vulnerability_id = 6;
+  string package = 7;
+  repeated Severity severities = 8;
+  bool has_fix = 9;
+  bool only_known_exploited = 10;
+  SuppressedFilter suppressed = 11;
+}
+
+enum SuppressedFilter {
+  SUPPRESSED_FILTER_UNSPECIFIED = 0;
+  SUPPRESSED_FILTER_EXCLUDE = 1;
+  SUPPRESSED_FILTER_INCLUDE = 2;
+  SUPPRESSED_FILTER_ONLY = 3;
+}
+
+message Finding {
+  reserved 8, 12, 13, 15;
+  reserved "status", "title", "cvss_score", "kev";
+  WorkloadRef workload = 1;
+  Image image = 2;
+  string vulnerability_id = 3;
+  string purl = 4;
+  string package_key = 5;
+  string installed_version = 6;
+  string fixed_version = 7;
+  Severity severity = 9;
+  string severity_source = 10;
+  string data_source = 11;
+  Epss epss = 14;
+  bool known_exploited = 17;
+  Suppression suppression = 16;
+}
+
+message Epss {
+  reserved 2;
+  reserved "percentile";
+  double score = 1;
+  string date = 3;
+}
+
+message ListWorkloadsRequest {
+  reserved 1;
+  reserved "teams";
+  string team = 5;
+  string environment = 2;
+  string workload = 6;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message ListWorkloadsResponse {
+  repeated Workload workloads = 1;
+  string next_page_token = 2;
+}
+
+message ListFindingsRequest {
+  FindingFilter filter = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message ListFindingsResponse {
+  repeated Finding findings = 1;
+  string next_page_token = 2;
+  repeated string cursors = 3;
+}
+
+message CountFindingsRequest {
+  FindingFilter filter = 1;
+  GroupBy group_by = 2;
+  enum GroupBy {
+    GROUP_BY_UNSPECIFIED = 0;
+    GROUP_BY_SEVERITY = 1;
+    GROUP_BY_TEAM = 2;
+    GROUP_BY_WORKLOAD = 3;
+    GROUP_BY_IMAGE = 4;
+    GROUP_BY_VULNERABILITY = 5;
+  }
+}
+
+message CountFindingsResponse {
+  repeated Bucket buckets = 1;
+  message Bucket {
+    string key = 1;
+    int64 count = 2;
+  }
+}
+
+message GetVulnerabilityRequest {
+  string id = 1;
+}
+
+message GetVulnerabilityResponse {
+  Vulnerability vulnerability = 1;
+}
+
+message Vulnerability {
+  reserved 5, 8, 9, 11;
+  reserved "severities", "published_at", "modified_at", "kev";
+  string id = 1;
+  repeated string aliases = 2;
+  string title = 3;
+  string description = 4;
+  repeated Cvss cvss = 6;
+  repeated string references = 7;
+  Epss epss = 10;
+  bool known_exploited = 12;
+}
+
+message Cvss {
+  reserved 2, 3, 4, 5;
+  reserved "v3_vector", "v3_score", "v40_vector", "v40_score";
+  string source = 1;
+  string version = 6;
+  optional double score = 7;
+  optional string vector = 8;
+}
+
+message SearchComponentsRequest {
+  reserved 2;
+  reserved "teams";
+  string query = 1;
+  string team = 5;
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+message SearchComponentsResponse {
+  repeated ComponentMatch matches = 1;
+  string next_page_token = 2;
+}
+
+message ComponentMatch {
+  string purl = 1;
+  string name = 2;
+  string version = 3;
+  Image image = 4;
+  repeated WorkloadRef workloads = 5;
+}
+
+message WorkloadRef {
+  string environment = 1;
+  string team = 2;
+  string name = 3;
+}
+
+message SuppressionKey {
+  string image_name = 1;
+  string package = 2;
+  string vulnerability_id = 3;
+  string environment = 4;
+  string workload = 5;
+}
+
+message Suppression {
+  reserved 9;
+  string team = 1;
+  string image_name = 2;
+  string package_key = 3;
+  string vulnerability_id = 4;
+  SuppressionState state = 5;
+  string detail = 6;
+  string updated_by = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  string environment = 10;
+  string workload = 11;
+}
+
+message NewSuppression {
+  reserved 4;
+  SuppressionKey key = 1;
+  SuppressionState state = 2;
+  string detail = 3;
+}
+
+message SetSuppressionsRequest {
+  string team = 1;
+  string actor = 2;
+  repeated NewSuppression suppressions = 3;
+}
+
+message SetSuppressionsResponse {
+  repeated Suppression suppressions = 1;
+}
+
+message DeleteSuppressionsRequest {
+  string team = 1;
+  repeated SuppressionKey keys = 2;
+}
+
+message DeleteSuppressionsResponse {
+  repeated Suppression deleted = 1;
+}
+
+message ListSuppressionsRequest {
+  reserved 1;
+  reserved "teams";
+  string team = 8;
+  string image_name = 2;
+  string vulnerability_id = 3;
+  int32 page_size = 4;
+  string page_token = 5;
+  string environment = 6;
+  string workload = 7;
+}
+
+message ListSuppressionsResponse {
+  repeated Suppression suppressions = 1;
+  string next_page_token = 2;
+  repeated string cursors = 3;
+}

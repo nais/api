@@ -35,6 +35,7 @@ func TestKafkaEnvironmentsConfig(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			if tt.wantErr {
 				return
 			}
@@ -42,6 +43,18 @@ func TestKafkaEnvironmentsConfig(t *testing.T) {
 				t.Errorf("Kafka environment config mismatch (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestV0sConfigurationIsOptionalAndIndependent(t *testing.T) {
+	cfg, err := NewConfig(t.Context(), envconfig.MapLookuper(map[string]string{
+		"V0S_ENDPOINT": "v0s:8080", "VULNERABILITIES_ENDPOINT": "legacy:8080",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.V0s.Endpoint != "v0s:8080" || cfg.V0s.SuppressionsEnabled || cfg.VulnerabilitiesAPI.Endpoint != "legacy:8080" {
+		t.Fatalf("new reads changed the legacy endpoint or enabled writes: %+v, %+v", cfg.V0s, cfg.VulnerabilitiesAPI)
 	}
 }
 

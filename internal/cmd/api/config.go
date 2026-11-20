@@ -196,6 +196,7 @@ type Config struct {
 	Usersync           usersyncConfig
 	Cost               costConfig
 	VulnerabilitiesAPI vulnerabilitiesConfig
+	V0s                v0sConfig
 	Hookd              hookdConfig
 	OAuth              oAuthConfig
 	Unleash            UnleashConfig
@@ -204,6 +205,12 @@ type Config struct {
 	Fakes              Fakes
 	JWT                JWTConfig
 	AuditLog           auditLogConfig
+}
+
+type v0sConfig struct {
+	Endpoint string `env:"V0S_ENDPOINT"`
+	// Enable only after v13s user writes and suppression synchronization are stopped.
+	SuppressionsEnabled bool `env:"V0S_SUPPRESSIONS_ENABLED"`
 }
 
 type Fakes struct {
