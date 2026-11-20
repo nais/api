@@ -3,7 +3,7 @@ local team = Team.new("pg-dual-read-team", "Postgres transition compatibility", 
 team:addMember(user)
 Helper.readK8sResources("k8s_resources/postgres_dual_read")
 
-Test.gql("Direct Postgres fields read both legacy and directly owned databases", function(t)
+Test.gql("Postgres fields read database-owned status", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-dual-read-team") { postgreses { nodes {
 		name state configuration { parameters { name value } }
@@ -14,7 +14,7 @@ Test.gql("Direct Postgres fields read both legacy and directly owned databases",
 	} } } } }
 end)
 
-Test.gql("Direct Postgres metadata works without a Kubernetes branch", function(t)
+Test.gql("Postgres metadata is read from the database", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-dual-read-team") { environment(name: "dev") { postgres(name: "orders") {
 		id name state createdAt earliestRestoreTime issues { pageInfo { totalCount } }
@@ -36,7 +36,7 @@ Test.gql("The Postgres node keeps its identity and GraphQL type", function(t)
 	} } }
 end)
 
-Test.gql("Workload queries resolve a virtual main without omitting the database", function(t)
+Test.gql("Workload queries resolve their database", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{ team(slug: "pg-dual-read-team") { environment(name: "dev") { application(name: "consumer") {
 		postgreses { nodes { postgres { name state } } }
@@ -57,18 +57,18 @@ Test.gql("Workload nodes reuse the already resolved parent Postgres", function(t
 	} } } } }
 end)
 
-Test.gql("Personal access can omit branch before and after direct ownership", function(t)
+Test.gql("Personal access is scoped to its database and reused", function(t)
 	t.addHeader("x-user-email", user:email())
 	for _, postgresName in ipairs({ "foobar", "orders" }) do
 		t.query(string.format([[mutation { createPostgresAccess(input: {
 			postgres: "%s", teamSlug: "pg-dual-read-team", environmentName: "dev",
-			accessLevel: READ, reason: "Testing branchless personal database access", ttl: "30m"
+			accessLevel: READ, reason: "Testing personal database access", ttl: "30m"
 		}) { name expiresAt } }]], postgresName))
 		t.check { data = { createPostgresAccess = { name = Save("personalAccessName"), expiresAt = Save("personalAccessExpiry") } } }
-		-- Explicit legacy main and omitted branch refer to the same live grant.
+		-- Repeating the request returns the same live grant.
 		t.query(string.format([[mutation { createPostgresAccess(input: {
 			postgres: "%s", teamSlug: "pg-dual-read-team", environmentName: "dev",
-			accessLevel: READ, reason: "Testing branchless personal database access"
+			accessLevel: READ, reason: "Testing personal database access"
 		}) { name expiresAt } }]], postgresName))
 		t.check { data = { createPostgresAccess = { name = State.personalAccessName, expiresAt = State.personalAccessExpiry } } }
 		t.query(string.format([[{ team(slug: "pg-dual-read-team") { environment(name: "dev") {

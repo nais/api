@@ -3,7 +3,7 @@ local team = Team.new("someteamname", "purpose", "#slack_channel")
 team:addMember(user)
 local otherTeam = Team.new("postgres-other-team", "Isolation", "#postgres")
 otherTeam:addMember(user)
-Helper.readK8sResources("k8s_resources/postgres_branches")
+Helper.readK8sResources("k8s_resources/postgres_databases")
 
 local workloadFields = [[fragment PostgresWorkloadFields on PostgresWorkload {
 	workload {
@@ -208,7 +208,7 @@ Test.gql("Postgres configuration exposes explicitly configured parameters in nam
 	} } } } }
 end)
 
-Test.gql("Postgres configuration is scoped to branch, database, team and environment", function(t)
+Test.gql("Postgres configuration is scoped to database, team and environment", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
 		team(slug: "someteamname") {

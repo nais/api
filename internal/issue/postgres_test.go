@@ -11,10 +11,9 @@ import (
 func TestPostgresIssueConversion(t *testing.T) {
 	id := uuid.New()
 	for _, tt := range []struct {
-		name, issueType, resourceType, resourceName, legacyName string
+		name, issueType, resourceType, resourceName string
 	}{
 		{name: "logical Postgres", issueType: "POSTGRES", resourceType: "POSTGRES", resourceName: "orders"},
-		{name: "row from previous release", issueType: "POSTGRES_BRANCH", resourceType: "POSTGRES_BRANCH", resourceName: "orders-main-12345678", legacyName: "orders-main-12345678"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := convert(&issuesql.Issue{ID: id, IssueType: tt.issueType, ResourceType: tt.resourceType, ResourceName: tt.resourceName, Team: "team", Env: "dev", Severity: "CRITICAL", Message: "database failure"})
@@ -25,7 +24,7 @@ func TestPostgresIssueConversion(t *testing.T) {
 			if !ok {
 				t.Fatalf("got %T, want genuine PostgresIssue", got)
 			}
-			want := &PostgresIssue{Base: Base{ID: newIdent(id.String()), ResourceType: ResourceTypePostgres, ResourceName: tt.resourceName, TeamSlug: "team", EnvironmentName: "dev", Severity: SeverityCritical, Message: "database failure"}, LegacyPhysicalName: tt.legacyName}
+			want := &PostgresIssue{Base: Base{ID: newIdent(id.String()), ResourceType: ResourceTypePostgres, ResourceName: tt.resourceName, TeamSlug: "team", EnvironmentName: "dev", Severity: SeverityCritical, Message: "database failure"}}
 			if diff := cmp.Diff(want, pg); diff != "" {
 				t.Errorf("converted issue (-want +got):\n%s", diff)
 			}

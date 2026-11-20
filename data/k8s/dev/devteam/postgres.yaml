@@ -9,13 +9,11 @@ metadata:
 spec:
   majorVersion: "18"
   highAvailability: false
-  activeBranch: main
   resources:
     cpu: 100m
     memory: 512Mi
     diskSize: 10Gi
 status:
-  activeBranch: main
   clusterName: pg-postgres-1-main-7adae74b
   reconcilePhase: Completed
   observedGeneration: 0
@@ -36,13 +34,11 @@ metadata:
 spec:
   majorVersion: "17"
   highAvailability: true
-  activeBranch: main
   resources:
     cpu: 200m
     memory: 1Gi
     diskSize: 20Gi
 status:
-  activeBranch: main
   clusterName: pg-postgres-2-main-41c0e281
   reconcilePhase: Completed
   observedGeneration: 0

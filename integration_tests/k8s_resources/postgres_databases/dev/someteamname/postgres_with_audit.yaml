@@ -7,7 +7,6 @@ metadata:
 spec:
   majorVersion: "16"
 status:
-  activeBranch: main
   clusterName: pg-with-audit-main-cb3cab0a
   reconcilePhase: Completed
   conditions:

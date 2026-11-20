@@ -52,9 +52,6 @@ func (ValkeyIssue) IsNode() {}
 // PostgresIssue reports a failure on a Postgres database.
 type PostgresIssue struct {
 	Base
-	// LegacyPhysicalName is only populated for rows written before contraction.
-	// The checker replaces these rows on its next refresh.
-	LegacyPhysicalName string `json:"-"`
 }
 
 func (PostgresIssue) IsIssue() {}
@@ -133,14 +130,13 @@ func (DeprecatedIngressIssue) IsNode() {}
 type ResourceType string
 
 const (
-	ResourceTypeOpensearch     ResourceType = "OPENSEARCH"
-	ResourceTypeValkey         ResourceType = "VALKEY"
-	ResourceTypeSQLInstance    ResourceType = "SQLINSTANCE"
-	ResourceTypeApplication    ResourceType = "APPLICATION"
-	ResourceTypeJob            ResourceType = "JOB"
-	ResourceTypeUnleash        ResourceType = "UNLEASH"
-	ResourceTypePostgres       ResourceType = "POSTGRES"
-	ResourceTypePostgresBranch ResourceType = "POSTGRES_BRANCH"
+	ResourceTypeOpensearch  ResourceType = "OPENSEARCH"
+	ResourceTypeValkey      ResourceType = "VALKEY"
+	ResourceTypeSQLInstance ResourceType = "SQLINSTANCE"
+	ResourceTypeApplication ResourceType = "APPLICATION"
+	ResourceTypeJob         ResourceType = "JOB"
+	ResourceTypeUnleash     ResourceType = "UNLEASH"
+	ResourceTypePostgres    ResourceType = "POSTGRES"
 )
 
 var AllResourceType = []ResourceType{
@@ -151,12 +147,11 @@ var AllResourceType = []ResourceType{
 	ResourceTypeJob,
 	ResourceTypeUnleash,
 	ResourceTypePostgres,
-	ResourceTypePostgresBranch,
 }
 
 func (e ResourceType) IsValid() bool {
 	switch e {
-	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash, ResourceTypePostgres, ResourceTypePostgresBranch:
+	case ResourceTypeOpensearch, ResourceTypeValkey, ResourceTypeSQLInstance, ResourceTypeApplication, ResourceTypeJob, ResourceTypeUnleash, ResourceTypePostgres:
 		return true
 	}
 	return false
@@ -229,7 +224,6 @@ const (
 	IssueTypeApplicationRestartLoop             IssueType = "APPLICATION_RESTART_LOOP"
 	IssueTypeApplicationRolloutStuck            IssueType = "APPLICATION_ROLLOUT_STUCK"
 	IssueTypePostgres                           IssueType = "POSTGRES"
-	IssueTypePostgresBranch                     IssueType = "POSTGRES_BRANCH"
 )
 
 var AllIssueType = []IssueType{
@@ -251,7 +245,6 @@ var AllIssueType = []IssueType{
 	IssueTypeApplicationRestartLoop,
 	IssueTypeApplicationRolloutStuck,
 	IssueTypePostgres,
-	IssueTypePostgresBranch,
 }
 
 func (e IssueType) IsValid() bool {
@@ -262,7 +255,7 @@ func (e IssueType) IsValid() bool {
 		IssueTypeInvalidSpec, IssueTypeFailedSynchronization, IssueTypeVulnerableImage,
 		IssueTypeMissingSBOM,
 		IssueTypeExternalIngressUrgentVulnerability, IssueTypeUnleashReleaseChannel,
-		IssueTypeApplicationRestartLoop, IssueTypeApplicationRolloutStuck, IssueTypePostgres, IssueTypePostgresBranch:
+		IssueTypeApplicationRestartLoop, IssueTypeApplicationRolloutStuck, IssueTypePostgres:
 		return true
 	}
 	return false

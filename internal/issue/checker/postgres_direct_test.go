@@ -17,7 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func TestPostgresIssuesWithoutBranchObjects(t *testing.T) {
+func TestPostgresIssueClearedAfterDeletion(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)

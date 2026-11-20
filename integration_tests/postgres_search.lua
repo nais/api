@@ -5,7 +5,7 @@ team:addMember(member)
 other:addMember(member)
 Helper.readK8sResources("k8s_resources/postgres_search")
 
-Test.gql("Search returns logical Postgres databases rather than branches", function(t)
+Test.gql("Search returns Postgres databases", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query [[{
 		search(first: 10, filter: { query: "orders", types: [POSTGRES], teams: ["pg-search-team"] }) {
@@ -55,14 +55,4 @@ Test.gql("Postgres search scopes matching names to the requested team", function
 			},
 		},
 	}
-end)
-
-Test.gql("Postgres search does not return branch names", function(t)
-	t.addHeader("x-user-email", member:email())
-	t.query [[{
-		search(first: 10, filter: { query: "green", types: [POSTGRES], teams: ["pg-search-team"] }) {
-			nodes { __typename }
-		}
-	}]]
-	t.check { data = { search = { nodes = {} } } }
 end)

@@ -35,7 +35,7 @@ func TestPostgresAccessLevels(t *testing.T) {
 			}
 			expiresAt := time.Now().Add(time.Hour).Truncate(time.Second)
 			resource := newPostgresAccessResource(CreatePostgresAccessInput{
-				Postgres: "orders", Branch: "main", TeamSlug: slug.Slug("team-a"), AccessLevel: level,
+				Postgres: "orders", TeamSlug: slug.Slug("team-a"), AccessLevel: level,
 			}, "user@example.com", "personal-access", expiresAt)
 			wantSpec := map[string]any{
 				"postgres": "orders",

@@ -35,7 +35,7 @@ func TestPostgresWithoutWatcher(t *testing.T) {
 	}
 }
 
-func TestPostgresIssuesWithoutBranchWatcher(t *testing.T) {
+func TestPostgresIssuesFollowDatabaseState(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
 	if err != nil {
 		t.Fatal(err)
@@ -80,23 +80,23 @@ func TestPostgresIssuesWithoutBranchWatcher(t *testing.T) {
 	for _, tt := range []struct {
 		name   string
 		status map[string]any
-		state  postgres.PostgresBranchState
+		state  postgres.PostgresState
 		want   []Issue
 	}{
-		{name: "not observed", state: postgres.PostgresBranchStateProgressing},
-		{name: "recovery failed on an inactive branch", status: map[string]any{
+		{name: "not observed", state: postgres.PostgresStateProgressing},
+		{name: "database recovery failed", status: map[string]any{
 			"reconcilePhase": "Failed",
 			"conditions":     []any{map[string]any{"type": "RecoveryFailed", "status": "True", "reason": "Unrecoverable"}},
-		}, state: postgres.PostgresBranchStateDegraded, want: want},
+		}, state: postgres.PostgresStateDegraded, want: want},
 		{name: "healthy again", status: map[string]any{
 			"reconcilePhase": "Completed", "observedGeneration": int64(1),
 			"conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "message": "Cluster is in phase: Cluster in healthy state"}},
-		}, state: postgres.PostgresBranchStateAvailable},
-		{name: "progressing again", state: postgres.PostgresBranchStateProgressing},
+		}, state: postgres.PostgresStateAvailable},
+		{name: "progressing again", state: postgres.PostgresStateProgressing},
 		{name: "cluster failure", status: map[string]any{
 			"reconcilePhase": "Completed", "observedGeneration": int64(1),
 			"conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "message": "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}},
-		}, state: postgres.PostgresBranchStateDegraded, want: want},
+		}, state: postgres.PostgresStateDegraded, want: want},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.status != nil {

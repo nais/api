@@ -331,7 +331,7 @@ type PostgresPersonalAccessCreatedActivityLogEntry implements ActivityLogEntry &
 	message: String!
 	"Type of the affected resource."
 	resourceType: ActivityLogEntryResourceType!
-	"Name of the affected Postgres branch."
+	"Name of the affected Postgres."
 	resourceName: String!
 	"The team slug that the entry belongs to."
 	teamSlug: Slug!
@@ -373,59 +373,6 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	teamSlug: Slug!
 	"Environment name that the entry belongs to."
 	environmentName: String
-}
-
-"A Postgres branch was created."
-type PostgresBranchCreatedActivityLogEntry implements ActivityLogEntry & Node {
-	id: ID!
-	actor: String!
-	gitHubActorClaims: GitHubActorClaims
-	createdAt: Time!
-	message: String!
-	resourceType: ActivityLogEntryResourceType!
-	"Name of the Postgres containing the branch."
-	resourceName: String!
-	teamSlug: Slug!
-	environmentName: String
-	data: PostgresBranchActivityLogEntryData!
-}
-
-"A request to activate a Postgres branch was accepted; the switchover may still be pending."
-type PostgresBranchActivatedActivityLogEntry implements ActivityLogEntry & Node {
-	id: ID!
-	actor: String!
-	gitHubActorClaims: GitHubActorClaims
-	createdAt: Time!
-	message: String!
-	resourceType: ActivityLogEntryResourceType!
-	"Name of the Postgres containing the branch."
-	resourceName: String!
-	teamSlug: Slug!
-	environmentName: String
-	data: PostgresBranchActivityLogEntryData!
-}
-
-"A Postgres branch was deleted."
-type PostgresBranchDeletedActivityLogEntry implements ActivityLogEntry & Node {
-	id: ID!
-	actor: String!
-	gitHubActorClaims: GitHubActorClaims
-	createdAt: Time!
-	message: String!
-	resourceType: ActivityLogEntryResourceType!
-	"Name of the Postgres containing the branch."
-	resourceName: String!
-	teamSlug: Slug!
-	environmentName: String
-	data: PostgresBranchActivityLogEntryData!
-}
-
-type PostgresBranchActivityLogEntryData {
-	branch: String!
-	"Source branch, populated for branch creation."
-	sourceBranch: String
-	"Recovery instant, populated for branch creation."
-	targetTime: Time
 }
 
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
@@ -560,17 +507,11 @@ extend enum ActivityLogActivityType {
 	"""
 	POSTGRES_PERSONAL_ACCESS_CONNECTION
 	"""
-	A Postgres branch was deleted (historical entries without branch name)
+	A Postgres was deleted
 	"""
 	POSTGRES_DELETED
 	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
 	POSTGRES_DELETION_REQUESTED
-	"A Postgres branch was created."
-	POSTGRES_BRANCH_CREATED
-	"A Postgres branch was activated."
-	POSTGRES_BRANCH_ACTIVATED
-	"A Postgres branch was deleted."
-	POSTGRES_BRANCH_DELETED
 }
 
 extend type Mutation {

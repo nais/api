@@ -77,7 +77,7 @@ func (r *postgresResolver) TeamEnvironment(ctx context.Context, obj *postgres.Po
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *postgresResolver) State(ctx context.Context, obj *postgres.Postgres) (postgres.PostgresBranchState, error) {
+func (r *postgresResolver) State(ctx context.Context, obj *postgres.Postgres) (postgres.PostgresState, error) {
 	state, _, err := postgres.PhysicalStatus(ctx, obj)
 	return state, err
 }
@@ -126,10 +126,7 @@ func (r *postgresAccessResolver) TeamEnvironment(ctx context.Context, obj *postg
 }
 
 func (r *postgresAccessResolver) Postgres(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.Postgres, error) {
-	if obj.PostgresName != "" {
-		return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName)
-	}
-	return postgres.GetPostgresByPhysicalName(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresBranchName)
+	return postgres.GetPostgres(ctx, obj.TeamSlug, obj.EnvironmentName, obj.PostgresName)
 }
 
 func (r *postgresAccessResolver) Connection(ctx context.Context, obj *postgres.PostgresAccess) (*postgres.PostgresAccessConnectionDetails, error) {

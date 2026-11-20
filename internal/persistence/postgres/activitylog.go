@@ -12,9 +12,6 @@ const (
 	activityLogEntryActionGrantAccess                 activitylog.ActivityLogEntryAction = "GRANT_ACCESS"
 	activityLogEntryActionCreatePersonalAccess        activitylog.ActivityLogEntryAction = "CREATE_PERSONAL_ACCESS"
 	activityLogEntryActionGetPersonalAccessConnection activitylog.ActivityLogEntryAction = "GET_PERSONAL_ACCESS_CONNECTION"
-	activityLogEntryActionBranchCreated               activitylog.ActivityLogEntryAction = "BRANCH_CREATED"
-	activityLogEntryActionBranchActivated             activitylog.ActivityLogEntryAction = "BRANCH_ACTIVATED"
-	activityLogEntryActionBranchDeleted               activitylog.ActivityLogEntryAction = "BRANCH_DELETED"
 
 	ActivityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
 )
@@ -32,7 +29,7 @@ func init() {
 		"POSTGRES_PERSONAL_ACCESS_CREATED",
 		activityLogEntryActionCreatePersonalAccess,
 		ActivityLogEntryResourceTypePostgres,
-		"Triggered when personal access to a Postgres branch is requested.",
+		"Triggered when personal access to Postgres is requested.",
 	)
 	activitylog.RegisterActivityType(
 		"POSTGRES_PERSONAL_ACCESS_CONNECTION",
@@ -56,31 +53,13 @@ func init() {
 		"POSTGRES_DELETED",
 		activitylog.ActivityLogEntryActionDeleted,
 		ActivityLogEntryResourceTypePostgres,
-		"Triggered when a Postgres branch is deleted (legacy event without a branch name).",
+		"Triggered when a Postgres is deleted.",
 	)
 	activitylog.RegisterActivityType(
 		"POSTGRES_DELETION_REQUESTED",
 		activityLogEntryActionDeletionRequested,
 		ActivityLogEntryResourceTypePostgres,
 		"Triggered when deletion of a Postgres instance is requested; cleanup is pending.",
-	)
-	activitylog.RegisterActivityType(
-		"POSTGRES_BRANCH_CREATED",
-		activityLogEntryActionBranchCreated,
-		ActivityLogEntryResourceTypePostgres,
-		"Triggered when a Postgres branch is created.",
-	)
-	activitylog.RegisterActivityType(
-		"POSTGRES_BRANCH_ACTIVATED",
-		activityLogEntryActionBranchActivated,
-		ActivityLogEntryResourceTypePostgres,
-		"Triggered when a Postgres branch is activated.",
-	)
-	activitylog.RegisterActivityType(
-		"POSTGRES_BRANCH_DELETED",
-		activityLogEntryActionBranchDeleted,
-		ActivityLogEntryResourceTypePostgres,
-		"Triggered when a Postgres branch is deleted.",
 	)
 }
 
@@ -111,7 +90,7 @@ func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry
 		}, nil
 	case activitylog.ActivityLogEntryActionDeleted:
 		return PostgresDeletedActivityLogEntry{
-			GenericActivityLogEntry: entry.WithMessage("Deleted Postgres branch (name unavailable)"),
+			GenericActivityLogEntry: entry.WithMessage("Deleted Postgres"),
 		}, nil
 	case activityLogEntryActionDeletionRequested:
 		return PostgresDeletedActivityLogEntry{
@@ -149,52 +128,9 @@ func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry
 		return PostgresPersonalAccessConnectionActivityLogEntry{
 			GenericActivityLogEntry: entry.WithMessage("Retrieved personal Postgres connection materials"),
 		}, nil
-	case activityLogEntryActionBranchCreated, activityLogEntryActionBranchActivated, activityLogEntryActionBranchDeleted:
-		data, err := activitylog.UnmarshalData[PostgresBranchActivityLogEntryData](entry)
-		if err != nil {
-			return nil, fmt.Errorf("transforming postgres branch activity log entry data: %w", err)
-		}
-		switch entry.Action {
-		case activityLogEntryActionBranchCreated:
-			return PostgresBranchCreatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch created: %s", data.Branch)),
-				Data:                    data,
-			}, nil
-		case activityLogEntryActionBranchActivated:
-			return PostgresBranchActivatedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch activated: %s", data.Branch)),
-				Data:                    data,
-			}, nil
-		default:
-			return PostgresBranchDeletedActivityLogEntry{
-				GenericActivityLogEntry: entry.WithMessage(fmt.Sprintf("Postgres branch deleted: %s", data.Branch)),
-				Data:                    data,
-			}, nil
-		}
 	default:
 		return nil, fmt.Errorf("unsupported postgres activity log entry action: %q", entry.Action)
 	}
-}
-
-type PostgresBranchCreatedActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-	Data *PostgresBranchActivityLogEntryData `json:"data"`
-}
-
-type PostgresBranchActivatedActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-	Data *PostgresBranchActivityLogEntryData `json:"data"`
-}
-
-type PostgresBranchDeletedActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-	Data *PostgresBranchActivityLogEntryData `json:"data"`
-}
-
-type PostgresBranchActivityLogEntryData struct {
-	Branch       string     `json:"branch"`
-	SourceBranch *string    `json:"sourceBranch,omitempty"`
-	TargetTime   *time.Time `json:"targetTime,omitempty"`
 }
 
 type PostgresDeletedActivityLogEntry struct {

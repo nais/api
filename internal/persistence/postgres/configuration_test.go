@@ -16,7 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func TestPostgresBranchConfigurationFromStatus(t *testing.T) {
+func TestPostgresConfigurationFromStatus(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
 		status  map[string]any
@@ -55,22 +55,18 @@ func TestPostgresBranchConfigurationFromStatus(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			obj := &unstructured.Unstructured{Object: map[string]any{
-				"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-				"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main"), "namespace": "team"},
-				"spec":     map[string]any{"postgres": "orders", "branchName": "main"},
-			}}
 			if tt.status != nil {
-				obj.Object["status"] = tt.status
+				tt.status["clusterName"] = "pg-orders"
 			}
-			branch, err := toPostgresBranch(obj, "dev")
+			obj := physicalPostgresObject("orders", tt.status)
+			pg, err := toPostgres(obj, "dev")
 			if (err != nil) != tt.wantErr {
-				t.Fatalf("toPostgresBranch error = %v, want error %t", err, tt.wantErr)
+				t.Fatalf("toPostgres error = %v, want error %t", err, tt.wantErr)
 			}
 			if tt.wantErr {
 				return
 			}
-			if diff := cmp.Diff(tt.want, branch.Configuration); diff != "" {
+			if diff := cmp.Diff(tt.want, pg.configuration); diff != "" {
 				t.Errorf("configuration mismatch (-want +got):\n%s", diff)
 			}
 		})
@@ -107,7 +103,7 @@ func TestPostgresWatcherConfigurationUpdates(t *testing.T) {
 	ready, cancelReady := context.WithTimeout(ctx, 5*time.Second)
 	defer cancelReady()
 	if !mgr.WaitForReady(ready) {
-		t.Fatal("PostgresBranch watcher did not synchronize")
+		t.Fatal("Postgres watcher did not synchronize")
 	}
 	for _, tt := range []struct {
 		parameters map[string]any
@@ -126,8 +122,8 @@ func TestPostgresWatcherConfigurationUpdates(t *testing.T) {
 			t.Fatal(err)
 		}
 		if err := wait.PollUntilContextTimeout(ctx, 10*time.Millisecond, 5*time.Second, true, func(context.Context) (bool, error) {
-			branch, err := w.Get("dev", "team", obj.GetName())
-			return err == nil && cmp.Equal(tt.want, branch.configuration), err
+			pg, err := w.Get("dev", "team", obj.GetName())
+			return err == nil && cmp.Equal(tt.want, pg.configuration), err
 		}); err != nil {
 			t.Fatalf("watcher did not observe configuration %#v: %v", tt.want, err)
 		}

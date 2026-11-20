@@ -7,57 +7,29 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/validate"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func TestToPostgresBranch(t *testing.T) {
-	createdAt := time.Date(2025, time.December, 31, 12, 0, 0, 0, time.UTC)
-	obj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "restored"), "namespace": "my-team", "creationTimestamp": createdAt.Format(time.RFC3339)},
-		"spec":     map[string]any{"postgres": "orders", "branchName": "restored"},
-		"status":   map[string]any{"reconcilePhase": "Completed", "conditions": []any{map[string]any{"type": "cluster.postgresql.cnpg.io/ObservedState", "status": "True", "lastTransitionTime": "2026-01-01T00:00:00Z", "reason": "Reconciled", "message": "Cluster is in phase: Cluster in healthy state"}}},
-	}}
-	got, err := toPostgresBranch(obj, "dev")
+func TestToPostgresWithoutStatus(t *testing.T) {
+	obj := physicalPostgresObject("orders", nil)
+	got, err := toPostgres(obj, "dev")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "restored" || got.PostgresName != "orders" || got.State != PostgresBranchStateAvailable {
-		t.Errorf("unexpected PostgresBranch: %+v", got)
+	if got.Name != "orders" || got.TeamSlug != "team" || got.EnvironmentName != "dev" {
+		t.Fatalf("unexpected Postgres: %+v", got)
 	}
+	createdAt := time.Date(2026, time.January, 2, 3, 4, 5, 0, time.UTC)
 	if !got.CreatedAt.Equal(createdAt) {
 		t.Errorf("createdAt = %v, want %v", got.CreatedAt, createdAt)
 	}
 	if got.GetName() != obj.GetName() {
-		t.Errorf("watcher name = %q, want %q", got.GetName(), obj.GetName())
+		t.Error("resource name changed")
 	}
-}
-
-func TestToPostgresBranchWithoutStatus(t *testing.T) {
-	obj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main"), "namespace": "my-team"},
-		"spec":     map[string]any{"postgres": "orders", "branchName": "main"},
-	}}
-	got, err := toPostgresBranch(obj, "dev")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got.State != PostgresBranchStateProgressing {
-		t.Errorf("branch state = %q, want PROGRESSING before status is observed", got.State)
-	}
-}
-
-func TestToPostgresBranchRejectsMismatchedObjectName(t *testing.T) {
-	obj := &unstructured.Unstructured{Object: map[string]any{
-		"apiVersion": "nais.io/v1", "kind": "PostgresBranch",
-		"metadata": map[string]any{"name": nais_io_v1.PostgresBranchObjectName("orders", "main")},
-		"spec":     map[string]any{"postgres": "orders", "branchName": "other"},
-	}}
-	if _, err := toPostgresBranch(obj, "dev"); err == nil {
-		t.Fatal("expected a mismatched branch object name to be rejected")
+	state, config, err := PhysicalStatus(t.Context(), got)
+	if err != nil || state != PostgresStateProgressing || config != nil {
+		t.Fatalf("status = %v, %v, %v", state, config, err)
 	}
 }
 
@@ -66,13 +38,12 @@ func TestToPostgres(t *testing.T) {
 		"apiVersion": "nais.io/v1", "kind": "Postgres",
 		"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
 		"spec":     map[string]any{"majorVersion": "17", "highAvailability": true, "extensions": []any{map[string]any{"name": "pg_trgm"}, map[string]any{"name": "uuid-ossp"}}, "resources": map[string]any{"cpu": "100m", "memory": "2Gi", "diskSize": "10Gi"}},
-		"status":   map[string]any{"activeBranch": "restored"},
 	}}
 	got, err := toPostgres(obj, "dev")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != "orders" || got.MajorVersion != "17" || got.ActiveBranch == nil || *got.ActiveBranch != "main" {
+	if got.Name != "orders" || got.MajorVersion != "17" {
 		t.Errorf("unexpected Postgres: %+v", got)
 	}
 	if !reflect.DeepEqual(got.Extensions, []string{"pg_trgm", "uuid-ossp"}) {
@@ -191,18 +162,18 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		name       string
 		reconciled bool
 		conditions []metav1.Condition
-		want       PostgresBranchState
+		want       PostgresState
 	}{
-		{name: "not reconciled", want: PostgresBranchStateProgressing},
-		{name: "unrecoverable recovery failure", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionTrue, Reason: "Unrecoverable"}}, want: PostgresBranchStateDegraded},
-		{name: "recovery failure not terminal", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionFalse, Reason: "Recovering"}}, want: PostgresBranchStateProgressing},
-		{name: "ready false without recovery failure", reconciled: true, conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionFalse, Reason: "RecoveryFailed"}}, want: PostgresBranchStateProgressing},
-		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresBranchStateAvailable},
-		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresBranchStateProgressing},
-		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresBranchStateDegraded},
-		{name: "plugin failure", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster cannot proceed to reconciliation due to an error while interacting with plugins"}}, want: PostgresBranchStateDegraded},
-		{name: "other phase", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Online upgrade in progress"}}, want: PostgresBranchStateProgressing},
-		{name: "missing", reconciled: true, want: PostgresBranchStateProgressing},
+		{name: "not reconciled", want: PostgresStateProgressing},
+		{name: "unrecoverable recovery failure", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionTrue, Reason: "Unrecoverable"}}, want: PostgresStateDegraded},
+		{name: "recovery failure not terminal", conditions: []metav1.Condition{{Type: "RecoveryFailed", Status: metav1.ConditionFalse, Reason: "Recovering"}}, want: PostgresStateProgressing},
+		{name: "ready false without recovery failure", reconciled: true, conditions: []metav1.Condition{{Type: "Ready", Status: metav1.ConditionFalse, Reason: "RecoveryFailed"}}, want: PostgresStateProgressing},
+		{name: "healthy", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster in healthy state"}}, want: PostgresStateAvailable},
+		{name: "still starting", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionFalse, Message: "Cluster is in phase: "}}, want: PostgresStateProgressing},
+		{name: "unrecoverable", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster is unrecoverable and needs manual intervention"}}, want: PostgresStateDegraded},
+		{name: "plugin failure", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Cluster cannot proceed to reconciliation due to an error while interacting with plugins"}}, want: PostgresStateDegraded},
+		{name: "other phase", reconciled: true, conditions: []metav1.Condition{{Type: "cluster.postgresql.cnpg.io/ObservedState", Status: metav1.ConditionTrue, Message: "Cluster is in phase: Online upgrade in progress"}}, want: PostgresStateProgressing},
+		{name: "missing", reconciled: true, want: PostgresStateProgressing},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

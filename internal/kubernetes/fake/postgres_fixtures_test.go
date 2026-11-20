@@ -8,23 +8,9 @@ import (
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/fake"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
-
-func TestPostgresBranchKindResolver(t *testing.T) {
-	_, kinds, _, err := fake.Clients(nil)("dev")
-	if err != nil {
-		t.Fatal(err)
-	}
-	resolved, err := kinds.KindsFor(schema.GroupVersionResource{Group: "nais.io", Version: "v1", Resource: "postgresbranches"})
-	if err != nil || len(resolved) != 1 || resolved[0].Kind != "PostgresBranch" {
-		guessed, _ := meta.UnsafeGuessKindToResource(schema.GroupVersion{Group: "nais.io", Version: "v1"}.WithKind("PostgresBranch"))
-		t.Fatalf("resolving PostgresBranch resource: %v, %v (guessed %s)", resolved, err, guessed.Resource)
-	}
-}
 
 func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 	scheme, err := kubernetes.NewScheme()
@@ -35,7 +21,8 @@ func TestPostgresFixturesUseRegisteredV1Kinds(t *testing.T) {
 	// suites may intentionally describe the same resource.
 	for _, path := range []string{
 		"../../../integration_tests/k8s_resources/create_postgres_access",
-		"../../../integration_tests/k8s_resources/postgres_branches",
+		"../../../integration_tests/k8s_resources/postgres_databases",
+		"../../../integration_tests/k8s_resources/postgres_relations",
 		"../../../integration_tests/k8s_resources/postgres_workloads",
 		"../../../integration_tests/k8s_resources/postgres_audit_log",
 		"../../../integration_tests/k8s_resources/label_selectors",

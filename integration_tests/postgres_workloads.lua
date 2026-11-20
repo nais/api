@@ -10,7 +10,7 @@ local workloadFields = [[fragment PostgresWorkloadFields on PostgresWorkload {
 	}
 }]]
 
-local function workloadNode(workloadType, name, branch)
+local function workloadNode(workloadType, name)
 	return {
 		workload = {
 			__typename = workloadType,
@@ -60,7 +60,7 @@ Test.gql("Postgres workloads reference their database through uses.postgres", fu
 	} } } }
 end)
 
-Test.gql("Postgres workloads include inactive branch references and databases without an active branch", function(t)
+Test.gql("Postgres workload relations include provisioning databases and paginate", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query([[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
 		postgres(name: "orders") { workloads(first: 1) { pageInfo { totalCount hasNextPage endCursor } nodes { ...PostgresWorkloadFields } } }
@@ -69,15 +69,15 @@ Test.gql("Postgres workloads include inactive branch references and databases wi
 	} } }]] .. workloadFields)
 	t.check { data = { team = { environment = {
 		postgres = { workloads = { pageInfo = { totalCount = 2, hasNextPage = true, endCursor = Save("ordersCursor") }, nodes = {
-			workloadNode("Application", "consumer", "main"),
+			workloadNode("Application", "consumer"),
 		} } },
 		reports = { workloads = { pageInfo = { totalCount = 2 }, nodes = {
-			workloadNode("Application", "consumer", "main"),
-			workloadNode("Job", "scheduled-reader", "main"),
+			workloadNode("Application", "consumer"),
+			workloadNode("Job", "scheduled-reader"),
 		} } },
 		archive = { workloads = { pageInfo = { totalCount = 2 }, nodes = {
-			workloadNode("Application", "consumer", "main"),
-			workloadNode("Job", "scheduled-reader", "main"),
+			workloadNode("Application", "consumer"),
+			workloadNode("Job", "scheduled-reader"),
 		} } },
 	} } } }
 	t.query([[{ team(slug: "postgres-workload-team") { environment(name: "dev") {
@@ -88,6 +88,6 @@ Test.gql("Postgres workloads include inactive branch references and databases wi
 	} } }]] .. workloadFields)
 	t.check { data = { team = { environment = { postgres = { workloads = {
 		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true },
-		nodes = { workloadNode("Job", "scheduled-reader", "main") },
+		nodes = { workloadNode("Job", "scheduled-reader") },
 	} } } } } }
 end)

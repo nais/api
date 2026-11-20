@@ -25,7 +25,7 @@ func (p Postgres) Run(ctx context.Context) ([]Issue, error) {
 		if err != nil {
 			return nil, err
 		}
-		if state != postgres.PostgresBranchStateDegraded {
+		if state != postgres.PostgresStateDegraded {
 			continue
 		}
 		issues = append(issues, Issue{

@@ -99,8 +99,8 @@ Test.gql("Create personal postgres access rejects an unknown instance", function
 	t.check {
 		errors = {
 			{
-				extensions = { field = "branch" },
-				message = Contains("Could not find PostgresBranch"),
+				extensions = { field = "postgres" },
+				message = Contains("Could not find Postgres"),
 				path = { "createPostgresAccess" },
 			},
 		},
@@ -118,7 +118,7 @@ Test.gql("Create personal postgres access rejects a logical Postgres without a p
 		}) { name } }
 	]]
 	t.check {
-		errors = { { extensions = { field = "branch" }, message = Contains("is not available"), path = { "createPostgresAccess" } } },
+		errors = { { extensions = { field = "postgres" }, message = Contains("is not available"), path = { "createPostgresAccess" } } },
 		data = Null,
 	}
 end)
@@ -143,7 +143,7 @@ Test.gql("Create personal postgres access rejects an unavailable instance", func
 	t.check {
 		errors = {
 			{
-				extensions = { field = "branch" },
+				extensions = { field = "postgres" },
 				message = Contains("is not available"),
 				path = { "createPostgresAccess" },
 			},
@@ -266,18 +266,6 @@ Test.gql("Changing access level revokes and recreates live access", function(t)
 		{ message = Contains("Requested READ personal Postgres access for creator@usersen.com") },
 		{ message = Contains("Requested READWRITE personal Postgres access for creator@usersen.com") },
 	} } } } }
-end)
-
-Test.gql("Personal access rejects retired non-main selection", function(t)
-	t.addHeader("x-user-email", user:email())
-	t.query [[
-		mutation { createPostgresAccess(input: {
-			postgres: "foobar", branch: "recovered", environmentName: "dev",
-			teamSlug: "someteamname", accessLevel: READ,
-			reason: "Testing access to a recovered instance"
-		}) { name } }
-	]]
-	t.check { data = Null, errors = { { extensions = { code = "GRAPHQL_VALIDATION_FAILED" }, locations = NotNull(), message = Contains('Field "branch" is not defined') } } }
 end)
 
 Test.gql("PostgresAccess status is visible to authorized team members", function(t)
