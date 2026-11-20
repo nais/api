@@ -375,38 +375,6 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
-"A historical Postgres operation, preserved with its original audit data."
-type PostgresHistoricalActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-	"Identity that performed the operation."
-	actor: String!
-	"GitHub Actions OIDC claims, when available."
-	gitHubActorClaims: GitHubActorClaims
-	"Original creation time."
-	createdAt: Time!
-	"Summary of the historical operation."
-	message: String!
-	"Type of the affected resource."
-	resourceType: ActivityLogEntryResourceType!
-	"Original affected resource name."
-	resourceName: String!
-	"Team owning the entry."
-	teamSlug: Slug!
-	"Environment of the entry."
-	environmentName: String
-	"Original operation and opaque payload."
-	data: PostgresHistoricalActivityLogEntryData!
-}
-
-"Original data retained when an old Postgres operation was migrated."
-type PostgresHistoricalActivityLogEntryData {
-	"Action recorded by the original event."
-	originalAction: String!
-	"Original JSON payload, without interpreting retired resource concepts."
-	originalData: String
-}
-
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -544,8 +512,6 @@ extend enum ActivityLogActivityType {
 	POSTGRES_DELETED
 	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
 	POSTGRES_DELETION_REQUESTED
-	"A historical Postgres operation preserved during migration."
-	POSTGRES_HISTORICAL
 }
 
 extend type Mutation {

@@ -2089,24 +2089,6 @@ type ComplexityRoot struct {
 		Until   func(childComplexity int) int
 	}
 
-	PostgresHistoricalActivityLogEntry struct {
-		Actor             func(childComplexity int) int
-		CreatedAt         func(childComplexity int) int
-		Data              func(childComplexity int) int
-		EnvironmentName   func(childComplexity int) int
-		GitHubActorClaims func(childComplexity int) int
-		ID                func(childComplexity int) int
-		Message           func(childComplexity int) int
-		ResourceName      func(childComplexity int) int
-		ResourceType      func(childComplexity int) int
-		TeamSlug          func(childComplexity int) int
-	}
-
-	PostgresHistoricalActivityLogEntryData struct {
-		OriginalAction func(childComplexity int) int
-		OriginalData   func(childComplexity int) int
-	}
-
 	PostgresIssue struct {
 		ID              func(childComplexity int) int
 		Message         func(childComplexity int) int
@@ -12931,90 +12913,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresGrantAccessActivityLogEntryData.Until(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.actor":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.Actor == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.Actor(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.createdAt":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.CreatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.CreatedAt(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.data":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.Data == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.Data(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.environmentName":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.EnvironmentName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.EnvironmentName(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.gitHubActorClaims":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.GitHubActorClaims == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.GitHubActorClaims(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.id":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.ID == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.ID(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.message":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.Message == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.Message(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.resourceName":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.ResourceName == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.ResourceName(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.resourceType":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.ResourceType == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.ResourceType(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntry.teamSlug":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntry.TeamSlug == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntryData.originalAction":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntryData.OriginalAction == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntryData.OriginalAction(childComplexity), true
-
-	case "PostgresHistoricalActivityLogEntryData.originalData":
-		if e.ComplexityRoot.PostgresHistoricalActivityLogEntryData.OriginalData == nil {
-			break
-		}
-
-		return e.ComplexityRoot.PostgresHistoricalActivityLogEntryData.OriginalData(childComplexity), true
 
 	case "PostgresIssue.id":
 		if e.ComplexityRoot.PostgresIssue.ID == nil {
@@ -30215,38 +30113,6 @@ type PostgresPersonalAccessConnectionActivityLogEntry implements ActivityLogEntr
 	environmentName: String
 }
 
-"A historical Postgres operation, preserved with its original audit data."
-type PostgresHistoricalActivityLogEntry implements ActivityLogEntry & Node {
-	"ID of the entry."
-	id: ID!
-	"Identity that performed the operation."
-	actor: String!
-	"GitHub Actions OIDC claims, when available."
-	gitHubActorClaims: GitHubActorClaims
-	"Original creation time."
-	createdAt: Time!
-	"Summary of the historical operation."
-	message: String!
-	"Type of the affected resource."
-	resourceType: ActivityLogEntryResourceType!
-	"Original affected resource name."
-	resourceName: String!
-	"Team owning the entry."
-	teamSlug: Slug!
-	"Environment of the entry."
-	environmentName: String
-	"Original operation and opaque payload."
-	data: PostgresHistoricalActivityLogEntryData!
-}
-
-"Original data retained when an old Postgres operation was migrated."
-type PostgresHistoricalActivityLogEntryData {
-	"Action recorded by the original event."
-	originalAction: String!
-	"Original JSON payload, without interpreting retired resource concepts."
-	originalData: String
-}
-
 type PostgresDeletedActivityLogEntry implements ActivityLogEntry & Node {
 	"ID of the entry."
 	id: ID!
@@ -30384,8 +30250,6 @@ extend enum ActivityLogActivityType {
 	POSTGRES_DELETED
 	"A request to delete a whole Postgres was accepted; cleanup continues asynchronously."
 	POSTGRES_DELETION_REQUESTED
-	"A historical Postgres operation preserved during migration."
-	POSTGRES_HISTORICAL
 }
 
 extend type Mutation {
@@ -41636,16 +41500,6 @@ func (ec *executionContext) childFields_PostgresGrantAccessActivityLogEntryData(
 		return ec.fieldContext_PostgresGrantAccessActivityLogEntryData_until(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type PostgresGrantAccessActivityLogEntryData", field.Name)
-}
-
-func (ec *executionContext) childFields_PostgresHistoricalActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "originalAction":
-		return ec.fieldContext_PostgresHistoricalActivityLogEntryData_originalAction(ctx, field)
-	case "originalData":
-		return ec.fieldContext_PostgresHistoricalActivityLogEntryData_originalData(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type PostgresHistoricalActivityLogEntryData", field.Name)
 }
 
 func (ec *executionContext) childFields_PostgresParameter(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

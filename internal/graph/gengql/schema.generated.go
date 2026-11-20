@@ -7306,13 +7306,6 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresIssue(ctx, sel, obj)
-	case postgres.PostgresHistoricalActivityLogEntry:
-		return ec._PostgresHistoricalActivityLogEntry(ctx, sel, &obj)
-	case *postgres.PostgresHistoricalActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresHistoricalActivityLogEntry(ctx, sel, obj)
 	case postgres.PostgresGrantAccessActivityLogEntry:
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresGrantAccessActivityLogEntry:

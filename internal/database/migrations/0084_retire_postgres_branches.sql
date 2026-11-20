@@ -1,19 +1,7 @@
 -- +goose Up
--- Preserve audit identity, timestamps, actor, resource scope and the original
--- payload verbatim. Do not recast historical subresource operations as database
--- creation/deletion. The new decoder treats their payload as opaque history.
-UPDATE activity_log_entries
-SET
-	data = CONVERT_TO(
-		JSONB_BUILD_OBJECT(
-			'originalAction',
-			action,
-			'originalData',
-			CONVERT_FROM(data, 'UTF8')
-		)::TEXT,
-		'UTF8'
-	),
-	action = 'HISTORICAL'
+-- Remove retired branch events, including the legacy branch-deletion action.
+-- Current database creation, updates, access and deletion requests are retained.
+DELETE FROM activity_log_entries
 WHERE
 	resource_type = 'POSTGRES'
 	AND action IN (

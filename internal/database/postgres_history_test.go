@@ -5,7 +5,7 @@ package database_test
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
+	"errors"
 	"os"
 	"testing"
 	"time"
@@ -42,97 +42,101 @@ func TestRetirePostgresBranches(t *testing.T) {
 	})
 	_, err = db.ExecContext(ctx, `
 		CREATE TABLE activity_log_entries (id uuid PRIMARY KEY, created_at timestamptz NOT NULL, actor text NOT NULL, resource_type text NOT NULL, resource_name text NOT NULL, team_slug text, environment text, action text NOT NULL, data bytea);
+		CREATE TABLE webhook_events (activity_log_entries_id uuid REFERENCES activity_log_entries(id) ON DELETE CASCADE);
 		CREATE TABLE issues (issue_type text, resource_type text);
 		INSERT INTO issues VALUES ('POSTGRES_BRANCH', 'POSTGRES_BRANCH'), ('POSTGRES', 'POSTGRES');
 	`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	timestamp := time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC)
-	type record struct {
-		id      uuid.UUID
-		action  string
-		payload *string
+	type auditRecord struct {
+		Actor, ResourceType, ResourceName, Team, Environment, Action string
+		CreatedAt                                                    time.Time
+		Data                                                         []byte
 	}
-	payload := `{"branch": "main", "sourceBranch": "restored", "targetTime": "2026-01-01T00:00:00Z"}`
-	empty := ""
-	records := []record{
-		{uuid.New(), "BRANCH_CREATED", &payload},
-		{uuid.New(), "BRANCH_ACTIVATED", &payload},
-		{uuid.New(), "BRANCH_DELETED", &payload},
-		{uuid.New(), "DELETED", nil},
-		{uuid.New(), "BRANCH_DELETED", &empty},
-		{uuid.New(), "CREATED", &payload},
-		{uuid.New(), "DELETION_REQUESTED", nil},
-	}
-	for _, row := range records {
-		var data []byte
-		if row.payload != nil {
-			data = []byte(*row.payload)
-		}
-		_, err := db.ExecContext(ctx, `INSERT INTO activity_log_entries VALUES ($1, $2, 'user@example.com', 'POSTGRES', 'orders', 'team', 'dev', $3, $4)`, row.id, timestamp, row.action, data)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-	if _, err := db.ExecContext(ctx, `INSERT INTO activity_log_entries VALUES ($1, $2, 'other', 'OTHER', 'orders', NULL, NULL, 'BRANCH_CREATED', NULL)`, uuid.New(), timestamp); err != nil {
-		t.Fatal(err)
-	}
-	migration, err := os.ReadFile("migrations/0084_retire_postgres_branches.sql")
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Re-execution must not nest or overwrite the preserved history.
-	for range 2 {
-		if _, err := db.ExecContext(ctx, string(migration)); err != nil {
-			t.Fatal(err)
-		}
-	}
-	for _, row := range records {
-		var actor, resourceType, name, team, env, action string
-		var created time.Time
-		var data []byte
-		err := db.QueryRowContext(ctx, `SELECT actor, resource_type, resource_name, team_slug, environment, action, created_at, data FROM activity_log_entries WHERE id = $1`, row.id).Scan(&actor, &resourceType, &name, &team, &env, &action, &created, &data)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if actor != "user@example.com" || resourceType != "POSTGRES" || name != "orders" || team != "team" || env != "dev" || !created.Equal(timestamp) {
-			t.Error("audit identity or scope changed")
-		}
-		if row.action == "CREATED" || row.action == "DELETION_REQUESTED" {
-			if action != row.action {
-				t.Errorf("unrelated action changed to %q", action)
+	payload := []byte(`{"branch":"main","sourceBranch":"restored"}`)
+	var retained int
+	for _, tc := range []struct {
+		resourceType, action string
+		data                 []byte
+		remove               bool
+	}{
+		{"POSTGRES", "BRANCH_CREATED", payload, true},
+		{"POSTGRES", "BRANCH_ACTIVATED", payload, true},
+		{"POSTGRES", "BRANCH_DELETED", payload, true},
+		{"POSTGRES", "DELETED", nil, true},
+		{"POSTGRES", "BRANCH_DELETED", []byte{}, true},
+		{"POSTGRES", "BRANCH_CREATED", []byte("not json"), true},
+		{"POSTGRES", "CREATED", payload, false},
+		{"POSTGRES", "UPDATED", payload, false},
+		{"POSTGRES", "DELETION_REQUESTED", nil, false},
+		{"POSTGRES", "GRANT_ACCESS", payload, false},
+		{"POSTGRES", "CREATE_PERSONAL_ACCESS", payload, false},
+		{"POSTGRES", "GET_PERSONAL_ACCESS_CONNECTION", nil, false},
+		{"OTHER", "BRANCH_CREATED", payload, false},
+		{"OTHER", "DELETED", nil, false},
+	} {
+		t.Run(tc.resourceType+"/"+tc.action, func(t *testing.T) {
+			id := uuid.New()
+			want := auditRecord{
+				Actor: "user@example.com", ResourceType: tc.resourceType, ResourceName: "orders", Team: "team", Environment: "dev", Action: tc.action,
+				CreatedAt: time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC), Data: tc.data,
 			}
-			if row.payload != nil && string(data) != *row.payload {
-				t.Error("unrelated payload changed")
+			_, err := db.ExecContext(ctx, `INSERT INTO activity_log_entries VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, id, want.CreatedAt, want.Actor, want.ResourceType, want.ResourceName, want.Team, want.Environment, want.Action, want.Data)
+			if err != nil {
+				t.Fatal(err)
 			}
-			continue
-		}
-		if action != "HISTORICAL" {
-			t.Fatalf("action = %q", action)
-		}
-		var got struct {
-			OriginalAction string  `json:"originalAction"`
-			OriginalData   *string `json:"originalData"`
-		}
-		if err := json.Unmarshal(data, &got); err != nil {
+			if _, err := db.ExecContext(ctx, `INSERT INTO webhook_events VALUES ($1)`, id); err != nil {
+				t.Fatal(err)
+			}
+			migration, err := os.ReadFile("migrations/0084_retire_postgres_branches.sql")
+			if err != nil {
+				t.Fatal(err)
+			}
+			// Cleanup is idempotent and does not parse the retired payload.
+			for range 2 {
+				if _, err := db.ExecContext(ctx, string(migration)); err != nil {
+					t.Fatal(err)
+				}
+			}
+			var got auditRecord
+			err = db.QueryRowContext(ctx, `SELECT actor, resource_type, resource_name, team_slug, environment, action, created_at, data FROM activity_log_entries WHERE id = $1`, id).Scan(&got.Actor, &got.ResourceType, &got.ResourceName, &got.Team, &got.Environment, &got.Action, &got.CreatedAt, &got.Data)
+			if tc.remove {
+				if !errors.Is(err, sql.ErrNoRows) {
+					t.Fatalf("retired entry still exists: %+v, %v", got, err)
+				}
+			} else {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("retained audit (-want +got):\n%s", diff)
+				}
+				retained++
+			}
+			var events int
+			if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM webhook_events WHERE activity_log_entries_id = $1", id).Scan(&events); err != nil {
+				t.Fatal(err)
+			}
+			if tc.remove && events != 0 || !tc.remove && events != 1 {
+				t.Errorf("webhook events = %d, remove=%t", events, tc.remove)
+			}
+		})
+	}
+	for _, tc := range []struct {
+		query string
+		want  int
+	}{
+		{"SELECT COUNT(*) FROM activity_log_entries", retained},
+		{"SELECT COUNT(*) FROM issues WHERE issue_type = 'POSTGRES'", 1},
+		{"SELECT COUNT(*) FROM issues WHERE issue_type = 'POSTGRES_BRANCH'", 0},
+	} {
+		var count int
+		if err := db.QueryRowContext(ctx, tc.query).Scan(&count); err != nil {
 			t.Fatal(err)
 		}
-		if got.OriginalAction != row.action {
-			t.Errorf("original action = %q, want %q", got.OriginalAction, row.action)
+		if count != tc.want {
+			t.Errorf("%s = %d, want %d", tc.query, count, tc.want)
 		}
-		if diff := cmp.Diff(row.payload, got.OriginalData); diff != "" {
-			t.Errorf("original payload (-want +got):\n%s", diff)
-		}
-	}
-	var count int
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM activity_log_entries").Scan(&count); err != nil || count != len(records)+1 {
-		t.Fatalf("audit count = %d, %v", count, err)
-	}
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM issues WHERE issue_type = 'POSTGRES'").Scan(&count); err != nil || count != 1 {
-		t.Fatalf("current issues = %d, %v", count, err)
-	}
-	if err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM issues WHERE issue_type = 'POSTGRES_BRANCH'").Scan(&count); err != nil || count != 0 {
-		t.Fatalf("obsolete issues = %d, %v", count, err)
 	}
 }

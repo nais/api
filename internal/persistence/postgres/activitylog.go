@@ -12,7 +12,6 @@ const (
 	activityLogEntryActionGrantAccess                 activitylog.ActivityLogEntryAction = "GRANT_ACCESS"
 	activityLogEntryActionCreatePersonalAccess        activitylog.ActivityLogEntryAction = "CREATE_PERSONAL_ACCESS"
 	activityLogEntryActionGetPersonalAccessConnection activitylog.ActivityLogEntryAction = "GET_PERSONAL_ACCESS_CONNECTION"
-	activityLogEntryActionHistorical                  activitylog.ActivityLogEntryAction = "HISTORICAL"
 
 	ActivityLogEntryResourceTypePostgres activitylog.ActivityLogEntryResourceType = "POSTGRES"
 )
@@ -61,12 +60,6 @@ func init() {
 		activityLogEntryActionDeletionRequested,
 		ActivityLogEntryResourceTypePostgres,
 		"Triggered when deletion of a Postgres instance is requested; cleanup is pending.",
-	)
-	activitylog.RegisterActivityType(
-		"POSTGRES_HISTORICAL",
-		activityLogEntryActionHistorical,
-		ActivityLogEntryResourceTypePostgres,
-		"A historical Postgres operation preserved during migration.",
 	)
 }
 
@@ -135,28 +128,9 @@ func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry
 		return PostgresPersonalAccessConnectionActivityLogEntry{
 			GenericActivityLogEntry: entry.WithMessage("Retrieved personal Postgres connection materials"),
 		}, nil
-	case activityLogEntryActionHistorical:
-		data, err := activitylog.UnmarshalData[PostgresHistoricalActivityLogEntryData](entry)
-		if err != nil {
-			return nil, fmt.Errorf("transforming historical Postgres data: %w", err)
-		}
-		return PostgresHistoricalActivityLogEntry{
-			GenericActivityLogEntry: entry.WithMessage("Historical Postgres operation: " + data.OriginalAction),
-			Data:                    data,
-		}, nil
 	default:
 		return nil, fmt.Errorf("unsupported postgres activity log entry action: %q", entry.Action)
 	}
-}
-
-type PostgresHistoricalActivityLogEntry struct {
-	activitylog.GenericActivityLogEntry
-	Data *PostgresHistoricalActivityLogEntryData `json:"data"`
-}
-
-type PostgresHistoricalActivityLogEntryData struct {
-	OriginalAction string  `json:"originalAction"`
-	OriginalData   *string `json:"originalData,omitempty"`
 }
 
 type PostgresDeletedActivityLogEntry struct {

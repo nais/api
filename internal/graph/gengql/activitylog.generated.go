@@ -897,13 +897,6 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._PostgresPersonalAccessConnectionActivityLogEntry(ctx, sel, obj)
-	case postgres.PostgresHistoricalActivityLogEntry:
-		return ec._PostgresHistoricalActivityLogEntry(ctx, sel, &obj)
-	case *postgres.PostgresHistoricalActivityLogEntry:
-		if obj == nil {
-			return graphql.Null
-		}
-		return ec._PostgresHistoricalActivityLogEntry(ctx, sel, obj)
 	case postgres.PostgresGrantAccessActivityLogEntry:
 		return ec._PostgresGrantAccessActivityLogEntry(ctx, sel, &obj)
 	case *postgres.PostgresGrantAccessActivityLogEntry:
