@@ -1,5 +1,7 @@
 package pagination
 
+import "context"
+
 type Edge[T any] struct {
 	Node   T      `json:"node"`
 	Cursor Cursor `json:"cursor"`
@@ -19,11 +21,20 @@ func (c *Connection[T]) Nodes() []T {
 }
 
 type PageInfo struct {
-	TotalCount      int     `json:"totalCount"`
-	HasNextPage     bool    `json:"hasNextPage"`
-	HasPreviousPage bool    `json:"hasPreviousPage"`
-	StartCursor     *Cursor `json:"startCursor"`
-	EndCursor       *Cursor `json:"endCursor"`
+	TotalCount      int                                `json:"totalCount"`
+	HasNextPage     bool                               `json:"hasNextPage"`
+	HasPreviousPage bool                               `json:"hasPreviousPage"`
+	StartCursor     *Cursor                            `json:"startCursor"`
+	EndCursor       *Cursor                            `json:"endCursor"`
+	CountLoader     func(context.Context) (int, error) `json:"-"`
+}
+
+// Count resolves a deferred total, or returns the total supplied with the page.
+func (p *PageInfo) Count(ctx context.Context) (int, error) {
+	if p.CountLoader != nil {
+		return p.CountLoader(ctx)
+	}
+	return p.TotalCount, nil
 }
 
 func (p *PageInfo) PageStart() int {

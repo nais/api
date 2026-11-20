@@ -296,6 +296,7 @@ func newGQLRunner(
 			},
 		},
 		vMgr,
+		nil,
 		config.TenantName,
 		clusters(),
 		fakeHookd.New(),

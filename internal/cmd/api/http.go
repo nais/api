@@ -24,7 +24,9 @@ import (
 	"github.com/nais/api/internal/environment"
 	"github.com/nais/api/internal/feature"
 	"github.com/nais/api/internal/github/repository"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/loader"
+	"github.com/nais/api/internal/grpc/grpcworkload"
 	"github.com/nais/api/internal/issue"
 	apik8s "github.com/nais/api/internal/kubernetes"
 	"github.com/nais/api/internal/kubernetes/crd"
@@ -58,6 +60,7 @@ import (
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/utilization"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -68,6 +71,7 @@ import (
 	"github.com/nais/api/internal/workload/podlog"
 	fakepodlog "github.com/nais/api/internal/workload/podlog/fake"
 	"github.com/nais/api/internal/workload/secret"
+	"github.com/nais/api/pkg/apiclient/protoapi"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -215,6 +219,7 @@ func ConfigureGraph(
 	aivenProjects aiven.Projects,
 	kafkaEnvironments kafkatopic.Environments,
 	vulnMgr *vulnerability.Manager,
+	v0sMgr *v0s.Manager,
 	tenantName string,
 	clusters []string,
 	hookdClient hookd.Client,
@@ -401,6 +406,15 @@ func ConfigureGraph(
 		ctx = activitylog.NewLoaderContext(ctx, pool)
 		ctx = event.NewLoaderContext(ctx, pool)
 		ctx = vulnerability.NewLoaderContext(ctx, vulnMgr, log)
+		ctx = v0s.WithManager(ctx, v0sMgr)
+		ctx = v0s.NewLoaderContext(ctx, func(ctx context.Context) (*protoapi.ListWorkloadImagesResponse, error) {
+			for _, env := range watchers.AppWatcher.EnvironmentNames() {
+				if !watchers.AppWatcher.HasSynced(env) || !watchers.JobWatcher.HasSynced(env) {
+					return nil, apierror.Errorf("Workload inventory is not ready; vulnerability coverage is unavailable.")
+				}
+			}
+			return grpcworkload.NewServer(watchers.AppWatcher, watchers.JobWatcher).ListImages(ctx, &protoapi.ListWorkloadImagesRequest{})
+		})
 		ctx = servicemaintenance.NewLoaderContext(ctx, serviceMaintenanceManager, log)
 		ctx = reconciler.NewLoaderContext(ctx, pool)
 		ctx = deployment.NewLoaderContext(ctx, pool, hookdClient)
