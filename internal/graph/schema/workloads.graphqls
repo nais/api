@@ -354,6 +354,14 @@ type WorkloadConnection {
 	List of edges.
 	"""
 	edges: [WorkloadEdge!]!
+	"Counts over the full workload selection, regardless of pagination."
+	facets: WorkloadFacets!
+}
+
+"Facets for a workload selection."
+type WorkloadFacets {
+	"Vulnerability scan coverage of the selected workloads."
+	vulnerabilityCoverage: VulnerabilityCoverageCounts!
 }
 
 """
@@ -481,6 +489,9 @@ input TeamWorkloadsFilter {
 	Only return workloads with the given SBOM pipeline status.
 	"""
 	sbomStatus: SBOMStatus
+
+	"Only return workloads with one of these vulnerability scan statuses."
+	vulnerabilityCoverageStatuses: [VulnerabilityCoverageStatus!]
 }
 
 """

@@ -4,12 +4,42 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
+
+func newWorkloadConnection(scope v0s.Scope, all, pageItems []workload.Workload, page *pagination.Pagination, coverage *workload.VulnerabilityCoverageCounts) *workload.WorkloadConnection {
+	return &workload.WorkloadConnection{
+		Connection: *pagination.NewConnection(pageItems, page, len(all)),
+		Facets: &workload.WorkloadFacets{LoadCoverage: func(ctx context.Context) (*workload.VulnerabilityCoverageCounts, error) {
+			if coverage != nil {
+				return coverage, nil
+			}
+			statuses, err := v0s.WorkloadCoverageStatuses(ctx, scope, all)
+			if err != nil {
+				return nil, err
+			}
+			return countWorkloadCoverage(statuses), nil
+		}},
+	}
+}
+
+func countWorkloadCoverage(statuses []v0s.VulnerabilityCoverageStatus) *workload.VulnerabilityCoverageCounts {
+	counts := make(map[v0s.VulnerabilityCoverageStatus]int)
+	for _, status := range statuses {
+		counts[status]++
+	}
+	return &workload.VulnerabilityCoverageCounts{
+		TotalWorkloads: len(statuses), Scanned: counts[v0s.VulnerabilityCoverageStatusScanned],
+		Pending: counts[v0s.VulnerabilityCoverageStatusPending], NoSbom: counts[v0s.VulnerabilityCoverageStatusNoSbom],
+		Failed: counts[v0s.VulnerabilityCoverageStatusFailed], UnresolvedImage: counts[v0s.VulnerabilityCoverageStatusUnresolvedImage],
+	}
+}
 
 // tryWorkload attempts to find a workload by name, first as an application, then as a job.
 func tryWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) (workload.Workload, error) {

@@ -1,0 +1,20 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: app
+spec:
+  image: repo/app:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: stale
+spec:
+  image: repo/stale:2
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: fresh
+spec:
+  image: repo/fresh:2

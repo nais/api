@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/graph/ident"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -35,6 +36,7 @@ type ContainerImageResolver interface {
 
 type TeamWorkloadsFilterResolver interface {
 	SbomStatus(ctx context.Context, obj *workload.TeamWorkloadsFilter, data *vulnerability.SBOMStatus) error
+	VulnerabilityCoverageStatuses(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []v0s.VulnerabilityCoverageStatus) error
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -590,7 +592,7 @@ func (ec *executionContext) fieldContext_TokenXAuthIntegration_name(_ context.Co
 	return graphql.NewScalarFieldContext("TokenXAuthIntegration", field, true, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _WorkloadConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
+func (ec *executionContext) _WorkloadConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -622,7 +624,7 @@ func (ec *executionContext) fieldContext_WorkloadConnection_pageInfo(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
+func (ec *executionContext) _WorkloadConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -654,7 +656,7 @@ func (ec *executionContext) fieldContext_WorkloadConnection_nodes(_ context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _WorkloadConnection_edges(ctx context.Context, field graphql.CollectedField, obj *pagination.Connection[workload.Workload]) (ret graphql.Marshaler) {
+func (ec *executionContext) _WorkloadConnection_edges(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -681,6 +683,38 @@ func (ec *executionContext) fieldContext_WorkloadConnection_edges(_ context.Cont
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_WorkloadEdge(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadConnection_facets(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadConnection_facets(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Facets, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.WorkloadFacets) graphql.Marshaler {
+			return ec.marshalNWorkloadFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadFacets(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadConnection_facets(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_WorkloadFacets(ctx, field)
 		},
 	}
 	return fc, nil
@@ -736,6 +770,38 @@ func (ec *executionContext) fieldContext_WorkloadEdge_node(_ context.Context, fi
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("FieldContext.Child cannot be called on type INTERFACE")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _WorkloadFacets_vulnerabilityCoverage(ctx context.Context, field graphql.CollectedField, obj *workload.WorkloadFacets) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_WorkloadFacets_vulnerabilityCoverage(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.VulnerabilityCoverage(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.VulnerabilityCoverageCounts) graphql.Marshaler {
+			return ec.marshalNVulnerabilityCoverageCounts2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐVulnerabilityCoverageCounts(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_WorkloadFacets_vulnerabilityCoverage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "WorkloadFacets",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_VulnerabilityCoverageCounts(ctx, field)
 		},
 	}
 	return fc, nil
@@ -839,7 +905,7 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"environments", "labels", "sbomStatus"}
+	fieldsInOrder := [...]string{"environments", "labels", "sbomStatus", "vulnerabilityCoverageStatuses"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -867,6 +933,15 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 				return it, err
 			}
 			if err = ec.Resolvers.TeamWorkloadsFilter().SbomStatus(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "vulnerabilityCoverageStatuses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityCoverageStatuses"))
+			data, err := ec.unmarshalOVulnerabilityCoverageStatus2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCoverageStatusᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			if err = ec.Resolvers.TeamWorkloadsFilter().VulnerabilityCoverageStatuses(ctx, &it, data); err != nil {
 				return it, err
 			}
 		}
@@ -1496,7 +1571,7 @@ func (ec *executionContext) _TokenXAuthIntegration(ctx context.Context, sel ast.
 
 var workloadConnectionImplementors = []string{"WorkloadConnection"}
 
-func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.SelectionSet, obj *pagination.Connection[workload.Workload]) graphql.Marshaler {
+func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.SelectionSet, obj *workload.WorkloadConnection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, workloadConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -1517,6 +1592,11 @@ func (ec *executionContext) _WorkloadConnection(ctx context.Context, sel ast.Sel
 			}
 		case "edges":
 			out.Values[i] = ec._WorkloadConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "facets":
+			out.Values[i] = ec._WorkloadConnection_facets(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1564,6 +1644,76 @@ func (ec *executionContext) _WorkloadEdge(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var workloadFacetsImplementors = []string{"WorkloadFacets"}
+
+func (ec *executionContext) _WorkloadFacets(ctx context.Context, sel ast.SelectionSet, obj *workload.WorkloadFacets) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, workloadFacetsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("WorkloadFacets")
+		case "vulnerabilityCoverage":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._WorkloadFacets_vulnerabilityCoverage(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1690,11 +1840,11 @@ func (ec *executionContext) marshalNWorkload2ᚕgithubᚗcomᚋnaisᚋapiᚋinte
 	return ret
 }
 
-func (ec *executionContext) marshalNWorkloadConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v pagination.Connection[workload.Workload]) graphql.Marshaler {
+func (ec *executionContext) marshalNWorkloadConnection2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadConnection(ctx context.Context, sel ast.SelectionSet, v workload.WorkloadConnection) graphql.Marshaler {
 	return ec._WorkloadConnection(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx context.Context, sel ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
+func (ec *executionContext) marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadConnection(ctx context.Context, sel ast.SelectionSet, v *workload.WorkloadConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -1722,6 +1872,16 @@ func (ec *executionContext) marshalNWorkloadEdge2ᚕgithubᚗcomᚋnaisᚋapiᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNWorkloadFacets2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadFacets(ctx context.Context, sel ast.SelectionSet, v *workload.WorkloadFacets) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._WorkloadFacets(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNWorkloadOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadOrderField(ctx context.Context, v any) (workload.WorkloadOrderField, error) {

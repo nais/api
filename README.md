@@ -75,6 +75,56 @@ Existing clients can keep using configured aliases. The additive
 allowing newer clients to warn about legacy aliases without duplicating this
 configuration. Activity log entries use the canonical name.
 
+## v0s migration
+
+The new vulnerability fields read v0s through the public
+[v0s gRPC client module](https://github.com/nais/v0s-api). Existing
+v13s queries and mutations keep their existing source and behavior.
+
+Set `V0S_ENDPOINT` to the plaintext gRPC endpoint allowed by v0s's NetworkPolicy.
+The connection is lazy: an unset endpoint or unavailable v0s does not block API
+startup, workload inventory, or legacy vulnerability fields. New fields return
+errors rather than silently falling back to v13s or reporting zero findings.
+Environment names are the same user-facing names used by `Workloads.ListImages`.
+
+`V0S_SUPPRESSIONS_ENABLED` defaults to false. Keep it false while v13s owns
+assessments and synchronizes them into v0s. Enable only after old user writes are
+frozen, synchronization has caught up, and the sync worker and its retries have
+stopped. The new mutations authorize the whole team's batch and derive the actor
+from the authenticated user. Deletions do not require an active finding.
+Successful sets and deletions are recorded in the team's activity log.
+
+New lists are forward-only (`first` from 1 to 200) and use the standard
+`edges`, `nodes` and `PageInfo` contract. `totalCount` covers the full filtered
+selection and is loaded only when requested; counting suppressions currently
+pages through the matching assessments. `pageStart` and `pageEnd` track positions
+in the traversal; concurrent updates can change the total. Findings and
+suppressions are available at the root and scoped through `Team` and
+`TeamEnvironment`. Findings are also available on each workload.
+`vulnerabilityFindings.facets` describes the full filtered selection, including
+when filtering by multiple vulnerability identifiers or aliases.
+Findings, advisories and assessments have global IDs and can be fetched through
+`node`. A finding's ID includes its image digest, so an obsolete-image finding
+is not returned after the workload changes images. Assessments for workloads
+missing from current inventory are not listed or returned by `node`, but are
+not deleted from v0s. The activity log stores assessment details independently.
+
+Keyset cursors wrap v0s's per-item tokens and are scoped to the operation and
+filter. They remain usable when an earlier item disappears, and cannot be used
+with the old offset-paginated fields. Deploy v0s with per-item cursors and
+multiple-identifier filtering before configuring `V0S_ENDPOINT` for this API.
+
+`workloads.facets.vulnerabilityCoverage` counts scan statuses across the full
+workload selection. Use `Team.workloads(filter: {vulnerabilityCoverageStatuses:
+[PENDING]})` to find workloads awaiting a scan. Coverage uses current API
+inventory: workloads missing from v0s or associated with an old image are
+pending, not clean. Removed workloads and old-image findings are excluded.
+
+The pinned v0s protobuf schema is in `internal/v0s/protoapi/schema/v0s.proto`.
+`mise run generate:proto` generates the client locally, without depending on the
+v0s scanner module or its Go version. Update the pinned schema and regenerate when
+the upstream contract changes.
+
 ## Development practices
 
 Check practices used in this project here: [docs/practices.md](docs/practices.md)

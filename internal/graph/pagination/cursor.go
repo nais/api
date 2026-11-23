@@ -14,10 +14,18 @@ import (
 
 var cursorVersions = map[string]func(c *Cursor, i []byte) error{
 	"v1": parseCursorV1,
+	"v2": func(c *Cursor, token []byte) error {
+		if len(token) == 0 || len(token) > 16384 {
+			return apierror.Errorf("Invalid keyset cursor")
+		}
+		c.Keyset = string(token)
+		return nil
+	},
 }
 
 type Cursor struct {
-	Offset int `json:"offset"`
+	Offset int    `json:"offset"`
+	Keyset string `json:"-"`
 	empty  bool
 }
 
@@ -27,7 +35,11 @@ func (c *Cursor) valid() bool {
 
 func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	b := []byte{'v', '1', ':'}
-	b = strconv.AppendInt(b, int64(c.Offset), 10)
+	if c.Keyset != "" {
+		b = append([]byte("v2:"), c.Keyset...)
+	} else {
+		b = strconv.AppendInt(b, int64(c.Offset), 10)
+	}
 
 	_, _ = w.Write([]byte{'"'})
 	_, err := w.Write([]byte(base58.Encode(b)))
@@ -36,6 +48,7 @@ func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 }
 
 func (c *Cursor) UnmarshalGQLContext(_ context.Context, v any) error {
+	*c = Cursor{}
 	if s, ok := v.(string); ok {
 		if s == "" {
 			c.empty = true

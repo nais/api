@@ -75,6 +75,7 @@ autobind:
   - "github.com/nais/api/internal/usersync"
   - "github.com/nais/api/internal/utilization"
   - "github.com/nais/api/internal/vulnerability"
+  - "github.com/nais/api/internal/v0s"
   - "github.com/nais/api/internal/workload"
   - "github.com/nais/api/internal/workload/application"
   - "github.com/nais/api/internal/workload/job"
@@ -144,3 +145,19 @@ models:
   PageInfo:
     model:
       - github.com/nais/api/internal/graph/pagination.PageInfo
+    fields:
+      totalCount:
+        fieldName: Count
+
+  VulnerabilityFinding:
+    fields:
+      workload:
+        resolver: true
+  VulnerabilitySuppression:
+    fields:
+      workload:
+        resolver: true
+  TeamWorkloadsFilter:
+    fields:
+      vulnerabilityCoverageStatuses:
+        resolver: true

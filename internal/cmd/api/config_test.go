@@ -35,6 +35,7 @@ func TestKafkaEnvironmentsConfig(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("NewConfig() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			if tt.wantErr {
 				return
 			}

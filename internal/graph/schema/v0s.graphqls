@@ -1,0 +1,496 @@
+extend type Query {
+	"Current vulnerability findings for deployed applications and jobs."
+	vulnerabilityFindings(
+		"Filter the full finding selection."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
+	vulnerability(
+		"The vulnerability identifier or an alias identifying exactly one vulnerability."
+		identifier: String!
+	): Vulnerability
+	"Current assessments for existing workloads, including assessments without active findings."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend type Team {
+	"Current vulnerability findings for this team's workloads."
+	vulnerabilityFindings(
+		"Filter the full finding selection."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Current assessments for existing workloads in this team."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend type TeamEnvironment {
+	"Current vulnerability findings for this team's workloads in the environment."
+	vulnerabilityFindings(
+		"Filter the full finding selection."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Current assessments for existing workloads in this team environment."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend interface Workload {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this workload's findings."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Scan coverage of the currently deployed image."
+	vulnerabilityCoverage: VulnerabilityCoverage!
+}
+
+extend type Application {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this application's findings."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Scan coverage of the currently deployed image."
+	vulnerabilityCoverage: VulnerabilityCoverage!
+}
+
+extend type Job {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this job's findings."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Scan coverage of the currently deployed image."
+	vulnerabilityCoverage: VulnerabilityCoverage!
+}
+
+"Filters applied before finding pagination and aggregation."
+input VulnerabilityFindingFilter {
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean = false
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean = false
+	"Whether assessed findings are included."
+	suppressed: SuppressedFilter = EXCLUDE
+}
+
+"How workload assessments affect the finding selection."
+enum SuppressedFilter {
+	"Exclude findings with an assessment."
+	EXCLUDE
+	"Include both assessed and unassessed findings."
+	INCLUDE
+	"Include only findings with an assessment."
+	ONLY
+}
+
+"Severity selected by the scanner for the finding, not calculated by Nais."
+enum VulnerabilitySeverity {
+	"The source did not provide a recognized severity."
+	UNKNOWN
+	"Low severity."
+	LOW
+	"Medium severity."
+	MEDIUM
+	"High severity."
+	HIGH
+	"Critical severity."
+	CRITICAL
+}
+
+"A forward-paginated selection of vulnerability findings."
+type VulnerabilityFindingConnection {
+	"Findings and their continuation cursors."
+	edges: [VulnerabilityFindingEdge!]!
+	"The findings in the same order as edges."
+	nodes: [VulnerabilityFinding!]!
+	"Pagination information and the full filtered total."
+	pageInfo: PageInfo!
+	"Counts over the full filtered selection, regardless of pagination."
+	facets: VulnerabilityFindingFacets!
+}
+
+"A vulnerability finding and the cursor immediately after it."
+type VulnerabilityFindingEdge {
+	"A cursor for continuing after this finding with the same filter."
+	cursor: Cursor!
+	"The vulnerability finding."
+	node: VulnerabilityFinding!
+}
+
+"A vulnerability affecting one package in a workload's deployed image."
+type VulnerabilityFinding implements Node {
+	"The globally unique identifier of this finding."
+	id: ID!
+	"The workload affected by the finding."
+	workload: Workload!
+	"The deployed image in which the finding was detected."
+	image: VulnerabilityImage!
+	"The canonical vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"Advisory details, if the vulnerability is still known."
+	vulnerability: Vulnerability
+	"The full package URL identifying the affected component."
+	purl: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The installed package version."
+	installedVersion: String!
+	"The first known fixed version, if provided by the source."
+	fixedVersion: String
+	"Severity selected by the scanner for this finding."
+	severity: VulnerabilitySeverity!
+	"The source supplying the severity."
+	severitySource: String!
+	"The advisory source supplying the finding."
+	dataSource: String!
+	"The estimated probability of exploitation, if available."
+	epss: VulnerabilityEpss
+	"Known exploited according to CISA KEV. False is not proof of no exploitation."
+	knownExploited: Boolean!
+	"The current assessment for this workload, image repository, package and vulnerability."
+	suppression: VulnerabilitySuppression
+}
+
+"A container image identified by repository name and manifest digest."
+type VulnerabilityImage {
+	"The image repository name."
+	name: String!
+	"The immutable manifest digest."
+	digest: String!
+}
+
+"Counts over the full filtered selection of current findings."
+type VulnerabilityFindingFacets {
+	"Finding counts by severity."
+	countsBySeverity: VulnerabilitySeverityCounts!
+	"The number of findings with a known fixed version."
+	fixableFindings: Int!
+	"The number of findings whose vulnerability is listed in CISA KEV."
+	knownExploitedFindings: Int!
+}
+
+"Finding counts grouped by advisory severity."
+type VulnerabilitySeverityCounts {
+	"Findings without a recognized severity."
+	unknown: Int!
+	"Low-severity findings."
+	low: Int!
+	"Medium-severity findings."
+	medium: Int!
+	"High-severity findings."
+	high: Int!
+	"Critical-severity findings."
+	critical: Int!
+}
+
+"Coverage counts for the selected, currently deployed workloads."
+type VulnerabilityCoverageCounts {
+	"The total number of workloads in the selection."
+	totalWorkloads: Int!
+	"Workloads with a completed scan. This does not mean they have no vulnerabilities."
+	scanned: Int!
+	"Workloads waiting for inventory, a package inventory or a scan."
+	pending: Int!
+	"Workloads whose image has no package inventory."
+	noSbom: Int!
+	"Workloads whose image has not been scanned successfully because of an error."
+	failed: Int!
+	"Workloads whose deployed image could not be resolved."
+	unresolvedImage: Int!
+}
+
+"Scan coverage of one workload's currently deployed image."
+type VulnerabilityCoverage {
+	"How far the deployed image has progressed towards a completed scan."
+	status: VulnerabilityCoverageStatus!
+	"The resolved image repository name, if known."
+	imageName: String
+	"The resolved image manifest digest, if known."
+	imageDigest: String
+	"The last successful scan time, if available."
+	scannedAt: Time
+	"The latest resolution, fetching or scanning error, if any."
+	error: String
+}
+
+"How far a deployed image has progressed towards vulnerability findings."
+enum VulnerabilityCoverageStatus {
+	"Waiting for inventory, a package inventory or a scan."
+	PENDING
+	"A scan completed. Findings from the last successful scan survive a failed rescan."
+	SCANNED
+	"No package inventory was found for the image."
+	NO_SBOM
+	"An error prevented the image's first successful scan."
+	FAILED
+	"The deployed image could not be resolved."
+	UNRESOLVED_IMAGE
+}
+
+"A workload owner's current assessment of a vulnerability finding."
+enum VulnerabilitySuppressionState {
+	"The workload is not affected by the vulnerability."
+	NOT_AFFECTED
+	"The finding is a false positive."
+	FALSE_POSITIVE
+	"The workload owner has accepted the risk."
+	ACCEPTED_RISK
+}
+
+"Advisory information shared by findings for the same vulnerability."
+type Vulnerability implements Node {
+	"The globally unique identifier of the advisory."
+	id: ID!
+	"The canonical vulnerability identifier."
+	identifier: String!
+	"Alternative identifiers for this vulnerability."
+	aliases: [String!]!
+	"The advisory title."
+	title: String!
+	"The advisory description."
+	description: String!
+	"Reference URLs supplied by the advisory sources."
+	references: [String!]!
+	"The estimated probability of exploitation, if available."
+	epss: VulnerabilityEpss
+	"Known exploited according to CISA KEV. False is not proof of no exploitation."
+	knownExploited: Boolean!
+}
+
+"An exploitation probability supplied by FIRST EPSS."
+type VulnerabilityEpss {
+	"The estimated probability of exploitation, between zero and one."
+	score: Float!
+	"The date of the probability estimate."
+	date: Date!
+}
+
+"Filters applied before assessment pagination."
+input VulnerabilitySuppressionFilter {
+	"Match a vulnerability identifier or alias."
+	vulnerabilityIdentifier: String
+	"Match an image repository name."
+	imageName: String
+}
+
+"A current assessment for one workload, image repository, package and vulnerability."
+type VulnerabilitySuppression implements Node {
+	"The globally unique identifier of the assessment."
+	id: ID!
+	"The application or job to which the assessment applies."
+	workload: Workload!
+	"The image repository name. The assessment survives image version changes."
+	imageName: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The advisory this assessment applies to."
+	vulnerability: Vulnerability!
+	"The current assessment state."
+	state: VulnerabilitySuppressionState!
+	"The workload owner's reason for the assessment."
+	reason: String!
+	"The identity of the actor who last set the assessment."
+	updatedBy: String!
+	"The time the assessment was last set."
+	updatedAt: Time!
+}
+
+"A forward-paginated selection of workload assessments."
+type VulnerabilitySuppressionConnection {
+	"Assessments and their continuation cursors."
+	edges: [VulnerabilitySuppressionEdge!]!
+	"The assessments in the same order as edges."
+	nodes: [VulnerabilitySuppression!]!
+	"Pagination information and the full filtered total."
+	pageInfo: PageInfo!
+}
+
+"A workload assessment and the cursor immediately after it."
+type VulnerabilitySuppressionEdge {
+	"A cursor for continuing after this assessment with the same filter."
+	cursor: Cursor!
+	"The workload assessment."
+	node: VulnerabilitySuppression!
+}
+
+"Identifies an assessment within the mutation's team."
+input VulnerabilitySuppressionKeyInput {
+	"The environment where the assessment applies."
+	environment: String!
+	"The application or job name."
+	workload: String!
+	"The image repository name, without a tag or digest."
+	imageName: String!
+	"A package key or full package URL. Version, qualifiers and subpath are ignored."
+	packageKey: String!
+	"A vulnerability identifier or an alias identifying exactly one vulnerability."
+	vulnerabilityIdentifier: String!
+}
+
+"An assessment to set for a workload."
+input NewVulnerabilitySuppressionInput {
+	"The workload, image repository, package and vulnerability being assessed."
+	key: VulnerabilitySuppressionKeyInput!
+	"The workload owner's assessment."
+	state: VulnerabilitySuppressionState!
+	"A non-empty explanation for the assessment."
+	reason: String!
+}
+
+"An atomic batch of assessments for one team."
+input SetVulnerabilitySuppressionsInput {
+	"The team owning every assessment in the batch."
+	team: Slug!
+	"The assessments to set. At least one item is required."
+	items: [NewVulnerabilitySuppressionInput!]!
+}
+
+"An atomic batch of assessments to delete for one team."
+input DeleteVulnerabilitySuppressionsInput {
+	"The team owning every assessment in the batch."
+	team: Slug!
+	"The assessments to delete. Missing assessments are ignored."
+	keys: [VulnerabilitySuppressionKeyInput!]!
+}
+
+"The assessments set by the batch, using canonical package and vulnerability identifiers."
+type SetVulnerabilitySuppressionsPayload {
+	"The assessments as stored."
+	suppressions: [VulnerabilitySuppression!]!
+}
+
+"The assessments that existed and were deleted by the batch."
+type DeleteVulnerabilitySuppressionsPayload {
+	"The deleted assessments."
+	deleted: [VulnerabilitySuppressionSnapshot!]!
+}
+
+extend type Mutation {
+	"Set workload assessments atomically. Until assessment writes are enabled, use updateImageVulnerability."
+	setVulnerabilitySuppressions(
+		"The team and assessments to update."
+		input: SetVulnerabilitySuppressionsInput!
+	): SetVulnerabilitySuppressionsPayload!
+	"Delete workload assessments atomically. Until assessment writes are enabled, use updateImageVulnerability."
+	deleteVulnerabilitySuppressions(
+		"The team and assessments to delete."
+		input: DeleteVulnerabilitySuppressionsInput!
+	): DeleteVulnerabilitySuppressionsPayload!
+}
+
+"An assessment change recorded in the activity log."
+type VulnerabilitySuppressionActivityLogEntry implements ActivityLogEntry & Node {
+	"The globally unique identifier of the entry."
+	id: ID!
+	"The identity of the actor who changed the assessment."
+	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+	"The time the activity was recorded."
+	createdAt: Time!
+	"A summary of the assessment change."
+	message: String!
+	"The type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"The name of the affected workload."
+	resourceName: String!
+	"The team owning the assessment."
+	teamSlug: Slug
+	"The environment where the assessment applies."
+	environmentName: String
+	"The assessment as set, or as it existed before deletion."
+	data: VulnerabilitySuppressionActivityLogEntryData!
+}
+
+"The assessment associated with an activity log entry."
+type VulnerabilitySuppressionActivityLogEntryData {
+	"The assessment as set, or as it existed before deletion."
+	assessment: VulnerabilitySuppressionSnapshot!
+}
+
+"Stored assessment details, independent of the current workload or advisory."
+type VulnerabilitySuppressionSnapshot {
+	"The team owning the assessment at the time."
+	teamSlug: Slug!
+	"The environment where the assessment applied."
+	environmentName: String!
+	"The name of the affected workload."
+	workloadName: String!
+	"The image repository name."
+	imageName: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The stored vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"The recorded assessment state."
+	state: VulnerabilitySuppressionState!
+	"The workload owner's reason for the assessment."
+	reason: String!
+	"The identity of the actor who last set the assessment."
+	updatedBy: String!
+	"The time the assessment was last set."
+	updatedAt: Time!
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A workload vulnerability assessment."
+	VULNERABILITY_SUPPRESSION
+}
+
+extend enum ActivityLogActivityType {
+	"A workload vulnerability assessment was set."
+	VULNERABILITY_SUPPRESSION_UPDATED
+	"A workload vulnerability assessment was deleted."
+	VULNERABILITY_SUPPRESSION_DELETED
+}

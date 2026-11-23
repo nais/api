@@ -42,6 +42,7 @@ import (
 	"github.com/nais/api/internal/thirdparty/hookd"
 	fakehookd "github.com/nais/api/internal/thirdparty/hookd/fake"
 	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/sirupsen/logrus"
@@ -211,6 +212,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
+	// TODO: Once all tenants and consumers have moved to v0s, remove the legacy
+	// vulnerability GraphQL fields (including updateImageVulnerability), client,
+	// configuration, and v13s-backed issue checks. Keep Workloads.ListImages for v0s.
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
 		cfg.VulnerabilitiesAPI.Endpoint,
@@ -222,6 +226,16 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	}
 
 	var mgmtK8sClient k8s.Interface
+	v0sMgr, err := v0s.NewManager(cfg.V0s.Endpoint, cfg.V0s.SuppressionsEnabled)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := v0sMgr.Close(); err != nil {
+			log.WithError(err).Warn("close v0s client")
+		}
+	}()
+
 	if cfg.Fakes.WithFakeKubernetes || cfg.Fakes.WithFakeManagementKubernetes {
 		mgmtK8sClient = k8sfake.NewSimpleClientset()
 	} else {
@@ -339,6 +353,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		cfg.Aiven.Projects,
 		cfg.KafkaEnvironments,
 		vulnMgr,
+		v0sMgr,
 		cfg.Tenant,
 		cfg.K8s.AllClusterNames(),
 		hookdClient,
