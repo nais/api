@@ -334,10 +334,8 @@ type VulnerabilitySuppression implements Node {
 	imageName: String!
 	"The package URL without version, qualifiers or subpath."
 	packageKey: String!
-	"The canonical vulnerability identifier."
-	vulnerabilityIdentifier: String!
-	"The advisory, if the identifier is still known."
-	vulnerability: Vulnerability
+	"The advisory this assessment applies to."
+	vulnerability: Vulnerability!
 	"The current assessment state."
 	state: VulnerabilitySuppressionState!
 	"The workload owner's reason for the assessment."

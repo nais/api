@@ -1516,29 +1516,6 @@ func (ec *executionContext) fieldContext_VulnerabilitySuppression_packageKey(_ c
 	return graphql.NewScalarFieldContext("VulnerabilitySuppression", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _VulnerabilitySuppression_vulnerabilityIdentifier(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilitySuppression_vulnerabilityIdentifier(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.VulnerabilityIdentifier, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilitySuppression_vulnerabilityIdentifier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilitySuppression", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
 func (ec *executionContext) _VulnerabilitySuppression_vulnerability(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1552,10 +1529,10 @@ func (ec *executionContext) _VulnerabilitySuppression_vulnerability(ctx context.
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.Vulnerability) graphql.Marshaler {
-			return ec.marshalOVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerability(ctx, selections, v)
+			return ec.marshalNVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerability(ctx, selections, v)
 		},
 		true,
-		false,
+		true,
 	)
 }
 func (ec *executionContext) fieldContext_VulnerabilitySuppression_vulnerability(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3430,21 +3407,19 @@ func (ec *executionContext) _VulnerabilitySuppression(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "vulnerabilityIdentifier":
-			out.Values[i] = ec._VulnerabilitySuppression_vulnerabilityIdentifier(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
 		case "vulnerability":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._VulnerabilitySuppression_vulnerability(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -3862,6 +3837,20 @@ func (ec *executionContext) marshalNSetVulnerabilitySuppressionsPayload2ᚖgithu
 		return graphql.Null
 	}
 	return ec._SetVulnerabilitySuppressionsPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNVulnerability2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerability(ctx context.Context, sel ast.SelectionSet, v v0s.Vulnerability) graphql.Marshaler {
+	return ec._Vulnerability(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNVulnerability2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerability(ctx context.Context, sel ast.SelectionSet, v *v0s.Vulnerability) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Vulnerability(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNVulnerabilityCoverage2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCoverage(ctx context.Context, sel ast.SelectionSet, v v0s.VulnerabilityCoverage) graphql.Marshaler {

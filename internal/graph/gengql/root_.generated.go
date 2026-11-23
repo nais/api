@@ -4111,16 +4111,15 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilitySuppression struct {
-		ID                      func(childComplexity int) int
-		ImageName               func(childComplexity int) int
-		PackageKey              func(childComplexity int) int
-		Reason                  func(childComplexity int) int
-		State                   func(childComplexity int) int
-		UpdatedAt               func(childComplexity int) int
-		UpdatedBy               func(childComplexity int) int
-		Vulnerability           func(childComplexity int) int
-		VulnerabilityIdentifier func(childComplexity int) int
-		Workload                func(childComplexity int) int
+		ID            func(childComplexity int) int
+		ImageName     func(childComplexity int) int
+		PackageKey    func(childComplexity int) int
+		Reason        func(childComplexity int) int
+		State         func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
+		UpdatedBy     func(childComplexity int) int
+		Vulnerability func(childComplexity int) int
+		Workload      func(childComplexity int) int
 	}
 
 	VulnerabilitySuppressionActivityLogEntry struct {
@@ -22206,13 +22205,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySuppression.Vulnerability(childComplexity), true
 
-	case "VulnerabilitySuppression.vulnerabilityIdentifier":
-		if e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier(childComplexity), true
-
 	case "VulnerabilitySuppression.workload":
 		if e.ComplexityRoot.VulnerabilitySuppression.Workload == nil {
 			break
@@ -37099,10 +37091,8 @@ type VulnerabilitySuppression implements Node {
 	imageName: String!
 	"The package URL without version, qualifiers or subpath."
 	packageKey: String!
-	"The canonical vulnerability identifier."
-	vulnerabilityIdentifier: String!
-	"The advisory, if the identifier is still known."
-	vulnerability: Vulnerability
+	"The advisory this assessment applies to."
+	vulnerability: Vulnerability!
 	"The current assessment state."
 	state: VulnerabilitySuppressionState!
 	"The workload owner's reason for the assessment."
@@ -45605,8 +45595,6 @@ func (ec *executionContext) childFields_VulnerabilitySuppression(ctx context.Con
 		return ec.fieldContext_VulnerabilitySuppression_imageName(ctx, field)
 	case "packageKey":
 		return ec.fieldContext_VulnerabilitySuppression_packageKey(ctx, field)
-	case "vulnerabilityIdentifier":
-		return ec.fieldContext_VulnerabilitySuppression_vulnerabilityIdentifier(ctx, field)
 	case "vulnerability":
 		return ec.fieldContext_VulnerabilitySuppression_vulnerability(ctx, field)
 	case "state":

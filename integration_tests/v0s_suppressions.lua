@@ -13,7 +13,7 @@ local function set(reason)
 	return string.format([[mutation { setVulnerabilitySuppressions(input: {team: "v0s-team", items: [
 		{key: %s, state: ACCEPTED_RISK, reason: "assessed"},
 		{key: %s, state: FALSE_POSITIVE, reason: "%s"}
-	]}) { suppressions { id workload { name } updatedBy } } }]], app, stale, reason)
+	]}) { suppressions { id workload { name } vulnerability { identifier } updatedBy } } }]], app, stale, reason)
 end
 local delete = string.format([[mutation {
 	deleteVulnerabilitySuppressions(input: {team: "v0s-team", keys: [%s, %s]}) { deleted { workloadName } }
@@ -38,8 +38,8 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 
 	t.query(set("assessed"))
 	t.check { data = { setVulnerabilitySuppressions = { suppressions = {
-		{ id = Save("assessment_id"), workload = { name = "app" },   updatedBy = member:email() },
-		{ id = NotNull(),             workload = { name = "stale" }, updatedBy = member:email() },
+		{ id = Save("assessment_id"), workload = { name = "app" },   vulnerability = { identifier = "CVE-1" }, updatedBy = member:email() },
+		{ id = NotNull(),             workload = { name = "stale" }, vulnerability = { identifier = "CVE-2" }, updatedBy = member:email() },
 	} } } }
 	t.query [[mutation {
 		deleteApplication(input: {teamSlug: "v0s-team", environmentName: "dev", name: "stale"}) { success }
