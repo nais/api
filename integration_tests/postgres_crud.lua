@@ -287,6 +287,22 @@ Test.gql("Postgres activity log excludes other Postgres instances", function(t)
 	}
 end)
 
+Test.gql("Backup retention can be changed within its limits", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[mutation { updatePostgres(input: {
+		name: "existing", environmentName: "dev", teamSlug: "pg-crud-team", backupRetentionDays: 14
+	}) { postgres { backupRetentionDays } } }]]
+	t.check { data = { updatePostgres = { postgres = { backupRetentionDays = 14 } } } }
+
+	t.query [[mutation { updatePostgres(input: {
+		name: "existing", environmentName: "dev", teamSlug: "pg-crud-team", backupRetentionDays: 31
+	}) { postgres { name } } }]]
+	t.check {
+		errors = { { extensions = { field = "backupRetentionDays" }, path = { "updatePostgres" }, message = Contains("between 2 and 30") } },
+		data = Null,
+	}
+end)
+
 Test.gql("Every major version offered by the environment can be selected", function(t)
 	t.addHeader("x-user-email", member:email())
 	for _, version in ipairs({ "17", "16" }) do
