@@ -408,6 +408,8 @@ Test.gql("Legacy vulnerability fields remain queryable", function(t)
 			},
 		},
 	}
+	t.query [[{ vulnerabilityCoverage { totalWorkloads scanned } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), message = Contains("not configured"), path = { "vulnerabilityCoverage" } } } }
 end)
 
 Test.gql("Get vulnerability summary for team", function(t)

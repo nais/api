@@ -344,6 +344,10 @@ end
 --- Configuration
 ---@class Config
 ---@field TenantName string
+---@field V0s boolean
+---@field V0sSuppressionsEnabled boolean
 Config = {
 	TenantName = "some-tenant",
+	V0s = false,
+	V0sSuppressionsEnabled = false,
 }
