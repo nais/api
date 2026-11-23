@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/validate"
-	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -190,7 +189,7 @@ func TestToPostgresBackupRetentionDays(t *testing.T) {
 		spec map[string]any
 		want int
 	}{
-		"default":  {spec: map[string]any{"majorVersion": "17"}, want: int(nais_io_v1.DefaultBackupRetentionDays)},
+		"default":  {spec: map[string]any{"majorVersion": "17"}, want: 2},
 		"explicit": {spec: map[string]any{"majorVersion": "17", "backup": map[string]any{"retentionDays": int64(21)}}, want: 21},
 	} {
 		t.Run(name, func(t *testing.T) {

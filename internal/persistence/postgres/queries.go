@@ -757,7 +757,9 @@ func Update(ctx context.Context, input UpdatePostgresInput) (*UpdatePostgresPayl
 	}
 	obj.SetAnnotations(kubernetes.WithCommonAnnotations(obj.GetAnnotations(), authz.ActorFromContext(ctx).User.Identity()))
 
-	updated, err := client.Update(ctx, obj, metav1.UpdateOptions{})
+	// An older CRD must reject fields it does not know, never silently prune them and
+	// report a change that was not saved.
+	updated, err := client.Update(ctx, obj, metav1.UpdateOptions{FieldValidation: metav1.FieldValidationStrict})
 	if err != nil {
 		return nil, err
 	}

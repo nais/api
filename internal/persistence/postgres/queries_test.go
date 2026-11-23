@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"errors"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -587,11 +586,11 @@ func TestUpdateBackupRetentionDays(t *testing.T) {
 		want     []*PostgresUpdatedActivityLogEntryDataUpdatedField
 	}{
 		{name: "omitted leaves it unchanged", pg: withRetention(10), wantDays: 10},
-		{name: "same as default is no change", pg: &nais_io_v1.Postgres{}, days: new(int(nais_io_v1.DefaultBackupRetentionDays)), wantDays: nais_io_v1.DefaultBackupRetentionDays},
+		{name: "same as default is no change", pg: &nais_io_v1.Postgres{}, days: new(2), wantDays: 2},
 		{name: "same value is no change", pg: withRetention(10), days: new(10), wantDays: 10},
 		{
 			name: "changing from the default", pg: &nais_io_v1.Postgres{}, days: new(14), wantDays: 14,
-			want: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{Field: "backupRetentionDays", OldValue: new(strconv.Itoa(int(nais_io_v1.DefaultBackupRetentionDays))), NewValue: new("14")}},
+			want: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{Field: "backupRetentionDays", OldValue: new("2"), NewValue: new("14")}},
 		},
 		{
 			name: "shortening", pg: withRetention(30), days: new(2), wantDays: 2,
