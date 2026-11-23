@@ -4111,14 +4111,11 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilitySuppression struct {
-		Environment             func(childComplexity int) int
 		ID                      func(childComplexity int) int
 		ImageName               func(childComplexity int) int
 		PackageKey              func(childComplexity int) int
 		Reason                  func(childComplexity int) int
 		State                   func(childComplexity int) int
-		Team                    func(childComplexity int) int
-		TeamEnvironment         func(childComplexity int) int
 		UpdatedAt               func(childComplexity int) int
 		UpdatedBy               func(childComplexity int) int
 		Vulnerability           func(childComplexity int) int
@@ -22153,13 +22150,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySeverityCounts.Unknown(childComplexity), true
 
-	case "VulnerabilitySuppression.environmentName":
-		if e.ComplexityRoot.VulnerabilitySuppression.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilitySuppression.Environment(childComplexity), true
-
 	case "VulnerabilitySuppression.id":
 		if e.ComplexityRoot.VulnerabilitySuppression.ID == nil {
 			break
@@ -22195,20 +22185,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySuppression.State(childComplexity), true
 
-	case "VulnerabilitySuppression.teamSlug":
-		if e.ComplexityRoot.VulnerabilitySuppression.Team == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilitySuppression.Team(childComplexity), true
-
-	case "VulnerabilitySuppression.teamEnvironment":
-		if e.ComplexityRoot.VulnerabilitySuppression.TeamEnvironment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilitySuppression.TeamEnvironment(childComplexity), true
-
 	case "VulnerabilitySuppression.updatedAt":
 		if e.ComplexityRoot.VulnerabilitySuppression.UpdatedAt == nil {
 			break
@@ -22237,7 +22213,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier(childComplexity), true
 
-	case "VulnerabilitySuppression.workloadName", "VulnerabilitySuppression.workload":
+	case "VulnerabilitySuppression.workload":
 		if e.ComplexityRoot.VulnerabilitySuppression.Workload == nil {
 			break
 		}
@@ -37113,18 +37089,10 @@ input VulnerabilitySuppressionFilter {
 	imageName: String
 }
 
-"A durable assessment for one workload, image repository, package and vulnerability."
+"A current assessment for one workload, image repository, package and vulnerability."
 type VulnerabilitySuppression implements Node {
 	"The globally unique identifier of the assessment."
 	id: ID!
-	"The stored slug of the team owning the assessment."
-	teamSlug: Slug!
-	"The stored name of the environment where the assessment applies."
-	environmentName: String!
-	"The stored name of the application or job."
-	workloadName: String!
-	"The team environment, if it still exists."
-	teamEnvironment: TeamEnvironment
 	"The application or job to which the assessment applies."
 	workload: Workload!
 	"The image repository name. The assessment survives image version changes."
@@ -45631,14 +45599,6 @@ func (ec *executionContext) childFields_VulnerabilitySuppression(ctx context.Con
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_VulnerabilitySuppression_id(ctx, field)
-	case "teamSlug":
-		return ec.fieldContext_VulnerabilitySuppression_teamSlug(ctx, field)
-	case "environmentName":
-		return ec.fieldContext_VulnerabilitySuppression_environmentName(ctx, field)
-	case "workloadName":
-		return ec.fieldContext_VulnerabilitySuppression_workloadName(ctx, field)
-	case "teamEnvironment":
-		return ec.fieldContext_VulnerabilitySuppression_teamEnvironment(ctx, field)
 	case "workload":
 		return ec.fieldContext_VulnerabilitySuppression_workload(ctx, field)
 	case "imageName":

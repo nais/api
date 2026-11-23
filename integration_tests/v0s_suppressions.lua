@@ -13,7 +13,7 @@ local function set(reason)
 	return string.format([[mutation { setVulnerabilitySuppressions(input: {team: "v0s-team", items: [
 		{key: %s, state: ACCEPTED_RISK, reason: "assessed"},
 		{key: %s, state: FALSE_POSITIVE, reason: "%s"}
-	]}) { suppressions { id workloadName updatedBy } } }]], app, stale, reason)
+	]}) { suppressions { id workload { name } updatedBy } } }]], app, stale, reason)
 end
 local delete = string.format([[mutation {
 	deleteVulnerabilitySuppressions(input: {team: "v0s-team", keys: [%s, %s]}) { deleted { workloadName } }
@@ -32,31 +32,31 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 	t.query(set(""))
 	t.check { data = Null, errors = { { locations = NotNull(), message = "reason cannot be empty", path = { "setVulnerabilitySuppressions" } } } }
 	local list =
-	[[{ team(slug: "v0s-team") { vulnerabilitySuppressions { nodes { workloadName state } pageInfo { totalCount } } } }]]
+	[[{ team(slug: "v0s-team") { vulnerabilitySuppressions { nodes { state } pageInfo { totalCount } } } }]]
 	t.query(list)
 	t.check { data = { team = { vulnerabilitySuppressions = { nodes = {}, pageInfo = { totalCount = 0 } } } } }
 
 	t.query(set("assessed"))
 	t.check { data = { setVulnerabilitySuppressions = { suppressions = {
-		{ id = Save("assessment_id"), workloadName = "app",   updatedBy = member:email() },
-		{ id = NotNull(),             workloadName = "stale", updatedBy = member:email() },
+		{ id = Save("assessment_id"), workload = { name = "app" },   updatedBy = member:email() },
+		{ id = NotNull(),             workload = { name = "stale" }, updatedBy = member:email() },
 	} } } }
 	t.query [[mutation {
 		deleteApplication(input: {teamSlug: "v0s-team", environmentName: "dev", name: "stale"}) { success }
 	}]]
 	t.check { data = { deleteApplication = { success = true } } }
 	t.query(string.format([[{
-		node(id: "%s") { ... on VulnerabilitySuppression { workloadName state reason teamEnvironment { team { slug } } } }
+		node(id: "%s") { ... on VulnerabilitySuppression { state reason workload { name teamEnvironment { team { slug } } } } }
 		team(slug: "v0s-team") { environment(name: "dev") { vulnerabilitySuppressions {
-			nodes { workloadName workload { name } vulnerability { identifier } state }
+			nodes { workload { name } vulnerability { identifier } state }
 			pageInfo { totalCount }
 		} } }
 	}]], State.assessment_id))
 	t.check { data = {
-		node = { workloadName = "app", state = "ACCEPTED_RISK", reason = "assessed", teamEnvironment = { team = { slug = "v0s-team" } } },
+		node = { state = "ACCEPTED_RISK", reason = "assessed", workload = { name = "app", teamEnvironment = { team = { slug = "v0s-team" } } } },
 		team = { environment = { vulnerabilitySuppressions = {
 			nodes = {
-				{ workloadName = "app", workload = { name = "app" }, vulnerability = { identifier = "CVE-1" }, state = "ACCEPTED_RISK" },
+				{ workload = { name = "app" }, vulnerability = { identifier = "CVE-1" }, state = "ACCEPTED_RISK" },
 			},
 			pageInfo = { totalCount = 1 },
 		} } },

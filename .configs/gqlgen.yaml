@@ -155,12 +155,6 @@ models:
         resolver: true
   VulnerabilitySuppression:
     fields:
-      teamSlug:
-        fieldName: Team
-      environmentName:
-        fieldName: Environment
-      workloadName:
-        fieldName: Workload
       workload:
         resolver: true
   TeamWorkloadsFilter:

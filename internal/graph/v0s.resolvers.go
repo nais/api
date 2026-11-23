@@ -2,10 +2,8 @@ package graph
 
 import (
 	"context"
-	"errors"
 
 	"github.com/nais/api/internal/graph/gengql"
-	"github.com/nais/api/internal/graph/loader"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/v0s"
@@ -73,14 +71,6 @@ func (r *vulnerabilityFindingResolver) Workload(ctx context.Context, obj *v0s.Vu
 
 func (r *vulnerabilityFindingResolver) Vulnerability(ctx context.Context, obj *v0s.VulnerabilityFinding) (*v0s.Vulnerability, error) {
 	return v0s.VulnerabilityByIdentifier(ctx, obj.VulnerabilityIdentifier)
-}
-
-func (r *vulnerabilitySuppressionResolver) TeamEnvironment(ctx context.Context, obj *v0s.VulnerabilitySuppression) (*team.TeamEnvironment, error) {
-	env, err := team.GetTeamEnvironment(ctx, obj.Team, obj.Environment)
-	if errors.Is(err, loader.ErrObjectNotFound) {
-		return nil, nil
-	}
-	return env, err
 }
 
 func (r *vulnerabilitySuppressionResolver) Workload(ctx context.Context, obj *v0s.VulnerabilitySuppression) (workload.Workload, error) {

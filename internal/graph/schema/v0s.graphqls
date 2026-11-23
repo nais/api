@@ -324,18 +324,10 @@ input VulnerabilitySuppressionFilter {
 	imageName: String
 }
 
-"A durable assessment for one workload, image repository, package and vulnerability."
+"A current assessment for one workload, image repository, package and vulnerability."
 type VulnerabilitySuppression implements Node {
 	"The globally unique identifier of the assessment."
 	id: ID!
-	"The stored slug of the team owning the assessment."
-	teamSlug: Slug!
-	"The stored name of the environment where the assessment applies."
-	environmentName: String!
-	"The stored name of the application or job."
-	workloadName: String!
-	"The team environment, if it still exists."
-	teamEnvironment: TeamEnvironment
 	"The application or job to which the assessment applies."
 	workload: Workload!
 	"The image repository name. The assessment survives image version changes."

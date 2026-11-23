@@ -17,7 +17,6 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -31,7 +30,6 @@ type VulnerabilityFindingResolver interface {
 	Vulnerability(ctx context.Context, obj *v0s.VulnerabilityFinding) (*v0s.Vulnerability, error)
 }
 type VulnerabilitySuppressionResolver interface {
-	TeamEnvironment(ctx context.Context, obj *v0s.VulnerabilitySuppression) (*team.TeamEnvironment, error)
 	Workload(ctx context.Context, obj *v0s.VulnerabilitySuppression) (workload.Workload, error)
 
 	Vulnerability(ctx context.Context, obj *v0s.VulnerabilitySuppression) (*v0s.Vulnerability, error)
@@ -1438,107 +1436,6 @@ func (ec *executionContext) _VulnerabilitySuppression_id(ctx context.Context, fi
 }
 func (ec *executionContext) fieldContext_VulnerabilitySuppression_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerabilitySuppression", field, true, false, errors.New("field of type ID does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilitySuppression_teamSlug(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilitySuppression_teamSlug(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Team, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
-			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilitySuppression_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilitySuppression", field, false, false, errors.New("field of type Slug does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilitySuppression_environmentName(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilitySuppression_environmentName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Environment, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilitySuppression_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilitySuppression", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilitySuppression_workloadName(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilitySuppression_workloadName(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Workload, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilitySuppression_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilitySuppression", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilitySuppression_teamEnvironment(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilitySuppression_teamEnvironment(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.VulnerabilitySuppression().TeamEnvironment(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *team.TeamEnvironment) graphql.Marshaler {
-			return ec.marshalOTeamEnvironment2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐTeamEnvironment(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilitySuppression_teamEnvironment(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "VulnerabilitySuppression",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_TeamEnvironment(ctx, field)
-		},
-	}
-	return fc, nil
 }
 
 func (ec *executionContext) _VulnerabilitySuppression_workload(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppression) (ret graphql.Marshaler) {
@@ -3487,54 +3384,6 @@ func (ec *executionContext) _VulnerabilitySuppression(ctx context.Context, sel a
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "teamSlug":
-			out.Values[i] = ec._VulnerabilitySuppression_teamSlug(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "environmentName":
-			out.Values[i] = ec._VulnerabilitySuppression_environmentName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "workloadName":
-			out.Values[i] = ec._VulnerabilitySuppression_workloadName(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
-			}
-		case "teamEnvironment":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._VulnerabilitySuppression_teamEnvironment(ctx, field, obj)
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "workload":
 			field := field
 
