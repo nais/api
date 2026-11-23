@@ -68,19 +68,20 @@ type PostgresFacets struct {
 
 // Postgres represents a database used by workloads.
 type Postgres struct {
-	Name              string                 `json:"name"`
-	EnvironmentName   string                 `json:"-"`
-	TeamSlug          slug.Slug              `json:"-"`
-	MajorVersion      string                 `json:"majorVersion"`
-	Extensions        []string               `json:"extensions"`
-	HighAvailability  bool                   `json:"highAvailability"`
-	Resources         PostgresResources      `json:"resources"`
-	Labels            []*model.ResourceLabel `json:"labels"`
-	CreatedAt         time.Time              `json:"createdAt"`
-	Recovery          *PostgresRecovery      `json:"recovery,omitempty"`
-	directClusterName *string
-	physicalState     PostgresState
-	configuration     *PostgresConfiguration
+	Name                string                 `json:"name"`
+	EnvironmentName     string                 `json:"-"`
+	TeamSlug            slug.Slug              `json:"-"`
+	MajorVersion        string                 `json:"majorVersion"`
+	Extensions          []string               `json:"extensions"`
+	HighAvailability    bool                   `json:"highAvailability"`
+	Resources           PostgresResources      `json:"resources"`
+	Labels              []*model.ResourceLabel `json:"labels"`
+	CreatedAt           time.Time              `json:"createdAt"`
+	Recovery            *PostgresRecovery      `json:"recovery,omitempty"`
+	BackupRetentionDays int                    `json:"backupRetentionDays"`
+	directClusterName   *string
+	physicalState       PostgresState
+	configuration       *PostgresConfiguration
 }
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
@@ -325,8 +326,9 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
 		},
-		Labels:    model.UserLabels(obj.Labels),
-		CreatedAt: obj.CreationTimestamp.Time, directClusterName: clusterName,
+		Labels:              model.UserLabels(obj.Labels),
+		BackupRetentionDays: int(obj.Spec.BackupRetentionDays()),
+		CreatedAt:           obj.CreationTimestamp.Time, directClusterName: clusterName,
 		physicalState: state, configuration: configuration, Recovery: recovery,
 	}, nil
 }
@@ -481,17 +483,18 @@ type PostgresAccessConnectionDetails struct {
 }
 
 type CreatePostgresInput struct {
-	Name             string                 `json:"name"`
-	EnvironmentName  string                 `json:"environmentName"`
-	TeamSlug         slug.Slug              `json:"teamSlug"`
-	MajorVersion     string                 `json:"majorVersion"`
-	HighAvailability *bool                  `json:"highAvailability,omitempty"`
-	CPU              *string                `json:"cpu,omitempty"`
-	Memory           *string                `json:"memory,omitempty"`
-	DiskSize         *string                `json:"diskSize,omitempty"`
-	Extensions       []string               `json:"extensions,omitempty"`
-	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
-	Recovery         *PostgresRecoveryInput `json:"recovery,omitempty"`
+	Name                string                 `json:"name"`
+	EnvironmentName     string                 `json:"environmentName"`
+	TeamSlug            slug.Slug              `json:"teamSlug"`
+	MajorVersion        string                 `json:"majorVersion"`
+	HighAvailability    *bool                  `json:"highAvailability,omitempty"`
+	CPU                 *string                `json:"cpu,omitempty"`
+	Memory              *string                `json:"memory,omitempty"`
+	DiskSize            *string                `json:"diskSize,omitempty"`
+	Extensions          []string               `json:"extensions,omitempty"`
+	Labels              []*model.ResourceLabel `json:"labels,omitempty"`
+	Recovery            *PostgresRecoveryInput `json:"recovery,omitempty"`
+	BackupRetentionDays *int                   `json:"backupRetentionDays,omitempty"`
 }
 
 // PostgresRecoveryInput can only select a source in the new database's team
@@ -513,15 +516,16 @@ type CreatePostgresPayload struct {
 }
 
 type UpdatePostgresInput struct {
-	Name             string                 `json:"name"`
-	EnvironmentName  string                 `json:"environmentName"`
-	TeamSlug         slug.Slug              `json:"teamSlug"`
-	HighAvailability *bool                  `json:"highAvailability,omitempty"`
-	CPU              *string                `json:"cpu,omitempty"`
-	Memory           *string                `json:"memory,omitempty"`
-	DiskSize         *string                `json:"diskSize,omitempty"`
-	Extensions       []string               `json:"extensions,omitempty"`
-	Labels           []*model.ResourceLabel `json:"labels,omitempty"`
+	Name                string                 `json:"name"`
+	EnvironmentName     string                 `json:"environmentName"`
+	TeamSlug            slug.Slug              `json:"teamSlug"`
+	HighAvailability    *bool                  `json:"highAvailability,omitempty"`
+	CPU                 *string                `json:"cpu,omitempty"`
+	Memory              *string                `json:"memory,omitempty"`
+	DiskSize            *string                `json:"diskSize,omitempty"`
+	Extensions          []string               `json:"extensions,omitempty"`
+	Labels              []*model.ResourceLabel `json:"labels,omitempty"`
+	BackupRetentionDays *int                   `json:"backupRetentionDays,omitempty"`
 }
 
 type UpdatePostgresPayload struct {
@@ -566,6 +570,7 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
 	validatePostgresUserLabels(verr, i.Labels)
+	validateBackupRetentionDays(verr, i.BackupRetentionDays)
 	if i.Recovery != nil {
 		i.Recovery.SourcePostgres = strings.TrimSpace(i.Recovery.SourcePostgres)
 		if i.Recovery.SourcePostgres == "" || len(validation.IsDNS1123Subdomain(i.Recovery.SourcePostgres)) > 0 {
@@ -604,6 +609,7 @@ func (i *UpdatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	}
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
 	validatePostgresUserLabels(verr, i.Labels)
+	validateBackupRetentionDays(verr, i.BackupRetentionDays)
 	return verr
 }
 
@@ -640,5 +646,20 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 		} else if quantity.Cmp(limit.max) > 0 {
 			verr.Add(field, "%q must be no greater than %s.", *value, limit.max.String())
 		}
+	}
+}
+
+// Mirrors the bounds of spec.backup.retentionDays in the Postgres CRD.
+const (
+	minBackupRetentionDays = 2
+	maxBackupRetentionDays = 30
+)
+
+func validateBackupRetentionDays(verr *validate.ValidationErrors, days *int) {
+	if days == nil {
+		return
+	}
+	if *days < minBackupRetentionDays || *days > maxBackupRetentionDays {
+		verr.Add("backupRetentionDays", "Backup retention must be between %d and %d days.", minBackupRetentionDays, maxBackupRetentionDays)
 	}
 }

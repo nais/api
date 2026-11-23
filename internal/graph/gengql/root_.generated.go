@@ -1974,6 +1974,7 @@ type ComplexityRoot struct {
 
 	Postgres struct {
 		ActivityLog         func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		BackupRetentionDays func(childComplexity int) int
 		Configuration       func(childComplexity int) int
 		Cost                func(childComplexity int) int
 		CreatedAt           func(childComplexity int) int
@@ -12359,6 +12360,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Postgres.ActivityLog(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*activitylog.ActivityLogFilter)), true
+
+	case "Postgres.backupRetentionDays":
+		if e.ComplexityRoot.Postgres.BackupRetentionDays == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Postgres.BackupRetentionDays(childComplexity), true
 
 	case "Postgres.configuration":
 		if e.ComplexityRoot.Postgres.Configuration == nil {
@@ -29860,6 +29868,11 @@ type Postgres implements Node {
 	configuration: PostgresConfiguration
 	"Earliest point in time covered by available backups, when known."
 	earliestRestoreTime: Time
+	"""
+	How many days back in time the database can be recovered to. Backups older than this are removed periodically,
+	and the backup preceding the window is kept, so data up to a day older may remain.
+	"""
+	backupRetentionDays: Int!
 	"Where this database was restored from, if it was created by a recovery."
 	recovery: PostgresRecovery
 	"Issues reported for this database."
@@ -30405,6 +30418,8 @@ input CreatePostgresInput {
 	diskSize: String
 	"Initial user-defined labels to apply."
 	labels: [ResourceLabelInput!]
+	"How many days back in time the database can be recovered to, from 2 to 30. If omitted, the platform default is used."
+	backupRetentionDays: Int
 	"Initialize from an existing database in the same team and environment instead of creating an empty database. Omitted availability, resource and extension settings are taken from the source."
 	recovery: PostgresRecoveryInput
 }
@@ -30455,6 +30470,8 @@ input UpdatePostgresInput {
 	extensions: [String!]
 	"The complete set of user-defined labels to apply. When omitted or null, existing labels are left unchanged; use an empty list to remove all user-defined labels."
 	labels: [ResourceLabelInput!]
+	"How many days back in time the database can be recovered to, from 2 to 30. Shortening it makes older backups unavailable and they are removed periodically; this cannot be undone. When omitted or null, the current value is left unchanged."
+	backupRetentionDays: Int
 }
 
 "Result of updating a Postgres."
@@ -41360,6 +41377,8 @@ func (ec *executionContext) childFields_Postgres(ctx context.Context, field grap
 		return ec.fieldContext_Postgres_configuration(ctx, field)
 	case "earliestRestoreTime":
 		return ec.fieldContext_Postgres_earliestRestoreTime(ctx, field)
+	case "backupRetentionDays":
+		return ec.fieldContext_Postgres_backupRetentionDays(ctx, field)
 	case "recovery":
 		return ec.fieldContext_Postgres_recovery(ctx, field)
 	case "issues":

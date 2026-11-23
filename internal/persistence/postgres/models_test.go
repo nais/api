@@ -183,3 +183,27 @@ func TestPostgresStateFromConditions(t *testing.T) {
 		})
 	}
 }
+
+func TestToPostgresBackupRetentionDays(t *testing.T) {
+	for name, tt := range map[string]struct {
+		spec map[string]any
+		want int
+	}{
+		"default":  {spec: map[string]any{"majorVersion": "17"}, want: 7},
+		"explicit": {spec: map[string]any{"majorVersion": "17", "backup": map[string]any{"retentionDays": int64(21)}}, want: 21},
+	} {
+		t.Run(name, func(t *testing.T) {
+			got, err := toPostgres(&unstructured.Unstructured{Object: map[string]any{
+				"apiVersion": "nais.io/v1", "kind": "Postgres",
+				"metadata": map[string]any{"name": "orders", "namespace": "my-team"},
+				"spec":     tt.spec,
+			}}, "dev")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got.BackupRetentionDays != tt.want {
+				t.Errorf("BackupRetentionDays = %d, want %d", got.BackupRetentionDays, tt.want)
+			}
+		})
+	}
+}

@@ -573,3 +573,51 @@ func TestOmittedResourcesAreNotSent(t *testing.T) {
 		t.Error("spec.resources must be left out entirely when nothing is set")
 	}
 }
+
+func TestUpdateBackupRetentionDays(t *testing.T) {
+	withRetention := func(days int32) *nais_io_v1.Postgres {
+		return &nais_io_v1.Postgres{Spec: nais_io_v1.PostgresSpec{Backup: &nais_io_v1.PostgresBackupPolicy{RetentionDays: &days}}}
+	}
+	tests := []struct {
+		name     string
+		pg       *nais_io_v1.Postgres
+		days     *int
+		wantDays int32
+		want     []*PostgresUpdatedActivityLogEntryDataUpdatedField
+	}{
+		{name: "omitted leaves it unchanged", pg: withRetention(10), wantDays: 10},
+		{name: "same as default is no change", pg: &nais_io_v1.Postgres{}, days: new(7), wantDays: 7},
+		{name: "same value is no change", pg: withRetention(10), days: new(10), wantDays: 10},
+		{
+			name: "changing from the default", pg: &nais_io_v1.Postgres{}, days: new(14), wantDays: 14,
+			want: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{Field: "backupRetentionDays", OldValue: new("7"), NewValue: new("14")}},
+		},
+		{
+			name: "shortening", pg: withRetention(30), days: new(2), wantDays: 2,
+			want: []*PostgresUpdatedActivityLogEntryDataUpdatedField{{Field: "backupRetentionDays", OldValue: new("30"), NewValue: new("2")}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := updateBackupRetentionDays(tt.pg, UpdatePostgresInput{BackupRetentionDays: tt.days})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("changes mismatch (-want +got):\n%s", diff)
+			}
+			if days := tt.pg.Spec.BackupRetentionDays(); days != tt.wantDays {
+				t.Errorf("retention = %d, want %d", days, tt.wantDays)
+			}
+		})
+	}
+}
+
+func TestBackupRetentionDaysValidation(t *testing.T) {
+	for days, valid := range map[int]bool{-1: false, 0: false, 1: false, 2: true, 7: true, 30: true, 31: false} {
+		update := UpdatePostgresInput{Name: "orders", EnvironmentName: "dev", TeamSlug: "team-a", BackupRetentionDays: new(days)}
+		if err := update.Validate(t.Context()); (err == nil) != valid {
+			t.Errorf("update with %d days: valid=%v, err=%v", days, valid, err)
+		}
+	}
+}

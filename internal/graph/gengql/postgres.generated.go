@@ -515,6 +515,29 @@ func (ec *executionContext) fieldContext_Postgres_earliestRestoreTime(_ context.
 	return graphql.NewScalarFieldContext("Postgres", field, true, true, errors.New("field of type Time does not have child fields"))
 }
 
+func (ec *executionContext) _Postgres_backupRetentionDays(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Postgres_backupRetentionDays(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.BackupRetentionDays, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Postgres_backupRetentionDays(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Postgres", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
 func (ec *executionContext) _Postgres_recovery(ctx context.Context, field graphql.CollectedField, obj *postgres.Postgres) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -3935,7 +3958,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels", "recovery"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels", "backupRetentionDays", "recovery"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4012,6 +4035,13 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.Labels = data
+		case "backupRetentionDays":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backupRetentionDays"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BackupRetentionDays = data
 		case "recovery":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("recovery"))
 			data, err := ec.unmarshalOPostgresRecoveryInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐPostgresRecoveryInput(ctx, v)
@@ -4153,7 +4183,7 @@ func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "highAvailability", "cpu", "memory", "diskSize", "extensions", "labels"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "highAvailability", "cpu", "memory", "diskSize", "extensions", "labels", "backupRetentionDays"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4223,6 +4253,13 @@ func (ec *executionContext) unmarshalInputUpdatePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.Labels = data
+		case "backupRetentionDays":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backupRetentionDays"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BackupRetentionDays = data
 		}
 	}
 	return it, nil
@@ -4558,6 +4595,11 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "backupRetentionDays":
+			out.Values[i] = ec._Postgres_backupRetentionDays(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "recovery":
 			out.Values[i] = ec._Postgres_recovery(ctx, field, obj)
 		case "issues":
