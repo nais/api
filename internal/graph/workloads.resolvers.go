@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"slices"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/environment"
@@ -9,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -23,7 +25,7 @@ func (r *containerImageResolver) ActivityLog(ctx context.Context, obj *workload.
 	return activitylog.ListForResource(ctx, "VULNERABILITY", obj.Name, page, filter)
 }
 
-func (r *environmentResolver) Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error) {
+func (r *environmentResolver) Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*workload.WorkloadConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -49,10 +51,10 @@ func (r *environmentResolver) Workloads(ctx context.Context, obj *environment.En
 	workload.SortFilterEnvironment.Sort(ctx, workloads, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(workloads, page)
-	return pagination.NewConnection(ret, page, len(workloads)), nil
+	return newWorkloadConnection(v0s.Scope{Environment: obj.Name}, workloads, ret, page, nil), nil
 }
 
-func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*pagination.Connection[workload.Workload], error) {
+func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*workload.WorkloadConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,24 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 	if err != nil {
 		return nil, err
 	}
+	scope := v0s.Scope{Team: obj.Slug}
+	var coverage *workload.VulnerabilityCoverageCounts
+	if filter != nil && len(filter.VulnerabilityCoverageStatuses) > 0 {
+		statuses, err := v0s.WorkloadCoverageStatuses(ctx, scope, filtered)
+		if err != nil {
+			return nil, err
+		}
+		selected := make([]v0s.VulnerabilityCoverageStatus, 0, len(filtered))
+		matches := filtered[:0]
+		for i, status := range statuses {
+			if slices.Contains(filter.VulnerabilityCoverageStatuses, string(status)) {
+				matches = append(matches, filtered[i])
+				selected = append(selected, status)
+			}
+		}
+		filtered = matches
+		coverage = countWorkloadCoverage(selected)
+	}
 	if orderBy == nil {
 		orderBy = &workload.WorkloadOrder{
 			Field:     "NAME",
@@ -83,7 +103,7 @@ func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int
 	workload.SortFilter.Sort(ctx, filtered, orderBy.Field, orderBy.Direction)
 
 	ret := pagination.Slice(filtered, page)
-	return pagination.NewConnection(ret, page, len(filtered)), nil
+	return newWorkloadConnection(scope, filtered, ret, page, coverage), nil
 }
 
 func (r *teamEnvironmentResolver) Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error) {
@@ -94,6 +114,14 @@ func (r *teamWorkloadsFilterResolver) SbomStatus(ctx context.Context, obj *workl
 	if data != nil {
 		status := data.String()
 		obj.SbomStatus = &status
+	}
+
+	return nil
+}
+
+func (r *teamWorkloadsFilterResolver) VulnerabilityCoverageStatuses(ctx context.Context, obj *workload.TeamWorkloadsFilter, data []v0s.VulnerabilityCoverageStatus) error {
+	for _, status := range data {
+		obj.VulnerabilityCoverageStatuses = append(obj.VulnerabilityCoverageStatuses, string(status))
 	}
 	return nil
 }

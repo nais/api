@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/nais/api/internal/v0s"
-	"github.com/nais/api/internal/v0s/protoapi"
+	protoapi "github.com/nais/v0s-api/v0s/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -53,7 +53,7 @@ func newV0sManager(config *Config) *v0s.Manager {
 	slices.SortFunc(c.findings, func(a, b *protoapi.Finding) int {
 		return strings.Compare(v0sFindingKey(a), v0sFindingKey(b))
 	})
-	return &v0s.Manager{Vulnerabilities: c, Suppressions: c, SuppressionsEnabled: config.V0sSuppressionsEnabled}
+	return &v0s.Manager{Vulnerabilities: c, Suppressions: c, SuppressionsEnabled: true}
 }
 
 func (c *v0sClient) ListWorkloads(_ context.Context, req *protoapi.ListWorkloadsRequest, _ ...grpc.CallOption) (*protoapi.ListWorkloadsResponse, error) {
@@ -75,7 +75,8 @@ func v0sMatches(f *protoapi.Finding, filter *protoapi.FindingFilter) bool {
 	return (filter.Team == "" || filter.Team == f.Workload.Team) &&
 		(filter.Environment == "" || filter.Environment == f.Workload.Environment) &&
 		(filter.Workload == "" || filter.Workload == f.Workload.Name) &&
-		(filter.VulnerabilityId == "" || filter.VulnerabilityId == f.VulnerabilityId) &&
+		((filter.VulnerabilityId == "" && len(filter.VulnerabilityIds) == 0) ||
+			filter.VulnerabilityId == f.VulnerabilityId || slices.Contains(filter.VulnerabilityIds, f.VulnerabilityId)) &&
 		(filter.Package == "" || filter.Package == f.Purl || filter.Package == f.PackageKey) &&
 		(len(filter.Severities) == 0 || slices.Contains(filter.Severities, f.Severity)) &&
 		(!filter.HasFix || f.FixedVersion != "") && (!filter.OnlyKnownExploited || f.KnownExploited) &&

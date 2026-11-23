@@ -1,6 +1,7 @@
 package v0s
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"slices"
@@ -12,26 +13,31 @@ import (
 	"github.com/nais/api/internal/slug"
 )
 
-type VulnerabilityScopeInput struct {
-	Team        *slug.Slug
-	Environment *string
-	Workload    *string
+type Scope struct {
+	Team        slug.Slug
+	Environment string
+	Workload    string
 }
 
 type VulnerabilityFindingFilter struct {
-	Scope                   *VulnerabilityScopeInput
-	VulnerabilityIdentifier *string
-	Package                 *string
-	Severities              []VulnerabilitySeverity
-	OnlyWithFix             *bool
-	OnlyKnownExploited      *bool
-	Suppressed              *SuppressedFilter
+	VulnerabilityIdentifiers []string
+	Package                  *string
+	Severities               []VulnerabilitySeverity
+	OnlyWithFix              *bool
+	OnlyKnownExploited       *bool
+	Suppressed               *SuppressedFilter
 }
 
-type (
-	VulnerabilityFindingConnection = pagination.Connection[*VulnerabilityFinding]
-	VulnerabilityFindingEdge       = pagination.Edge[*VulnerabilityFinding]
-)
+type VulnerabilityFindingEdge = pagination.Edge[*VulnerabilityFinding]
+
+type VulnerabilityFindingConnection struct {
+	pagination.Connection[*VulnerabilityFinding]
+	loadFacets func(context.Context) (*VulnerabilityFindingFacets, error)
+}
+
+func (c *VulnerabilityFindingConnection) Facets(ctx context.Context) (*VulnerabilityFindingFacets, error) {
+	return c.loadFacets(ctx)
+}
 
 type VulnerabilityFinding struct {
 	Workload                *VulnerabilityWorkloadRef
@@ -60,8 +66,7 @@ type VulnerabilityImage struct {
 	Digest string
 }
 
-type VulnerabilityFindingSummary struct {
-	TotalFindings          int64
+type VulnerabilityFindingFacets struct {
 	CountsBySeverity       *VulnerabilitySeverityCounts
 	FixableFindings        int64
 	KnownExploitedFindings int64
@@ -69,10 +74,6 @@ type VulnerabilityFindingSummary struct {
 
 type VulnerabilitySeverityCounts struct {
 	Unknown, Low, Medium, High, Critical int64
-}
-
-type VulnerabilityCoverageCounts struct {
-	TotalWorkloads, Scanned, Pending, NoSbom, Failed, UnresolvedImage int
 }
 
 type VulnerabilityCoverage struct {
@@ -107,7 +108,6 @@ type VulnerabilityEpss struct {
 }
 
 type VulnerabilitySuppressionFilter struct {
-	Scope                   *VulnerabilityScopeInput
 	VulnerabilityIdentifier *string
 	ImageName               *string
 }

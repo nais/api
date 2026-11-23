@@ -8,16 +8,6 @@ extend type Query {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over the full filtered selection, not just the loaded page."
-	vulnerabilityFindingSummary(
-		"Filter the full finding selection."
-		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
-	"Scan coverage of the currently deployed applications and jobs."
-	vulnerabilityCoverage(
-		"Limit coverage to a team, environment or workload. Omitted scope is tenant-wide."
-		scope: VulnerabilityScopeInput
-	): VulnerabilityCoverageCounts!
 	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
 	vulnerability(
 		"The vulnerability identifier or an alias identifying exactly one vulnerability."
@@ -34,21 +24,58 @@ extend type Query {
 	): VulnerabilitySuppressionConnection!
 }
 
-extend interface Workload {
-	"Current vulnerability findings in the deployed image."
+extend type Team {
+	"Current vulnerability findings for this team's workloads."
 	vulnerabilityFindings(
-		"Filter this workload's findings. Do not provide scope."
+		"Filter the full finding selection."
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over this workload's full filtered finding selection."
-	vulnerabilityFindingSummary(
-		"Filter this workload's findings. Do not provide scope."
+	"Current assessments for this team, including assessments for removed workloads."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend type TeamEnvironment {
+	"Current vulnerability findings for this team's workloads in the environment."
+	vulnerabilityFindings(
+		"Filter the full finding selection."
 		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Current assessments in this team environment, including assessments for removed workloads."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend interface Workload {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this workload's findings."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
 }
@@ -56,18 +83,13 @@ extend interface Workload {
 extend type Application {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
-		"Filter this application's findings. Do not provide scope."
+		"Filter this application's findings."
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over this application's full filtered finding selection."
-	vulnerabilityFindingSummary(
-		"Filter this application's findings. Do not provide scope."
-		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
 }
@@ -75,38 +97,21 @@ extend type Application {
 extend type Job {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
-		"Filter this job's findings. Do not provide scope."
+		"Filter this job's findings."
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over this job's full filtered finding selection."
-	vulnerabilityFindingSummary(
-		"Filter this job's findings. Do not provide scope."
-		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
 }
 
-"Limit a tenant-wide selection. A workload name requires both team and environment."
-input VulnerabilityScopeInput {
-	"The team owning the workload."
-	team: Slug
-	"The environment where the workload is deployed."
-	environment: String
-	"The application or job name."
-	workload: String
-}
-
 "Filters applied before finding pagination and aggregation."
 input VulnerabilityFindingFilter {
-	"Limit a root query to a team, environment or workload. Workload fields are already scoped."
-	scope: VulnerabilityScopeInput
-	"Match a vulnerability identifier or alias."
-	vulnerabilityIdentifier: String
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
 	"Match a full package URL, or a version-independent package key."
 	package: String
 	"Include only findings with these severities."
@@ -129,7 +134,7 @@ enum SuppressedFilter {
 	ONLY
 }
 
-"Severity reported by the finding's advisory source."
+"Severity reported by the advisory source. It is not calculated from the CVSS score; a score of 0.0 does not imply a particular severity."
 enum VulnerabilitySeverity {
 	"The source did not provide a recognized severity."
 	UNKNOWN
@@ -151,6 +156,8 @@ type VulnerabilityFindingConnection {
 	nodes: [VulnerabilityFinding!]!
 	"Pagination information and the full filtered total."
 	pageInfo: PageInfo!
+	"Counts over the full filtered selection, regardless of pagination."
+	facets: VulnerabilityFindingFacets!
 }
 
 "A vulnerability finding and the cursor immediately after it."
@@ -166,7 +173,7 @@ type VulnerabilityFinding implements Node {
 	"The globally unique identifier of this finding."
 	id: ID!
 	"The workload affected by the finding."
-	workload: VulnerabilityWorkloadRef!
+	workload: Workload!
 	"The deployed image in which the finding was detected."
 	image: VulnerabilityImage!
 	"The canonical vulnerability identifier."
@@ -195,16 +202,6 @@ type VulnerabilityFinding implements Node {
 	suppression: VulnerabilitySuppression
 }
 
-"The identity of the application or job affected by a finding."
-type VulnerabilityWorkloadRef {
-	"The team owning the workload."
-	team: Slug!
-	"The environment where the workload is deployed."
-	environment: String!
-	"The application or job name."
-	name: String!
-}
-
 "A container image identified by repository name and manifest digest."
 type VulnerabilityImage {
 	"The image repository name."
@@ -214,9 +211,7 @@ type VulnerabilityImage {
 }
 
 "Counts over the full filtered selection of current findings."
-type VulnerabilityFindingSummary {
-	"The total number of findings."
-	totalFindings: Int!
+type VulnerabilityFindingFacets {
 	"Finding counts by severity."
 	countsBySeverity: VulnerabilitySeverityCounts!
 	"The number of findings with a known fixed version."
@@ -337,8 +332,6 @@ type VulnerabilityEpss {
 
 "Filters applied before assessment pagination."
 input VulnerabilitySuppressionFilter {
-	"Limit a root query to a team, environment or workload."
-	scope: VulnerabilityScopeInput
 	"Match a vulnerability identifier or alias."
 	vulnerabilityIdentifier: String
 	"Match an image repository name."
@@ -349,18 +342,24 @@ input VulnerabilitySuppressionFilter {
 type VulnerabilitySuppression implements Node {
 	"The globally unique identifier of the assessment."
 	id: ID!
-	"The team owning the assessment."
-	team: Slug!
-	"The environment where the assessment applies."
-	environment: String!
-	"The application or job name."
-	workload: String!
+	"The stored slug of the team owning the assessment."
+	teamSlug: Slug!
+	"The stored name of the environment where the assessment applies."
+	environmentName: String!
+	"The stored name of the application or job."
+	workloadName: String!
+	"The team environment, if it still exists."
+	teamEnvironment: TeamEnvironment
+	"The application or job, if it still exists."
+	workload: Workload
 	"The image repository name. The assessment survives image version changes."
 	imageName: String!
 	"The package URL without version, qualifiers or subpath."
 	packageKey: String!
 	"The canonical vulnerability identifier."
 	vulnerabilityIdentifier: String!
+	"The advisory, if the identifier is still known."
+	vulnerability: Vulnerability
 	"The current assessment state."
 	state: VulnerabilitySuppressionState!
 	"The workload owner's reason for the assessment."

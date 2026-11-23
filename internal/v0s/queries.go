@@ -9,8 +9,8 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/pagination"
-	"github.com/nais/api/internal/v0s/protoapi"
 	"github.com/nais/api/internal/workload"
+	protoapi "github.com/nais/v0s-api/v0s/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -22,48 +22,13 @@ func requireRead(ctx context.Context) error {
 	return nil
 }
 
-func normalizeScope(input *VulnerabilityScopeInput) (scope, error) {
-	s := scope{}
-	if input == nil {
-		return s, nil
-	}
-	if input.Team != nil {
-		if err := input.Team.Validate(); err != nil {
-			return s, err
-		}
-		s.team = input.Team.String()
-	}
-	if input.Environment != nil {
-		if strings.TrimSpace(*input.Environment) == "" {
-			return s, apierror.Errorf("environment cannot be empty")
-		}
-		s.environment = *input.Environment
-	}
-	if input.Workload != nil {
-		if strings.TrimSpace(*input.Workload) == "" {
-			return s, apierror.Errorf("workload cannot be empty")
-		}
-		s.workload = *input.Workload
-		if s.team == "" || s.environment == "" {
-			return s, apierror.Errorf("workload requires team and environment")
-		}
-	}
-	return s, nil
+func (s Scope) selection() scope {
+	return scope{team: s.Team.String(), environment: s.Environment, workload: s.Workload}
 }
 
-func normalizeSelectionScope(input, filterScope *VulnerabilityScopeInput) (scope, error) {
-	if filterScope != nil {
-		if input != nil {
-			return scope{}, apierror.Errorf("scope cannot be provided on a workload field")
-		}
-		input = filterScope
-	}
-	return normalizeScope(input)
-}
-
-func WorkloadScope(w workload.Workload) *VulnerabilityScopeInput {
-	return &VulnerabilityScopeInput{
-		Team: new(w.GetTeamSlug()), Environment: new(w.GetEnvironmentName()), Workload: new(w.GetName()),
+func WorkloadScope(w workload.Workload) Scope {
+	return Scope{
+		Team: w.GetTeamSlug(), Environment: w.GetEnvironmentName(), Workload: w.GetName(),
 	}
 }
 
@@ -75,11 +40,17 @@ func findingFilter(s scope, input *VulnerabilityFindingFilter) (*protoapi.Findin
 	if input == nil {
 		return f, nil
 	}
-	if input.VulnerabilityIdentifier != nil {
-		if strings.TrimSpace(*input.VulnerabilityIdentifier) == "" {
-			return nil, apierror.Errorf("vulnerabilityIdentifier cannot be empty")
+	for _, id := range input.VulnerabilityIdentifiers {
+		if strings.TrimSpace(id) == "" {
+			return nil, apierror.Errorf("vulnerabilityIdentifiers cannot contain empty values")
 		}
-		f.VulnerabilityId = *input.VulnerabilityIdentifier
+	}
+	f.VulnerabilityIds = slices.Clone(input.VulnerabilityIdentifiers)
+	slices.Sort(f.VulnerabilityIds)
+	f.VulnerabilityIds = slices.Compact(f.VulnerabilityIds)
+	if len(f.VulnerabilityIds) == 1 {
+		f.VulnerabilityId = f.VulnerabilityIds[0]
+		f.VulnerabilityIds = nil
 	}
 	if input.Package != nil {
 		if strings.TrimSpace(*input.Package) == "" {
@@ -116,18 +87,11 @@ func findingFilter(s scope, input *VulnerabilityFindingFilter) (*protoapi.Findin
 	return f, nil
 }
 
-func Findings(ctx context.Context, input *VulnerabilityScopeInput, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor) (*VulnerabilityFindingConnection, error) {
+func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor) (*VulnerabilityFindingConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
-	var filterScope *VulnerabilityScopeInput
-	if filter != nil {
-		filterScope = filter.Scope
-	}
-	s, err := normalizeSelectionScope(input, filterScope)
-	if err != nil {
-		return nil, err
-	}
+	s := input.selection()
 	f, err := findingFilter(s, filter)
 	if err != nil {
 		return nil, err
@@ -165,13 +129,18 @@ func Findings(ctx context.Context, input *VulnerabilityScopeInput, filter *Vulne
 	if err != nil {
 		return nil, err
 	}
+	grouped := proto.Clone(f).(*protoapi.FindingFilter)
+	grouped.Workload = ""
 	info.CountLoader = func(ctx context.Context) (int, error) {
-		full := proto.Clone(f).(*protoapi.FindingFilter)
-		full.Workload = ""
-		count, err := l.countCurrent(ctx, full, current)
+		count, err := l.countCurrent(ctx, grouped, current)
 		return int(count), err
 	}
-	result := &VulnerabilityFindingConnection{Edges: make([]VulnerabilityFindingEdge, 0, len(edges)), PageInfo: info}
+	result := &VulnerabilityFindingConnection{
+		Connection: pagination.Connection[*VulnerabilityFinding]{Edges: make([]VulnerabilityFindingEdge, 0, len(edges)), PageInfo: info},
+		loadFacets: func(ctx context.Context) (*VulnerabilityFindingFacets, error) {
+			return findingFacets(ctx, l, grouped, current)
+		},
+	}
 	for _, edge := range edges {
 		value, err := finding(edge.Node)
 		if err != nil {
@@ -182,34 +151,10 @@ func Findings(ctx context.Context, input *VulnerabilityScopeInput, filter *Vulne
 	return result, nil
 }
 
-func FindingSummary(ctx context.Context, input *VulnerabilityScopeInput, filter *VulnerabilityFindingFilter) (*VulnerabilityFindingSummary, error) {
-	if err := requireRead(ctx); err != nil {
-		return nil, err
-	}
-	var filterScope *VulnerabilityScopeInput
-	if filter != nil {
-		filterScope = filter.Scope
-	}
-	s, err := normalizeSelectionScope(input, filterScope)
-	if err != nil {
-		return nil, err
-	}
-	f, err := findingFilter(s, filter)
-	if err != nil {
-		return nil, err
-	}
-	l, err := fromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	current, err := l.currentWorkloads(ctx, s)
-	if err != nil {
-		return nil, err
-	}
+func findingFacets(ctx context.Context, l *loaders, f *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload) (*VulnerabilityFindingFacets, error) {
 	// Grouped counts can be reused across workload fields in a team/environment.
 	// Reconciliation discards buckets for removed workloads and obsolete images.
-	f.Workload = ""
-	filters := []*protoapi.FindingFilter{f}
+	filters := make([]*protoapi.FindingFilter, 0, 7)
 	for _, sev := range []protoapi.Severity{
 		protoapi.Severity_SEVERITY_UNKNOWN, protoapi.Severity_SEVERITY_LOW, protoapi.Severity_SEVERITY_MEDIUM,
 		protoapi.Severity_SEVERITY_HIGH, protoapi.Severity_SEVERITY_CRITICAL,
@@ -233,61 +178,40 @@ func FindingSummary(ctx context.Context, input *VulnerabilityScopeInput, filter 
 		if filter == nil {
 			continue
 		}
-		counts[i], err = l.countCurrent(ctx, filter, current)
+		count, err := l.countCurrent(ctx, filter, current)
 		if err != nil {
 			return nil, err
 		}
+		counts[i] = count
 	}
-	return &VulnerabilityFindingSummary{
-		TotalFindings: counts[0], CountsBySeverity: &VulnerabilitySeverityCounts{
-			Unknown: counts[1], Low: counts[2], Medium: counts[3], High: counts[4], Critical: counts[5],
+	return &VulnerabilityFindingFacets{
+		CountsBySeverity: &VulnerabilitySeverityCounts{
+			Unknown: counts[0], Low: counts[1], Medium: counts[2], High: counts[3], Critical: counts[4],
 		},
-		FixableFindings: counts[6], KnownExploitedFindings: counts[7],
+		FixableFindings: counts[5], KnownExploitedFindings: counts[6],
 	}, nil
 }
 
-func Coverage(ctx context.Context, input *VulnerabilityScopeInput) (*VulnerabilityCoverageCounts, error) {
+func WorkloadCoverageStatuses(ctx context.Context, team Scope, workloads []workload.Workload) ([]VulnerabilityCoverageStatus, error) {
 	if err := requireRead(ctx); err != nil {
-		return nil, err
-	}
-	s, err := normalizeScope(input)
-	if err != nil {
 		return nil, err
 	}
 	l, err := fromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	current, err := l.currentWorkloads(ctx, s)
+	current, err := l.currentWorkloads(ctx, team.selection())
 	if err != nil {
 		return nil, err
 	}
-	inventory, err := l.inventory.Load(ctx, struct{}{})
-	if err != nil {
-		return nil, err
-	}
-	result := &VulnerabilityCoverageCounts{}
-	for key := range inventory {
-		if !s.matches(key) {
-			continue
-		}
+	result := make([]VulnerabilityCoverageStatus, len(workloads))
+	for i, w := range workloads {
+		key := workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()}
 		value, err := coverage(current[key])
 		if err != nil {
 			return nil, err
 		}
-		result.TotalWorkloads++
-		switch value.Status {
-		case VulnerabilityCoverageStatusScanned:
-			result.Scanned++
-		case VulnerabilityCoverageStatusNoSbom:
-			result.NoSbom++
-		case VulnerabilityCoverageStatusFailed:
-			result.Failed++
-		case VulnerabilityCoverageStatusUnresolvedImage:
-			result.UnresolvedImage++
-		default:
-			result.Pending++
-		}
+		result[i] = value.Status
 	}
 	return result, nil
 }
@@ -296,10 +220,7 @@ func WorkloadCoverage(ctx context.Context, w workload.Workload) (*VulnerabilityC
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
-	s, err := normalizeScope(WorkloadScope(w))
-	if err != nil {
-		return nil, err
-	}
+	s := WorkloadScope(w).selection()
 	l, err := fromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -325,18 +246,11 @@ func VulnerabilityByIdentifier(ctx context.Context, identifier string) (*Vulnera
 	return l.advisories.Load(ctx, identifier)
 }
 
-func Suppressions(ctx context.Context, input *VulnerabilityScopeInput, filter *VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*VulnerabilitySuppressionConnection, error) {
+func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*VulnerabilitySuppressionConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
-	var filterScope *VulnerabilityScopeInput
-	if filter != nil {
-		filterScope = filter.Scope
-	}
-	s, err := normalizeSelectionScope(input, filterScope)
-	if err != nil {
-		return nil, err
-	}
+	s := input.selection()
 	l, err := fromContext(ctx)
 	if err != nil {
 		return nil, err

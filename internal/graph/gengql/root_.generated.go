@@ -158,6 +158,7 @@ type ResolverRoot interface {
 	ValkeyIssue() ValkeyIssueResolver
 	ValkeyMaintenance() ValkeyMaintenanceResolver
 	VulnerabilityFinding() VulnerabilityFindingResolver
+	VulnerabilitySuppression() VulnerabilitySuppressionResolver
 	VulnerableImageIssue() VulnerableImageIssueResolver
 	WebhookSubscription() WebhookSubscriptionResolver
 	WorkloadCost() WorkloadCostResolver
@@ -249,44 +250,43 @@ type ComplexityRoot struct {
 	}
 
 	Application struct {
-		ActivityLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		AuthIntegrations            func(childComplexity int) int
-		BigQueryDatasets            func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets                     func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Configs                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Cost                        func(childComplexity int) int
-		DeletionStartedAt           func(childComplexity int) int
-		Deployments                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Events                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
-		History                     func(childComplexity int) int
-		ID                          func(childComplexity int) int
-		Image                       func(childComplexity int) int
-		ImageVulnerabilityHistory   func(childComplexity int, from scalar.Date) int
-		Ingresses                   func(childComplexity int) int
-		InstanceGroups              func(childComplexity int) int
-		Instances                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Issues                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
-		KafkaTopicAcls              func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		Labels                      func(childComplexity int) int
-		LogDestinations             func(childComplexity int) int
-		Manifest                    func(childComplexity int) int
-		Name                        func(childComplexity int) int
-		NetworkPolicy               func(childComplexity int) int
-		OpenSearch                  func(childComplexity int) int
-		Postgreses                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Resources                   func(childComplexity int) int
-		SQLInstances                func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Secrets                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ServiceAccount              func(childComplexity int) int
-		State                       func(childComplexity int) int
-		Team                        func(childComplexity int) int
-		TeamEnvironment             func(childComplexity int) int
-		Utilization                 func(childComplexity int) int
-		Valkeys                     func(childComplexity int, orderBy *valkey.ValkeyOrder) int
-		VulnerabilityCoverage       func(childComplexity int) int
-		VulnerabilityFindingSummary func(childComplexity int, filter *v0s.VulnerabilityFindingFilter) int
-		VulnerabilityFindings       func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
-		VulnerabilityFixHistory     func(childComplexity int, from scalar.Date) int
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		AuthIntegrations          func(childComplexity int) int
+		BigQueryDatasets          func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets                   func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Cost                      func(childComplexity int) int
+		DeletionStartedAt         func(childComplexity int) int
+		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
+		History                   func(childComplexity int) int
+		ID                        func(childComplexity int) int
+		Image                     func(childComplexity int) int
+		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
+		Ingresses                 func(childComplexity int) int
+		InstanceGroups            func(childComplexity int) int
+		Instances                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Labels                    func(childComplexity int) int
+		LogDestinations           func(childComplexity int) int
+		Manifest                  func(childComplexity int) int
+		Name                      func(childComplexity int) int
+		NetworkPolicy             func(childComplexity int) int
+		OpenSearch                func(childComplexity int) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Resources                 func(childComplexity int) int
+		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ServiceAccount            func(childComplexity int) int
+		State                     func(childComplexity int) int
+		Team                      func(childComplexity int) int
+		TeamEnvironment           func(childComplexity int) int
+		Utilization               func(childComplexity int) int
+		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
+		VulnerabilityCoverage     func(childComplexity int) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 	}
 
 	ApplicationConnection struct {
@@ -1296,41 +1296,40 @@ type ComplexityRoot struct {
 	}
 
 	Job struct {
-		ActivityLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
-		AuthIntegrations            func(childComplexity int) int
-		BigQueryDatasets            func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
-		Buckets                     func(childComplexity int, orderBy *bucket.BucketOrder) int
-		Configs                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Cost                        func(childComplexity int) int
-		DeletionStartedAt           func(childComplexity int) int
-		Deployments                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Events                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
-		ID                          func(childComplexity int) int
-		Image                       func(childComplexity int) int
-		ImageVulnerabilityHistory   func(childComplexity int, from scalar.Date) int
-		Issues                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
-		KafkaTopicAcls              func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
-		Labels                      func(childComplexity int) int
-		LogDestinations             func(childComplexity int) int
-		Manifest                    func(childComplexity int) int
-		Name                        func(childComplexity int) int
-		NetworkPolicy               func(childComplexity int) int
-		OpenSearch                  func(childComplexity int) int
-		Postgreses                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Resources                   func(childComplexity int) int
-		Runs                        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		SQLInstances                func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
-		Schedule                    func(childComplexity int) int
-		Secrets                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ServiceAccount              func(childComplexity int) int
-		State                       func(childComplexity int) int
-		Team                        func(childComplexity int) int
-		TeamEnvironment             func(childComplexity int) int
-		Valkeys                     func(childComplexity int, orderBy *valkey.ValkeyOrder) int
-		VulnerabilityCoverage       func(childComplexity int) int
-		VulnerabilityFindingSummary func(childComplexity int, filter *v0s.VulnerabilityFindingFilter) int
-		VulnerabilityFindings       func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
-		VulnerabilityFixHistory     func(childComplexity int, from scalar.Date) int
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int
+		AuthIntegrations          func(childComplexity int) int
+		BigQueryDatasets          func(childComplexity int, orderBy *bigquery.BigQueryDatasetOrder) int
+		Buckets                   func(childComplexity int, orderBy *bucket.BucketOrder) int
+		Configs                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Cost                      func(childComplexity int) int
+		DeletionStartedAt         func(childComplexity int) int
+		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Events                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *event.WorkloadEventFilter) int
+		ID                        func(childComplexity int) int
+		Image                     func(childComplexity int) int
+		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
+		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) int
+		KafkaTopicAcls            func(childComplexity int, orderBy *kafkatopic.KafkaTopicACLOrder) int
+		Labels                    func(childComplexity int) int
+		LogDestinations           func(childComplexity int) int
+		Manifest                  func(childComplexity int) int
+		Name                      func(childComplexity int) int
+		NetworkPolicy             func(childComplexity int) int
+		OpenSearch                func(childComplexity int) int
+		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Resources                 func(childComplexity int) int
+		Runs                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		SQLInstances              func(childComplexity int, orderBy *sqlinstance.SQLInstanceOrder) int
+		Schedule                  func(childComplexity int) int
+		Secrets                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ServiceAccount            func(childComplexity int) int
+		State                     func(childComplexity int) int
+		Team                      func(childComplexity int) int
+		TeamEnvironment           func(childComplexity int) int
+		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
+		VulnerabilityCoverage     func(childComplexity int) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 	}
 
 	JobConnection struct {
@@ -2226,41 +2225,39 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ActivityLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
-		CVE                         func(childComplexity int, identifier string) int
-		CostMonthlySummary          func(childComplexity int, from scalar.Date, to scalar.Date) int
-		CurrentUnitPrices           func(childComplexity int) int
-		Cves                        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
-		Deployments                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
-		Environment                 func(childComplexity int, name string) int
-		Environments                func(childComplexity int, orderBy *environment.EnvironmentOrder) int
-		Features                    func(childComplexity int) int
-		GlobalWebhooks              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ImageVulnerabilityHistory   func(childComplexity int, from scalar.Date) int
-		Issues                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
-		Me                          func(childComplexity int) int
-		Node                        func(childComplexity int, id ident.Ident) int
-		Reconcilers                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Roles                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
-		Search                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
-		ServiceAccount              func(childComplexity int, id ident.Ident) int
-		ServiceAccounts             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team                        func(childComplexity int, slug slug.Slug) int
-		Teams                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
-		TeamsUtilization            func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		UnleashReleaseChannels      func(childComplexity int) int
-		User                        func(childComplexity int, email *string) int
-		UserSyncLog                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Users                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
-		Vulnerability               func(childComplexity int, identifier string) int
-		VulnerabilityCoverage       func(childComplexity int, scope *v0s.VulnerabilityScopeInput) int
-		VulnerabilityFindingSummary func(childComplexity int, filter *v0s.VulnerabilityFindingFilter) int
-		VulnerabilityFindings       func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
-		VulnerabilityFixHistory     func(childComplexity int, from scalar.Date) int
-		VulnerabilitySummaries      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
-		VulnerabilitySummary        func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
-		VulnerabilitySuppressions   func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
-		WebhookEventTypes           func(childComplexity int) int
+		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
+		CVE                       func(childComplexity int, identifier string) int
+		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
+		CurrentUnitPrices         func(childComplexity int) int
+		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
+		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
+		Environment               func(childComplexity int, name string) int
+		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
+		Features                  func(childComplexity int) int
+		GlobalWebhooks            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
+		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
+		Me                        func(childComplexity int) int
+		Node                      func(childComplexity int, id ident.Ident) int
+		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
+		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
+		ServiceAccount            func(childComplexity int, id ident.Ident) int
+		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Team                      func(childComplexity int, slug slug.Slug) int
+		Teams                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
+		TeamsUtilization          func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		UnleashReleaseChannels    func(childComplexity int) int
+		User                      func(childComplexity int, email *string) int
+		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
+		Vulnerability             func(childComplexity int, identifier string) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
+		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
+		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		WebhookEventTypes         func(childComplexity int) int
 	}
 
 	Reconciler struct {
@@ -3125,9 +3122,11 @@ type ComplexityRoot struct {
 		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int
 		ViewerIsMember            func(childComplexity int) int
 		ViewerIsOwner             func(childComplexity int) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
 		Webhooks                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		WorkloadUtilization       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Workloads                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
@@ -3229,28 +3228,30 @@ type ComplexityRoot struct {
 	}
 
 	TeamEnvironment struct {
-		Alerts             func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int
-		Application        func(childComplexity int, name string) int
-		BigQueryDataset    func(childComplexity int, name string) int
-		Bucket             func(childComplexity int, name string) int
-		Config             func(childComplexity int, name string) int
-		Cost               func(childComplexity int) int
-		Environment        func(childComplexity int) int
-		GCPProjectID       func(childComplexity int) int
-		ID                 func(childComplexity int) int
-		Job                func(childComplexity int, name string) int
-		KafkaTopic         func(childComplexity int, name string) int
-		Name               func(childComplexity int) int
-		OpenSearch         func(childComplexity int, name string) int
-		Postgres           func(childComplexity int, name string) int
-		PostgresAccess     func(childComplexity int, name string) int
-		SQLInstance        func(childComplexity int, name string) int
-		Secret             func(childComplexity int, name string) int
-		SlackAlertsChannel func(childComplexity int) int
-		Team               func(childComplexity int) int
-		Tunnel             func(childComplexity int, name string) int
-		Valkey             func(childComplexity int, name string) int
-		Workload           func(childComplexity int, name string) int
+		Alerts                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int
+		Application               func(childComplexity int, name string) int
+		BigQueryDataset           func(childComplexity int, name string) int
+		Bucket                    func(childComplexity int, name string) int
+		Config                    func(childComplexity int, name string) int
+		Cost                      func(childComplexity int) int
+		Environment               func(childComplexity int) int
+		GCPProjectID              func(childComplexity int) int
+		ID                        func(childComplexity int) int
+		Job                       func(childComplexity int, name string) int
+		KafkaTopic                func(childComplexity int, name string) int
+		Name                      func(childComplexity int) int
+		OpenSearch                func(childComplexity int, name string) int
+		Postgres                  func(childComplexity int, name string) int
+		PostgresAccess            func(childComplexity int, name string) int
+		SQLInstance               func(childComplexity int, name string) int
+		Secret                    func(childComplexity int, name string) int
+		SlackAlertsChannel        func(childComplexity int) int
+		Team                      func(childComplexity int) int
+		Tunnel                    func(childComplexity int, name string) int
+		Valkey                    func(childComplexity int, name string) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		Workload                  func(childComplexity int, name string) int
 	}
 
 	TeamEnvironmentCost struct {
@@ -4060,6 +4061,7 @@ type ComplexityRoot struct {
 
 	VulnerabilityFindingConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -4069,11 +4071,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	VulnerabilityFindingSummary struct {
+	VulnerabilityFindingFacets struct {
 		CountsBySeverity       func(childComplexity int) int
 		FixableFindings        func(childComplexity int) int
 		KnownExploitedFindings func(childComplexity int) int
-		TotalFindings          func(childComplexity int) int
 	}
 
 	VulnerabilityFixHistory struct {
@@ -4125,8 +4126,10 @@ type ComplexityRoot struct {
 		Reason                  func(childComplexity int) int
 		State                   func(childComplexity int) int
 		Team                    func(childComplexity int) int
+		TeamEnvironment         func(childComplexity int) int
 		UpdatedAt               func(childComplexity int) int
 		UpdatedBy               func(childComplexity int) int
+		Vulnerability           func(childComplexity int) int
 		VulnerabilityIdentifier func(childComplexity int) int
 		Workload                func(childComplexity int) int
 	}
@@ -4170,12 +4173,6 @@ type ComplexityRoot struct {
 		ResourceName      func(childComplexity int) int
 		ResourceType      func(childComplexity int) int
 		TeamSlug          func(childComplexity int) int
-	}
-
-	VulnerabilityWorkloadRef struct {
-		Environment func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Team        func(childComplexity int) int
 	}
 
 	VulnerableImageIssue struct {
@@ -4320,6 +4317,7 @@ type ComplexityRoot struct {
 
 	WorkloadConnection struct {
 		Edges    func(childComplexity int) int
+		Facets   func(childComplexity int) int
 		Nodes    func(childComplexity int) int
 		PageInfo func(childComplexity int) int
 	}
@@ -4360,6 +4358,10 @@ type ComplexityRoot struct {
 	WorkloadEventEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	WorkloadFacets struct {
+		VulnerabilityCoverage func(childComplexity int) int
 	}
 
 	WorkloadKillingEvent struct {
@@ -5024,18 +5026,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Application.VulnerabilityCoverage(childComplexity), true
-
-	case "Application.vulnerabilityFindingSummary":
-		if e.ComplexityRoot.Application.VulnerabilityFindingSummary == nil {
-			break
-		}
-
-		args, err := ec.field_Application_vulnerabilityFindingSummary_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Application.VulnerabilityFindingSummary(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter)), true
 
 	case "Application.vulnerabilityFindings":
 		if e.ComplexityRoot.Application.VulnerabilityFindings == nil {
@@ -9295,18 +9285,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Job.VulnerabilityCoverage(childComplexity), true
-
-	case "Job.vulnerabilityFindingSummary":
-		if e.ComplexityRoot.Job.VulnerabilityFindingSummary == nil {
-			break
-		}
-
-		args, err := ec.field_Job_vulnerabilityFindingSummary_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Job.VulnerabilityFindingSummary(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter)), true
 
 	case "Job.vulnerabilityFindings":
 		if e.ComplexityRoot.Job.VulnerabilityFindings == nil {
@@ -13990,30 +13968,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Query.Vulnerability(childComplexity, args["identifier"].(string)), true
 
-	case "Query.vulnerabilityCoverage":
-		if e.ComplexityRoot.Query.VulnerabilityCoverage == nil {
-			break
-		}
-
-		args, err := ec.field_Query_vulnerabilityCoverage_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Query.VulnerabilityCoverage(childComplexity, args["scope"].(*v0s.VulnerabilityScopeInput)), true
-
-	case "Query.vulnerabilityFindingSummary":
-		if e.ComplexityRoot.Query.VulnerabilityFindingSummary == nil {
-			break
-		}
-
-		args, err := ec.field_Query_vulnerabilityFindingSummary_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Query.VulnerabilityFindingSummary(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter)), true
-
 	case "Query.vulnerabilityFindings":
 		if e.ComplexityRoot.Query.VulnerabilityFindings == nil {
 			break
@@ -17983,6 +17937,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.ViewerIsOwner(childComplexity), true
 
+	case "Team.vulnerabilityFindings":
+		if e.ComplexityRoot.Team.VulnerabilityFindings == nil {
+			break
+		}
+
+		args, err := ec.field_Team_vulnerabilityFindings_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+
 	case "Team.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Team.VulnerabilityFixHistory == nil {
 			break
@@ -18018,6 +17984,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Team.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TeamVulnerabilitySummaryFilter)), true
+
+	case "Team.vulnerabilitySuppressions":
+		if e.ComplexityRoot.Team.VulnerabilitySuppressions == nil {
+			break
+		}
+
+		args, err := ec.field_Team_vulnerabilitySuppressions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Team.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
 
 	case "Team.webhooks":
 		if e.ComplexityRoot.Team.Webhooks == nil {
@@ -18668,6 +18646,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamEnvironment.Valkey(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.vulnerabilityFindings":
+		if e.ComplexityRoot.TeamEnvironment.VulnerabilityFindings == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_vulnerabilityFindings_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+
+	case "TeamEnvironment.vulnerabilitySuppressions":
+		if e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_vulnerabilitySuppressions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
 
 	case "TeamEnvironment.workload":
 		if e.ComplexityRoot.TeamEnvironment.Workload == nil {
@@ -21964,6 +21966,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFindingConnection.Edges(childComplexity), true
 
+	case "VulnerabilityFindingConnection.facets":
+		if e.ComplexityRoot.VulnerabilityFindingConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingConnection.Facets(childComplexity), true
+
 	case "VulnerabilityFindingConnection.nodes":
 		if e.ComplexityRoot.VulnerabilityFindingConnection.Nodes == nil {
 			break
@@ -21992,33 +22001,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFindingEdge.Node(childComplexity), true
 
-	case "VulnerabilityFindingSummary.countsBySeverity":
-		if e.ComplexityRoot.VulnerabilityFindingSummary.CountsBySeverity == nil {
+	case "VulnerabilityFindingFacets.countsBySeverity":
+		if e.ComplexityRoot.VulnerabilityFindingFacets.CountsBySeverity == nil {
 			break
 		}
 
-		return e.ComplexityRoot.VulnerabilityFindingSummary.CountsBySeverity(childComplexity), true
+		return e.ComplexityRoot.VulnerabilityFindingFacets.CountsBySeverity(childComplexity), true
 
-	case "VulnerabilityFindingSummary.fixableFindings":
-		if e.ComplexityRoot.VulnerabilityFindingSummary.FixableFindings == nil {
+	case "VulnerabilityFindingFacets.fixableFindings":
+		if e.ComplexityRoot.VulnerabilityFindingFacets.FixableFindings == nil {
 			break
 		}
 
-		return e.ComplexityRoot.VulnerabilityFindingSummary.FixableFindings(childComplexity), true
+		return e.ComplexityRoot.VulnerabilityFindingFacets.FixableFindings(childComplexity), true
 
-	case "VulnerabilityFindingSummary.knownExploitedFindings":
-		if e.ComplexityRoot.VulnerabilityFindingSummary.KnownExploitedFindings == nil {
+	case "VulnerabilityFindingFacets.knownExploitedFindings":
+		if e.ComplexityRoot.VulnerabilityFindingFacets.KnownExploitedFindings == nil {
 			break
 		}
 
-		return e.ComplexityRoot.VulnerabilityFindingSummary.KnownExploitedFindings(childComplexity), true
-
-	case "VulnerabilityFindingSummary.totalFindings":
-		if e.ComplexityRoot.VulnerabilityFindingSummary.TotalFindings == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityFindingSummary.TotalFindings(childComplexity), true
+		return e.ComplexityRoot.VulnerabilityFindingFacets.KnownExploitedFindings(childComplexity), true
 
 	case "VulnerabilityFixHistory.samples":
 		if e.ComplexityRoot.VulnerabilityFixHistory.Samples == nil {
@@ -22181,7 +22183,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySeverityCounts.Unknown(childComplexity), true
 
-	case "VulnerabilitySuppression.environment":
+	case "VulnerabilitySuppression.environmentName":
 		if e.ComplexityRoot.VulnerabilitySuppression.Environment == nil {
 			break
 		}
@@ -22223,12 +22225,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySuppression.State(childComplexity), true
 
-	case "VulnerabilitySuppression.team":
+	case "VulnerabilitySuppression.teamSlug":
 		if e.ComplexityRoot.VulnerabilitySuppression.Team == nil {
 			break
 		}
 
 		return e.ComplexityRoot.VulnerabilitySuppression.Team(childComplexity), true
+
+	case "VulnerabilitySuppression.teamEnvironment":
+		if e.ComplexityRoot.VulnerabilitySuppression.TeamEnvironment == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.TeamEnvironment(childComplexity), true
 
 	case "VulnerabilitySuppression.updatedAt":
 		if e.ComplexityRoot.VulnerabilitySuppression.UpdatedAt == nil {
@@ -22244,6 +22253,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySuppression.UpdatedBy(childComplexity), true
 
+	case "VulnerabilitySuppression.vulnerability":
+		if e.ComplexityRoot.VulnerabilitySuppression.Vulnerability == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppression.Vulnerability(childComplexity), true
+
 	case "VulnerabilitySuppression.vulnerabilityIdentifier":
 		if e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier == nil {
 			break
@@ -22251,7 +22267,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilitySuppression.VulnerabilityIdentifier(childComplexity), true
 
-	case "VulnerabilitySuppression.workload":
+	case "VulnerabilitySuppression.workloadName", "VulnerabilitySuppression.workload":
 		if e.ComplexityRoot.VulnerabilitySuppression.Workload == nil {
 			break
 		}
@@ -22439,27 +22455,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.TeamSlug(childComplexity), true
-
-	case "VulnerabilityWorkloadRef.environment":
-		if e.ComplexityRoot.VulnerabilityWorkloadRef.Environment == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityWorkloadRef.Environment(childComplexity), true
-
-	case "VulnerabilityWorkloadRef.name":
-		if e.ComplexityRoot.VulnerabilityWorkloadRef.Name == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityWorkloadRef.Name(childComplexity), true
-
-	case "VulnerabilityWorkloadRef.team":
-		if e.ComplexityRoot.VulnerabilityWorkloadRef.Team == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityWorkloadRef.Team(childComplexity), true
 
 	case "VulnerableImageIssue.critical":
 		if e.ComplexityRoot.VulnerableImageIssue.Critical == nil {
@@ -23122,6 +23117,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.WorkloadConnection.Edges(childComplexity), true
 
+	case "WorkloadConnection.facets":
+		if e.ComplexityRoot.WorkloadConnection.Facets == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadConnection.Facets(childComplexity), true
+
 	case "WorkloadConnection.nodes":
 		if e.ComplexityRoot.WorkloadConnection.Nodes == nil {
 			break
@@ -23259,6 +23261,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.WorkloadEventEdge.Node(childComplexity), true
+
+	case "WorkloadFacets.vulnerabilityCoverage":
+		if e.ComplexityRoot.WorkloadFacets.VulnerabilityCoverage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.WorkloadFacets.VulnerabilityCoverage(childComplexity), true
 
 	case "WorkloadKillingEvent.container":
 		if e.ComplexityRoot.WorkloadKillingEvent.Container == nil {
@@ -23929,7 +23938,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputValkeyOrder,
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilityFindingFilter,
-		ec.unmarshalInputVulnerabilityScopeInput,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
 		ec.unmarshalInputVulnerabilitySuppressionFilter,
 		ec.unmarshalInputVulnerabilitySuppressionKeyInput,
@@ -36749,16 +36757,6 @@ type ApplicationInstanceUtilization {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over the full filtered selection, not just the loaded page."
-	vulnerabilityFindingSummary(
-		"Filter the full finding selection."
-		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
-	"Scan coverage of the currently deployed applications and jobs."
-	vulnerabilityCoverage(
-		"Limit coverage to a team, environment or workload. Omitted scope is tenant-wide."
-		scope: VulnerabilityScopeInput
-	): VulnerabilityCoverageCounts!
 	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
 	vulnerability(
 		"The vulnerability identifier or an alias identifying exactly one vulnerability."
@@ -36775,21 +36773,58 @@ type ApplicationInstanceUtilization {
 	): VulnerabilitySuppressionConnection!
 }
 
-extend interface Workload {
-	"Current vulnerability findings in the deployed image."
+extend type Team {
+	"Current vulnerability findings for this team's workloads."
 	vulnerabilityFindings(
-		"Filter this workload's findings. Do not provide scope."
+		"Filter the full finding selection."
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over this workload's full filtered finding selection."
-	vulnerabilityFindingSummary(
-		"Filter this workload's findings. Do not provide scope."
+	"Current assessments for this team, including assessments for removed workloads."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend type TeamEnvironment {
+	"Current vulnerability findings for this team's workloads in the environment."
+	vulnerabilityFindings(
+		"Filter the full finding selection."
 		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
+	"Current assessments in this team environment, including assessments for removed workloads."
+	vulnerabilitySuppressions(
+		"Filter the assessment selection."
+		filter: VulnerabilitySuppressionFilter
+		"Get the first n assessments, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilitySuppressionConnection!
+}
+
+extend interface Workload {
+	"Current vulnerability findings in the deployed image."
+	vulnerabilityFindings(
+		"Filter this workload's findings."
+		filter: VulnerabilityFindingFilter
+		"Get the first n findings, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor, using the same filter."
+		after: Cursor
+	): VulnerabilityFindingConnection!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
 }
@@ -36797,18 +36832,13 @@ extend interface Workload {
 extend type Application {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
-		"Filter this application's findings. Do not provide scope."
+		"Filter this application's findings."
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over this application's full filtered finding selection."
-	vulnerabilityFindingSummary(
-		"Filter this application's findings. Do not provide scope."
-		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
 }
@@ -36816,38 +36846,21 @@ extend type Application {
 extend type Job {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
-		"Filter this job's findings. Do not provide scope."
+		"Filter this job's findings."
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Counts over this job's full filtered finding selection."
-	vulnerabilityFindingSummary(
-		"Filter this job's findings. Do not provide scope."
-		filter: VulnerabilityFindingFilter
-	): VulnerabilityFindingSummary!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
 }
 
-"Limit a tenant-wide selection. A workload name requires both team and environment."
-input VulnerabilityScopeInput {
-	"The team owning the workload."
-	team: Slug
-	"The environment where the workload is deployed."
-	environment: String
-	"The application or job name."
-	workload: String
-}
-
 "Filters applied before finding pagination and aggregation."
 input VulnerabilityFindingFilter {
-	"Limit a root query to a team, environment or workload. Workload fields are already scoped."
-	scope: VulnerabilityScopeInput
-	"Match a vulnerability identifier or alias."
-	vulnerabilityIdentifier: String
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
 	"Match a full package URL, or a version-independent package key."
 	package: String
 	"Include only findings with these severities."
@@ -36870,7 +36883,7 @@ enum SuppressedFilter {
 	ONLY
 }
 
-"Severity reported by the finding's advisory source."
+"Severity reported by the advisory source. It is not calculated from the CVSS score; a score of 0.0 does not imply a particular severity."
 enum VulnerabilitySeverity {
 	"The source did not provide a recognized severity."
 	UNKNOWN
@@ -36892,6 +36905,8 @@ type VulnerabilityFindingConnection {
 	nodes: [VulnerabilityFinding!]!
 	"Pagination information and the full filtered total."
 	pageInfo: PageInfo!
+	"Counts over the full filtered selection, regardless of pagination."
+	facets: VulnerabilityFindingFacets!
 }
 
 "A vulnerability finding and the cursor immediately after it."
@@ -36907,7 +36922,7 @@ type VulnerabilityFinding implements Node {
 	"The globally unique identifier of this finding."
 	id: ID!
 	"The workload affected by the finding."
-	workload: VulnerabilityWorkloadRef!
+	workload: Workload!
 	"The deployed image in which the finding was detected."
 	image: VulnerabilityImage!
 	"The canonical vulnerability identifier."
@@ -36936,16 +36951,6 @@ type VulnerabilityFinding implements Node {
 	suppression: VulnerabilitySuppression
 }
 
-"The identity of the application or job affected by a finding."
-type VulnerabilityWorkloadRef {
-	"The team owning the workload."
-	team: Slug!
-	"The environment where the workload is deployed."
-	environment: String!
-	"The application or job name."
-	name: String!
-}
-
 "A container image identified by repository name and manifest digest."
 type VulnerabilityImage {
 	"The image repository name."
@@ -36955,9 +36960,7 @@ type VulnerabilityImage {
 }
 
 "Counts over the full filtered selection of current findings."
-type VulnerabilityFindingSummary {
-	"The total number of findings."
-	totalFindings: Int!
+type VulnerabilityFindingFacets {
 	"Finding counts by severity."
 	countsBySeverity: VulnerabilitySeverityCounts!
 	"The number of findings with a known fixed version."
@@ -37078,8 +37081,6 @@ type VulnerabilityEpss {
 
 "Filters applied before assessment pagination."
 input VulnerabilitySuppressionFilter {
-	"Limit a root query to a team, environment or workload."
-	scope: VulnerabilityScopeInput
 	"Match a vulnerability identifier or alias."
 	vulnerabilityIdentifier: String
 	"Match an image repository name."
@@ -37090,18 +37091,24 @@ input VulnerabilitySuppressionFilter {
 type VulnerabilitySuppression implements Node {
 	"The globally unique identifier of the assessment."
 	id: ID!
-	"The team owning the assessment."
-	team: Slug!
-	"The environment where the assessment applies."
-	environment: String!
-	"The application or job name."
-	workload: String!
+	"The stored slug of the team owning the assessment."
+	teamSlug: Slug!
+	"The stored name of the environment where the assessment applies."
+	environmentName: String!
+	"The stored name of the application or job."
+	workloadName: String!
+	"The team environment, if it still exists."
+	teamEnvironment: TeamEnvironment
+	"The application or job, if it still exists."
+	workload: Workload
 	"The image repository name. The assessment survives image version changes."
 	imageName: String!
 	"The package URL without version, qualifiers or subpath."
 	packageKey: String!
 	"The canonical vulnerability identifier."
 	vulnerabilityIdentifier: String!
+	"The advisory, if the identifier is still known."
+	vulnerability: Vulnerability
 	"The current assessment state."
 	state: VulnerabilitySuppressionState!
 	"The workload owner's reason for the assessment."
@@ -40014,6 +40021,14 @@ type WorkloadConnection {
 	List of edges.
 	"""
 	edges: [WorkloadEdge!]!
+	"Counts over the full workload selection, regardless of pagination."
+	facets: WorkloadFacets!
+}
+
+"Facets for a workload selection."
+type WorkloadFacets {
+	"Vulnerability scan coverage of the selected workloads."
+	vulnerabilityCoverage: VulnerabilityCoverageCounts!
 }
 
 """
@@ -40141,6 +40156,9 @@ input TeamWorkloadsFilter {
 	Only return workloads with the given SBOM pipeline status.
 	"""
 	sbomStatus: SBOMStatus
+
+	"Only return workloads with one of these vulnerability scan statuses."
+	vulnerabilityCoverageStatuses: [VulnerabilityCoverageStatus!]
 }
 
 """
@@ -40381,8 +40399,6 @@ func (ec *executionContext) childFields_Application(ctx context.Context, field g
 		return ec.fieldContext_Application_utilization(ctx, field)
 	case "vulnerabilityFindings":
 		return ec.fieldContext_Application_vulnerabilityFindings(ctx, field)
-	case "vulnerabilityFindingSummary":
-		return ec.fieldContext_Application_vulnerabilityFindingSummary(ctx, field)
 	case "vulnerabilityCoverage":
 		return ec.fieldContext_Application_vulnerabilityCoverage(ctx, field)
 	case "valkeys":
@@ -42021,8 +42037,6 @@ func (ec *executionContext) childFields_Job(ctx context.Context, field graphql.C
 		return ec.fieldContext_Job_sqlInstances(ctx, field)
 	case "vulnerabilityFindings":
 		return ec.fieldContext_Job_vulnerabilityFindings(ctx, field)
-	case "vulnerabilityFindingSummary":
-		return ec.fieldContext_Job_vulnerabilityFindingSummary(ctx, field)
 	case "vulnerabilityCoverage":
 		return ec.fieldContext_Job_vulnerabilityCoverage(ctx, field)
 	case "valkeys":
@@ -44143,6 +44157,10 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_workloadUtilization(ctx, field)
 	case "serviceUtilization":
 		return ec.fieldContext_Team_serviceUtilization(ctx, field)
+	case "vulnerabilityFindings":
+		return ec.fieldContext_Team_vulnerabilityFindings(ctx, field)
+	case "vulnerabilitySuppressions":
+		return ec.fieldContext_Team_vulnerabilitySuppressions(ctx, field)
 	case "valkeys":
 		return ec.fieldContext_Team_valkeys(ctx, field)
 	case "imageVulnerabilityHistory":
@@ -44297,6 +44315,10 @@ func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, fie
 		return ec.fieldContext_TeamEnvironment_sqlInstance(ctx, field)
 	case "tunnel":
 		return ec.fieldContext_TeamEnvironment_tunnel(ctx, field)
+	case "vulnerabilityFindings":
+		return ec.fieldContext_TeamEnvironment_vulnerabilityFindings(ctx, field)
+	case "vulnerabilitySuppressions":
+		return ec.fieldContext_TeamEnvironment_vulnerabilitySuppressions(ctx, field)
 	case "valkey":
 		return ec.fieldContext_TeamEnvironment_valkey(ctx, field)
 	case "workload":
@@ -45461,6 +45483,8 @@ func (ec *executionContext) childFields_VulnerabilityFindingConnection(ctx conte
 		return ec.fieldContext_VulnerabilityFindingConnection_nodes(ctx, field)
 	case "pageInfo":
 		return ec.fieldContext_VulnerabilityFindingConnection_pageInfo(ctx, field)
+	case "facets":
+		return ec.fieldContext_VulnerabilityFindingConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingConnection", field.Name)
 }
@@ -45475,18 +45499,16 @@ func (ec *executionContext) childFields_VulnerabilityFindingEdge(ctx context.Con
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingEdge", field.Name)
 }
 
-func (ec *executionContext) childFields_VulnerabilityFindingSummary(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_VulnerabilityFindingFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
-	case "totalFindings":
-		return ec.fieldContext_VulnerabilityFindingSummary_totalFindings(ctx, field)
 	case "countsBySeverity":
-		return ec.fieldContext_VulnerabilityFindingSummary_countsBySeverity(ctx, field)
+		return ec.fieldContext_VulnerabilityFindingFacets_countsBySeverity(ctx, field)
 	case "fixableFindings":
-		return ec.fieldContext_VulnerabilityFindingSummary_fixableFindings(ctx, field)
+		return ec.fieldContext_VulnerabilityFindingFacets_fixableFindings(ctx, field)
 	case "knownExploitedFindings":
-		return ec.fieldContext_VulnerabilityFindingSummary_knownExploitedFindings(ctx, field)
+		return ec.fieldContext_VulnerabilityFindingFacets_knownExploitedFindings(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingSummary", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityFindingFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_VulnerabilityFixHistory(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -45575,10 +45597,14 @@ func (ec *executionContext) childFields_VulnerabilitySuppression(ctx context.Con
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_VulnerabilitySuppression_id(ctx, field)
-	case "team":
-		return ec.fieldContext_VulnerabilitySuppression_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_VulnerabilitySuppression_environment(ctx, field)
+	case "teamSlug":
+		return ec.fieldContext_VulnerabilitySuppression_teamSlug(ctx, field)
+	case "environmentName":
+		return ec.fieldContext_VulnerabilitySuppression_environmentName(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_VulnerabilitySuppression_workloadName(ctx, field)
+	case "teamEnvironment":
+		return ec.fieldContext_VulnerabilitySuppression_teamEnvironment(ctx, field)
 	case "workload":
 		return ec.fieldContext_VulnerabilitySuppression_workload(ctx, field)
 	case "imageName":
@@ -45587,6 +45613,8 @@ func (ec *executionContext) childFields_VulnerabilitySuppression(ctx context.Con
 		return ec.fieldContext_VulnerabilitySuppression_packageKey(ctx, field)
 	case "vulnerabilityIdentifier":
 		return ec.fieldContext_VulnerabilitySuppression_vulnerabilityIdentifier(ctx, field)
+	case "vulnerability":
+		return ec.fieldContext_VulnerabilitySuppression_vulnerability(ctx, field)
 	case "state":
 		return ec.fieldContext_VulnerabilitySuppression_state(ctx, field)
 	case "reason":
@@ -45627,18 +45655,6 @@ func (ec *executionContext) childFields_VulnerabilitySuppressionEdge(ctx context
 		return ec.fieldContext_VulnerabilitySuppressionEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppressionEdge", field.Name)
-}
-
-func (ec *executionContext) childFields_VulnerabilityWorkloadRef(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "team":
-		return ec.fieldContext_VulnerabilityWorkloadRef_team(ctx, field)
-	case "environment":
-		return ec.fieldContext_VulnerabilityWorkloadRef_environment(ctx, field)
-	case "name":
-		return ec.fieldContext_VulnerabilityWorkloadRef_name(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityWorkloadRef", field.Name)
 }
 
 func (ec *executionContext) childFields_WebhookActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -45831,6 +45847,8 @@ func (ec *executionContext) childFields_WorkloadConnection(ctx context.Context, 
 		return ec.fieldContext_WorkloadConnection_nodes(ctx, field)
 	case "edges":
 		return ec.fieldContext_WorkloadConnection_edges(ctx, field)
+	case "facets":
+		return ec.fieldContext_WorkloadConnection_facets(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WorkloadConnection", field.Name)
 }
@@ -45909,6 +45927,14 @@ func (ec *executionContext) childFields_WorkloadEventEdge(ctx context.Context, f
 		return ec.fieldContext_WorkloadEventEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type WorkloadEventEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_WorkloadFacets(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "vulnerabilityCoverage":
+		return ec.fieldContext_WorkloadFacets_vulnerabilityCoverage(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type WorkloadFacets", field.Name)
 }
 
 func (ec *executionContext) childFields_WorkloadLogLine(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

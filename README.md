@@ -77,10 +77,9 @@ configuration. Activity log entries use the canonical name.
 
 ## v0s migration
 
-The new `vulnerabilityFindings`, `vulnerabilityFindingSummary`,
-`vulnerabilityCoverage`, `vulnerability`, and `vulnerabilitySuppressions` queries
-read v0s. Applications and jobs also expose findings, summary and coverage.
-Existing v13s queries and mutations keep their existing source and behavior.
+The new vulnerability fields read v0s through the public
+[v0s gRPC client module](https://github.com/nais/v0s-api). Existing
+v13s queries and mutations keep their existing source and behavior.
 
 Set `V0S_ENDPOINT` to the plaintext gRPC endpoint allowed by v0s's NetworkPolicy.
 The connection is lazy: an unset endpoint or unavailable v0s does not block API
@@ -99,18 +98,26 @@ New lists are forward-only (`first` from 1 to 200) and use the standard
 `edges`, `nodes` and `PageInfo` contract. `totalCount` covers the full filtered
 selection and is loaded only when requested; counting suppressions currently
 pages through the matching assessments. `pageStart` and `pageEnd` track positions
-in the traversal; concurrent updates can change the total. Root finding and suppression queries
-take scope inside `filter.scope`; workload fields are already scoped.
+in the traversal; concurrent updates can change the total. Findings and
+suppressions are available at the root and scoped through `Team` and
+`TeamEnvironment`. Findings are also available on each workload.
+`vulnerabilityFindings.facets` describes the full filtered selection, including
+when filtering by multiple vulnerability identifiers or aliases.
 Findings, advisories and assessments have global IDs and can be fetched through
 `node`. A finding's ID includes its image digest, so an obsolete-image finding
-is not returned after the workload changes images.
+is not returned after the workload changes images. Assessments retain their
+stored keys even when the linked workload, team environment or advisory is gone.
 
-Opaque cursors wrap v0s's per-item tokens and are scoped to the operation and
+Keyset cursors wrap v0s's per-item tokens and are scoped to the operation and
 filter. They remain usable when an earlier item disappears, and cannot be used
-with the old offset-paginated fields. Deploy v0s with per-item cursor support
-before enabling the new API reads. Coverage uses current API inventory;
-workloads absent from v0s or still associated with an old image are pending, not
-clean. Removed workloads and old-image findings are excluded.
+with the old offset-paginated fields. Deploy v0s with per-item cursors and
+multiple-identifier filtering before configuring `V0S_ENDPOINT` for this API.
+
+`workloads.facets.vulnerabilityCoverage` counts scan statuses across the full
+workload selection. Use `Team.workloads(filter: {vulnerabilityCoverageStatuses:
+[PENDING]})` to find workloads awaiting a scan. Coverage uses current API
+inventory: workloads missing from v0s or associated with an old image are
+pending, not clean. Removed workloads and old-image findings are excluded.
 
 The pinned v0s protobuf schema is in `internal/v0s/protoapi/schema/v0s.proto`.
 `mise run generate:proto` generates the client locally, without depending on the

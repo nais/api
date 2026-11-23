@@ -13,6 +13,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/user"
+	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
@@ -178,7 +179,7 @@ func (r *secretResolver) Jobs(ctx context.Context, obj *secret.Secret, first *in
 	return pagination.NewFacetableConnection(conn, ret, (*job.TeamJobsFilter)(nil)), nil
 }
 
-func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[workload.Workload], error) {
+func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*workload.WorkloadConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
@@ -204,7 +205,7 @@ func (r *secretResolver) Workloads(ctx context.Context, obj *secret.Secret, firs
 	slices.SortStableFunc(workloads, func(a, b workload.Workload) int {
 		return model.Compare(a.GetName(), b.GetName(), model.OrderDirectionAsc)
 	})
-	return pagination.NewConnection(workloads, page, len(ret)), nil
+	return newWorkloadConnection(v0s.Scope{Team: obj.TeamSlug, Environment: obj.EnvironmentName}, ret, workloads, page, nil), nil
 }
 
 func (r *secretResolver) LastModifiedBy(ctx context.Context, obj *secret.Secret) (*user.User, error) {

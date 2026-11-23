@@ -85,9 +85,9 @@ func getFindingByIdent(ctx context.Context, id ident.Ident) (*VulnerabilityFindi
 	if err != nil {
 		return nil, err
 	}
-	input := &VulnerabilityScopeInput{Environment: &parts[0], Team: new(slug.Slug(parts[1])), Workload: &parts[2]}
+	input := Scope{Environment: parts[0], Team: slug.Slug(parts[1]), Workload: parts[2]}
 	filter := &VulnerabilityFindingFilter{
-		VulnerabilityIdentifier: &parts[5], Package: &parts[6], Suppressed: new(SuppressedFilterInclude),
+		VulnerabilityIdentifiers: []string{parts[5]}, Package: &parts[6], Suppressed: new(SuppressedFilterInclude),
 	}
 	var after *pagination.Cursor
 	for {
@@ -112,7 +112,7 @@ func getSuppressionByIdent(ctx context.Context, id ident.Ident) (*VulnerabilityS
 	if err != nil {
 		return nil, err
 	}
-	input := &VulnerabilityScopeInput{Team: new(slug.Slug(parts[0])), Environment: &parts[1], Workload: &parts[2]}
+	input := Scope{Team: slug.Slug(parts[0]), Environment: parts[1], Workload: parts[2]}
 	filter := &VulnerabilitySuppressionFilter{ImageName: &parts[3], VulnerabilityIdentifier: &parts[5]}
 	var after *pagination.Cursor
 	for {

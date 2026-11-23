@@ -148,3 +148,22 @@ models:
     fields:
       totalCount:
         fieldName: Count
+
+  VulnerabilityFinding:
+    fields:
+      workload:
+        resolver: true
+  VulnerabilitySuppression:
+    fields:
+      teamSlug:
+        fieldName: Team
+      environmentName:
+        fieldName: Environment
+      workloadName:
+        fieldName: Workload
+      workload:
+        resolver: true
+  TeamWorkloadsFilter:
+    fields:
+      vulnerabilityCoverageStatuses:
+        resolver: true

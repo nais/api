@@ -23,7 +23,7 @@ import (
 type EnvironmentResolver interface {
 	AvailableValues(ctx context.Context, obj *environment.Environment) (*environment.AvailableValues, error)
 	Metrics(ctx context.Context, obj *environment.Environment, input metrics.MetricsQueryInput) (*metrics.MetricsQueryResult, error)
-	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*pagination.Connection[workload.Workload], error)
+	Workloads(ctx context.Context, obj *environment.Environment, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.EnvironmentWorkloadOrder) (*workload.WorkloadConnection, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -256,8 +256,8 @@ func (ec *executionContext) _Environment_workloads(ctx context.Context, field gr
 			return ec.Resolvers.Environment().Workloads(ctx, obj, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*workload.EnvironmentWorkloadOrder))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[workload.Workload]) graphql.Marshaler {
-			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐConnection(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.WorkloadConnection) graphql.Marshaler {
+			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadConnection(ctx, selections, v)
 		},
 		true,
 		true,

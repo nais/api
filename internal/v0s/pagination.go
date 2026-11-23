@@ -42,9 +42,9 @@ func parsePage(first *int, after *pagination.Cursor, selection string) (*page, e
 		return nil, apierror.Errorf("first must be between 1 and %d", maxPageSize)
 	}
 	if after != nil {
-		data, err := base64.RawURLEncoding.DecodeString(after.Opaque)
+		data, err := base64.RawURLEncoding.DecodeString(after.Keyset)
 		var cursor pageCursor
-		if err != nil || after.Opaque == "" || json.Unmarshal(data, &cursor) != nil ||
+		if err != nil || json.Unmarshal(data, &cursor) != nil ||
 			cursor.Version != 1 || cursor.Selection != selection || cursor.Token == "" ||
 			cursor.Offset < 0 || cursor.Offset > math.MaxInt32-maxPageSize {
 			return nil, apierror.Errorf("Cursor does not belong to this vulnerability selection")
@@ -89,7 +89,7 @@ func readPage[T any](ctx context.Context, p *page,
 				return nil, pagination.PageInfo{}, fmt.Errorf("encode vulnerability cursor: %w", err)
 			}
 			edges = append(edges, pagination.Edge[T]{Node: value, Cursor: pagination.Cursor{
-				Opaque: base64.RawURLEncoding.EncodeToString(data),
+				Keyset: base64.RawURLEncoding.EncodeToString(data),
 				Offset: position,
 			}})
 			if len(edges) > p.size {

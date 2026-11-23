@@ -14,18 +14,18 @@ import (
 
 var cursorVersions = map[string]func(c *Cursor, i []byte) error{
 	"v1": parseCursorV1,
-	"v0s1": func(c *Cursor, token []byte) error {
+	"v2": func(c *Cursor, token []byte) error {
 		if len(token) == 0 || len(token) > 16384 {
-			return apierror.Errorf("Invalid vulnerability cursor")
+			return apierror.Errorf("Invalid keyset cursor")
 		}
-		c.Opaque = string(token)
+		c.Keyset = string(token)
 		return nil
 	},
 }
 
 type Cursor struct {
 	Offset int    `json:"offset"`
-	Opaque string `json:"-"`
+	Keyset string `json:"-"`
 	empty  bool
 }
 
@@ -35,8 +35,8 @@ func (c *Cursor) valid() bool {
 
 func (c Cursor) MarshalGQLContext(_ context.Context, w io.Writer) error {
 	b := []byte{'v', '1', ':'}
-	if c.Opaque != "" {
-		b = append([]byte("v0s1:"), c.Opaque...)
+	if c.Keyset != "" {
+		b = append([]byte("v2:"), c.Keyset...)
 	} else {
 		b = strconv.AppendInt(b, int64(c.Offset), 10)
 	}

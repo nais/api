@@ -9,8 +9,8 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v0s"
-	"github.com/nais/api/internal/v0s/protoapi"
 	inventoryapi "github.com/nais/api/pkg/apiclient/protoapi"
+	protoapi "github.com/nais/v0s-api/v0s/v1"
 	"google.golang.org/grpc"
 )
 
@@ -74,7 +74,7 @@ func TestFindingCursorResumesAnInteriorEdgeAfterEarlierFindingsDisappear(t *test
 			Cursors:  []string{"first", "second", "third"},
 		}
 	}
-	first, err := v0s.Findings(ctx, nil, nil, new(2), nil)
+	first, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(2), nil)
 	if err != nil || len(first.Edges) != 2 || !first.PageInfo.HasNextPage {
 		t.Fatalf("initial page: %+v, %v", first, err)
 	}
@@ -90,36 +90,46 @@ func TestFindingCursorResumesAnInteriorEdgeAfterEarlierFindingsDisappear(t *test
 		}
 	}
 	after := first.Edges[0].Cursor
-	next, err := v0s.Findings(ctx, nil, nil, new(1), &after)
+	next, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(1), &after)
 	if err != nil || len(next.Edges) != 1 || next.Edges[0].Node.VulnerabilityIdentifier != "CVE-2" {
 		t.Fatalf("remaining finding was skipped: %+v, %v", next, err)
 	}
-	if _, err := v0s.Findings(ctx, nil, &v0s.VulnerabilityFindingFilter{OnlyWithFix: new(true)}, new(1), &after); err == nil {
+	if _, err := v0s.Findings(ctx, v0s.Scope{}, &v0s.VulnerabilityFindingFilter{OnlyWithFix: new(true)}, new(1), &after); err == nil {
 		t.Fatal("cursor from another filter was accepted")
 	}
-	unbound := pagination.Cursor{Opaque: base64.RawURLEncoding.EncodeToString([]byte(`{"token":"first"}`))}
-	if _, err := v0s.Findings(ctx, nil, nil, new(1), &unbound); err == nil {
+	unbound := pagination.Cursor{Keyset: base64.RawURLEncoding.EncodeToString([]byte(`{"token":"first"}`))}
+	if _, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(1), &unbound); err == nil {
 		t.Fatal("cursor without selection or version was accepted")
 	}
 }
 
-func TestWorkloadSummariesShareGroupedCounts(t *testing.T) {
-	c := &client{}
+func TestWorkloadFacetsShareGroupedCounts(t *testing.T) {
+	c := &client{list: func(*protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
+		return &protoapi.ListFindingsResponse{}
+	}}
 	ctx := c.context(t, "app", "job")
-	scope := &v0s.VulnerabilityScopeInput{
-		Team: new(slug.Slug("team-one")), Environment: new("dev"), Workload: new("app"),
+	scope := v0s.Scope{
+		Team: slug.Slug("team-one"), Environment: "dev", Workload: "app",
 	}
-	got, err := v0s.FindingSummary(ctx, scope, nil)
-	if err != nil || got.TotalFindings != 3 {
-		t.Fatalf("app summary: %+v, %v", got, err)
+	page, err := v0s.Findings(ctx, scope, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	facets, err := page.Facets(ctx)
+	if err != nil || facets.FixableFindings != 3 {
+		t.Fatalf("app facets: %+v, %v", facets, err)
 	}
 	calls := c.countCalls
-	scope.Workload = new("job")
-	got, err = v0s.FindingSummary(ctx, scope, nil)
-	if err != nil || got.TotalFindings != 1 {
-		t.Fatalf("job summary: %+v, %v", got, err)
+	scope.Workload = "job"
+	page, err = v0s.Findings(ctx, scope, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	facets, err = page.Facets(ctx)
+	if err != nil || facets.FixableFindings != 1 {
+		t.Fatalf("job facets: %+v, %v", facets, err)
 	}
 	if c.countCalls != calls {
-		t.Fatal("another workload summary repeated the same grouped backend requests")
+		t.Fatal("another workload's facets repeated the same grouped backend requests")
 	}
 }

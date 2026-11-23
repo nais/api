@@ -3,10 +3,11 @@ package v0s
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/nais/api/internal/graph/loader"
-	"github.com/nais/api/internal/v0s/protoapi"
 	inventoryapi "github.com/nais/api/pkg/apiclient/protoapi"
+	protoapi "github.com/nais/v0s-api/v0s/v1"
 	"github.com/vikstrous/dataloadgen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -98,17 +99,23 @@ func NewLoaderContext(ctx context.Context, inventory func(context.Context) (*inv
 	l.advisories = dataloadgen.NewLoader(func(ctx context.Context, keys []string) ([]*Vulnerability, []error) {
 		values := make([]*Vulnerability, len(keys))
 		errs := make([]error, len(keys))
+		var group sync.WaitGroup
+		slots := make(chan struct{}, 10)
 		for i, key := range keys {
-			resp, err := m.Vulnerabilities.GetVulnerability(ctx, &protoapi.GetVulnerabilityRequest{Id: key})
-			if status.Code(err) == codes.NotFound {
-				continue
-			}
-			if err != nil {
-				errs[i] = backendError("get v0s vulnerability", err)
-				continue
-			}
-			values[i], errs[i] = advisory(resp.GetVulnerability())
+			slots <- struct{}{}
+			group.Go(func() {
+				defer func() { <-slots }()
+				resp, err := m.Vulnerabilities.GetVulnerability(ctx, &protoapi.GetVulnerabilityRequest{Id: key})
+				switch {
+				case status.Code(err) == codes.NotFound:
+				case err != nil:
+					errs[i] = backendError("get v0s vulnerability", err)
+				default:
+					values[i], errs[i] = advisory(resp.GetVulnerability())
+				}
+			})
 		}
+		group.Wait()
 		return values, errs
 	}, loader.DefaultDataLoaderOptions...)
 	l.suppressionCounts = dataloadgen.NewLoader(func(ctx context.Context, keys []string) ([]int, []error) {

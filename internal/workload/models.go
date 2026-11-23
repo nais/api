@@ -18,10 +18,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type (
-	WorkloadConnection = pagination.Connection[Workload]
-	WorkloadEdge       = pagination.Edge[Workload]
-)
+type WorkloadEdge = pagination.Edge[Workload]
 
 type Workload interface {
 	model.Node
@@ -400,11 +397,12 @@ func ReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *Refe
 }
 
 type TeamWorkloadsFilter struct {
-	Environments             []string             `json:"environments,omitempty"`
-	States                   []string             `json:"states,omitempty"`
-	WorkloadStatusErrorTypes []string             `json:"workloadStatusErrorTypes,omitempty"`
-	Labels                   []*model.LabelFilter `json:"labels,omitempty"`
-	SbomStatus               *string              `json:"sbomStatus,omitempty"`
+	Environments                  []string             `json:"environments,omitempty"`
+	States                        []string             `json:"states,omitempty"`
+	WorkloadStatusErrorTypes      []string             `json:"workloadStatusErrorTypes,omitempty"`
+	Labels                        []*model.LabelFilter `json:"labels,omitempty"`
+	SbomStatus                    *string              `json:"sbomStatus,omitempty"`
+	VulnerabilityCoverageStatuses []string             `json:"vulnerabilityCoverageStatuses,omitempty"`
 }
 
 type UpdateWorkloadEnvironmentVariableInput struct {

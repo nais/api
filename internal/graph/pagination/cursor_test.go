@@ -10,8 +10,8 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestOpaqueVulnerabilityCursorDoesNotChangeOffsetPagination(t *testing.T) {
-	cursor := Cursor{Opaque: "opaque-v0s-page"}
+func TestKeysetCursorDoesNotChangeOffsetPagination(t *testing.T) {
+	cursor := Cursor{Keyset: "opaque-page-token"}
 	var buffer bytes.Buffer
 	if err := cursor.MarshalGQLContext(t.Context(), &buffer); err != nil {
 		t.Fatal(err)
@@ -21,13 +21,13 @@ func TestOpaqueVulnerabilityCursorDoesNotChangeOffsetPagination(t *testing.T) {
 		t.Fatal(err)
 	}
 	parsed := Cursor{Offset: 13}
-	if err := parsed.UnmarshalGQLContext(t.Context(), encoded); err != nil || parsed.Opaque != cursor.Opaque || parsed.Offset != 0 {
-		t.Fatalf("opaque cursor roundtrip: %+v, %v", parsed, err)
+	if err := parsed.UnmarshalGQLContext(t.Context(), encoded); err != nil || parsed.Keyset != cursor.Keyset || parsed.Offset != 0 {
+		t.Fatalf("keyset cursor roundtrip: %+v, %v", parsed, err)
 	}
 	if _, err := ParsePage(new(1), &parsed, nil, nil); err == nil {
-		t.Fatal("vulnerability cursor was accepted by legacy offset pagination")
+		t.Fatal("keyset cursor was accepted by offset pagination")
 	}
-	if err := parsed.UnmarshalGQLContext(t.Context(), "ELQhtKc"); err != nil || parsed.Offset != 13 || parsed.Opaque != "" {
+	if err := parsed.UnmarshalGQLContext(t.Context(), "ELQhtKc"); err != nil || parsed.Offset != 13 || parsed.Keyset != "" {
 		t.Fatalf("legacy cursor roundtrip changed: %+v, %v", parsed, err)
 	}
 }

@@ -44,8 +44,8 @@ func (p *Pagination) resultLimit() int32 {
 }
 
 func ParsePage(first *int, after *Cursor, last *int, before *Cursor) (*Pagination, error) {
-	if (after != nil && after.Opaque != "") || (before != nil && before.Opaque != "") {
-		return nil, apierror.Errorf("Vulnerability cursors cannot be used with offset pagination")
+	if (after != nil && after.Keyset != "") || (before != nil && before.Keyset != "") {
+		return nil, apierror.Errorf("Keyset cursors cannot be used with offset pagination")
 	}
 	p := &Pagination{}
 
