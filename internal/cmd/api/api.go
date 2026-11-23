@@ -212,6 +212,9 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		return err
 	}
 
+	// TODO: Once all tenants and consumers have moved to v0s, remove the legacy
+	// vulnerability GraphQL fields (including updateImageVulnerability), client,
+	// configuration, and v13s-backed issue checks. Keep Workloads.ListImages for v0s.
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
 		cfg.VulnerabilitiesAPI.Endpoint,

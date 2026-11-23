@@ -19,6 +19,9 @@ func writeManager(ctx context.Context, team slug.Slug) (*Manager, error) {
 		return nil, err
 	}
 	m, _ := ctx.Value(managerKey).(*Manager)
+	// TODO: Remove the migration gate, V0S_SUPPRESSIONS_ENABLED, and references
+	// to updateImageVulnerability once all tenants write exclusively to v0s and
+	// the v13s suppression sync is stopped. Keep configuration and team authorization checks.
 	if m == nil || !m.SuppressionsEnabled {
 		return nil, apierror.Errorf("Assessment writes are disabled during migration; use updateImageVulnerability.")
 	}
