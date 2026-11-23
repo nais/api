@@ -105,8 +105,9 @@ suppressions are available at the root and scoped through `Team` and
 when filtering by multiple vulnerability identifiers or aliases.
 Findings, advisories and assessments have global IDs and can be fetched through
 `node`. A finding's ID includes its image digest, so an obsolete-image finding
-is not returned after the workload changes images. Assessments retain their
-stored keys even when the linked workload, team environment or advisory is gone.
+is not returned after the workload changes images. Assessments for workloads
+missing from current inventory are not listed or returned by `node`, but are
+not deleted from v0s. The activity log stores assessment details independently.
 
 Keyset cursors wrap v0s's per-item tokens and are scoped to the operation and
 filter. They remain usable when an earlier item disappears, and cannot be used

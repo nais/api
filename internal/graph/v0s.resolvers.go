@@ -84,7 +84,7 @@ func (r *vulnerabilitySuppressionResolver) TeamEnvironment(ctx context.Context, 
 }
 
 func (r *vulnerabilitySuppressionResolver) Workload(ctx context.Context, obj *v0s.VulnerabilitySuppression) (workload.Workload, error) {
-	return workloadOrNil(ctx, obj.Team, obj.Environment, obj.Workload), nil
+	return tryWorkload(ctx, obj.Team, obj.Environment, obj.Workload)
 }
 
 func (r *vulnerabilitySuppressionResolver) Vulnerability(ctx context.Context, obj *v0s.VulnerabilitySuppression) (*v0s.Vulnerability, error) {

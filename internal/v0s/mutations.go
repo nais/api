@@ -81,6 +81,20 @@ func SetSuppressions(ctx context.Context, input SetVulnerabilitySuppressionsInpu
 		}
 		req.Suppressions = append(req.Suppressions, &protoapi.NewSuppression{Key: key, State: state, Detail: item.Reason})
 	}
+	l, err := fromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	inventory, err := l.inventory.Load(ctx, struct{}{})
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range req.Suppressions {
+		key := item.GetKey()
+		if _, exists := inventory[workloadKey{key.GetEnvironment(), req.Team, key.GetWorkload()}]; !exists {
+			return nil, apierror.Errorf("Cannot assess a workload that does not exist.")
+		}
+	}
 	resp, err := m.Suppressions.SetSuppressions(ctx, req)
 	if err != nil {
 		return nil, backendError("set v0s suppressions", err)
@@ -119,7 +133,7 @@ func DeleteSuppressions(ctx context.Context, input DeleteVulnerabilitySuppressio
 	if err != nil {
 		return nil, backendError("delete v0s suppressions", err)
 	}
-	result := &DeleteVulnerabilitySuppressionsPayload{Deleted: make([]*VulnerabilitySuppression, 0, len(resp.GetDeleted()))}
+	result := &DeleteVulnerabilitySuppressionsPayload{Deleted: make([]*VulnerabilitySuppressionSnapshot, 0, len(resp.GetDeleted()))}
 	for _, value := range resp.GetDeleted() {
 		s, err := suppression(value)
 		if err != nil {
@@ -128,7 +142,7 @@ func DeleteSuppressions(ctx context.Context, input DeleteVulnerabilitySuppressio
 		if err := recordAssessment(ctx, activitylog.ActivityLogEntryActionDeleted, s); err != nil {
 			return nil, err
 		}
-		result.Deleted = append(result.Deleted, s)
+		result.Deleted = append(result.Deleted, assessmentSnapshot(s))
 	}
 	return result, nil
 }

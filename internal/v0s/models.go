@@ -89,17 +89,9 @@ type Vulnerability struct {
 	Aliases        []string
 	Title          string
 	Description    string
-	Cvss           []*VulnerabilityCvss
 	References     []string
 	Epss           *VulnerabilityEpss
 	KnownExploited bool
-}
-
-type VulnerabilityCvss struct {
-	Source  string
-	Version string
-	Score   *float64
-	Vector  *string
 }
 
 type VulnerabilityEpss struct {
@@ -159,7 +151,7 @@ type SetVulnerabilitySuppressionsPayload struct {
 }
 
 type DeleteVulnerabilitySuppressionsPayload struct {
-	Deleted []*VulnerabilitySuppression
+	Deleted []*VulnerabilitySuppressionSnapshot
 }
 
 type VulnerabilitySeverity string

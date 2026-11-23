@@ -3,9 +3,11 @@ package v0s
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
+	"github.com/nais/api/internal/slug"
 )
 
 const activityLogResourceType activitylog.ActivityLogEntryResourceType = "VULNERABILITY_SUPPRESSION"
@@ -41,7 +43,20 @@ type VulnerabilitySuppressionActivityLogEntry struct {
 }
 
 type VulnerabilitySuppressionActivityLogEntryData struct {
-	Assessment *VulnerabilitySuppression `json:"assessment"`
+	Assessment *VulnerabilitySuppressionSnapshot `json:"assessment"`
+}
+
+type VulnerabilitySuppressionSnapshot struct {
+	TeamSlug                slug.Slug                     `json:"team"`
+	EnvironmentName         string                        `json:"environment"`
+	WorkloadName            string                        `json:"workload"`
+	ImageName               string                        `json:"imageName"`
+	PackageKey              string                        `json:"packageKey"`
+	VulnerabilityIdentifier string                        `json:"vulnerabilityIdentifier"`
+	State                   VulnerabilitySuppressionState `json:"state"`
+	Reason                  string                        `json:"reason"`
+	UpdatedBy               string                        `json:"updatedBy"`
+	UpdatedAt               time.Time                     `json:"updatedAt"`
 }
 
 func recordAssessment(ctx context.Context, action activitylog.ActivityLogEntryAction, assessment *VulnerabilitySuppression) error {
@@ -49,6 +64,14 @@ func recordAssessment(ctx context.Context, action activitylog.ActivityLogEntryAc
 		Action: action, Actor: authz.ActorFromContext(ctx).User,
 		ResourceType: activityLogResourceType, ResourceName: assessment.Workload,
 		TeamSlug: &assessment.Team, EnvironmentName: &assessment.Environment,
-		Data: VulnerabilitySuppressionActivityLogEntryData{Assessment: assessment},
+		Data: VulnerabilitySuppressionActivityLogEntryData{Assessment: assessmentSnapshot(assessment)},
 	})
+}
+
+func assessmentSnapshot(assessment *VulnerabilitySuppression) *VulnerabilitySuppressionSnapshot {
+	return &VulnerabilitySuppressionSnapshot{
+		TeamSlug: assessment.Team, EnvironmentName: assessment.Environment, WorkloadName: assessment.Workload,
+		ImageName: assessment.ImageName, PackageKey: assessment.PackageKey, VulnerabilityIdentifier: assessment.VulnerabilityIdentifier,
+		State: assessment.State, Reason: assessment.Reason, UpdatedBy: assessment.UpdatedBy, UpdatedAt: assessment.UpdatedAt,
+	}
 }

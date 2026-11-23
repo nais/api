@@ -7,17 +7,17 @@ Helper.readK8sResources("k8s_resources/v0s")
 
 local app =
 [[{environment: "dev", workload: "app", imageName: "repo/app", packageKey: "pkg:npm/example", vulnerabilityIdentifier: "CVE-1"}]]
-local removed =
-[[{environment: "dev", workload: "removed", imageName: "repo/removed", packageKey: "pkg:npm/other", vulnerabilityIdentifier: "CVE-2"}]]
+local stale =
+[[{environment: "dev", workload: "stale", imageName: "repo/stale", packageKey: "pkg:npm/other", vulnerabilityIdentifier: "CVE-2"}]]
 local function set(reason)
 	return string.format([[mutation { setVulnerabilitySuppressions(input: {team: "v0s-team", items: [
 		{key: %s, state: ACCEPTED_RISK, reason: "assessed"},
 		{key: %s, state: FALSE_POSITIVE, reason: "%s"}
-	]}) { suppressions { id workloadName updatedBy } } }]], app, removed, reason)
+	]}) { suppressions { id workloadName updatedBy } } }]], app, stale, reason)
 end
 local delete = string.format([[mutation {
 	deleteVulnerabilitySuppressions(input: {team: "v0s-team", keys: [%s, %s]}) { deleted { workloadName } }
-}]], app, removed)
+}]], app, stale)
 
 Test.gql("Assessment writes reject callers without owning-team authorization", function(t)
 	t.addHeader("x-user-email", outsider:email())
@@ -38,9 +38,13 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 
 	t.query(set("assessed"))
 	t.check { data = { setVulnerabilitySuppressions = { suppressions = {
-		{ id = Save("assessment_id"), workloadName = "app",     updatedBy = member:email() },
-		{ id = NotNull(),             workloadName = "removed", updatedBy = member:email() },
+		{ id = Save("assessment_id"), workloadName = "app",   updatedBy = member:email() },
+		{ id = NotNull(),             workloadName = "stale", updatedBy = member:email() },
 	} } } }
+	t.query [[mutation {
+		deleteApplication(input: {teamSlug: "v0s-team", environmentName: "dev", name: "stale"}) { success }
+	}]]
+	t.check { data = { deleteApplication = { success = true } } }
 	t.query(string.format([[{
 		node(id: "%s") { ... on VulnerabilitySuppression { workloadName state reason teamEnvironment { team { slug } } } }
 		team(slug: "v0s-team") { environment(name: "dev") { vulnerabilitySuppressions {
@@ -52,14 +56,13 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 		node = { workloadName = "app", state = "ACCEPTED_RISK", reason = "assessed", teamEnvironment = { team = { slug = "v0s-team" } } },
 		team = { environment = { vulnerabilitySuppressions = {
 			nodes = {
-				{ workloadName = "app",     workload = { name = "app" }, vulnerability = { identifier = "CVE-1" }, state = "ACCEPTED_RISK" },
-				{ workloadName = "removed", workload = Null,             vulnerability = { identifier = "CVE-2" }, state = "FALSE_POSITIVE" },
+				{ workloadName = "app", workload = { name = "app" }, vulnerability = { identifier = "CVE-1" }, state = "ACCEPTED_RISK" },
 			},
-			pageInfo = { totalCount = 2 },
+			pageInfo = { totalCount = 1 },
 		} } },
 	} }
 	t.query(delete)
-	t.check { data = { deleteVulnerabilitySuppressions = { deleted = { { workloadName = "app" }, { workloadName = "removed" } } } } }
+	t.check { data = { deleteVulnerabilitySuppressions = { deleted = { { workloadName = "app" }, { workloadName = "stale" } } } } }
 	t.query [[{
 		vulnerabilitySuppressions { nodes { id } }
 		team(slug: "v0s-team") {
@@ -84,6 +87,6 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 		deleted = { nodes = { entry(1), entry(2) } },
 	} } }
 	assert(State.resource1 == State.workload1 and State.resource2 == State.workload2)
-	assert((State.workload1 == "app" and State.workload2 == "removed") or
-		(State.workload1 == "removed" and State.workload2 == "app"))
+	assert((State.workload1 == "app" and State.workload2 == "stale") or
+		(State.workload1 == "stale" and State.workload2 == "app"))
 end)

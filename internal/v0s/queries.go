@@ -278,6 +278,10 @@ func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppres
 	if err != nil {
 		return nil, err
 	}
+	inventory, err := l.inventory.Load(ctx, struct{}{})
+	if err != nil {
+		return nil, err
+	}
 	edges, info, err := readPage(ctx, p,
 		func(ctx context.Context, size int32, token string) ([]*protoapi.Suppression, []string, string, error) {
 			req.PageSize, req.PageToken = size, token
@@ -286,7 +290,7 @@ func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppres
 				return nil, nil, "", backendError("list v0s suppressions", err)
 			}
 			return resp.GetSuppressions(), resp.GetCursors(), resp.GetNextPageToken(), nil
-		}, func(*protoapi.Suppression) bool { return true })
+		}, func(item *protoapi.Suppression) bool { return suppressionInInventory(inventory, item) })
 	if err != nil {
 		return nil, err
 	}

@@ -104,16 +104,9 @@ func advisory(value *protoapi.Vulnerability) (*Vulnerability, error) {
 	if err != nil {
 		return nil, err
 	}
-	cvss := make([]*VulnerabilityCvss, 0, len(value.GetCvss()))
-	for _, score := range value.GetCvss() {
-		// Do not use getters: absent CVSS scores and vectors must remain null.
-		cvss = append(cvss, &VulnerabilityCvss{
-			Source: score.GetSource(), Version: score.GetVersion(), Score: score.Score, Vector: score.Vector,
-		})
-	}
 	return &Vulnerability{
 		Identifier: value.GetId(), Aliases: value.GetAliases(), Title: value.GetTitle(),
-		Description: value.GetDescription(), Cvss: cvss, References: value.GetReferences(),
+		Description: value.GetDescription(), References: value.GetReferences(),
 		Epss: e, KnownExploited: value.GetKnownExploited(),
 	}, nil
 }

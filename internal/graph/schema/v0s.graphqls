@@ -13,7 +13,7 @@ extend type Query {
 		"The vulnerability identifier or an alias identifying exactly one vulnerability."
 		identifier: String!
 	): Vulnerability
-	"Current workload assessments, including assessments without active findings."
+	"Current assessments for existing workloads, including assessments without active findings."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
 		filter: VulnerabilitySuppressionFilter
@@ -34,7 +34,7 @@ extend type Team {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Current assessments for this team, including assessments for removed workloads."
+	"Current assessments for existing workloads in this team."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
 		filter: VulnerabilitySuppressionFilter
@@ -55,7 +55,7 @@ extend type TeamEnvironment {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Current assessments in this team environment, including assessments for removed workloads."
+	"Current assessments for existing workloads in this team environment."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
 		filter: VulnerabilitySuppressionFilter
@@ -134,7 +134,7 @@ enum SuppressedFilter {
 	ONLY
 }
 
-"Severity reported by the advisory source. It is not calculated from the CVSS score; a score of 0.0 does not imply a particular severity."
+"Severity selected by the scanner for the finding, not calculated by Nais."
 enum VulnerabilitySeverity {
 	"The source did not provide a recognized severity."
 	UNKNOWN
@@ -188,7 +188,7 @@ type VulnerabilityFinding implements Node {
 	installedVersion: String!
 	"The first known fixed version, if provided by the source."
 	fixedVersion: String
-	"Severity reported by the advisory source."
+	"Severity selected by the scanner for this finding."
 	severity: VulnerabilitySeverity!
 	"The source supplying the severity."
 	severitySource: String!
@@ -300,26 +300,12 @@ type Vulnerability implements Node {
 	title: String!
 	"The advisory description."
 	description: String!
-	"CVSS scores and vectors supplied by the advisory sources."
-	cvss: [VulnerabilityCvss!]!
 	"Reference URLs supplied by the advisory sources."
 	references: [String!]!
 	"The estimated probability of exploitation, if available."
 	epss: VulnerabilityEpss
 	"Known exploited according to CISA KEV. False is not proof of no exploitation."
 	knownExploited: Boolean!
-}
-
-"One source's CVSS score and vector, preserving absent values."
-type VulnerabilityCvss {
-	"The source supplying the CVSS assessment."
-	source: String!
-	"The CVSS version supplied by the source."
-	version: String!
-	"The CVSS score, or null when the source did not supply one."
-	score: Float
-	"The CVSS vector, or null when the source did not supply one."
-	vector: String
 }
 
 "An exploitation probability supplied by FIRST EPSS."
@@ -350,8 +336,8 @@ type VulnerabilitySuppression implements Node {
 	workloadName: String!
 	"The team environment, if it still exists."
 	teamEnvironment: TeamEnvironment
-	"The application or job, if it still exists."
-	workload: Workload
+	"The application or job to which the assessment applies."
+	workload: Workload!
 	"The image repository name. The assessment survives image version changes."
 	imageName: String!
 	"The package URL without version, qualifiers or subpath."
@@ -437,7 +423,7 @@ type SetVulnerabilitySuppressionsPayload {
 "The assessments that existed and were deleted by the batch."
 type DeleteVulnerabilitySuppressionsPayload {
 	"The deleted assessments."
-	deleted: [VulnerabilitySuppression!]!
+	deleted: [VulnerabilitySuppressionSnapshot!]!
 }
 
 extend type Mutation {
@@ -480,7 +466,31 @@ type VulnerabilitySuppressionActivityLogEntry implements ActivityLogEntry & Node
 "The assessment associated with an activity log entry."
 type VulnerabilitySuppressionActivityLogEntryData {
 	"The assessment as set, or as it existed before deletion."
-	assessment: VulnerabilitySuppression!
+	assessment: VulnerabilitySuppressionSnapshot!
+}
+
+"Stored assessment details, independent of the current workload or advisory."
+type VulnerabilitySuppressionSnapshot {
+	"The team owning the assessment at the time."
+	teamSlug: Slug!
+	"The environment where the assessment applied."
+	environmentName: String!
+	"The name of the affected workload."
+	workloadName: String!
+	"The image repository name."
+	imageName: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The stored vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"The recorded assessment state."
+	state: VulnerabilitySuppressionState!
+	"The workload owner's reason for the assessment."
+	reason: String!
+	"The identity of the actor who last set the assessment."
+	updatedBy: String!
+	"The time the assessment was last set."
+	updatedAt: Time!
 }
 
 extend enum ActivityLogEntryResourceType {

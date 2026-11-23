@@ -6,7 +6,7 @@ Helper.readK8sResources("k8s_resources/v0s")
 Test.gql("Current findings use workload inventory and coexist with legacy advisories", function(t)
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
-		vulnerability(identifier: "CVE-1") { id identifier cvss { score } }
+		vulnerability(identifier: "CVE-1") { id identifier references }
 		cve(identifier: "CVE-2024-12345") { identifier }
 		team(slug: "v0s-team") {
 			vulnerabilityFindings(first: 1) {
@@ -32,7 +32,7 @@ Test.gql("Current findings use workload inventory and coexist with legacy adviso
 		}
 	}]]
 	t.check { data = {
-		vulnerability = { id = Save("advisory_id"), identifier = "CVE-1", cvss = { { score = Null }, { score = 0 } } },
+		vulnerability = { id = Save("advisory_id"), identifier = "CVE-1", references = { "https://example.com/advisories/CVE-1" } },
 		cve = { identifier = "CVE-2024-12345" },
 		team = {
 			vulnerabilityFindings = {

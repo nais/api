@@ -123,7 +123,8 @@ func (*v0sClient) GetVulnerability(_ context.Context, req *protoapi.GetVulnerabi
 		return nil, status.Error(codes.NotFound, "unknown vulnerability")
 	}
 	return &protoapi.GetVulnerabilityResponse{Vulnerability: &protoapi.Vulnerability{
-		Id: req.Id, Cvss: []*protoapi.Cvss{{Source: "source", Version: "3.x"}, {Source: "source", Version: "3.1", Score: new(0.0)}},
+		Id:         req.Id,
+		References: []string{"https://example.com/advisories/" + req.Id},
 	}}, nil
 }
 

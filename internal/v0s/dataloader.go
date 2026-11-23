@@ -127,6 +127,11 @@ func NewLoaderContext(ctx context.Context, inventory func(context.Context) (*inv
 				errs[i] = fmt.Errorf("decode v0s suppression filter: %w", err)
 				continue
 			}
+			inventory, err := l.inventory.Load(ctx, struct{}{})
+			if err != nil {
+				errs[i] = err
+				continue
+			}
 			req.PageSize = 1000
 			for {
 				resp, err := m.Suppressions.ListSuppressions(ctx, req)
@@ -134,7 +139,11 @@ func NewLoaderContext(ctx context.Context, inventory func(context.Context) (*inv
 					errs[i] = backendError("count v0s suppressions", err)
 					break
 				}
-				values[i] += len(resp.GetSuppressions())
+				for _, item := range resp.GetSuppressions() {
+					if suppressionInInventory(inventory, item) {
+						values[i]++
+					}
+				}
 				if resp.GetNextPageToken() == "" {
 					break
 				}
@@ -148,6 +157,11 @@ func NewLoaderContext(ctx context.Context, inventory func(context.Context) (*inv
 		return values, errs
 	}, loader.DefaultDataLoaderOptions...)
 	return context.WithValue(ctx, loadersKey, l)
+}
+
+func suppressionInInventory(inventory map[workloadKey]string, item *protoapi.Suppression) bool {
+	_, exists := inventory[workloadKey{item.GetEnvironment(), item.GetTeam(), item.GetWorkload()}]
+	return exists
 }
 
 func fromContext(ctx context.Context) (*loaders, error) {

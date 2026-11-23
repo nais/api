@@ -3994,7 +3994,6 @@ type ComplexityRoot struct {
 
 	Vulnerability struct {
 		Aliases        func(childComplexity int) int
-		Cvss           func(childComplexity int) int
 		Description    func(childComplexity int) int
 		Epss           func(childComplexity int) int
 		ID             func(childComplexity int) int
@@ -4027,13 +4026,6 @@ type ComplexityRoot struct {
 		Scanned         func(childComplexity int) int
 		TotalWorkloads  func(childComplexity int) int
 		UnresolvedImage func(childComplexity int) int
-	}
-
-	VulnerabilityCvss struct {
-		Score   func(childComplexity int) int
-		Source  func(childComplexity int) int
-		Vector  func(childComplexity int) int
-		Version func(childComplexity int) int
 	}
 
 	VulnerabilityEpss struct {
@@ -4160,6 +4152,19 @@ type ComplexityRoot struct {
 	VulnerabilitySuppressionEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	VulnerabilitySuppressionSnapshot struct {
+		EnvironmentName         func(childComplexity int) int
+		ImageName               func(childComplexity int) int
+		PackageKey              func(childComplexity int) int
+		Reason                  func(childComplexity int) int
+		State                   func(childComplexity int) int
+		TeamSlug                func(childComplexity int) int
+		UpdatedAt               func(childComplexity int) int
+		UpdatedBy               func(childComplexity int) int
+		VulnerabilityIdentifier func(childComplexity int) int
+		WorkloadName            func(childComplexity int) int
 	}
 
 	VulnerabilityUpdatedActivityLogEntry struct {
@@ -21644,13 +21649,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Vulnerability.Aliases(childComplexity), true
 
-	case "Vulnerability.cvss":
-		if e.ComplexityRoot.Vulnerability.Cvss == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Vulnerability.Cvss(childComplexity), true
-
 	case "Vulnerability.description":
 		if e.ComplexityRoot.Vulnerability.Description == nil {
 			break
@@ -21811,34 +21809,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilityCoverageCounts.UnresolvedImage(childComplexity), true
-
-	case "VulnerabilityCvss.score":
-		if e.ComplexityRoot.VulnerabilityCvss.Score == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityCvss.Score(childComplexity), true
-
-	case "VulnerabilityCvss.source":
-		if e.ComplexityRoot.VulnerabilityCvss.Source == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityCvss.Source(childComplexity), true
-
-	case "VulnerabilityCvss.vector":
-		if e.ComplexityRoot.VulnerabilityCvss.Vector == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityCvss.Vector(childComplexity), true
-
-	case "VulnerabilityCvss.version":
-		if e.ComplexityRoot.VulnerabilityCvss.Version == nil {
-			break
-		}
-
-		return e.ComplexityRoot.VulnerabilityCvss.Version(childComplexity), true
 
 	case "VulnerabilityEpss.date":
 		if e.ComplexityRoot.VulnerabilityEpss.Date == nil {
@@ -22385,6 +22355,76 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.VulnerabilitySuppressionEdge.Node(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.environmentName":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.EnvironmentName(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.imageName":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.ImageName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.ImageName(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.packageKey":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.PackageKey == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.PackageKey(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.reason":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.Reason == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.Reason(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.state":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.State == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.State(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.teamSlug":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.TeamSlug(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.updatedAt":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.UpdatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.UpdatedAt(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.updatedBy":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.UpdatedBy == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.UpdatedBy(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.vulnerabilityIdentifier":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.VulnerabilityIdentifier == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.VulnerabilityIdentifier(childComplexity), true
+
+	case "VulnerabilitySuppressionSnapshot.workloadName":
+		if e.ComplexityRoot.VulnerabilitySuppressionSnapshot.WorkloadName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.VulnerabilitySuppressionSnapshot.WorkloadName(childComplexity), true
 
 	case "VulnerabilityUpdatedActivityLogEntry.actor":
 		if e.ComplexityRoot.VulnerabilityUpdatedActivityLogEntry.Actor == nil {
@@ -36762,7 +36802,7 @@ type ApplicationInstanceUtilization {
 		"The vulnerability identifier or an alias identifying exactly one vulnerability."
 		identifier: String!
 	): Vulnerability
-	"Current workload assessments, including assessments without active findings."
+	"Current assessments for existing workloads, including assessments without active findings."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
 		filter: VulnerabilitySuppressionFilter
@@ -36783,7 +36823,7 @@ extend type Team {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Current assessments for this team, including assessments for removed workloads."
+	"Current assessments for existing workloads in this team."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
 		filter: VulnerabilitySuppressionFilter
@@ -36804,7 +36844,7 @@ extend type TeamEnvironment {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilityFindingConnection!
-	"Current assessments in this team environment, including assessments for removed workloads."
+	"Current assessments for existing workloads in this team environment."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
 		filter: VulnerabilitySuppressionFilter
@@ -36883,7 +36923,7 @@ enum SuppressedFilter {
 	ONLY
 }
 
-"Severity reported by the advisory source. It is not calculated from the CVSS score; a score of 0.0 does not imply a particular severity."
+"Severity selected by the scanner for the finding, not calculated by Nais."
 enum VulnerabilitySeverity {
 	"The source did not provide a recognized severity."
 	UNKNOWN
@@ -36937,7 +36977,7 @@ type VulnerabilityFinding implements Node {
 	installedVersion: String!
 	"The first known fixed version, if provided by the source."
 	fixedVersion: String
-	"Severity reported by the advisory source."
+	"Severity selected by the scanner for this finding."
 	severity: VulnerabilitySeverity!
 	"The source supplying the severity."
 	severitySource: String!
@@ -37049,26 +37089,12 @@ type Vulnerability implements Node {
 	title: String!
 	"The advisory description."
 	description: String!
-	"CVSS scores and vectors supplied by the advisory sources."
-	cvss: [VulnerabilityCvss!]!
 	"Reference URLs supplied by the advisory sources."
 	references: [String!]!
 	"The estimated probability of exploitation, if available."
 	epss: VulnerabilityEpss
 	"Known exploited according to CISA KEV. False is not proof of no exploitation."
 	knownExploited: Boolean!
-}
-
-"One source's CVSS score and vector, preserving absent values."
-type VulnerabilityCvss {
-	"The source supplying the CVSS assessment."
-	source: String!
-	"The CVSS version supplied by the source."
-	version: String!
-	"The CVSS score, or null when the source did not supply one."
-	score: Float
-	"The CVSS vector, or null when the source did not supply one."
-	vector: String
 }
 
 "An exploitation probability supplied by FIRST EPSS."
@@ -37099,8 +37125,8 @@ type VulnerabilitySuppression implements Node {
 	workloadName: String!
 	"The team environment, if it still exists."
 	teamEnvironment: TeamEnvironment
-	"The application or job, if it still exists."
-	workload: Workload
+	"The application or job to which the assessment applies."
+	workload: Workload!
 	"The image repository name. The assessment survives image version changes."
 	imageName: String!
 	"The package URL without version, qualifiers or subpath."
@@ -37186,7 +37212,7 @@ type SetVulnerabilitySuppressionsPayload {
 "The assessments that existed and were deleted by the batch."
 type DeleteVulnerabilitySuppressionsPayload {
 	"The deleted assessments."
-	deleted: [VulnerabilitySuppression!]!
+	deleted: [VulnerabilitySuppressionSnapshot!]!
 }
 
 extend type Mutation {
@@ -37229,7 +37255,31 @@ type VulnerabilitySuppressionActivityLogEntry implements ActivityLogEntry & Node
 "The assessment associated with an activity log entry."
 type VulnerabilitySuppressionActivityLogEntryData {
 	"The assessment as set, or as it existed before deletion."
-	assessment: VulnerabilitySuppression!
+	assessment: VulnerabilitySuppressionSnapshot!
+}
+
+"Stored assessment details, independent of the current workload or advisory."
+type VulnerabilitySuppressionSnapshot {
+	"The team owning the assessment at the time."
+	teamSlug: Slug!
+	"The environment where the assessment applied."
+	environmentName: String!
+	"The name of the affected workload."
+	workloadName: String!
+	"The image repository name."
+	imageName: String!
+	"The package URL without version, qualifiers or subpath."
+	packageKey: String!
+	"The stored vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"The recorded assessment state."
+	state: VulnerabilitySuppressionState!
+	"The workload owner's reason for the assessment."
+	reason: String!
+	"The identity of the actor who last set the assessment."
+	updatedBy: String!
+	"The time the assessment was last set."
+	updatedAt: Time!
 }
 
 extend enum ActivityLogEntryResourceType {
@@ -45353,8 +45403,6 @@ func (ec *executionContext) childFields_Vulnerability(ctx context.Context, field
 		return ec.fieldContext_Vulnerability_title(ctx, field)
 	case "description":
 		return ec.fieldContext_Vulnerability_description(ctx, field)
-	case "cvss":
-		return ec.fieldContext_Vulnerability_cvss(ctx, field)
 	case "references":
 		return ec.fieldContext_Vulnerability_references(ctx, field)
 	case "epss":
@@ -45413,20 +45461,6 @@ func (ec *executionContext) childFields_VulnerabilityCoverageCounts(ctx context.
 		return ec.fieldContext_VulnerabilityCoverageCounts_unresolvedImage(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityCoverageCounts", field.Name)
-}
-
-func (ec *executionContext) childFields_VulnerabilityCvss(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-	switch field.Name {
-	case "source":
-		return ec.fieldContext_VulnerabilityCvss_source(ctx, field)
-	case "version":
-		return ec.fieldContext_VulnerabilityCvss_version(ctx, field)
-	case "score":
-		return ec.fieldContext_VulnerabilityCvss_score(ctx, field)
-	case "vector":
-		return ec.fieldContext_VulnerabilityCvss_vector(ctx, field)
-	}
-	return nil, fmt.Errorf("no field named %q was found under type VulnerabilityCvss", field.Name)
 }
 
 func (ec *executionContext) childFields_VulnerabilityEpss(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -45655,6 +45689,32 @@ func (ec *executionContext) childFields_VulnerabilitySuppressionEdge(ctx context
 		return ec.fieldContext_VulnerabilitySuppressionEdge_node(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppressionEdge", field.Name)
+}
+
+func (ec *executionContext) childFields_VulnerabilitySuppressionSnapshot(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "teamSlug":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_teamSlug(ctx, field)
+	case "environmentName":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_environmentName(ctx, field)
+	case "workloadName":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_workloadName(ctx, field)
+	case "imageName":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_imageName(ctx, field)
+	case "packageKey":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_packageKey(ctx, field)
+	case "vulnerabilityIdentifier":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_vulnerabilityIdentifier(ctx, field)
+	case "state":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_state(ctx, field)
+	case "reason":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_reason(ctx, field)
+	case "updatedBy":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_updatedBy(ctx, field)
+	case "updatedAt":
+		return ec.fieldContext_VulnerabilitySuppressionSnapshot_updatedAt(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type VulnerabilitySuppressionSnapshot", field.Name)
 }
 
 func (ec *executionContext) childFields_WebhookActivityLogEntryData(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {

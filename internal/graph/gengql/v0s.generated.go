@@ -61,8 +61,8 @@ func (ec *executionContext) _DeleteVulnerabilitySuppressionsPayload_deleted(ctx 
 			return obj.Deleted, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*v0s.VulnerabilitySuppression) graphql.Marshaler {
-			return ec.marshalNVulnerabilitySuppression2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*v0s.VulnerabilitySuppressionSnapshot) graphql.Marshaler {
+			return ec.marshalNVulnerabilitySuppressionSnapshot2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionSnapshotᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -75,7 +75,7 @@ func (ec *executionContext) fieldContext_DeleteVulnerabilitySuppressionsPayload_
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_VulnerabilitySuppression(ctx, field)
+			return ec.childFields_VulnerabilitySuppressionSnapshot(ctx, field)
 		},
 	}
 	return fc, nil
@@ -226,38 +226,6 @@ func (ec *executionContext) _Vulnerability_description(ctx context.Context, fiel
 }
 func (ec *executionContext) fieldContext_Vulnerability_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Vulnerability", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _Vulnerability_cvss(ctx context.Context, field graphql.CollectedField, obj *v0s.Vulnerability) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Vulnerability_cvss(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Cvss, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*v0s.VulnerabilityCvss) graphql.Marshaler {
-			return ec.marshalNVulnerabilityCvss2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCvssᚄ(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_Vulnerability_cvss(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Vulnerability",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_VulnerabilityCvss(ctx, field)
-		},
-	}
-	return fc, nil
 }
 
 func (ec *executionContext) _Vulnerability_references(ctx context.Context, field graphql.CollectedField, obj *v0s.Vulnerability) (ret graphql.Marshaler) {
@@ -589,98 +557,6 @@ func (ec *executionContext) _VulnerabilityCoverageCounts_unresolvedImage(ctx con
 }
 func (ec *executionContext) fieldContext_VulnerabilityCoverageCounts_unresolvedImage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("VulnerabilityCoverageCounts", field, false, false, errors.New("field of type Int does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilityCvss_source(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilityCvss) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilityCvss_source(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Source, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilityCvss_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilityCvss", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilityCvss_version(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilityCvss) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilityCvss_version(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Version, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilityCvss_version(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilityCvss", field, false, false, errors.New("field of type String does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilityCvss_score(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilityCvss) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilityCvss_score(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Score, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *float64) graphql.Marshaler {
-			return ec.marshalOFloat2ᚖfloat64(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilityCvss_score(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilityCvss", field, false, false, errors.New("field of type Float does not have child fields"))
-}
-
-func (ec *executionContext) _VulnerabilityCvss_vector(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilityCvss) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_VulnerabilityCvss_vector(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return obj.Vector, nil
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
-		},
-		true,
-		false,
-	)
-}
-func (ec *executionContext) fieldContext_VulnerabilityCvss_vector(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("VulnerabilityCvss", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _VulnerabilityEpss_score(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilityEpss) (ret graphql.Marshaler) {
@@ -1678,10 +1554,10 @@ func (ec *executionContext) _VulnerabilitySuppression_workload(ctx context.Conte
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v workload.Workload) graphql.Marshaler {
-			return ec.marshalOWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
+			return ec.marshalNWorkload2githubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkload(ctx, selections, v)
 		},
 		true,
-		false,
+		true,
 	)
 }
 func (ec *executionContext) fieldContext_VulnerabilitySuppression_workload(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2150,8 +2026,8 @@ func (ec *executionContext) _VulnerabilitySuppressionActivityLogEntryData_assess
 			return obj.Assessment, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilitySuppression) graphql.Marshaler {
-			return ec.marshalNVulnerabilitySuppression2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppression(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilitySuppressionSnapshot) graphql.Marshaler {
+			return ec.marshalNVulnerabilitySuppressionSnapshot2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionSnapshot(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2164,7 +2040,7 @@ func (ec *executionContext) fieldContext_VulnerabilitySuppressionActivityLogEntr
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_VulnerabilitySuppression(ctx, field)
+			return ec.childFields_VulnerabilitySuppressionSnapshot(ctx, field)
 		},
 	}
 	return fc, nil
@@ -2319,6 +2195,236 @@ func (ec *executionContext) fieldContext_VulnerabilitySuppressionEdge_node(_ con
 		},
 	}
 	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_teamSlug(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_teamSlug(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.TeamSlug, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v slug.Slug) graphql.Marshaler {
+			return ec.marshalNSlug2githubᚗcomᚋnaisᚋapiᚋinternalᚋslugᚐSlug(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_teamSlug(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type Slug does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_environmentName(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_environmentName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.EnvironmentName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_environmentName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_workloadName(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_workloadName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.WorkloadName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_workloadName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_imageName(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_imageName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.ImageName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_imageName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_packageKey(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_packageKey(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PackageKey, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_packageKey(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_vulnerabilityIdentifier(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_vulnerabilityIdentifier(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.VulnerabilityIdentifier, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_vulnerabilityIdentifier(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_state(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_state(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.State, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v v0s.VulnerabilitySuppressionState) graphql.Marshaler {
+			return ec.marshalNVulnerabilitySuppressionState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionState(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type VulnerabilitySuppressionState does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_reason(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_reason(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Reason, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_reason(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_updatedBy(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_updatedBy(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedBy, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_updatedBy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot_updatedAt(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilitySuppressionSnapshot) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilitySuppressionSnapshot_updatedAt(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
+			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilitySuppressionSnapshot_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("VulnerabilitySuppressionSnapshot", field, false, false, errors.New("field of type Time does not have child fields"))
 }
 
 // endregion **************************** field.gotpl *****************************
@@ -2735,11 +2841,6 @@ func (ec *executionContext) _Vulnerability(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "cvss":
-			out.Values[i] = ec._Vulnerability_cvss(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "references":
 			out.Values[i] = ec._Vulnerability_references(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2863,54 +2964,6 @@ func (ec *executionContext) _VulnerabilityCoverageCounts(ctx context.Context, se
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
-
-	for label, dfs := range deferred {
-		ec.ProcessDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var vulnerabilityCvssImplementors = []string{"VulnerabilityCvss"}
-
-func (ec *executionContext) _VulnerabilityCvss(ctx context.Context, sel ast.SelectionSet, obj *v0s.VulnerabilityCvss) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilityCvssImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("VulnerabilityCvss")
-		case "source":
-			out.Values[i] = ec._VulnerabilityCvss_source(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "version":
-			out.Values[i] = ec._VulnerabilityCvss_version(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "score":
-			out.Values[i] = ec._VulnerabilityCvss_score(ctx, field, obj)
-		case "vector":
-			out.Values[i] = ec._VulnerabilityCvss_vector(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3485,13 +3538,16 @@ func (ec *executionContext) _VulnerabilitySuppression(ctx context.Context, sel a
 		case "workload":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._VulnerabilitySuppression_workload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -3813,6 +3869,90 @@ func (ec *executionContext) _VulnerabilitySuppressionEdge(ctx context.Context, s
 	return out
 }
 
+var vulnerabilitySuppressionSnapshotImplementors = []string{"VulnerabilitySuppressionSnapshot"}
+
+func (ec *executionContext) _VulnerabilitySuppressionSnapshot(ctx context.Context, sel ast.SelectionSet, obj *v0s.VulnerabilitySuppressionSnapshot) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, vulnerabilitySuppressionSnapshotImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("VulnerabilitySuppressionSnapshot")
+		case "teamSlug":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_teamSlug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "environmentName":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_environmentName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "workloadName":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_workloadName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "imageName":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_imageName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "packageKey":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_packageKey(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "vulnerabilityIdentifier":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_vulnerabilityIdentifier(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "state":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_state(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reason":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_reason(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedBy":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_updatedBy(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._VulnerabilitySuppressionSnapshot_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -3907,32 +4047,6 @@ func (ec *executionContext) unmarshalNVulnerabilityCoverageStatus2githubᚗcom�
 
 func (ec *executionContext) marshalNVulnerabilityCoverageStatus2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCoverageStatus(ctx context.Context, sel ast.SelectionSet, v v0s.VulnerabilityCoverageStatus) graphql.Marshaler {
 	return v
-}
-
-func (ec *executionContext) marshalNVulnerabilityCvss2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCvssᚄ(ctx context.Context, sel ast.SelectionSet, v []*v0s.VulnerabilityCvss) graphql.Marshaler {
-	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
-		fc := graphql.GetFieldContext(ctx)
-		fc.Result = &v[i]
-		return ec.marshalNVulnerabilityCvss2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCvss(ctx, sel, v[i])
-	})
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNVulnerabilityCvss2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityCvss(ctx context.Context, sel ast.SelectionSet, v *v0s.VulnerabilityCvss) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._VulnerabilityCvss(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNVulnerabilityFinding2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingᚄ(ctx context.Context, sel ast.SelectionSet, v []*v0s.VulnerabilityFinding) graphql.Marshaler {
@@ -4123,6 +4237,32 @@ func (ec *executionContext) unmarshalNVulnerabilitySuppressionKeyInput2ᚕᚖgit
 func (ec *executionContext) unmarshalNVulnerabilitySuppressionKeyInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionKeyInput(ctx context.Context, v any) (*v0s.VulnerabilitySuppressionKeyInput, error) {
 	res, err := ec.unmarshalInputVulnerabilitySuppressionKeyInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNVulnerabilitySuppressionSnapshot2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionSnapshotᚄ(ctx context.Context, sel ast.SelectionSet, v []*v0s.VulnerabilitySuppressionSnapshot) graphql.Marshaler {
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNVulnerabilitySuppressionSnapshot2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionSnapshot(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNVulnerabilitySuppressionSnapshot2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionSnapshot(ctx context.Context, sel ast.SelectionSet, v *v0s.VulnerabilitySuppressionSnapshot) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._VulnerabilitySuppressionSnapshot(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNVulnerabilitySuppressionState2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySuppressionState(ctx context.Context, v any) (v0s.VulnerabilitySuppressionState, error) {
