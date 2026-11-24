@@ -5,6 +5,7 @@ package integration
 import (
 	"cmp"
 	"context"
+	"encoding/base64"
 	"slices"
 	"strings"
 	"sync"
@@ -156,7 +157,33 @@ func v0sCompareFindings(a, b *protoapi.Finding, order *protoapi.FindingOrderBy) 
 	return strings.Compare(v0sFindingKey(a), v0sFindingKey(b))
 }
 
+func v0sEncodeCursor(boundary proto.Message) (string, error) {
+	data, err := proto.Marshal(boundary)
+	if err != nil {
+		return "", status.Errorf(codes.Internal, "encode fake v0s cursor: %v", err)
+	}
+	return base64.RawURLEncoding.EncodeToString(data), nil
+}
+
+func v0sDecodeCursor(token string, boundary proto.Message) error {
+	data, err := base64.RawURLEncoding.DecodeString(token)
+	if err != nil {
+		return status.Errorf(codes.InvalidArgument, "decode fake v0s cursor: %v", err)
+	}
+	if err := proto.Unmarshal(data, boundary); err != nil {
+		return status.Errorf(codes.InvalidArgument, "decode fake v0s cursor boundary: %v", err)
+	}
+	return nil
+}
+
 func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRequest, _ ...grpc.CallOption) (*protoapi.ListFindingsResponse, error) {
+	var boundary *protoapi.Finding
+	if req.PageToken != "" {
+		boundary = &protoapi.Finding{}
+		if err := v0sDecodeCursor(req.PageToken, boundary); err != nil {
+			return nil, err
+		}
+	}
 	resp := &protoapi.ListFindingsResponse{}
 	matching := make([]*protoapi.Finding, 0)
 	packageCounts := map[string]int64{}
@@ -171,19 +198,22 @@ func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRe
 		resp.PackageTypeCounts = append(resp.PackageTypeCounts, &protoapi.PackageTypeCount{Value: value, Count: count})
 	}
 	slices.SortFunc(matching, func(a, b *protoapi.Finding) int { return v0sCompareFindings(a, b, req.OrderBy) })
-	started := req.PageToken == ""
 	for _, f := range matching {
-		key := v0sFindingKey(f)
-		if !started {
-			started = key == req.PageToken
+		if boundary != nil && v0sCompareFindings(f, boundary, req.OrderBy) <= 0 {
 			continue
 		}
 		if len(resp.Findings) == int(req.PageSize) {
 			resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
 			break
 		}
+		cursor, err := v0sEncodeCursor(&protoapi.Finding{
+			Workload: f.Workload, VulnerabilityId: f.VulnerabilityId, Purl: f.Purl, Severity: f.Severity,
+		})
+		if err != nil {
+			return nil, err
+		}
 		resp.Findings = append(resp.Findings, f)
-		resp.Cursors = append(resp.Cursors, key)
+		resp.Cursors = append(resp.Cursors, cursor)
 	}
 	return resp, nil
 }
@@ -229,49 +259,61 @@ func (c *v0sClient) vulnerabilityGroups(filter *protoapi.FindingFilter, selector
 	return result
 }
 
-func (c *v0sClient) ListVulnerabilities(_ context.Context, req *protoapi.ListVulnerabilitiesRequest, _ ...grpc.CallOption) (*protoapi.ListVulnerabilitiesResponse, error) {
-	groups := c.vulnerabilityGroups(req.Filter, req.WorkloadSelector)
-	order := req.OrderBy
+func v0sCompareVulnerabilityGroups(a, b *protoapi.VulnerabilitySummary, order *protoapi.VulnerabilityOrderBy) int {
 	if order == nil {
 		order = &protoapi.VulnerabilityOrderBy{Field: protoapi.VulnerabilityOrderBy_FIELD_SEVERITY, Direction: protoapi.VulnerabilityOrderBy_DIRECTION_DESC}
 	}
+	var compared int
+	switch order.Field {
+	case protoapi.VulnerabilityOrderBy_FIELD_VULNERABILITY_ID:
+		compared = strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
+	case protoapi.VulnerabilityOrderBy_FIELD_AFFECTED_WORKLOAD_COUNT:
+		compared = cmp.Compare(a.AffectedWorkloadCount, b.AffectedWorkloadCount)
+	default:
+		if a.Severity == protoapi.Severity_SEVERITY_UNKNOWN && b.Severity != a.Severity {
+			return 1
+		}
+		if b.Severity == protoapi.Severity_SEVERITY_UNKNOWN && a.Severity != b.Severity {
+			return -1
+		}
+		compared = cmp.Compare(a.Severity, b.Severity)
+	}
+	if order.Direction == protoapi.VulnerabilityOrderBy_DIRECTION_DESC {
+		compared = -compared
+	}
+	if compared != 0 {
+		return compared
+	}
+	return strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
+}
+
+func (c *v0sClient) ListVulnerabilities(_ context.Context, req *protoapi.ListVulnerabilitiesRequest, _ ...grpc.CallOption) (*protoapi.ListVulnerabilitiesResponse, error) {
+	var boundary *protoapi.VulnerabilitySummary
+	if req.PageToken != "" {
+		boundary = &protoapi.VulnerabilitySummary{}
+		if err := v0sDecodeCursor(req.PageToken, boundary); err != nil {
+			return nil, err
+		}
+	}
+	groups := c.vulnerabilityGroups(req.Filter, req.WorkloadSelector)
 	slices.SortFunc(groups, func(a, b *protoapi.VulnerabilitySummary) int {
-		var compared int
-		switch order.Field {
-		case protoapi.VulnerabilityOrderBy_FIELD_VULNERABILITY_ID:
-			compared = strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
-		case protoapi.VulnerabilityOrderBy_FIELD_AFFECTED_WORKLOAD_COUNT:
-			compared = cmp.Compare(a.AffectedWorkloadCount, b.AffectedWorkloadCount)
-		default:
-			if a.Severity == protoapi.Severity_SEVERITY_UNKNOWN && b.Severity != a.Severity {
-				return 1
-			}
-			if b.Severity == protoapi.Severity_SEVERITY_UNKNOWN && a.Severity != b.Severity {
-				return -1
-			}
-			compared = cmp.Compare(a.Severity, b.Severity)
-		}
-		if order.Direction == protoapi.VulnerabilityOrderBy_DIRECTION_DESC {
-			compared = -compared
-		}
-		if compared != 0 {
-			return compared
-		}
-		return strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
+		return v0sCompareVulnerabilityGroups(a, b, req.OrderBy)
 	})
 	resp := &protoapi.ListVulnerabilitiesResponse{TotalCount: int64(len(groups))}
-	started := req.PageToken == ""
 	for _, group := range groups {
-		if !started {
-			started = group.VulnerabilityId == req.PageToken
+		if boundary != nil && v0sCompareVulnerabilityGroups(group, boundary, req.OrderBy) <= 0 {
 			continue
 		}
 		if len(resp.Vulnerabilities) == int(req.PageSize) {
 			resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
 			break
 		}
+		cursor, err := v0sEncodeCursor(group)
+		if err != nil {
+			return nil, err
+		}
 		resp.Vulnerabilities = append(resp.Vulnerabilities, group)
-		resp.Cursors = append(resp.Cursors, group.VulnerabilityId)
+		resp.Cursors = append(resp.Cursors, cursor)
 	}
 	return resp, nil
 }
