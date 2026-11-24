@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/workload"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -48,10 +48,6 @@ func findingFilter(s scope, input *VulnerabilityFindingFilter) (*protoapi.Findin
 	f.VulnerabilityIds = slices.Clone(input.VulnerabilityIdentifiers)
 	slices.Sort(f.VulnerabilityIds)
 	f.VulnerabilityIds = slices.Compact(f.VulnerabilityIds)
-	if len(f.VulnerabilityIds) == 1 {
-		f.VulnerabilityId = f.VulnerabilityIds[0]
-		f.VulnerabilityIds = nil
-	}
 	if input.Package != nil {
 		if strings.TrimSpace(*input.Package) == "" {
 			return nil, apierror.Errorf("package cannot be empty")

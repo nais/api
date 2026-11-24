@@ -78,7 +78,8 @@ configuration. Activity log entries use the canonical name.
 ## v0s migration
 
 The new vulnerability fields read v0s through the public
-[v0s gRPC client module](https://github.com/nais/v0s-api). Existing
+[v0s gRPC client module](https://github.com/nais/v0s/tree/main/api),
+`github.com/nais/v0s/api`. Existing
 v13s queries and mutations keep their existing source and behavior.
 
 Set `V0S_ENDPOINT` to the plaintext gRPC endpoint allowed by v0s's NetworkPolicy.
@@ -120,10 +121,9 @@ workload selection. Use `Team.workloads(filter: {vulnerabilityCoverageStatuses:
 inventory: workloads missing from v0s or associated with an old image are
 pending, not clean. Removed workloads and old-image findings are excluded.
 
-The pinned v0s protobuf schema is in `internal/v0s/protoapi/schema/v0s.proto`.
-`mise run generate:proto` generates the client locally, without depending on the
-v0s scanner module or its Go version. Update the pinned schema and regenerate when
-the upstream contract changes.
+The client is a released module from the v0s repository, without the scanner or
+its Go version. Update it with `go get github.com/nais/v0s/api@<version>` when the
+upstream contract changes.
 
 ## Development practices
 

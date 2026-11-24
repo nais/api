@@ -7,7 +7,7 @@ import (
 
 	"github.com/nais/api/internal/graph/loader"
 	inventoryapi "github.com/nais/api/pkg/apiclient/protoapi"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"github.com/vikstrous/dataloadgen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

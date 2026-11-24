@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/nais/api/internal/v0s"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -75,8 +75,7 @@ func v0sMatches(f *protoapi.Finding, filter *protoapi.FindingFilter) bool {
 	return (filter.Team == "" || filter.Team == f.Workload.Team) &&
 		(filter.Environment == "" || filter.Environment == f.Workload.Environment) &&
 		(filter.Workload == "" || filter.Workload == f.Workload.Name) &&
-		((filter.VulnerabilityId == "" && len(filter.VulnerabilityIds) == 0) ||
-			filter.VulnerabilityId == f.VulnerabilityId || slices.Contains(filter.VulnerabilityIds, f.VulnerabilityId)) &&
+		(len(filter.VulnerabilityIds) == 0 || slices.Contains(filter.VulnerabilityIds, f.VulnerabilityId)) &&
 		(filter.Package == "" || filter.Package == f.Purl || filter.Package == f.PackageKey) &&
 		(len(filter.Severities) == 0 || slices.Contains(filter.Severities, f.Severity)) &&
 		(!filter.HasFix || f.FixedVersion != "") && (!filter.OnlyKnownExploited || f.KnownExploited) &&

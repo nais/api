@@ -10,7 +10,7 @@ import (
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v0s"
 	inventoryapi "github.com/nais/api/pkg/apiclient/protoapi"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"google.golang.org/grpc"
 )
 

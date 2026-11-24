@@ -6,7 +6,7 @@ import (
 
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 )
 
 func optionalString(value string) *string {
