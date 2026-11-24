@@ -31,7 +31,7 @@ func (q *Queries) AddMember(ctx context.Context, arg AddMemberParams) error {
 
 const getMember = `-- name: GetMember :one
 SELECT
-	users.id, users.email, users.name, users.external_id, users.admin,
+	users.id, users.email, users.name, users.external_id, users.admin, users.source,
 	user_roles.role_name
 FROM
 	user_roles
@@ -53,6 +53,7 @@ type GetMemberRow struct {
 	Name       string
 	ExternalID string
 	Admin      bool
+	Source     *string
 	RoleName   string
 }
 
@@ -65,6 +66,7 @@ func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*GetMembe
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 		&i.RoleName,
 	)
 	return &i, err
@@ -72,7 +74,7 @@ func (q *Queries) GetMember(ctx context.Context, arg GetMemberParams) (*GetMembe
 
 const getMemberByEmail = `-- name: GetMemberByEmail :one
 SELECT
-	users.id, users.email, users.name, users.external_id, users.admin,
+	users.id, users.email, users.name, users.external_id, users.admin, users.source,
 	user_roles.role_name
 FROM
 	user_roles
@@ -94,6 +96,7 @@ type GetMemberByEmailRow struct {
 	Name       string
 	ExternalID string
 	Admin      bool
+	Source     *string
 	RoleName   string
 }
 
@@ -106,6 +109,7 @@ func (q *Queries) GetMemberByEmail(ctx context.Context, arg GetMemberByEmailPara
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 		&i.RoleName,
 	)
 	return &i, err
@@ -113,7 +117,7 @@ func (q *Queries) GetMemberByEmail(ctx context.Context, arg GetMemberByEmailPara
 
 const listForUser = `-- name: ListForUser :many
 SELECT
-	users.id, users.email, users.name, users.external_id, users.admin,
+	users.id, users.email, users.name, users.external_id, users.admin, users.source,
 	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug,
 	COUNT(*) OVER () AS total_count
 FROM
@@ -169,6 +173,7 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 			&i.User.Name,
 			&i.User.ExternalID,
 			&i.User.Admin,
+			&i.User.Source,
 			&i.UserRole.ID,
 			&i.UserRole.RoleName,
 			&i.UserRole.UserID,
@@ -187,7 +192,7 @@ func (q *Queries) ListForUser(ctx context.Context, arg ListForUserParams) ([]*Li
 
 const listMembers = `-- name: ListMembers :many
 SELECT
-	users.id, users.email, users.name, users.external_id, users.admin,
+	users.id, users.email, users.name, users.external_id, users.admin, users.source,
 	user_roles.id, user_roles.role_name, user_roles.user_id, user_roles.target_team_slug,
 	COUNT(*) OVER () AS total_count
 FROM
@@ -256,6 +261,7 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*Li
 			&i.User.Name,
 			&i.User.ExternalID,
 			&i.User.Admin,
+			&i.User.Source,
 			&i.UserRole.ID,
 			&i.UserRole.RoleName,
 			&i.UserRole.UserID,

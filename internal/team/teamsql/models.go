@@ -44,6 +44,7 @@ type User struct {
 	Name       string
 	ExternalID string
 	Admin      bool
+	Source     *string
 }
 
 type UserRole struct {

@@ -459,7 +459,7 @@ func getAllUsers(ctx context.Context) ([]*user.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		conn, err := user.List(ctx, p, orderBy)
+		conn, err := user.List(ctx, p, orderBy, nil)
 		if err != nil {
 			return nil, err
 		}

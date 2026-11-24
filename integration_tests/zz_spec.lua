@@ -244,8 +244,9 @@ User = {}
 ---@param name? string
 ---@param email? string
 ---@param externalID? string
+---@param source? string
 ---@return User
-function User.new(name, email, externalID)
+function User.new(name, email, externalID, source)
 	print("new")
 	return {}
 end

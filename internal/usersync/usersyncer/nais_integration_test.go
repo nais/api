@@ -102,13 +102,16 @@ func TestSyncNaisUsers(t *testing.T) {
 			t.Fatal(err)
 		}
 		syncer := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log)
-		for range 2 {
+		for run := range 2 {
 			result, err := syncer.Sync(ctx)
 			if err != nil {
 				t.Fatal(err)
 			}
 			if result.GoogleUsers == nil || *result.GoogleUsers != 1 || result.NaisUsers == nil || *result.NaisUsers != 2 {
 				t.Fatalf("expected count of 1 Google and 2 nais.io users, got %+v", result)
+			}
+			if run == 1 && result.Changes != (usersyncer.UserChanges{}) {
+				t.Errorf("repeating the same sync should not change users, got %+v", result.Changes)
 			}
 		}
 		if reads != 2 {
@@ -127,6 +130,9 @@ func TestSyncNaisUsers(t *testing.T) {
 			if u.Admin {
 				t.Fatalf("nais.io user unexpectedly has admin access: %v", u)
 			}
+			if u.Source == nil || *u.Source != string(user.UserSourceNais) {
+				t.Errorf("expected %s to have a NAIS source, got %v", u.Email, u.Source)
+			}
 			if u.ExternalID == "nais-1" && (u.ID != outdated.ID || u.Name != "Updated name" || u.Email != "updated@nais.io") {
 				t.Fatalf("existing nais.io identity was not updated in place: %v", u)
 			}
@@ -142,6 +148,9 @@ func TestSyncNaisUsers(t *testing.T) {
 		}
 		if tenant == nil || !tenant.Admin {
 			t.Fatalf("tenant admin was changed: %v", tenant)
+		}
+		if tenant.Source == nil || *tenant.Source != string(user.UserSourceTenant) {
+			t.Error("expected the tenant admin to have a TENANT source")
 		}
 		roles, err := q.ListRoles(ctx)
 		if err != nil || len(roles) != 1 || roles[0].UserID != tenant.ID || roles[0].RoleName != "Team creator" {
