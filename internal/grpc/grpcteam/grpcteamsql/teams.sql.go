@@ -284,7 +284,7 @@ func (q *Queries) ListForUserByEmail(ctx context.Context, arg ListForUserByEmail
 
 const listMembers = `-- name: ListMembers :many
 SELECT
-	users.id, users.email, users.name, users.external_id, users.admin
+	users.id, users.email, users.name, users.external_id, users.admin, users.source
 FROM
 	user_roles
 	JOIN teams ON teams.slug = user_roles.target_team_slug
@@ -320,6 +320,7 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]*Us
 			&i.Name,
 			&i.ExternalID,
 			&i.Admin,
+			&i.Source,
 		); err != nil {
 			return nil, err
 		}

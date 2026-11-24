@@ -160,7 +160,7 @@ type QueryResolver interface {
 	Teams(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) (*pagination.Connection[*team.Team], error)
 	Team(ctx context.Context, slug slug.Slug) (*team.Team, error)
 	UnleashReleaseChannels(ctx context.Context) ([]*unleash.UnleashReleaseChannel, error)
-	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error)
+	Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) (*pagination.Connection[*user.User], error)
 	User(ctx context.Context, email *string) (*user.User, error)
 	Me(ctx context.Context) (authz.AuthenticatedUser, error)
 	UserSyncLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[usersync.UserSyncLogEntry], error)
@@ -1933,6 +1933,14 @@ func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["orderBy"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
+		func(ctx context.Context, v any) (*user.UserFilter, error) {
+			return ec.unmarshalOUserFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserFilter(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["filter"] = arg5
 	return args, nil
 }
 
@@ -6267,7 +6275,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().Users(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*user.UserOrder))
+			return ec.Resolvers.Query().Users(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*user.UserOrder), fc.Args["filter"].(*user.UserFilter))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*user.User]) graphql.Marshaler {

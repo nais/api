@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
 	zitadeluser "github.com/zitadel/zitadel-go/v3/pkg/client/user/v2"
@@ -53,6 +54,13 @@ type sourceUser struct {
 	Email        string
 	Name         admindirectoryv1.UserName
 	isTenantUser bool
+}
+
+func (u *sourceUser) source() user.UserSource {
+	if u.isTenantUser {
+		return user.UserSourceTenant
+	}
+	return user.UserSourceNais
 }
 
 type UserChanges struct {
@@ -184,17 +192,21 @@ func (s *Usersynchronizer) Sync(ctx context.Context) (result SyncResult, err err
 		if created {
 			changes.Created++
 		}
-		if userIsOutdated(user, gu) {
+		outdated, profileChanged := userIsOutdated(user, gu)
+		if outdated {
 			if err := querier.Update(ctx, usersyncsql.UpdateParams{
 				ID:         user.ID,
 				Name:       gu.Name.FullName,
 				Email:      gu.Email,
 				ExternalID: gu.ID,
+				Source:     new(string(gu.source())),
 			}); err != nil {
 				return result, fmt.Errorf("update user %q: %w", gu.Email, err)
 			}
 			changes.Updated++
+		}
 
+		if profileChanged {
 			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
 				Action:       usersyncsql.UsersyncLogEntryActionUpdateUser,
 				UserID:       user.ID,
@@ -516,21 +528,11 @@ func listActiveGroupUsers(ctx context.Context, svc *admindirectoryv1.MembersServ
 	return members, err
 }
 
-// userIsOutdated checks if a user needs to get its name or its email address updated.
-func userIsOutdated(user *usersyncsql.User, gu *sourceUser) bool {
-	if user.Name != gu.Name.FullName {
-		return true
-	}
-
-	if !strings.EqualFold(user.Email, gu.Email) {
-		return true
-	}
-
-	if user.ExternalID != gu.ID {
-		return true
-	}
-
-	return false
+// userIsOutdated reports whether the user needs an update and whether that update changes the profile.
+func userIsOutdated(user *usersyncsql.User, gu *sourceUser) (outdated, profileChanged bool) {
+	profileChanged = user.Name != gu.Name.FullName || !strings.EqualFold(user.Email, gu.Email) || user.ExternalID != gu.ID
+	outdated = profileChanged || user.Source == nil || *user.Source != string(gu.source())
+	return outdated, profileChanged
 }
 
 // getOrCreateUser matches globally unique email addresses across user sources.
@@ -548,6 +550,7 @@ func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *s
 		Name:       remote.Name.FullName,
 		Email:      remote.Email,
 		ExternalID: remote.ID,
+		Source:     new(string(remote.source())),
 	})
 	if err != nil {
 		return nil, false, err

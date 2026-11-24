@@ -27,6 +27,11 @@ extend type Query {
 		Ordering options for items returned from the connection.
 		"""
 		orderBy: UserOrder
+
+		"""
+		Filter the list of users.
+		"""
+		filter: UserFilter
 	): UserConnection!
 
 	"""
@@ -65,6 +70,11 @@ type User implements Node {
 	externalID: String!
 
 	"""
+	Whether this is a tenant user or a Nais user. Null if the source has not been recorded yet.
+	"""
+	source: UserSource
+
+	"""
 	List of teams the user is connected to.
 	"""
 	teams(
@@ -98,6 +108,31 @@ type User implements Node {
 	True if the user is global admin.
 	"""
 	isAdmin: Boolean!
+}
+
+"""
+The category of a user.
+"""
+enum UserSource {
+	"""
+	A user belonging to the tenant.
+	"""
+	TENANT
+
+	"""
+	A user belonging to Nais.
+	"""
+	NAIS
+}
+
+"""
+Filters for the list of users.
+"""
+input UserFilter {
+	"""
+	Include users from any of these categories. Omit this field to include all users, even those without a recorded source. An empty list matches no users.
+	"""
+	sources: [UserSource!]
 }
 
 """

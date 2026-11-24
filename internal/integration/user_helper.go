@@ -45,6 +45,11 @@ func userMetatable() *spec.Typemetatable {
 					Type: []spec.ArgumentType{spec.ArgumentTypeString},
 					Doc:  "The externalID of the user to create",
 				},
+				{
+					Name: "source?",
+					Type: []spec.ArgumentType{spec.ArgumentTypeString},
+					Doc:  "The sync source of the user to create (TENANT or NAIS)",
+				},
 			},
 			Func: createUser,
 		},
@@ -108,6 +113,10 @@ func createUser(L *lua.LState) int {
 	name := L.OptString(1, "")
 	email := L.OptString(2, "")
 	externalID := L.OptString(3, "")
+	var source *string
+	if value := L.OptString(4, ""); value != "" {
+		source = &value
+	}
 
 	if name == "" {
 		name = fmt.Sprintf("name-%v", userIndex.Next())
@@ -123,6 +132,7 @@ func createUser(L *lua.LState) int {
 		Name:       name,
 		Email:      email,
 		ExternalID: externalID,
+		Source:     source,
 	})
 	if err != nil {
 		L.RaiseError("failed to create user: %s", err)

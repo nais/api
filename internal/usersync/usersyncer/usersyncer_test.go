@@ -69,7 +69,7 @@ func TestSync(t *testing.T) {
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		if users, err := user.List(ctx, p, nil); err != nil {
+		if users, err := user.List(ctx, p, nil, nil); err != nil {
 			t.Fatal(err)
 		} else if total := len(users.Nodes()); total != 0 {
 			t.Fatalf("expected 0 users, got %d", total)
@@ -130,7 +130,7 @@ func TestSync(t *testing.T) {
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		if users, err := user.List(ctx, p, nil); err != nil {
+		if users, err := user.List(ctx, p, nil, nil); err != nil {
 			t.Fatal(err)
 		} else if total := len(users.Nodes()); total != 0 {
 			t.Fatalf("expected 0 users, got %d", total)
@@ -214,12 +214,13 @@ func TestSync(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if want := (usersyncer.UserChanges{Created: 1, Updated: 2, Deleted: 1}); result.Changes != want {
+		// The user with an unchanged profile is still updated to record its source.
+		if want := (usersyncer.UserChanges{Created: 1, Updated: 3, Deleted: 1}); result.Changes != want {
 			t.Errorf("committed user changes: got %+v, want %+v", result.Changes, want)
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		if users, err := user.List(ctx, p, nil); err != nil {
+		if users, err := user.List(ctx, p, nil, nil); err != nil {
 			t.Fatal(err)
 		} else if total := len(users.Nodes()); total != 4 {
 			t.Fatalf("expected 4 users, got %d", total)
@@ -308,7 +309,7 @@ func TestSync(t *testing.T) {
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		users, err := user.List(ctx, p, nil)
+		users, err := user.List(ctx, p, nil, nil)
 		if err != nil {
 			t.Fatal(err)
 		}

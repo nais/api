@@ -4,6 +4,11 @@ SELECT
 	COUNT(*) OVER () AS total_count
 FROM
 	users
+WHERE
+	(
+		sqlc.narg('sources')::TEXT[] IS NULL
+		OR source = ANY (sqlc.narg('sources')::TEXT[])
+	)
 ORDER BY
 	CASE
 		WHEN @order_by::TEXT = 'name:asc' THEN name
