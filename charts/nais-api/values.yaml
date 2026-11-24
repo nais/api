@@ -67,6 +67,7 @@ usersync:
   serviceAccount: null # Config in fasit
   subjectEmail: null # Config in fasit
   adminGroupPrefix: null # Config in fasit
+  userGroupPrefix: null # Config in fasit; unset syncs all eligible Google Workspace users
 
 unleash:
   enabled: false
