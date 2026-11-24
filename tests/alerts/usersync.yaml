@@ -1,0 +1,114 @@
+rule_files:
+  - rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: Successful syncs every 15 minutes keep the alert inactive
+    interval: 1m
+    input_series:
+      - series: 'up{job="nais-system/nais-api", instance="leader"}'
+        values: "1x74"
+      - series: 'nais_usersync_last_success_timestamp_seconds{job="nais-system/nais-api", instance="leader"}'
+        values: "0x14 900x14 1800x14 2700x14 3600x14"
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 45m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 74m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+
+  - name: A stale success timestamp fires after 45 minutes and a new success resolves it
+    interval: 1m
+    input_series:
+      - series: 'up{job="nais-system/nais-api", instance="leader"}'
+        values: "1x75"
+      - series: 'nais_usersync_last_success_timestamp_seconds{job="nais-system/nais-api", instance="leader"}'
+        values: "0x59 3600x15"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 46m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: &usersync_alert
+          - exp_labels:
+              namespace: nais-system
+              severity: warning
+            exp_annotations:
+              consequence: User and admin access may be out of date.
+              action: Check usersync errors in nais-api logs.
+      - eval_time: 59m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: *usersync_alert
+      - eval_time: 60m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+
+  - name: A running API that never synced alerts after 45 minutes and recovers on its first success
+    interval: 1m
+    input_series:
+      - series: 'up{job="nais-system/nais-api", instance="leader"}'
+        values: "1x75"
+      - series: 'nais_usersync_last_success_timestamp_seconds{job="nais-system/nais-api", instance="leader"}'
+        values: "_x60 3600x15"
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 44m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 45m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: *usersync_alert
+      - eval_time: 59m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: *usersync_alert
+      - eval_time: 60m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+
+  - name: A leader change does not alert while the previous leader still exposes an old timestamp
+    interval: 1m
+    input_series:
+      - series: 'up{job="nais-system/nais-api", instance="old-leader"}'
+        values: "1x74"
+      - series: 'nais_usersync_last_success_timestamp_seconds{job="nais-system/nais-api", instance="old-leader"}'
+        values: "0x74"
+      - series: 'up{job="nais-system/nais-api", instance="new-leader"}'
+        values: "_x15 1x59"
+      - series: 'nais_usersync_last_success_timestamp_seconds{job="nais-system/nais-api", instance="new-leader"}'
+        values: "_x15 900x14 1800x14 2700x14 3600x14"
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 46m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 74m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+
+  - name: A disappearing success metric continues alerting after its samples leave the range
+    interval: 1m
+    input_series:
+      - series: 'up{job="nais-system/nais-api", instance="leader"}'
+        values: "1x90"
+      - series: 'nais_usersync_last_success_timestamp_seconds{job="nais-system/nais-api", instance="leader"}'
+        values: "0x14 stale"
+    alert_rule_test:
+      - eval_time: 45m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: []
+      - eval_time: 46m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: *usersync_alert
+      - eval_time: 60m
+        alertname: User sync has not succeeded in 45 minutes
+        exp_alerts: *usersync_alert

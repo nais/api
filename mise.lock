@@ -182,6 +182,52 @@ url = "https://github.com/pnpm/pnpm/releases/download/v11.9.0/pnpm-win32-x64.zip
 url_api = "https://api.github.com/repos/pnpm/pnpm/releases/assets/455748043"
 provenance = "github-attestations"
 
+[[tools.promtool]]
+version = "3.16.0"
+backend = "aqua:prometheus/prometheus"
+specifiers = ["3.16.0"]
+
+[tools.promtool."platforms.linux-arm64"]
+checksum = "sha256:fd8571b8162f4020232d886f17340bcf92e1722985ae3b4c1d096157826c0fbe"
+checksum_source = "mise-versions"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713900769"
+
+[tools.promtool."platforms.linux-arm64-musl"]
+checksum = "sha256:fd8571b8162f4020232d886f17340bcf92e1722985ae3b4c1d096157826c0fbe"
+checksum_source = "mise-versions"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713900769"
+
+[tools.promtool."platforms.linux-x64"]
+checksum = "sha256:68727009472a2c02e1ff7f062fd5b3e637285bffc8fc2d340c76fb449d6e0f34"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.linux-amd64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713900575"
+
+[tools.promtool."platforms.linux-x64-musl"]
+checksum = "sha256:68727009472a2c02e1ff7f062fd5b3e637285bffc8fc2d340c76fb449d6e0f34"
+checksum_source = "mise-versions"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.linux-amd64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713900575"
+
+[tools.promtool."platforms.macos-arm64"]
+checksum = "sha256:f7c71b553316f822bdd860a3ea527ebefb2f8e944e5b7dfd419ae2653cf3ba01"
+checksum_source = "mise-versions"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713898764"
+
+[tools.promtool."platforms.macos-x64"]
+checksum = "sha256:998fb3301c1d77452bdfc481f61353e2e4a3b16c97a6b725c2b7beee5464c8c2"
+checksum_source = "mise-versions"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.darwin-amd64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713898553"
+
+[tools.promtool."platforms.windows-x64"]
+checksum = "sha256:9e46350ae75dfa766e64d4abbc00f45a327bb4198915b3fe4d74baa809a83223"
+checksum_source = "mise-versions"
+url = "https://github.com/prometheus/prometheus/releases/download/v3.16.0/prometheus-3.16.0.windows-amd64.tar.gz"
+url_api = "https://api.github.com/repos/prometheus/prometheus/releases/assets/713904688"
+
 [[tools.protoc]]
 version = "29.3"
 backend = "aqua:protocolbuffers/protobuf/protoc"
@@ -301,3 +347,50 @@ url_api = "https://api.github.com/repos/grpc/grpc-go/releases/assets/182572208"
 checksum = "sha256:c2ad1460c9e34b5b37759826da61220be6ee0a8a11431723d205512a69319991"
 url = "https://github.com/grpc/grpc-go/releases/download/cmd/protoc-gen-go-grpc/v1.5.1/protoc-gen-go-grpc.v1.5.1.windows.amd64.tar.gz"
 url_api = "https://api.github.com/repos/grpc/grpc-go/releases/assets/182572216"
+
+[[tools.yq]]
+version = "4.54.3"
+backend = "aqua:mikefarah/yq"
+specifiers = ["4.54.3"]
+
+[tools.yq."platforms.linux-arm64"]
+checksum = "sha256:89f69310b61b68d1245065a1241d1fc843f7a36cd6103ffd77ad987613bd1b67"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_arm64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219924"
+provenance = "cosign"
+
+[tools.yq."platforms.linux-arm64-musl"]
+checksum = "sha256:89f69310b61b68d1245065a1241d1fc843f7a36cd6103ffd77ad987613bd1b67"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_arm64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219924"
+provenance = "cosign"
+
+[tools.yq."platforms.linux-x64"]
+checksum = "sha512:878ae8d298d3e1159b9272a093618f4aee78fa118b2d4c2947c90e54f80defda9914e7a42ce5465af523d704b15aeaef9b36b88347bc65d21c13ad6339bf54b7"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_amd64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219936"
+provenance = "cosign"
+
+[tools.yq."platforms.linux-x64-musl"]
+checksum = "sha256:129534601871538efe0ba4c5e62a34fb1d5f469bcb975c4fddeb467d82974973"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_linux_amd64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219936"
+provenance = "cosign"
+
+[tools.yq."platforms.macos-arm64"]
+checksum = "sha256:a2aebb93b5bdcb61bb76f630e42a0ef6a3ee10842a6516cd7b9e4080786ec593"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_darwin_arm64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219940"
+provenance = "cosign"
+
+[tools.yq."platforms.macos-x64"]
+checksum = "sha256:96d5105ffd693d6845c54fbd825b2d1bbdb8619e0a2ce6af95e5654e841e0984"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_darwin_amd64"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219934"
+provenance = "cosign"
+
+[tools.yq."platforms.windows-x64"]
+checksum = "sha256:066ea0a09a282e47588ec1e1867280ff5ede458f7183617a2d99012e4e34f18a"
+url = "https://github.com/mikefarah/yq/releases/download/v4.54.3/yq_windows_amd64.exe"
+url_api = "https://api.github.com/repos/mikefarah/yq/releases/assets/726219881"
+provenance = "cosign"
