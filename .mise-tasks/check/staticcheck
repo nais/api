@@ -4,3 +4,7 @@
 set -e
 
 go tool honnef.co/go/tools/cmd/staticcheck ./...
+
+staticcheck=$(go tool -n honnef.co/go/tools/cmd/staticcheck)
+cd pkg/apiclient
+"$staticcheck" ./...

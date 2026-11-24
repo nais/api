@@ -11,3 +11,7 @@ set -e
 #    the word `secret`. We depend on GitHub to find possible credentials in our code.
 
 go tool github.com/securego/gosec/v2/cmd/gosec --exclude G404,G101 --exclude-generated -terse ./...
+
+gosec=$(go tool -n github.com/securego/gosec/v2/cmd/gosec)
+cd pkg/apiclient
+"$gosec" --exclude G404,G101 --exclude-generated -terse ./...
