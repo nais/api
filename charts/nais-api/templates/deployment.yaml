@@ -48,6 +48,8 @@ spec:
               value: "{{ .Values.v13s.endpoint }}"
             - name: V0S_ENDPOINT
               value: {{ .Values.v0s.endpoint | quote }}
+            - name: V0S_SUPPRESSIONS_ENABLED
+              value: {{ .Values.v0s.suppressionsEnabled | quote }}
             - name: VULNERABILITIES_SERVICE_ACCOUNT
               value: "{{ .Values.serviceaccount.email }}"
             - name: USERSYNC_ENABLED
