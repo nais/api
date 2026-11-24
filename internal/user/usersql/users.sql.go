@@ -11,7 +11,7 @@ import (
 
 const getByEmail = `-- name: GetByEmail :one
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 WHERE
@@ -27,13 +27,14 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 	)
 	return &i, err
 }
 
 const getByExternalID = `-- name: GetByExternalID :one
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 WHERE
@@ -49,13 +50,14 @@ func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 	)
 	return &i, err
 }
 
 const getByIDs = `-- name: GetByIDs :many
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 WHERE
@@ -80,6 +82,7 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 			&i.Name,
 			&i.ExternalID,
 			&i.Admin,
+			&i.Source,
 		); err != nil {
 			return nil, err
 		}
@@ -93,32 +96,38 @@ func (q *Queries) GetByIDs(ctx context.Context, ids []uuid.UUID) ([]*User, error
 
 const list = `-- name: List :many
 SELECT
-	users.id, users.email, users.name, users.external_id, users.admin,
+	users.id, users.email, users.name, users.external_id, users.admin, users.source,
 	COUNT(*) OVER () AS total_count
 FROM
 	users
+WHERE
+	(
+		$1::TEXT[] IS NULL
+		OR source = ANY ($1::TEXT[])
+	)
 ORDER BY
 	CASE
-		WHEN $1::TEXT = 'name:asc' THEN name
+		WHEN $2::TEXT = 'name:asc' THEN name
 	END ASC,
 	CASE
-		WHEN $1::TEXT = 'name:desc' THEN name
+		WHEN $2::TEXT = 'name:desc' THEN name
 	END DESC,
 	CASE
-		WHEN $1::TEXT = 'email:asc' THEN email
+		WHEN $2::TEXT = 'email:asc' THEN email
 	END ASC,
 	CASE
-		WHEN $1::TEXT = 'email:desc' THEN email
+		WHEN $2::TEXT = 'email:desc' THEN email
 	END DESC,
 	name,
 	email ASC
 LIMIT
-	$3
+	$4
 OFFSET
-	$2
+	$3
 `
 
 type ListParams struct {
+	Sources []string
 	OrderBy string
 	Offset  int32
 	Limit   int32
@@ -130,7 +139,12 @@ type ListRow struct {
 }
 
 func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
-	rows, err := q.db.Query(ctx, list, arg.OrderBy, arg.Offset, arg.Limit)
+	rows, err := q.db.Query(ctx, list,
+		arg.Sources,
+		arg.OrderBy,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -144,6 +158,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) 
 			&i.User.Name,
 			&i.User.ExternalID,
 			&i.User.Admin,
+			&i.User.Source,
 			&i.TotalCount,
 		); err != nil {
 			return nil, err

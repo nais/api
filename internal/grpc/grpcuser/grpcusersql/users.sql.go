@@ -25,7 +25,7 @@ func (q *Queries) Count(ctx context.Context) (int64, error) {
 
 const getByEmail = `-- name: GetByEmail :one
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 WHERE
@@ -41,13 +41,14 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (*User, error) {
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 	)
 	return &i, err
 }
 
 const getByExternalID = `-- name: GetByExternalID :one
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 WHERE
@@ -63,13 +64,14 @@ func (q *Queries) GetByExternalID(ctx context.Context, externalID string) (*User
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 	)
 	return &i, err
 }
 
 const getByID = `-- name: GetByID :one
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 WHERE
@@ -85,13 +87,14 @@ func (q *Queries) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 		&i.Name,
 		&i.ExternalID,
 		&i.Admin,
+		&i.Source,
 	)
 	return &i, err
 }
 
 const list = `-- name: List :many
 SELECT
-	id, email, name, external_id, admin
+	id, email, name, external_id, admin, source
 FROM
 	users
 ORDER BY
@@ -123,6 +126,7 @@ func (q *Queries) List(ctx context.Context, arg ListParams) ([]*User, error) {
 			&i.Name,
 			&i.ExternalID,
 			&i.Admin,
+			&i.Source,
 		); err != nil {
 			return nil, err
 		}

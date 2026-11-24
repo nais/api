@@ -2254,7 +2254,7 @@ type ComplexityRoot struct {
 		UnleashReleaseChannels    func(childComplexity int) int
 		User                      func(childComplexity int, email *string) int
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) int
+		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int
 		Vulnerability             func(childComplexity int, identifier string) int
 		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
@@ -3756,6 +3756,7 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		IsAdmin    func(childComplexity int) int
 		Name       func(childComplexity int) int
+		Source     func(childComplexity int) int
 		Teams      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.UserTeamOrder) int
 	}
 
@@ -14030,7 +14031,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Users(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*user.UserOrder)), true
+		return e.ComplexityRoot.Query.Users(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*user.UserOrder), args["filter"].(*user.UserFilter)), true
 
 	case "Query.vulnerability":
 		if e.ComplexityRoot.Query.Vulnerability == nil {
@@ -20694,6 +20695,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.User.Name(childComplexity), true
 
+	case "User.source":
+		if e.ComplexityRoot.User.Source == nil {
+			break
+		}
+
+		return e.ComplexityRoot.User.Source(childComplexity), true
+
 	case "User.teams":
 		if e.ComplexityRoot.User.Teams == nil {
 			break
@@ -24194,6 +24202,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateValkeyInput,
 		ec.unmarshalInputUpdateWebhookInput,
 		ec.unmarshalInputUpdateWorkloadEnvironmentVariableInput,
+		ec.unmarshalInputUserFilter,
 		ec.unmarshalInputUserOrder,
 		ec.unmarshalInputUserTeamOrder,
 		ec.unmarshalInputValkeyAccessOrder,
@@ -36454,6 +36463,11 @@ extend enum ActivityLogActivityType {
 		Ordering options for items returned from the connection.
 		"""
 		orderBy: UserOrder
+
+		"""
+		Filter the list of users.
+		"""
+		filter: UserFilter
 	): UserConnection!
 
 	"""
@@ -36492,6 +36506,11 @@ type User implements Node {
 	externalID: String!
 
 	"""
+	Whether this is a tenant user or a Nais user. Null if the source has not been recorded yet.
+	"""
+	source: UserSource
+
+	"""
 	List of teams the user is connected to.
 	"""
 	teams(
@@ -36525,6 +36544,31 @@ type User implements Node {
 	True if the user is global admin.
 	"""
 	isAdmin: Boolean!
+}
+
+"""
+The category of a user.
+"""
+enum UserSource {
+	"""
+	A user belonging to the tenant.
+	"""
+	TENANT
+
+	"""
+	A user belonging to Nais.
+	"""
+	NAIS
+}
+
+"""
+Filters for the list of users.
+"""
+input UserFilter {
+	"""
+	Include users from any of these categories. Omit this field to include all users, even those without a recorded source. An empty list matches no users.
+	"""
+	sources: [UserSource!]
 }
 
 """
@@ -45455,6 +45499,8 @@ func (ec *executionContext) childFields_User(ctx context.Context, field graphql.
 		return ec.fieldContext_User_name(ctx, field)
 	case "externalID":
 		return ec.fieldContext_User_externalID(ctx, field)
+	case "source":
+		return ec.fieldContext_User_source(ctx, field)
 	case "teams":
 		return ec.fieldContext_User_teams(ctx, field)
 	case "isAdmin":

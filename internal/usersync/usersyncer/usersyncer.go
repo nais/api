@@ -11,11 +11,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/usersync/usersyncsql"
 	"github.com/sirupsen/logrus"
 	zitadeluser "github.com/zitadel/zitadel-go/v3/pkg/client/user/v2"
 	"github.com/zitadel/zitadel-go/v3/pkg/client/zitadel/object/v2"
 	zitadelgrpcuser "github.com/zitadel/zitadel-go/v3/pkg/client/zitadel/user/v2"
+	"go.opentelemetry.io/otel"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/impersonate"
@@ -33,10 +35,12 @@ type Usersynchronizer struct {
 	pool             *pgxpool.Pool
 	querier          *usersyncsql.Queries
 	adminGroupPrefix string
+	userGroupPrefix  string
 	tenantDomain     string
 	service          *admindirectoryv1.Service
 	log              logrus.FieldLogger
 	zitadelClient    *ZitadelWrapper
+	metrics          *syncMetrics
 }
 
 type userMap struct {
@@ -52,11 +56,30 @@ type sourceUser struct {
 	isTenantUser bool
 }
 
-func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, zitadelWrapper *ZitadelWrapper, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
+func (u *sourceUser) source() user.UserSource {
+	if u.isTenantUser {
+		return user.UserSourceTenant
+	}
+	return user.UserSourceNais
+}
+
+type UserChanges struct {
+	Created, Updated, Deleted int
+}
+
+type SyncResult struct {
+	// Counts are nil if a complete snapshot was not available for the source.
+	GoogleUsers, NaisUsers *int
+	// Changes only counts committed database changes.
+	Changes UserChanges
+}
+
+func New(pool *pgxpool.Pool, adminGroupPrefix, userGroupPrefix, tenantDomain string, zitadelWrapper *ZitadelWrapper, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
 	return &Usersynchronizer{
 		pool:             pool,
 		querier:          usersyncsql.New(pool),
 		adminGroupPrefix: adminGroupPrefix,
+		userGroupPrefix:  userGroupPrefix,
 		tenantDomain:     tenantDomain,
 		service:          service,
 		log:              log,
@@ -64,7 +87,7 @@ func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, zitadelWrapp
 	}
 }
 
-func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, zitadelWrapper *ZitadelWrapper, log logrus.FieldLogger) (*Usersynchronizer, error) {
+func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix, userGroupPrefix string, zitadelWrapper *ZitadelWrapper, log logrus.FieldLogger) (*Usersynchronizer, error) {
 	ts, err := impersonate.CredentialsTokenSource(ctx, impersonate.CredentialsConfig{
 		Scopes: []string{
 			admindirectoryv1.AdminDirectoryUserReadonlyScope,
@@ -82,41 +105,67 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 		return nil, fmt.Errorf("create admin directory client: %w", err)
 	}
 
-	return New(pool, adminGroupPrefix, tenantDomain, zitadelWrapper, srv, log), nil
+	metrics, err := newSyncMetrics(otel.Meter("nais_usersync"))
+	if err != nil {
+		return nil, fmt.Errorf("set up user sync metrics: %w", err)
+	}
+	s := New(pool, adminGroupPrefix, userGroupPrefix, tenantDomain, zitadelWrapper, srv, log)
+	s.metrics = metrics
+	return s, nil
 }
 
-// Sync fetches tenant users from Google Directory and, when configured, active
-// nais.io users from Zitadel. Both complete snapshots are fetched before changing
+// Sync fetches tenant users from Google Directory, optionally restricted to a group,
+// and, when configured, active nais.io users from Zitadel. Both complete snapshots are fetched before changing
 // the API database. Users are created or updated, and users absent from both
 // sources are removed. Only tenant users are synchronized into Zitadel.
 //
-// All users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
+// Synced users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
-func (s *Usersynchronizer) Sync(ctx context.Context) error {
-	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, s.log)
+func (s *Usersynchronizer) Sync(ctx context.Context) (result SyncResult, err error) {
+	var export sync.WaitGroup
+	defer export.Wait()
+	if s.metrics != nil {
+		// Record the API run before waiting for the independent Zitadel export.
+		start := time.Now()
+		defer func() { s.metrics.recordRun(ctx, start, time.Now(), err == nil) }()
+	}
+
+	googleUsers, err := s.getGoogleUsers(ctx)
 	if err != nil {
-		return fmt.Errorf("get users from Google Directory: %w", err)
+		return result, fmt.Errorf("get users from Google Directory: %w", err)
 	}
 
 	var naisUsers []*sourceUser
-	if s.zitadelClient != nil && s.zitadelClient.NaisOrganizationID != "" {
+	importNaisUsers := s.zitadelClient != nil && s.zitadelClient.NaisOrganizationID != ""
+	if importNaisUsers {
 		naisUsers, err = s.zitadelClient.activeHumanUsers(ctx, s.zitadelClient.NaisOrganizationID)
 		if err != nil {
-			return fmt.Errorf("get nais.io users from Zitadel: %w", err)
+			return result, fmt.Errorf("get nais.io users from Zitadel: %w", err)
+		}
+	}
+	result.GoogleUsers = new(len(googleUsers))
+	if importNaisUsers {
+		result.NaisUsers = new(len(naisUsers))
+	}
+	if s.metrics != nil {
+		s.metrics.recordSnapshot(ctx, "google", *result.GoogleUsers)
+		if result.NaisUsers != nil {
+			s.metrics.recordSnapshot(ctx, "nais_io", *result.NaisUsers)
 		}
 	}
 
 	if s.zitadelClient != nil && s.zitadelClient.IDP != "" {
-		wg := &sync.WaitGroup{}
-		wg.Go(func() {
-			s.zitadelUserSync(ctx, googleUsers)
+		export.Go(func() {
+			success := s.zitadelUserSync(ctx, googleUsers)
+			if s.metrics != nil {
+				s.metrics.exportRuns.Add(ctx, 1, resultAttr(success))
+			}
 		})
-		defer wg.Wait()
 	}
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
+		return result, fmt.Errorf("begin transaction: %w", err)
 	}
 	defer func() {
 		if err := tx.Rollback(ctx); err == nil {
@@ -129,26 +178,35 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 
 	users, err := getUsers(ctx, querier)
 	if err != nil {
-		return fmt.Errorf("get existing users: %w", err)
+		return result, fmt.Errorf("get existing users: %w", err)
 	}
 
 	googleUserMap := make(map[string]*usersyncsql.User)
+	var changes UserChanges
 	for _, gu := range append(googleUsers, naisUsers...) {
-		user, err := getOrCreateUser(ctx, querier, gu, users, s.log)
+		user, created, err := getOrCreateUser(ctx, querier, gu, users, s.log)
 		if err != nil {
-			return fmt.Errorf("get or create user %q: %w", gu.Email, err)
+			return result, fmt.Errorf("get or create user %q: %w", gu.Email, err)
 		}
 
-		if userIsOutdated(user, gu) {
+		if created {
+			changes.Created++
+		}
+		outdated, profileChanged := userIsOutdated(user, gu)
+		if outdated {
 			if err := querier.Update(ctx, usersyncsql.UpdateParams{
 				ID:         user.ID,
 				Name:       gu.Name.FullName,
 				Email:      gu.Email,
 				ExternalID: gu.ID,
+				Source:     new(string(gu.source())),
 			}); err != nil {
-				return fmt.Errorf("update user %q: %w", gu.Email, err)
+				return result, fmt.Errorf("update user %q: %w", gu.Email, err)
 			}
+			changes.Updated++
+		}
 
+		if profileChanged {
 			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
 				Action:       usersyncsql.UsersyncLogEntryActionUpdateUser,
 				UserID:       user.ID,
@@ -170,17 +228,26 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	}
 
 	if err := deleteUnknownUsers(ctx, querier, users.byID, s.log); err != nil {
-		return err
+		return result, err
 	}
+	changes.Deleted = len(users.byID)
 
 	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, s.log); err != nil {
-		return err
+		return result, err
 	}
 
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return result, err
+	}
+	if s.metrics != nil {
+		s.metrics.recordChanges(ctx, changes)
+	}
+	result.Changes = changes
+	return result, nil
 }
 
-func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*sourceUser) {
+func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*sourceUser) bool {
+	success := true
 	start := time.Now()
 	defer func() {
 		s.log.WithField("duration", time.Since(start).String()).Debugf("Zitadel user sync done")
@@ -218,12 +285,13 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 		})
 		if err != nil {
 			s.log.WithError(err).Errorf("list users")
-			return
+			return false
 		}
 
 		for _, user := range resp.Result {
 			if user.GetHuman() == nil {
 				s.log.WithField("user_id", user.UserId).Errorf("user is not human")
+				success = false
 				continue
 			}
 
@@ -266,6 +334,7 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 				})
 				if err != nil {
 					log.WithError(err).Errorf("update user in Zitadel")
+					success = false
 				}
 			}
 
@@ -308,6 +377,7 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 		})
 		if err != nil {
 			log.WithError(err).Errorf("add user to Zitadel")
+			success = false
 			continue
 		}
 	}
@@ -321,8 +391,10 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 		log.Debugf("delete user from Zitadel")
 		if _, err := s.zitadelClient.DeleteUser(ctx, &zitadelgrpcuser.DeleteUserRequest{UserId: userID}); err != nil {
 			log.WithError(err).Errorf("delete user from Zitadel")
+			success = false
 		}
 	}
+	return success
 }
 
 func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Querier, userID uuid.UUID) error {
@@ -416,20 +488,8 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 // getAdminGroupMembers fetches all users in the admin group from the Google Directory of the tenant.
 func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.MembersService, adminGroupPrefix, tenantDomain string, googleUsers map[string]*usersyncsql.User, log logrus.FieldLogger) (map[uuid.UUID]*usersyncsql.User, error) {
 	adminGroup := adminGroupPrefix + "@" + tenantDomain
-	groupMembers := make([]*admindirectoryv1.Member, 0)
-	callback := func(fragments *admindirectoryv1.Members) error {
-		for _, member := range fragments.Members {
-			if member.Type == "USER" && member.Status == "ACTIVE" {
-				groupMembers = append(groupMembers, member)
-			}
-		}
-		return nil
-	}
 	admins := make(map[uuid.UUID]*usersyncsql.User)
-	err := membersService.
-		List(adminGroup).
-		IncludeDerivedMembership(true).
-		Pages(ctx, callback)
+	groupMembers, err := listActiveGroupUsers(ctx, membersService, adminGroup)
 	if err != nil {
 		if googleError, ok := err.(*googleapi.Error); ok && googleError.Code == 404 {
 			// Special case: When the group does not exist we want to remove all existing admins. The group might have
@@ -445,7 +505,7 @@ func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.
 	for _, member := range groupMembers {
 		admin, exists := googleUsers[member.Id]
 		if !exists {
-			log.WithField("email", member.Email).Errorf("unknown user in admins groups")
+			log.WithField("email", member.Email).Debugf("admin group member is not a synced Google user")
 			continue
 		}
 
@@ -455,46 +515,50 @@ func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.
 	return admins, nil
 }
 
-// userIsOutdated checks if a user needs to get its name or its email address updated.
-func userIsOutdated(user *usersyncsql.User, gu *sourceUser) bool {
-	if user.Name != gu.Name.FullName {
-		return true
-	}
+func listActiveGroupUsers(ctx context.Context, svc *admindirectoryv1.MembersService, group string) ([]*admindirectoryv1.Member, error) {
+	var members []*admindirectoryv1.Member
+	err := svc.List(group).IncludeDerivedMembership(true).Pages(ctx, func(page *admindirectoryv1.Members) error {
+		for _, member := range page.Members {
+			if member.Type == "USER" && member.Status == "ACTIVE" {
+				members = append(members, member)
+			}
+		}
+		return nil
+	})
+	return members, err
+}
 
-	if !strings.EqualFold(user.Email, gu.Email) {
-		return true
-	}
-
-	if user.ExternalID != gu.ID {
-		return true
-	}
-
-	return false
+// userIsOutdated reports whether the user needs an update and whether that update changes the profile.
+func userIsOutdated(user *usersyncsql.User, gu *sourceUser) (outdated, profileChanged bool) {
+	profileChanged = user.Name != gu.Name.FullName || !strings.EqualFold(user.Email, gu.Email) || user.ExternalID != gu.ID
+	outdated = profileChanged || user.Source == nil || *user.Source != string(gu.source())
+	return outdated, profileChanged
 }
 
 // getOrCreateUser matches globally unique email addresses across user sources.
-func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *sourceUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, error) {
+func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *sourceUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, bool, error) {
 	if existingUser, exists := existingUsers.byEmail[remote.Email]; exists {
-		return existingUser, nil
+		return existingUser, false, nil
 	}
 
 	// Preserve the existing support for email changes without losing roles or sessions.
 	if existingUser, exists := existingUsers.byExternalID[remote.ID]; exists {
-		return existingUser, nil
+		return existingUser, false, nil
 	}
 
 	createdUser, err := querier.Create(ctx, usersyncsql.CreateParams{
 		Name:       remote.Name.FullName,
 		Email:      remote.Email,
 		ExternalID: remote.ID,
+		Source:     new(string(remote.source())),
 	})
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	if remote.isTenantUser {
 		if err := AssignDefaultPermissionsToUser(ctx, querier, createdUser.ID); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 	}
 
@@ -507,15 +571,32 @@ func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *s
 		log.WithError(err).Errorf("create user sync log entry")
 	}
 
-	return createdUser, nil
+	return createdUser, true, nil
 }
 
-// getGoogleUsers fetches all users from the Google Directory.
-func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, tenantDomain string, log logrus.FieldLogger) ([]*sourceUser, error) {
+// getGoogleUsers fetches eligible tenant users from Google Directory.
+func (s *Usersynchronizer) getGoogleUsers(ctx context.Context) ([]*sourceUser, error) {
+	var allowedIDs map[string]struct{}
+	if s.userGroupPrefix != "" {
+		group := s.userGroupPrefix + "@" + s.tenantDomain
+		members, err := listActiveGroupUsers(ctx, s.service.Members, group)
+		if err != nil {
+			// A failed lookup is not an empty snapshot: that would delete users.
+			return nil, fmt.Errorf("list members in user sync group %q: %w", group, err)
+		}
+		allowedIDs = make(map[string]struct{}, len(members))
+		for _, member := range members {
+			allowedIDs[member.Id] = struct{}{}
+		}
+	}
+
 	users := make([]*sourceUser, 0)
 	callback := func(fragments *admindirectoryv1.Users) error {
-		log.WithField("num", len(fragments.Users)).Debugf("fetched batch of users from from Google Directory")
+		s.log.WithField("num", len(fragments.Users)).Debugf("fetched batch of users from Google Directory")
 		for _, user := range fragments.Users {
+			if _, allowed := allowedIDs[user.Id]; allowedIDs != nil && !allowed {
+				continue
+			}
 			users = append(users, &sourceUser{
 				ID:           user.Id,
 				Email:        strings.ToLower(user.PrimaryEmail),
@@ -526,15 +607,15 @@ func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, ten
 		return nil
 	}
 
-	log.Debugf("start fetching users from Google Directory")
+	s.log.Debugf("start fetching users from Google Directory")
 	t := time.Now()
-	err := svc.
+	err := s.service.Users.
 		List().
-		Domain(tenantDomain).
+		Domain(s.tenantDomain).
 		ShowDeleted("false").
 		Query("isSuspended=false").
 		Pages(ctx, callback)
-	log.WithFields(logrus.Fields{
+	s.log.WithFields(logrus.Fields{
 		"duration":  time.Since(t),
 		"num_users": len(users),
 	}).Debugf("finished fetching users from Google Directory")

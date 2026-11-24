@@ -1,0 +1,67 @@
+rule_files:
+  - rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: Failed cost updates before the first success alert after four hours and recover on success
+    interval: 1h
+    input_series:
+      - series: 'nais_api_cost_updater_runs_total{container="nais-api", success="false"}'
+        values: "0+1x8"
+      - series: 'nais_api_cost_updater_runs_total{container="nais-api", success="true"}'
+        values: "_x5 1x3"
+    alert_rule_test:
+      - eval_time: 3h59m
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []
+      - eval_time: 4h
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: &cost_alert
+          - exp_labels:
+              container: nais-api
+              success: "true"
+              namespace: nais-system
+              severity: warning
+            exp_annotations:
+              consequence: Cost information may be outdated.
+              action: Check logs in nais-api
+      - eval_time: 5h
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []
+
+  - name: A disappearing success metric alerts after the 24-hour window plus four hours and recovers
+    interval: 1h
+    input_series:
+      - series: 'nais_api_cost_updater_runs_total{container="nais-api", success="true"}'
+        values: "1 stale _x27 2"
+      - series: 'nais_api_cost_updater_runs_total{container="nais-api", success="false"}'
+        values: "0+1x29"
+    alert_rule_test:
+      - eval_time: 23h59m
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []
+      - eval_time: 27h59m
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []
+      - eval_time: 28h
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: *cost_alert
+      - eval_time: 29h
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []
+
+  - name: The current cost rule misses continued failures after an earlier success
+    interval: 1h
+    input_series:
+      - series: 'nais_api_cost_updater_runs_total{container="nais-api", success="true"}'
+        values: "1x30"
+      - series: 'nais_api_cost_updater_runs_total{container="nais-api", success="false"}'
+        values: "0+1x30"
+    alert_rule_test:
+      - eval_time: 28h
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []
+      - eval_time: 30h
+        alertname: Cost updater has not updated cost in 24 hours
+        exp_alerts: []

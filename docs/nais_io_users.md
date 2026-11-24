@@ -22,6 +22,28 @@ The existing `external_id` field remains populated for compatibility with the
 current tenant CLI and to preserve users when their email changes. It is not
 used to distinguish nais.io users from tenant users during Console login.
 
+## GraphQL
+
+`User.source` is `TENANT` for tenant users and `NAIS` for nais.io users.
+Existing users have a `null` source until the next successful user sync records
+it. The source does not change a user's ID or permissions.
+
+```graphql
+query NaisUsers {
+	users(filter: { sources: [NAIS] }) {
+		nodes {
+			id
+			email
+			source
+		}
+	}
+}
+```
+
+Omit the filter to include all users, including users with no recorded source.
+Use `[TENANT]` for tenant users only, `[TENANT, NAIS]` for both known categories,
+or `[]` to match no users.
+
 ## User lifecycle and permissions
 
 - The API imports active human users from the configured Zitadel organization.

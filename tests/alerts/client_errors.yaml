@@ -1,0 +1,94 @@
+rule_files:
+  - rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: Transient client errors and counter resets do not page
+    interval: 1m
+    input_series:
+      - series: 'errors_total{job="nais-api", component="hookd-client", instance="api-1"}'
+        values: "10 11x5 0x6"
+      - series: 'errors_total{job="nais-api", component="k8s-client", instance="api-1"}'
+        values: "10 11x5 0x6"
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: Hookd requests failing
+        exp_alerts: []
+      - eval_time: 1m
+        alertname: Kubernetes API server requests failing
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: Hookd requests failing
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: Kubernetes API server requests failing
+        exp_alerts: []
+      - eval_time: 13m
+        alertname: Hookd requests failing
+        exp_alerts: []
+      - eval_time: 13m
+        alertname: Kubernetes API server requests failing
+        exp_alerts: []
+
+  - name: Sustained Hookd errors page only Hookd after five minutes and resolve when errors stop
+    interval: 1m
+    input_series:
+      - series: 'errors_total{job="nais-api", component="hookd-client", instance="api-1"}'
+        values: "0+1x8 8x4"
+      - series: 'errors_total{job="nais-api", component="k8s-client", instance="api-1"}'
+        values: "10x13"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: Hookd requests failing
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: Hookd requests failing
+        exp_alerts:
+          - exp_labels:
+              job: nais-api
+              component: hookd-client
+              instance: api-1
+              namespace: nais-system
+              severity: critical
+              ping: nais-vakt
+            exp_annotations:
+              consequence: Users may not be able to see deployments in console.
+              action: Check logs in nais-api and hookd
+      - eval_time: 6m
+        alertname: Kubernetes API server requests failing
+        exp_alerts: []
+      - eval_time: 9m
+        alertname: Hookd requests failing
+        exp_alerts: []
+
+  - name: Sustained Kubernetes errors page only Kubernetes after five minutes and resolve when errors stop
+    interval: 1m
+    input_series:
+      - series: 'errors_total{job="nais-api", component="hookd-client", instance="api-1"}'
+        values: "10x13"
+      - series: 'errors_total{job="nais-api", component="k8s-client", instance="api-1"}'
+        values: "0+1x8 8x4"
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: Kubernetes API server requests failing
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: Kubernetes API server requests failing
+        exp_alerts:
+          - exp_labels:
+              job: nais-api
+              component: k8s-client
+              instance: api-1
+              namespace: nais-system
+              severity: critical
+              ping: nais-vakt
+            exp_annotations:
+              consequence: Users may not be able to see workload information in console.
+              action: Check logs in nais-api
+      - eval_time: 6m
+        alertname: Hookd requests failing
+        exp_alerts: []
+      - eval_time: 9m
+        alertname: Kubernetes API server requests failing
+        exp_alerts: []

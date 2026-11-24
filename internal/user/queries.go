@@ -25,13 +25,21 @@ func GetByIdent(ctx context.Context, ident ident.Ident) (*User, error) {
 	return Get(ctx, uid)
 }
 
-func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder) (*UserConnection, error) {
+func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder, filter *UserFilter) (*UserConnection, error) {
 	q := db(ctx)
 
+	var sources []string
+	if filter != nil && filter.Sources != nil {
+		sources = make([]string, len(filter.Sources))
+		for i, source := range filter.Sources {
+			sources[i] = string(source)
+		}
+	}
 	ret, err := q.List(ctx, usersql.ListParams{
 		Offset:  page.Offset(),
 		Limit:   page.Limit(),
 		OrderBy: orderBy.String(),
+		Sources: sources,
 	})
 	if err != nil {
 		return nil, err

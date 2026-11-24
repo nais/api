@@ -53,7 +53,7 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 		}
 	}
 
-	us, err := usersyncer.NewFromConfig(ctx, pool, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, zw, log)
+	us, err := usersyncer.NewFromConfig(ctx, pool, cfg.Usersync.ServiceAccount, cfg.Usersync.SubjectEmail, cfg.TenantDomain, cfg.Usersync.AdminGroupPrefix, cfg.Usersync.UserGroupPrefix, zw, log)
 	if err != nil {
 		log.WithError(err).Errorf("unable to set up usersyncer")
 		return err
@@ -72,11 +72,25 @@ func runUsersync(ctx context.Context, pool *pgxpool.Pool, cfg *Config, log logru
 			defer cancel()
 
 			start := time.Now()
-			if err := us.Sync(ctx); err != nil {
+			result, err := us.Sync(ctx)
+			fields := logrus.Fields{
+				"duration":      time.Since(start),
+				"success":       err == nil,
+				"users_created": result.Changes.Created,
+				"users_updated": result.Changes.Updated,
+				"users_deleted": result.Changes.Deleted,
+			}
+			if result.GoogleUsers != nil {
+				fields["google_users"] = *result.GoogleUsers
+			}
+			if result.NaisUsers != nil {
+				fields["nais_io_users"] = *result.NaisUsers
+			}
+			if err != nil {
 				log.WithError(err).Errorf("sync users")
 			}
 
-			log.WithField("duration", time.Since(start)).Infof("usersync complete")
+			log.WithFields(fields).Infof("usersync complete")
 		}()
 		select {
 		case <-ctx.Done():

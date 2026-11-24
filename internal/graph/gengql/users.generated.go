@@ -176,6 +176,29 @@ func (ec *executionContext) fieldContext_User_externalID(_ context.Context, fiel
 	return graphql.NewScalarFieldContext("User", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _User_source(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_User_source(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Source, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *user.UserSource) graphql.Marshaler {
+			return ec.marshalOUserSource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_User_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("User", field, false, false, errors.New("field of type UserSource does not have child fields"))
+}
+
 func (ec *executionContext) _User_teams(ctx context.Context, field graphql.CollectedField, obj *user.User) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -398,6 +421,36 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj any) (user.UserFilter, error) {
+	var it user.UserFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"sources"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "sources":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sources"))
+			data, err := ec.unmarshalOUserSource2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSourceᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sources = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUserOrder(ctx context.Context, obj any) (user.UserOrder, error) {
 	var it user.UserOrder
 	if obj == nil {
@@ -534,6 +587,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "source":
+			out.Values[i] = ec._User_source(ctx, field, obj)
 		case "teams":
 			field := field
 
@@ -779,6 +834,16 @@ func (ec *executionContext) marshalNUserOrderField2githubᚗcomᚋnaisᚋapiᚋi
 	return v
 }
 
+func (ec *executionContext) unmarshalNUserSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx context.Context, v any) (user.UserSource, error) {
+	var res user.UserSource
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx context.Context, sel ast.SelectionSet, v user.UserSource) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNUserTeamOrderField2githubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUserTeamOrderField(ctx context.Context, v any) (team.UserTeamOrderField, error) {
 	var res team.UserTeamOrderField
 	err := res.UnmarshalGQL(v)
@@ -796,12 +861,73 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋnaisᚋapiᚋinternal
 	return ec._User(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOUserFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserFilter(ctx context.Context, v any) (*user.UserFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOUserOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserOrder(ctx context.Context, v any) (*user.UserOrder, error) {
 	if v == nil {
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputUserOrder(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOUserSource2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSourceᚄ(ctx context.Context, v any) ([]user.UserSource, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]user.UserSource, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUserSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOUserSource2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSourceᚄ(ctx context.Context, sel ast.SelectionSet, v []user.UserSource) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
+		fc := graphql.GetFieldContext(ctx)
+		fc.Result = &v[i]
+		return ec.marshalNUserSource2githubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx, sel, v[i])
+	})
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOUserSource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx context.Context, v any) (*user.UserSource, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(user.UserSource)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUserSource2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋuserᚐUserSource(ctx context.Context, sel ast.SelectionSet, v *user.UserSource) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOUserTeamOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚐUserTeamOrder(ctx context.Context, v any) (*team.UserTeamOrder, error) {

@@ -11,13 +11,13 @@ import (
 	"github.com/nais/api/internal/user"
 )
 
-func (r *queryResolver) Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder) (*pagination.Connection[*user.User], error) {
+func (r *queryResolver) Users(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) (*pagination.Connection[*user.User], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	return user.List(ctx, page, orderBy)
+	return user.List(ctx, page, orderBy, filter)
 }
 
 func (r *queryResolver) User(ctx context.Context, email *string) (*user.User, error) {

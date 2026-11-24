@@ -50,13 +50,6 @@ values:
       template: |
         {{ .Env.hookd_frontend_pre_shared_key | quote }}
 
-  rest.psk:
-    description: The pre-shared key used to authorize REST requests
-    displayName: REST pre-shared key
-    computed:
-      template: |
-        {{ .Env.nais_api_rest_pre_shared_key | quote }}
-
   serviceaccount.email:
     displayName: GCP SA email
     description: nais-api service account email
@@ -191,6 +184,12 @@ values:
   usersync.adminGroupPrefix:
     displayName: Admin group prefix for user sync
     description: The prefix of the admin group in GSuite
+    config:
+      type: string
+
+  usersync.userGroupPrefix:
+    displayName: User group prefix for user sync
+    description: Optional Google Workspace group prefix (before @tenant-domain). When set, only active members, including nested members, are synced from Google, and existing users outside the group can be removed by the sync. Leave unset to sync all eligible Google Workspace users.
     config:
       type: string
 

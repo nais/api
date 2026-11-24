@@ -234,15 +234,6 @@ sql:
         out: "../internal/issue/issuesql"
 
   - <<: *default_domain
-    name: "Teams API SQL"
-    queries: "../internal/rest/restteamsapi/queries"
-    gen:
-      go:
-        <<: *default_go
-        package: "restteamsapisql"
-        out: "../internal/rest/restteamsapi/restteamsapisql"
-
-  - <<: *default_domain
     name: "Webhook SQL"
     queries: "../internal/activitylog/webhook/queries"
     gen:

@@ -415,8 +415,6 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 	wg.Go(func() error {
 		return restserver.Run(ctx, restserver.Config{
 			ListenAddress:        cfg.RestListenAddress,
-			Pool:                 pool,
-			PreSharedKey:         cfg.RestPreSharedKey,
 			DynamicClient:        dynamicClientFactory,
 			ContextMiddleware:    contextDependencies,
 			JWTMiddleware:        jwtMiddleware,

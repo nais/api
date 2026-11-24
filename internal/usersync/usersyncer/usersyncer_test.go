@@ -61,15 +61,15 @@ func TestSync(t *testing.T) {
 		}
 
 		// TODO: Add tests for Zitadel API operations
-		err = usersyncer.
-			New(pool, adminGroupPrefix, domain, nil, svc, log).
+		_, err = usersyncer.
+			New(pool, adminGroupPrefix, "", domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		if users, err := user.List(ctx, p, nil); err != nil {
+		if users, err := user.List(ctx, p, nil, nil); err != nil {
 			t.Fatal(err)
 		} else if total := len(users.Nodes()); total != 0 {
 			t.Fatalf("expected 0 users, got %d", total)
@@ -122,22 +122,22 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = usersyncer.
-			New(pool, adminGroupPrefix, domain, nil, svc, log).
+		_, err = usersyncer.
+			New(pool, adminGroupPrefix, "", domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		if users, err := user.List(ctx, p, nil); err != nil {
+		if users, err := user.List(ctx, p, nil, nil); err != nil {
 			t.Fatal(err)
 		} else if total := len(users.Nodes()); total != 0 {
 			t.Fatalf("expected 0 users, got %d", total)
 		}
 	})
 
-	t.Run("Create, update and delete users", func(t *testing.T) {
+	t.Run("Without a user group, sync keeps eligible users and removes departed users", func(t *testing.T) {
 		ctx, pool := setup(t)
 		querier := usersyncsql.New(pool)
 
@@ -183,13 +183,19 @@ func TestSync(t *testing.T) {
 
 		httpClient := test.NewTestHttpClient(
 			func(req *http.Request) *http.Response {
+				if req.URL.Path != "/admin/directory/v1/users" {
+					t.Errorf("expected a directory user listing without a user group lookup, got %s", req.URL)
+				}
 				return test.Response("200 OK", `{"users":[`+
-					`{"id": "1", "primaryEmail":"user1@example.com","name":{"fullName":"Correct Name"}},`+ // Will update name of local user
+					`{"id": "1", "primaryEmail":"user1@example.com","name":{"fullName":"Correct Name"}},`+ // Kept and updated despite not belonging to any group
 					`{"id": "2", "primaryEmail":"user2@example.com","name":{"fullName":"Some Name"}},`+ // Will update email of local user
 					`{"id": "4", "primaryEmail":"should-lose-admin@example.com","name":{"fullName":"Should Lose Admin"}},`+ // Will lose admin role
 					`{"id": "5", "primaryEmail":"create-me@example.com","name":{"fullName":"Create Me"}}]}`) // Will be created
 			},
 			func(req *http.Request) *http.Response {
+				if want := "/admin/directory/v1/groups/" + adminGroupPrefix + "@" + domain + "/members"; req.URL.Path != want {
+					t.Errorf("expected only the admin group to be looked up at %s, got %s", want, req.URL)
+				}
 				return test.Response("200 OK", `{"members":[`+
 					`{"id": "2", "email":"user2@example.com", "status": "ACTIVE", "type": "USER"},`+ // Will be granted admin role
 					`{"Id": "6", "email":"some-group@example.com", "type": "GROUP"},`+ // Group type, will be ignored
@@ -202,18 +208,22 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = usersyncer.
-			New(pool, adminGroupPrefix, domain, nil, svc, log).
+		result, err := usersyncer.
+			New(pool, adminGroupPrefix, "", domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
+		// The user with an unchanged profile is still updated to record its source.
+		if want := (usersyncer.UserChanges{Created: 1, Updated: 3, Deleted: 1}); result.Changes != want {
+			t.Errorf("committed user changes: got %+v, want %+v", result.Changes, want)
+		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
-		if users, err := user.List(ctx, p, nil); err != nil {
+		if users, err := user.List(ctx, p, nil, nil); err != nil {
 			t.Fatal(err)
 		} else if total := len(users.Nodes()); total != 4 {
-			t.Fatalf("expected 3 users, got %d", total)
+			t.Fatalf("expected 4 users, got %d", total)
 		}
 
 		if u, err := user.Get(ctx, userWithIncorrectName.ID); err != nil {
@@ -253,6 +263,91 @@ func TestSync(t *testing.T) {
 
 		if !updatedUserWithIncorrectEmail.Admin {
 			t.Fatalf("expected user to be granted admin role, but doesn't have it")
+		}
+	})
+
+	t.Run("Only members of the configured user group are synced", func(t *testing.T) {
+		ctx, pool := setup(t)
+		removed, err := usersyncsql.New(pool).Create(ctx, usersyncsql.CreateParams{
+			Name:       "Removed User",
+			Email:      "removed@example.com",
+			ExternalID: "2",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		httpClient := test.NewTestHttpClient(
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"members":[{"id":"1","status":"ACTIVE","type":"USER"}]}`)
+			},
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"users":[
+					{"id":"1","primaryEmail":"admin@example.com","name":{"fullName":"Admin"}},
+					{"id":"2","primaryEmail":"removed@example.com","name":{"fullName":"Removed User"}},
+					{"id":"3","primaryEmail":"excluded@example.com","name":{"fullName":"Excluded User"}}
+				]}`)
+			},
+			func(req *http.Request) *http.Response {
+				return test.Response("200 OK", `{"members":[
+					{"id":"1","status":"ACTIVE","type":"USER"},
+					{"id":"2","status":"ACTIVE","type":"USER"},
+					{"id":"3","status":"ACTIVE","type":"USER"}
+				]}`)
+			},
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := usersyncer.New(pool, adminGroupPrefix, "console-users", domain, nil, svc, log).Sync(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if result.GoogleUsers == nil || *result.GoogleUsers != 1 || result.NaisUsers != nil {
+			t.Errorf("expected only one eligible Google user in the snapshot, got %+v", result)
+		}
+
+		p, _ := pagination.ParsePage(nil, nil, nil, nil)
+		users, err := user.List(ctx, p, nil, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		nodes := users.Nodes()
+		if len(nodes) != 1 || nodes[0].Email != "admin@example.com" || !nodes[0].Admin {
+			t.Fatalf("expected only the user in both groups to be synced and granted admin, got %v", nodes)
+		}
+		if u, err := user.Get(ctx, removed.ID); err == nil {
+			t.Fatalf("expected removed user to be deleted, got %v", u)
+		}
+	})
+
+	t.Run("Rolled back deletions are not reported as committed changes", func(t *testing.T) {
+		ctx, pool := setup(t)
+		q := usersyncsql.New(pool)
+		existing, err := q.Create(ctx, usersyncsql.CreateParams{
+			Name: "Existing User", Email: "existing@example.com", ExternalID: "1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		httpClient := test.NewTestHttpClient(
+			func(*http.Request) *http.Response { return test.Response("200 OK", `{"users":[]}`) },
+			func(*http.Request) *http.Response { return test.Response("403 Forbidden", `{"error":{"code":403}}`) },
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := usersyncer.New(pool, adminGroupPrefix, "", domain, nil, svc, log).Sync(ctx)
+		if err == nil {
+			t.Fatal("expected sync to fail when the admin group lookup fails")
+		}
+		if result.Changes != (usersyncer.UserChanges{}) {
+			t.Errorf("expected no committed changes, got %+v", result.Changes)
+		}
+		if _, err := user.Get(ctx, existing.ID); err != nil {
+			t.Fatalf("expected the deletion to be rolled back: %v", err)
 		}
 	})
 }

@@ -20,11 +20,12 @@ type (
 )
 
 type User struct {
-	UUID       uuid.UUID `json:"-"`
-	Email      string    `json:"email"`
-	Name       string    `json:"name"`
-	ExternalID string    `json:"externalId"`
-	Admin      bool      `json:"admin"`
+	UUID       uuid.UUID   `json:"-"`
+	Email      string      `json:"email"`
+	Name       string      `json:"name"`
+	ExternalID string      `json:"externalId"`
+	Admin      bool        `json:"admin"`
+	Source     *UserSource `json:"source"`
 }
 
 func (User) IsNode() {}
@@ -48,7 +49,39 @@ func toGraphUser(u *usersql.User) *User {
 		Name:       u.Name,
 		ExternalID: u.ExternalID,
 		Admin:      u.Admin,
+		Source:     (*UserSource)(u.Source),
 	}
+}
+
+// UserSource identifies the directory a user was synced from.
+type UserSource string
+
+const (
+	UserSourceTenant UserSource = "TENANT"
+	UserSourceNais   UserSource = "NAIS"
+)
+
+func (e UserSource) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(string(e)))
+}
+
+func (e *UserSource) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	switch source := UserSource(str); source {
+	case UserSourceTenant, UserSourceNais:
+		*e = source
+		return nil
+	default:
+		return fmt.Errorf("%s is not a valid UserSource", str)
+	}
+}
+
+type UserFilter struct {
+	Sources []UserSource `json:"sources"`
 }
 
 type UserOrder struct {
