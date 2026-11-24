@@ -160,12 +160,6 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			return ctx, nil, nil, err
 		}
 
-		restRunner, err := newRestRunner(ctx, pool, clusterConfig, k8sRunner, contextDependencies, log)
-		if err != nil {
-			done()
-			return ctx, nil, nil, err
-		}
-
 		cleanups = append([]func(){gqlCleanup}, cleanups...)
 
 		runners := []spec.Runner{
@@ -173,7 +167,7 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			runner.NewSQLRunner(pool),
 			topic,
 			k8sRunner,
-			restRunner,
+			newRestRunner(k8sRunner, contextDependencies, log),
 		}
 		sqlAdminService, err := sqlinstance.NewClient(ctx, log, sqlinstance.WithFakeClients(true), sqlinstance.WithInstanceWatcher(watchers.SqlInstanceWatcher))
 		if err != nil {
@@ -210,12 +204,8 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 	}
 }
 
-const testPreSharedKey = "test-pre-shared-key"
-
-func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubernetes.ClusterConfigMap, k8sRunner *apiRunner.K8s, contextDependencies func(http.Handler) http.Handler, logger logrus.FieldLogger) (spec.Runner, error) {
-	router := rest.MakeRouter(ctx, rest.Config{
-		Pool:              pool,
-		PreSharedKey:      testPreSharedKey,
+func newRestRunner(k8sRunner *apiRunner.K8s, contextDependencies func(http.Handler) http.Handler, logger logrus.FieldLogger) spec.Runner {
+	router := rest.MakeRouter(rest.Config{
 		ContextMiddleware: contextDependencies,
 		DynamicClient: func(cluster string, _ slug.Slug) (dynamic.Interface, error) {
 			return k8sRunner.DynamicClient(cluster)
@@ -224,7 +214,7 @@ func newRestRunner(ctx context.Context, pool *pgxpool.Pool, clusterConfig kubern
 		Log:   logger,
 	})
 
-	return runner.NewRestRunner(router), nil
+	return runner.NewRestRunner(router)
 }
 
 func newGQLRunner(

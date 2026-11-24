@@ -7,11 +7,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nais/api/internal/apply"
 	"github.com/nais/api/internal/auth/authn"
 	"github.com/nais/api/internal/auth/middleware"
-	"github.com/nais/api/internal/rest/restteamsapi"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -24,8 +22,6 @@ type Fakes struct {
 // Config holds all dependencies needed by the REST server.
 type Config struct {
 	ListenAddress string
-	Pool          *pgxpool.Pool
-	PreSharedKey  string
 	DynamicClient apply.DynamicClientFactory
 	// ContextMiddleware sets up the request context with all loaders and
 	// dependencies needed by the apply handler (authz, activitylog, etc.).
@@ -40,7 +36,7 @@ type Config struct {
 }
 
 func Run(ctx context.Context, cfg Config) error {
-	router := MakeRouter(ctx, cfg)
+	router := MakeRouter(cfg)
 
 	srv := &http.Server{
 		Addr:              cfg.ListenAddress,
@@ -73,16 +69,8 @@ func Run(ctx context.Context, cfg Config) error {
 	return wg.Wait()
 }
 
-func MakeRouter(ctx context.Context, cfg Config) *chi.Mux {
+func MakeRouter(cfg Config) *chi.Mux {
 	router := chi.NewRouter()
-
-	// Existing pre-shared-key authenticated routes.
-	if cfg.PreSharedKey != "" {
-		router.Group(func(r chi.Router) {
-			r.Use(middleware.PreSharedKeyAuthentication(cfg.PreSharedKey))
-			r.Get("/teams/{teamSlug}", restteamsapi.TeamsApiHandler(ctx, cfg.Pool, cfg.Log))
-		})
-	}
 
 	// Apply route with user authentication.
 	router.Group(func(r chi.Router) {
