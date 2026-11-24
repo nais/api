@@ -194,6 +194,12 @@ values:
     config:
       type: string
 
+  usersync.userGroupPrefix:
+    displayName: User group prefix for user sync
+    description: Optional Google Workspace group prefix (before @tenant-domain). When set, only active members, including nested members, are synced from Google, and existing users outside the group can be removed by the sync. Leave unset to sync all eligible Google Workspace users.
+    config:
+      type: string
+
   unleash.enabled:
     displayName: Unleash feature flag
     description: Enable Unleash feature flag

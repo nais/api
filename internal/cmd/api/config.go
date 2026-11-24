@@ -55,6 +55,9 @@ type usersyncConfig struct {
 	// AdminGroupPrefix The prefix of the admin group email address.
 	AdminGroupPrefix string `env:"USERSYNC_ADMIN_GROUP_PREFIX,default=console-admins"`
 
+	// UserGroupPrefix restricts Google Directory sync to this group when set.
+	UserGroupPrefix string `env:"USERSYNC_USER_GROUP_PREFIX"`
+
 	// Service account to impersonate during user sync
 	ServiceAccount string `env:"USERSYNC_SERVICE_ACCOUNT"`
 

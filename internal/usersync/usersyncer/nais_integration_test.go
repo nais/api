@@ -101,7 +101,7 @@ func TestSyncNaisUsers(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		syncer := usersyncer.New(pool, adminGroupPrefix, domain, zc, svc, log)
+		syncer := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log)
 		for range 2 {
 			if err := syncer.Sync(ctx); err != nil {
 				t.Fatal(err)
@@ -194,7 +194,7 @@ func TestSyncNaisUsers(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := usersyncer.New(pool, adminGroupPrefix, domain, zc, svc, log).Sync(ctx); !errors.Is(err, wantErr) {
+		if err := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log).Sync(ctx); !errors.Is(err, wantErr) {
 			t.Fatalf("expected source failure, got %v", err)
 		}
 		users, err := q.List(ctx)
@@ -226,7 +226,7 @@ func TestSyncNaisUsers(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := usersyncer.New(pool, adminGroupPrefix, domain, zc, svc, log).Sync(ctx); err != nil {
+		if err := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log).Sync(ctx); err != nil {
 			t.Fatal(err)
 		}
 		users, err := q.List(ctx)

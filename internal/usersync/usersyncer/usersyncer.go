@@ -33,6 +33,7 @@ type Usersynchronizer struct {
 	pool             *pgxpool.Pool
 	querier          *usersyncsql.Queries
 	adminGroupPrefix string
+	userGroupPrefix  string
 	tenantDomain     string
 	service          *admindirectoryv1.Service
 	log              logrus.FieldLogger
@@ -52,11 +53,12 @@ type sourceUser struct {
 	isTenantUser bool
 }
 
-func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, zitadelWrapper *ZitadelWrapper, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
+func New(pool *pgxpool.Pool, adminGroupPrefix, userGroupPrefix, tenantDomain string, zitadelWrapper *ZitadelWrapper, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
 	return &Usersynchronizer{
 		pool:             pool,
 		querier:          usersyncsql.New(pool),
 		adminGroupPrefix: adminGroupPrefix,
+		userGroupPrefix:  userGroupPrefix,
 		tenantDomain:     tenantDomain,
 		service:          service,
 		log:              log,
@@ -64,7 +66,7 @@ func New(pool *pgxpool.Pool, adminGroupPrefix, tenantDomain string, zitadelWrapp
 	}
 }
 
-func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix string, zitadelWrapper *ZitadelWrapper, log logrus.FieldLogger) (*Usersynchronizer, error) {
+func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subjectEmail, tenantDomain, adminGroupPrefix, userGroupPrefix string, zitadelWrapper *ZitadelWrapper, log logrus.FieldLogger) (*Usersynchronizer, error) {
 	ts, err := impersonate.CredentialsTokenSource(ctx, impersonate.CredentialsConfig{
 		Scopes: []string{
 			admindirectoryv1.AdminDirectoryUserReadonlyScope,
@@ -82,18 +84,18 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 		return nil, fmt.Errorf("create admin directory client: %w", err)
 	}
 
-	return New(pool, adminGroupPrefix, tenantDomain, zitadelWrapper, srv, log), nil
+	return New(pool, adminGroupPrefix, userGroupPrefix, tenantDomain, zitadelWrapper, srv, log), nil
 }
 
-// Sync fetches tenant users from Google Directory and, when configured, active
-// nais.io users from Zitadel. Both complete snapshots are fetched before changing
+// Sync fetches tenant users from Google Directory, optionally restricted to a group,
+// and, when configured, active nais.io users from Zitadel. Both complete snapshots are fetched before changing
 // the API database. Users are created or updated, and users absent from both
 // sources are removed. Only tenant users are synchronized into Zitadel.
 //
-// All users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
+// Synced users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
 func (s *Usersynchronizer) Sync(ctx context.Context) error {
-	googleUsers, err := getGoogleUsers(ctx, s.service.Users, s.tenantDomain, s.log)
+	googleUsers, err := s.getGoogleUsers(ctx)
 	if err != nil {
 		return fmt.Errorf("get users from Google Directory: %w", err)
 	}
@@ -416,20 +418,8 @@ func assignAdmins(ctx context.Context, querier usersyncsql.Querier, membersServi
 // getAdminGroupMembers fetches all users in the admin group from the Google Directory of the tenant.
 func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.MembersService, adminGroupPrefix, tenantDomain string, googleUsers map[string]*usersyncsql.User, log logrus.FieldLogger) (map[uuid.UUID]*usersyncsql.User, error) {
 	adminGroup := adminGroupPrefix + "@" + tenantDomain
-	groupMembers := make([]*admindirectoryv1.Member, 0)
-	callback := func(fragments *admindirectoryv1.Members) error {
-		for _, member := range fragments.Members {
-			if member.Type == "USER" && member.Status == "ACTIVE" {
-				groupMembers = append(groupMembers, member)
-			}
-		}
-		return nil
-	}
 	admins := make(map[uuid.UUID]*usersyncsql.User)
-	err := membersService.
-		List(adminGroup).
-		IncludeDerivedMembership(true).
-		Pages(ctx, callback)
+	groupMembers, err := listActiveGroupUsers(ctx, membersService, adminGroup)
 	if err != nil {
 		if googleError, ok := err.(*googleapi.Error); ok && googleError.Code == 404 {
 			// Special case: When the group does not exist we want to remove all existing admins. The group might have
@@ -445,7 +435,7 @@ func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.
 	for _, member := range groupMembers {
 		admin, exists := googleUsers[member.Id]
 		if !exists {
-			log.WithField("email", member.Email).Errorf("unknown user in admins groups")
+			log.WithField("email", member.Email).Debugf("admin group member is not a synced Google user")
 			continue
 		}
 
@@ -453,6 +443,19 @@ func getAdminGroupMembers(ctx context.Context, membersService *admindirectoryv1.
 	}
 
 	return admins, nil
+}
+
+func listActiveGroupUsers(ctx context.Context, svc *admindirectoryv1.MembersService, group string) ([]*admindirectoryv1.Member, error) {
+	var members []*admindirectoryv1.Member
+	err := svc.List(group).IncludeDerivedMembership(true).Pages(ctx, func(page *admindirectoryv1.Members) error {
+		for _, member := range page.Members {
+			if member.Type == "USER" && member.Status == "ACTIVE" {
+				members = append(members, member)
+			}
+		}
+		return nil
+	})
+	return members, err
 }
 
 // userIsOutdated checks if a user needs to get its name or its email address updated.
@@ -510,12 +513,29 @@ func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *s
 	return createdUser, nil
 }
 
-// getGoogleUsers fetches all users from the Google Directory.
-func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, tenantDomain string, log logrus.FieldLogger) ([]*sourceUser, error) {
+// getGoogleUsers fetches eligible tenant users from Google Directory.
+func (s *Usersynchronizer) getGoogleUsers(ctx context.Context) ([]*sourceUser, error) {
+	var allowedIDs map[string]struct{}
+	if s.userGroupPrefix != "" {
+		group := s.userGroupPrefix + "@" + s.tenantDomain
+		members, err := listActiveGroupUsers(ctx, s.service.Members, group)
+		if err != nil {
+			// A failed lookup is not an empty snapshot: that would delete users.
+			return nil, fmt.Errorf("list members in user sync group %q: %w", group, err)
+		}
+		allowedIDs = make(map[string]struct{}, len(members))
+		for _, member := range members {
+			allowedIDs[member.Id] = struct{}{}
+		}
+	}
+
 	users := make([]*sourceUser, 0)
 	callback := func(fragments *admindirectoryv1.Users) error {
-		log.WithField("num", len(fragments.Users)).Debugf("fetched batch of users from from Google Directory")
+		s.log.WithField("num", len(fragments.Users)).Debugf("fetched batch of users from Google Directory")
 		for _, user := range fragments.Users {
+			if _, allowed := allowedIDs[user.Id]; allowedIDs != nil && !allowed {
+				continue
+			}
 			users = append(users, &sourceUser{
 				ID:           user.Id,
 				Email:        strings.ToLower(user.PrimaryEmail),
@@ -526,15 +546,15 @@ func getGoogleUsers(ctx context.Context, svc *admindirectoryv1.UsersService, ten
 		return nil
 	}
 
-	log.Debugf("start fetching users from Google Directory")
+	s.log.Debugf("start fetching users from Google Directory")
 	t := time.Now()
-	err := svc.
+	err := s.service.Users.
 		List().
-		Domain(tenantDomain).
+		Domain(s.tenantDomain).
 		ShowDeleted("false").
 		Query("isSuspended=false").
 		Pages(ctx, callback)
-	log.WithFields(logrus.Fields{
+	s.log.WithFields(logrus.Fields{
 		"duration":  time.Since(t),
 		"num_users": len(users),
 	}).Debugf("finished fetching users from Google Directory")
