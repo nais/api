@@ -98,7 +98,10 @@ func TestGetGoogleUsers(t *testing.T) {
 			s := New(nil, "console-admins", tc.prefix, domain, nil, svc, log)
 			if tc.wantCode != 0 {
 				// A nil pool means Sync must return before attempting any writes.
-				err := s.Sync(ctx)
+				result, err := s.Sync(ctx)
+				if result != (SyncResult{}) {
+					t.Errorf("failed source lookup should not report counts, got %+v", result)
+				}
 				var apiErr *googleapi.Error
 				if !errors.As(err, &apiErr) || apiErr.Code != tc.wantCode || !strings.Contains(err.Error(), "console-users@example.com") {
 					t.Fatalf("expected group lookup error with status %d, got %v", tc.wantCode, err)

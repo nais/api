@@ -38,4 +38,16 @@ spec:
           annotations:
             consequence: Cost information may be outdated.
             action: "Check logs in {{ .Release.Name }}"
+        - alert: User sync has not succeeded in 45 minutes
+          expr: |
+            time() - max(max_over_time(nais_usersync_last_success_timestamp_seconds{job="nais-system/{{ .Release.Name }}"}[45m])) > 45 * 60
+            or
+            (max(absent_over_time(nais_usersync_last_success_timestamp_seconds{job="nais-system/{{ .Release.Name }}"}[45m]))
+             and max(up{job="nais-system/{{ .Release.Name }}"} offset 45m))
+          labels:
+            namespace: nais-system
+            severity: warning
+          annotations:
+            consequence: User and admin access may be out of date.
+            action: "Check usersync errors in {{ .Release.Name }} logs."
 {{- end }}

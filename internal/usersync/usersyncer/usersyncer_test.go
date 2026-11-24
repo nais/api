@@ -61,7 +61,7 @@ func TestSync(t *testing.T) {
 		}
 
 		// TODO: Add tests for Zitadel API operations
-		err = usersyncer.
+		_, err = usersyncer.
 			New(pool, adminGroupPrefix, "", domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
@@ -122,7 +122,7 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = usersyncer.
+		_, err = usersyncer.
 			New(pool, adminGroupPrefix, "", domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
@@ -208,11 +208,14 @@ func TestSync(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = usersyncer.
+		result, err := usersyncer.
 			New(pool, adminGroupPrefix, "", domain, nil, svc, log).
 			Sync(ctx)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if want := (usersyncer.UserChanges{Created: 1, Updated: 2, Deleted: 1}); result.Changes != want {
+			t.Errorf("committed user changes: got %+v, want %+v", result.Changes, want)
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
@@ -296,8 +299,12 @@ func TestSync(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := usersyncer.New(pool, adminGroupPrefix, "console-users", domain, nil, svc, log).Sync(ctx); err != nil {
+		result, err := usersyncer.New(pool, adminGroupPrefix, "console-users", domain, nil, svc, log).Sync(ctx)
+		if err != nil {
 			t.Fatal(err)
+		}
+		if result.GoogleUsers == nil || *result.GoogleUsers != 1 || result.NaisUsers != nil {
+			t.Errorf("expected only one eligible Google user in the snapshot, got %+v", result)
 		}
 
 		p, _ := pagination.ParsePage(nil, nil, nil, nil)
@@ -311,6 +318,35 @@ func TestSync(t *testing.T) {
 		}
 		if u, err := user.Get(ctx, removed.ID); err == nil {
 			t.Fatalf("expected removed user to be deleted, got %v", u)
+		}
+	})
+
+	t.Run("Rolled back deletions are not reported as committed changes", func(t *testing.T) {
+		ctx, pool := setup(t)
+		q := usersyncsql.New(pool)
+		existing, err := q.Create(ctx, usersyncsql.CreateParams{
+			Name: "Existing User", Email: "existing@example.com", ExternalID: "1",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		httpClient := test.NewTestHttpClient(
+			func(*http.Request) *http.Response { return test.Response("200 OK", `{"users":[]}`) },
+			func(*http.Request) *http.Response { return test.Response("403 Forbidden", `{"error":{"code":403}}`) },
+		)
+		svc, err := admindirectoryv1.NewService(ctx, option.WithHTTPClient(httpClient))
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := usersyncer.New(pool, adminGroupPrefix, "", domain, nil, svc, log).Sync(ctx)
+		if err == nil {
+			t.Fatal("expected sync to fail when the admin group lookup fails")
+		}
+		if result.Changes != (usersyncer.UserChanges{}) {
+			t.Errorf("expected no committed changes, got %+v", result.Changes)
+		}
+		if _, err := user.Get(ctx, existing.ID); err != nil {
+			t.Fatalf("expected the deletion to be rolled back: %v", err)
 		}
 	})
 }
