@@ -7,9 +7,11 @@ import "pagination.proto";
 option go_package = "./pkg/apiclient/protoapi";
 
 enum DatabaseType {
+  reserved 2;
+  reserved "ZALANDO_POSTGRES";
+
   DATABASE_TYPE_UNSPECIFIED = 0;
   CLOUD_SQL = 1;
-  ZALANDO_POSTGRES = 2;
   NAIS_POSTGRES = 3;
 }
 
