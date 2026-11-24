@@ -103,8 +103,12 @@ func TestSyncNaisUsers(t *testing.T) {
 		}
 		syncer := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log)
 		for range 2 {
-			if err := syncer.Sync(ctx); err != nil {
+			result, err := syncer.Sync(ctx)
+			if err != nil {
 				t.Fatal(err)
+			}
+			if result.GoogleUsers == nil || *result.GoogleUsers != 1 || result.NaisUsers == nil || *result.NaisUsers != 2 {
+				t.Fatalf("expected count of 1 Google and 2 nais.io users, got %+v", result)
 			}
 		}
 		if reads != 2 {
@@ -155,7 +159,7 @@ func TestSyncNaisUsers(t *testing.T) {
 		}
 		snapshot = []*zitadeluser.User{naisUser("nais-2", "new@nais.io", "New user")}
 		snapshot[0].State = zitadeluser.UserState_USER_STATE_INACTIVE
-		if err := syncer.Sync(ctx); err != nil {
+		if _, err := syncer.Sync(ctx); err != nil {
 			t.Fatal(err)
 		}
 		users, err = q.List(ctx)
@@ -194,7 +198,7 @@ func TestSyncNaisUsers(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log).Sync(ctx); !errors.Is(err, wantErr) {
+		if _, err := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log).Sync(ctx); !errors.Is(err, wantErr) {
 			t.Fatalf("expected source failure, got %v", err)
 		}
 		users, err := q.List(ctx)
@@ -226,7 +230,7 @@ func TestSyncNaisUsers(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log).Sync(ctx); err != nil {
+		if _, err := usersyncer.New(pool, adminGroupPrefix, "", domain, zc, svc, log).Sync(ctx); err != nil {
 			t.Fatal(err)
 		}
 		users, err := q.List(ctx)

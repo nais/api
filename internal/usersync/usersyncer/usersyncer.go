@@ -16,6 +16,7 @@ import (
 	zitadeluser "github.com/zitadel/zitadel-go/v3/pkg/client/user/v2"
 	"github.com/zitadel/zitadel-go/v3/pkg/client/zitadel/object/v2"
 	zitadelgrpcuser "github.com/zitadel/zitadel-go/v3/pkg/client/zitadel/user/v2"
+	"go.opentelemetry.io/otel"
 	admindirectoryv1 "google.golang.org/api/admin/directory/v1"
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/impersonate"
@@ -38,6 +39,7 @@ type Usersynchronizer struct {
 	service          *admindirectoryv1.Service
 	log              logrus.FieldLogger
 	zitadelClient    *ZitadelWrapper
+	metrics          *syncMetrics
 }
 
 type userMap struct {
@@ -51,6 +53,17 @@ type sourceUser struct {
 	Email        string
 	Name         admindirectoryv1.UserName
 	isTenantUser bool
+}
+
+type UserChanges struct {
+	Created, Updated, Deleted int
+}
+
+type SyncResult struct {
+	// Counts are nil if a complete snapshot was not available for the source.
+	GoogleUsers, NaisUsers *int
+	// Changes only counts committed database changes.
+	Changes UserChanges
 }
 
 func New(pool *pgxpool.Pool, adminGroupPrefix, userGroupPrefix, tenantDomain string, zitadelWrapper *ZitadelWrapper, service *admindirectoryv1.Service, log logrus.FieldLogger) *Usersynchronizer {
@@ -84,7 +97,13 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 		return nil, fmt.Errorf("create admin directory client: %w", err)
 	}
 
-	return New(pool, adminGroupPrefix, userGroupPrefix, tenantDomain, zitadelWrapper, srv, log), nil
+	metrics, err := newSyncMetrics(otel.Meter("nais_usersync"))
+	if err != nil {
+		return nil, fmt.Errorf("set up user sync metrics: %w", err)
+	}
+	s := New(pool, adminGroupPrefix, userGroupPrefix, tenantDomain, zitadelWrapper, srv, log)
+	s.metrics = metrics
+	return s, nil
 }
 
 // Sync fetches tenant users from Google Directory, optionally restricted to a group,
@@ -94,31 +113,51 @@ func NewFromConfig(ctx context.Context, pool *pgxpool.Pool, serviceAccount, subj
 //
 // Synced users present in the admin group in the Google Directory will also be granted the admin role in Nais API, and
 // existing admins that no longer exist in the admin group will get the admin role revoked.
-func (s *Usersynchronizer) Sync(ctx context.Context) error {
+func (s *Usersynchronizer) Sync(ctx context.Context) (result SyncResult, err error) {
+	var export sync.WaitGroup
+	defer export.Wait()
+	if s.metrics != nil {
+		// Record the API run before waiting for the independent Zitadel export.
+		start := time.Now()
+		defer func() { s.metrics.recordRun(ctx, start, time.Now(), err == nil) }()
+	}
+
 	googleUsers, err := s.getGoogleUsers(ctx)
 	if err != nil {
-		return fmt.Errorf("get users from Google Directory: %w", err)
+		return result, fmt.Errorf("get users from Google Directory: %w", err)
 	}
 
 	var naisUsers []*sourceUser
-	if s.zitadelClient != nil && s.zitadelClient.NaisOrganizationID != "" {
+	importNaisUsers := s.zitadelClient != nil && s.zitadelClient.NaisOrganizationID != ""
+	if importNaisUsers {
 		naisUsers, err = s.zitadelClient.activeHumanUsers(ctx, s.zitadelClient.NaisOrganizationID)
 		if err != nil {
-			return fmt.Errorf("get nais.io users from Zitadel: %w", err)
+			return result, fmt.Errorf("get nais.io users from Zitadel: %w", err)
+		}
+	}
+	result.GoogleUsers = new(len(googleUsers))
+	if importNaisUsers {
+		result.NaisUsers = new(len(naisUsers))
+	}
+	if s.metrics != nil {
+		s.metrics.recordSnapshot(ctx, "google", *result.GoogleUsers)
+		if result.NaisUsers != nil {
+			s.metrics.recordSnapshot(ctx, "nais_io", *result.NaisUsers)
 		}
 	}
 
 	if s.zitadelClient != nil && s.zitadelClient.IDP != "" {
-		wg := &sync.WaitGroup{}
-		wg.Go(func() {
-			s.zitadelUserSync(ctx, googleUsers)
+		export.Go(func() {
+			success := s.zitadelUserSync(ctx, googleUsers)
+			if s.metrics != nil {
+				s.metrics.exportRuns.Add(ctx, 1, resultAttr(success))
+			}
 		})
-		defer wg.Wait()
 	}
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
+		return result, fmt.Errorf("begin transaction: %w", err)
 	}
 	defer func() {
 		if err := tx.Rollback(ctx); err == nil {
@@ -131,16 +170,20 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 
 	users, err := getUsers(ctx, querier)
 	if err != nil {
-		return fmt.Errorf("get existing users: %w", err)
+		return result, fmt.Errorf("get existing users: %w", err)
 	}
 
 	googleUserMap := make(map[string]*usersyncsql.User)
+	var changes UserChanges
 	for _, gu := range append(googleUsers, naisUsers...) {
-		user, err := getOrCreateUser(ctx, querier, gu, users, s.log)
+		user, created, err := getOrCreateUser(ctx, querier, gu, users, s.log)
 		if err != nil {
-			return fmt.Errorf("get or create user %q: %w", gu.Email, err)
+			return result, fmt.Errorf("get or create user %q: %w", gu.Email, err)
 		}
 
+		if created {
+			changes.Created++
+		}
 		if userIsOutdated(user, gu) {
 			if err := querier.Update(ctx, usersyncsql.UpdateParams{
 				ID:         user.ID,
@@ -148,8 +191,9 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 				Email:      gu.Email,
 				ExternalID: gu.ID,
 			}); err != nil {
-				return fmt.Errorf("update user %q: %w", gu.Email, err)
+				return result, fmt.Errorf("update user %q: %w", gu.Email, err)
 			}
+			changes.Updated++
 
 			if err := querier.CreateLogEntry(ctx, usersyncsql.CreateLogEntryParams{
 				Action:       usersyncsql.UsersyncLogEntryActionUpdateUser,
@@ -172,17 +216,26 @@ func (s *Usersynchronizer) Sync(ctx context.Context) error {
 	}
 
 	if err := deleteUnknownUsers(ctx, querier, users.byID, s.log); err != nil {
-		return err
+		return result, err
 	}
+	changes.Deleted = len(users.byID)
 
 	if err := assignAdmins(ctx, querier, s.service.Members, s.adminGroupPrefix, s.tenantDomain, googleUserMap, s.log); err != nil {
-		return err
+		return result, err
 	}
 
-	return tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return result, err
+	}
+	if s.metrics != nil {
+		s.metrics.recordChanges(ctx, changes)
+	}
+	result.Changes = changes
+	return result, nil
 }
 
-func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*sourceUser) {
+func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*sourceUser) bool {
+	success := true
 	start := time.Now()
 	defer func() {
 		s.log.WithField("duration", time.Since(start).String()).Debugf("Zitadel user sync done")
@@ -220,12 +273,13 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 		})
 		if err != nil {
 			s.log.WithError(err).Errorf("list users")
-			return
+			return false
 		}
 
 		for _, user := range resp.Result {
 			if user.GetHuman() == nil {
 				s.log.WithField("user_id", user.UserId).Errorf("user is not human")
+				success = false
 				continue
 			}
 
@@ -268,6 +322,7 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 				})
 				if err != nil {
 					log.WithError(err).Errorf("update user in Zitadel")
+					success = false
 				}
 			}
 
@@ -310,6 +365,7 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 		})
 		if err != nil {
 			log.WithError(err).Errorf("add user to Zitadel")
+			success = false
 			continue
 		}
 	}
@@ -323,8 +379,10 @@ func (s *Usersynchronizer) zitadelUserSync(ctx context.Context, googleUsers []*s
 		log.Debugf("delete user from Zitadel")
 		if _, err := s.zitadelClient.DeleteUser(ctx, &zitadelgrpcuser.DeleteUserRequest{UserId: userID}); err != nil {
 			log.WithError(err).Errorf("delete user from Zitadel")
+			success = false
 		}
 	}
+	return success
 }
 
 func AssignDefaultPermissionsToUser(ctx context.Context, querier usersyncsql.Querier, userID uuid.UUID) error {
@@ -476,14 +534,14 @@ func userIsOutdated(user *usersyncsql.User, gu *sourceUser) bool {
 }
 
 // getOrCreateUser matches globally unique email addresses across user sources.
-func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *sourceUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, error) {
+func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *sourceUser, existingUsers *userMap, log logrus.FieldLogger) (*usersyncsql.User, bool, error) {
 	if existingUser, exists := existingUsers.byEmail[remote.Email]; exists {
-		return existingUser, nil
+		return existingUser, false, nil
 	}
 
 	// Preserve the existing support for email changes without losing roles or sessions.
 	if existingUser, exists := existingUsers.byExternalID[remote.ID]; exists {
-		return existingUser, nil
+		return existingUser, false, nil
 	}
 
 	createdUser, err := querier.Create(ctx, usersyncsql.CreateParams{
@@ -492,12 +550,12 @@ func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *s
 		ExternalID: remote.ID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
 	if remote.isTenantUser {
 		if err := AssignDefaultPermissionsToUser(ctx, querier, createdUser.ID); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 	}
 
@@ -510,7 +568,7 @@ func getOrCreateUser(ctx context.Context, querier usersyncsql.Querier, remote *s
 		log.WithError(err).Errorf("create user sync log entry")
 	}
 
-	return createdUser, nil
+	return createdUser, true, nil
 }
 
 // getGoogleUsers fetches eligible tenant users from Google Directory.
