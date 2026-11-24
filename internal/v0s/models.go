@@ -8,9 +8,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/workload"
 )
 
 type Scope struct {
@@ -22,21 +24,107 @@ type Scope struct {
 type VulnerabilityFindingFilter struct {
 	VulnerabilityIdentifiers []string
 	Package                  *string
+	PackageType              *string
 	Severities               []VulnerabilitySeverity
 	OnlyWithFix              *bool
 	OnlyKnownExploited       *bool
 	Suppressed               *SuppressedFilter
 }
 
+type VulnerabilityFindingOrder struct {
+	Field     VulnerabilityFindingOrderField
+	Direction model.OrderDirection
+}
+
+type VulnerabilityFindingOrderField string
+
+const (
+	VulnerabilityFindingOrderFieldSeverity   VulnerabilityFindingOrderField = "SEVERITY"
+	VulnerabilityFindingOrderFieldIdentifier VulnerabilityFindingOrderField = "IDENTIFIER"
+)
+
+func (v VulnerabilityFindingOrderField) MarshalGQL(w io.Writer) {
+	_, _ = io.WriteString(w, strconv.Quote(string(v)))
+}
+
+func (v *VulnerabilityFindingOrderField) UnmarshalGQL(value any) error {
+	s, err := enumValue(value, "SEVERITY", "IDENTIFIER")
+	*v = VulnerabilityFindingOrderField(s)
+	return err
+}
+
 type VulnerabilityFindingEdge = pagination.Edge[*VulnerabilityFinding]
 
 type VulnerabilityFindingConnection struct {
 	pagination.Connection[*VulnerabilityFinding]
-	loadFacets func(context.Context) (*VulnerabilityFindingFacets, error)
+	loadFacets          func(context.Context) (*VulnerabilityFindingFacets, error)
+	loadVulnerabilities func(context.Context, *int, *pagination.Cursor, *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error)
+	loadSummary         func(context.Context) (*VulnerabilitySelectionSummary, error)
+}
+
+func (c *VulnerabilityFindingConnection) Summary(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
+	return c.loadSummary(ctx)
+}
+
+type VulnerabilitySelectionSummary struct {
+	FindingCount                     int64
+	UniqueVulnerabilityCount         int64
+	AffectedWorkloadCount            int64
+	KnownExploitedVulnerabilityCount int64
+	KnownExploitedWorkloadCount      int64
+	CountsBySeverity                 *VulnerabilitySeverityCounts
+	Coverage                         *workload.VulnerabilityCoverageCounts
 }
 
 func (c *VulnerabilityFindingConnection) Facets(ctx context.Context) (*VulnerabilityFindingFacets, error) {
 	return c.loadFacets(ctx)
+}
+
+func (c *VulnerabilityFindingConnection) Vulnerabilities(ctx context.Context, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
+	return c.loadVulnerabilities(ctx, first, after, orderBy)
+}
+
+type (
+	VulnerabilityOverviewConnection = pagination.Connection[*VulnerabilityOverview]
+	VulnerabilityOverviewEdge       = pagination.Edge[*VulnerabilityOverview]
+)
+
+type VulnerabilityOverview struct {
+	VulnerabilityIdentifier string
+	Severity                VulnerabilitySeverity
+	FindingCount            int64
+	AffectedWorkloadCount   int64
+}
+
+type VulnerabilityOverviewOrder struct {
+	Field     VulnerabilityOverviewOrderField
+	Direction model.OrderDirection
+}
+
+type VulnerabilityOverviewOrderField string
+
+const (
+	VulnerabilityOverviewOrderFieldSeverity              VulnerabilityOverviewOrderField = "SEVERITY"
+	VulnerabilityOverviewOrderFieldIdentifier            VulnerabilityOverviewOrderField = "IDENTIFIER"
+	VulnerabilityOverviewOrderFieldAffectedWorkloadCount VulnerabilityOverviewOrderField = "AFFECTED_WORKLOAD_COUNT"
+)
+
+func (v VulnerabilityOverviewOrderField) MarshalGQL(w io.Writer) {
+	_, _ = io.WriteString(w, strconv.Quote(string(v)))
+}
+
+func (v *VulnerabilityOverviewOrderField) UnmarshalGQL(value any) error {
+	s, err := enumValue(value, "SEVERITY", "IDENTIFIER", "AFFECTED_WORKLOAD_COUNT")
+	*v = VulnerabilityOverviewOrderField(s)
+	return err
+}
+
+type VulnerabilityWorkloadOverview struct {
+	FindingCount                     int64
+	UniqueVulnerabilityCount         int64
+	KnownExploitedVulnerabilityCount int64
+	CountsBySeverity                 *VulnerabilitySeverityCounts
+	Coverage                         *VulnerabilityCoverage
 }
 
 type VulnerabilityFinding struct {
@@ -70,6 +158,7 @@ type VulnerabilityFindingFacets struct {
 	CountsBySeverity       *VulnerabilitySeverityCounts
 	FixableFindings        int64
 	KnownExploitedFindings int64
+	PackageTypes           []model.StringFacetItem
 }
 
 type VulnerabilitySeverityCounts struct {

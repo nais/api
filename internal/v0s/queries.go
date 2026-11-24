@@ -1,6 +1,7 @@
 package v0s
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -8,9 +9,10 @@ import (
 
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/workload"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -48,15 +50,17 @@ func findingFilter(s scope, input *VulnerabilityFindingFilter) (*protoapi.Findin
 	f.VulnerabilityIds = slices.Clone(input.VulnerabilityIdentifiers)
 	slices.Sort(f.VulnerabilityIds)
 	f.VulnerabilityIds = slices.Compact(f.VulnerabilityIds)
-	if len(f.VulnerabilityIds) == 1 {
-		f.VulnerabilityId = f.VulnerabilityIds[0]
-		f.VulnerabilityIds = nil
-	}
 	if input.Package != nil {
 		if strings.TrimSpace(*input.Package) == "" {
 			return nil, apierror.Errorf("package cannot be empty")
 		}
 		f.Package = *input.Package
+	}
+	if input.PackageType != nil {
+		if strings.TrimSpace(*input.PackageType) == "" {
+			return nil, apierror.Errorf("packageType cannot be empty")
+		}
+		f.PackageType = strings.ToLower(*input.PackageType)
 	}
 	if input.OnlyWithFix != nil {
 		f.HasFix = *input.OnlyWithFix
@@ -87,7 +91,54 @@ func findingFilter(s scope, input *VulnerabilityFindingFilter) (*protoapi.Findin
 	return f, nil
 }
 
-func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor) (*VulnerabilityFindingConnection, error) {
+func findingOrder(input *VulnerabilityFindingOrder) (*protoapi.FindingOrderBy, error) {
+	if input == nil {
+		return nil, nil
+	}
+	order := &protoapi.FindingOrderBy{}
+	switch input.Field {
+	case VulnerabilityFindingOrderFieldSeverity:
+		order.Field = protoapi.FindingOrderBy_FIELD_SEVERITY
+	case VulnerabilityFindingOrderFieldIdentifier:
+		order.Field = protoapi.FindingOrderBy_FIELD_VULNERABILITY_ID
+	default:
+		return nil, apierror.Errorf("invalid finding order field")
+	}
+	switch input.Direction {
+	case model.OrderDirectionAsc:
+		order.Direction = protoapi.FindingOrderBy_DIRECTION_ASC
+	case model.OrderDirectionDesc:
+		order.Direction = protoapi.FindingOrderBy_DIRECTION_DESC
+	default:
+		return nil, apierror.Errorf("invalid finding order direction")
+	}
+	return order, nil
+}
+
+func findingWorkloadSelector(current map[workloadKey]*protoapi.Workload) *protoapi.WorkloadSelector {
+	resolved := make(map[workloadKey]*protoapi.Workload)
+	for key, w := range current {
+		if w.GetImage() != nil {
+			resolved[key] = w
+		}
+	}
+	return workloadSelector(resolved)
+}
+
+func workloadSelector(current map[workloadKey]*protoapi.Workload) *protoapi.WorkloadSelector {
+	selector := &protoapi.WorkloadSelector{Workloads: make([]*protoapi.WorkloadRef, 0, len(current))}
+	for key := range current {
+		selector.Workloads = append(selector.Workloads, &protoapi.WorkloadRef{
+			Environment: key.environment, Team: key.team, Name: key.name,
+		})
+	}
+	slices.SortFunc(selector.Workloads, func(a, b *protoapi.WorkloadRef) int {
+		return cmp.Or(cmp.Compare(a.Environment, b.Environment), cmp.Compare(a.Team, b.Team), cmp.Compare(a.Name, b.Name))
+	})
+	return selector
+}
+
+func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -96,11 +147,7 @@ func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilt
 	if err != nil {
 		return nil, err
 	}
-	data, err := proto.Marshal(f)
-	if err != nil {
-		return nil, fmt.Errorf("encode v0s finding filter: %w", err)
-	}
-	p, err := parsePage(first, after, selectionKey("findings", string(data)))
+	order, err := findingOrder(orderBy)
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +159,24 @@ func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilt
 	if err != nil {
 		return nil, err
 	}
+	request := &protoapi.ListFindingsRequest{Filter: f, OrderBy: order, WorkloadSelector: findingWorkloadSelector(current)}
+	data, err := proto.Marshal(request)
+	if err != nil {
+		return nil, fmt.Errorf("encode v0s finding selection: %w", err)
+	}
+	p, err := parsePage(first, after, selectionKey("findings", string(data)))
+	if err != nil {
+		return nil, err
+	}
+	var packageTypes []*protoapi.PackageTypeCount
 	edges, info, err := readPage(ctx, p,
 		func(ctx context.Context, size int32, token string) ([]*protoapi.Finding, []string, string, error) {
-			resp, err := l.manager.Vulnerabilities.ListFindings(ctx, &protoapi.ListFindingsRequest{Filter: f, PageSize: size, PageToken: token})
+			request.PageSize, request.PageToken = size, token
+			resp, err := l.manager.Vulnerabilities.ListFindings(ctx, request)
 			if err != nil {
 				return nil, nil, "", backendError("list v0s findings", err)
 			}
+			packageTypes = resp.GetPackageTypeCounts()
 			return resp.GetFindings(), resp.GetCursors(), resp.GetNextPageToken(), nil
 		}, func(f *protoapi.Finding) bool {
 			w := f.GetWorkload()
@@ -138,7 +197,13 @@ func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilt
 	result := &VulnerabilityFindingConnection{
 		Connection: pagination.Connection[*VulnerabilityFinding]{Edges: make([]VulnerabilityFindingEdge, 0, len(edges)), PageInfo: info},
 		loadFacets: func(ctx context.Context) (*VulnerabilityFindingFacets, error) {
-			return findingFacets(ctx, l, grouped, current)
+			return findingFacets(ctx, l, grouped, current, packageTypes)
+		},
+		loadVulnerabilities: func(ctx context.Context, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
+			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, first, after, orderBy)
+		},
+		loadSummary: func(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
+			return selectionSummary(ctx, l, s, f, current)
 		},
 	}
 	for _, edge := range edges {
@@ -151,7 +216,7 @@ func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilt
 	return result, nil
 }
 
-func findingFacets(ctx context.Context, l *loaders, f *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload) (*VulnerabilityFindingFacets, error) {
+func findingFacets(ctx context.Context, l *loaders, f *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload, packageTypes []*protoapi.PackageTypeCount) (*VulnerabilityFindingFacets, error) {
 	// Grouped counts can be reused across workload fields in a team/environment.
 	// Reconciliation discards buckets for removed workloads and obsolete images.
 	filters := make([]*protoapi.FindingFilter, 0, 7)
@@ -184,11 +249,17 @@ func findingFacets(ctx context.Context, l *loaders, f *protoapi.FindingFilter, c
 		}
 		counts[i] = count
 	}
+	packages := make([]model.StringFacetItem, 0, len(packageTypes))
+	for _, item := range packageTypes {
+		packages = append(packages, model.StringFacetItem{Value: item.GetValue(), Count: int(item.GetCount())})
+	}
+	model.SortStringFacetItems(packages)
 	return &VulnerabilityFindingFacets{
 		CountsBySeverity: &VulnerabilitySeverityCounts{
 			Unknown: counts[0], Low: counts[1], Medium: counts[2], High: counts[3], Critical: counts[4],
 		},
 		FixableFindings: counts[5], KnownExploitedFindings: counts[6],
+		PackageTypes: packages,
 	}, nil
 }
 

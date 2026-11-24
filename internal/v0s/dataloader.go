@@ -7,7 +7,7 @@ import (
 
 	"github.com/nais/api/internal/graph/loader"
 	inventoryapi "github.com/nais/api/pkg/apiclient/protoapi"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"github.com/vikstrous/dataloadgen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -42,12 +42,14 @@ type loaders struct {
 	counts            *dataloadgen.Loader[string, map[string]int64]
 	advisories        *dataloadgen.Loader[string, *Vulnerability]
 	suppressionCounts *dataloadgen.Loader[string, int]
+	workloadOverviews *dataloadgen.Loader[workloadOverviewKey, *VulnerabilityWorkloadOverview]
 }
 
 // NewLoaderContext caches inventory, coverage and grouped counts for one request.
 func NewLoaderContext(ctx context.Context, inventory func(context.Context) (*inventoryapi.ListWorkloadImagesResponse, error)) context.Context {
 	m, _ := ctx.Value(managerKey).(*Manager)
 	l := &loaders{manager: m}
+	l.workloadOverviews = dataloadgen.NewLoader(l.loadWorkloadOverviews, loader.DefaultDataLoaderOptions...)
 	l.inventory = dataloadgen.NewLoader(func(ctx context.Context, keys []struct{}) ([]map[workloadKey]string, []error) {
 		resp, err := inventory(ctx)
 		result := make(map[workloadKey]string)

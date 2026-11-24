@@ -3,16 +3,18 @@
 package integration
 
 import (
+	"cmp"
 	"context"
 	"slices"
 	"strings"
 	"sync"
 
 	"github.com/nais/api/internal/v0s"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -59,9 +61,45 @@ func newV0sManager(config *Config) *v0s.Manager {
 func (c *v0sClient) ListWorkloads(_ context.Context, req *protoapi.ListWorkloadsRequest, _ ...grpc.CallOption) (*protoapi.ListWorkloadsResponse, error) {
 	resp := &protoapi.ListWorkloadsResponse{}
 	for _, w := range c.workloads {
-		if (req.Team == "" || req.Team == w.Team) && (req.Environment == "" || req.Environment == w.Environment) {
-			resp.Workloads = append(resp.Workloads, w)
+		ref := &protoapi.WorkloadRef{Environment: w.Environment, Team: w.Team, Name: w.Name}
+		if (req.Team != "" && req.Team != w.Team) || (req.Environment != "" && req.Environment != w.Environment) ||
+			(req.Workload != "" && req.Workload != w.Name) || !v0sWorkloadSelected(ref, req.WorkloadSelector) {
+			continue
 		}
+		value := proto.Clone(w).(*protoapi.Workload)
+		if req.Overview != nil {
+			filter := req.Overview.GetFindingFilter()
+			groups := c.vulnerabilityGroups(filter, &protoapi.WorkloadSelector{Workloads: []*protoapi.WorkloadRef{ref}})
+			counts := &protoapi.WorkloadFindingCounts{
+				UniqueVulnerabilityCount: int64(len(groups)), SeverityCounts: &protoapi.VulnerabilitySeverityCounts{},
+			}
+			for _, group := range groups {
+				counts.FindingCount += group.FindingCount
+				switch group.Severity {
+				case protoapi.Severity_SEVERITY_CRITICAL:
+					counts.SeverityCounts.Critical++
+				case protoapi.Severity_SEVERITY_HIGH:
+					counts.SeverityCounts.High++
+				case protoapi.Severity_SEVERITY_MEDIUM:
+					counts.SeverityCounts.Medium++
+				case protoapi.Severity_SEVERITY_LOW:
+					counts.SeverityCounts.Low++
+				default:
+					counts.SeverityCounts.Unknown++
+				}
+				if slices.ContainsFunc(c.findings, func(f *protoapi.Finding) bool {
+					return f.VulnerabilityId == group.VulnerabilityId && f.KnownExploited &&
+						v0sMatches(f, filter) && v0sWorkloadSelected(f.Workload, &protoapi.WorkloadSelector{Workloads: []*protoapi.WorkloadRef{ref}})
+				}) {
+					counts.UniqueKevVulnerabilityCount++
+				}
+			}
+			value.FindingCounts = counts
+		}
+		resp.Workloads = append(resp.Workloads, value)
+	}
+	if req.Overview != nil {
+		resp.TotalCount = new(int64(len(resp.Workloads)))
 	}
 	return resp, nil
 }
@@ -72,22 +110,72 @@ func v0sFindingKey(f *protoapi.Finding) string {
 }
 
 func v0sMatches(f *protoapi.Finding, filter *protoapi.FindingFilter) bool {
+	packageType, _, _ := strings.Cut(strings.TrimPrefix(f.PackageKey, "pkg:"), "/")
 	return (filter.Team == "" || filter.Team == f.Workload.Team) &&
 		(filter.Environment == "" || filter.Environment == f.Workload.Environment) &&
 		(filter.Workload == "" || filter.Workload == f.Workload.Name) &&
-		((filter.VulnerabilityId == "" && len(filter.VulnerabilityIds) == 0) ||
-			filter.VulnerabilityId == f.VulnerabilityId || slices.Contains(filter.VulnerabilityIds, f.VulnerabilityId)) &&
+		(len(filter.VulnerabilityIds) == 0 || slices.Contains(filter.VulnerabilityIds, f.VulnerabilityId)) &&
 		(filter.Package == "" || filter.Package == f.Purl || filter.Package == f.PackageKey) &&
+		(filter.PackageType == "" || strings.EqualFold(filter.PackageType, packageType)) &&
 		(len(filter.Severities) == 0 || slices.Contains(filter.Severities, f.Severity)) &&
 		(!filter.HasFix || f.FixedVersion != "") && (!filter.OnlyKnownExploited || f.KnownExploited) &&
 		filter.Suppressed != protoapi.SuppressedFilter_SUPPRESSED_FILTER_ONLY
 }
 
+func v0sWorkloadSelected(w *protoapi.WorkloadRef, selector *protoapi.WorkloadSelector) bool {
+	return selector == nil || slices.ContainsFunc(selector.Workloads, func(selected *protoapi.WorkloadRef) bool {
+		return w.Environment == selected.Environment && w.Team == selected.Team && w.Name == selected.Name
+	})
+}
+
+func v0sCompareFindings(a, b *protoapi.Finding, order *protoapi.FindingOrderBy) int {
+	if order != nil {
+		var compared int
+		switch order.Field {
+		case protoapi.FindingOrderBy_FIELD_SEVERITY:
+			rank := func(f *protoapi.Finding) int {
+				if f.Severity <= protoapi.Severity_SEVERITY_UNKNOWN && order.Direction == protoapi.FindingOrderBy_DIRECTION_ASC {
+					return int(protoapi.Severity_SEVERITY_CRITICAL) + 1
+				}
+				return int(f.Severity)
+			}
+			compared = cmp.Compare(rank(a), rank(b))
+		case protoapi.FindingOrderBy_FIELD_VULNERABILITY_ID:
+			compared = strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
+		}
+		if order.Direction == protoapi.FindingOrderBy_DIRECTION_DESC {
+			compared = -compared
+		}
+		if compared != 0 {
+			return compared
+		}
+		if compared = strings.Compare(a.VulnerabilityId, b.VulnerabilityId); compared != 0 {
+			return compared
+		}
+	}
+	return strings.Compare(v0sFindingKey(a), v0sFindingKey(b))
+}
+
 func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRequest, _ ...grpc.CallOption) (*protoapi.ListFindingsResponse, error) {
 	resp := &protoapi.ListFindingsResponse{}
+	matching := make([]*protoapi.Finding, 0)
+	packageCounts := map[string]int64{}
 	for _, f := range c.findings {
+		if v0sMatches(f, req.Filter) && v0sWorkloadSelected(f.Workload, req.WorkloadSelector) {
+			matching = append(matching, f)
+			packageType, _, _ := strings.Cut(strings.TrimPrefix(f.PackageKey, "pkg:"), "/")
+			packageCounts[packageType]++
+		}
+	}
+	for value, count := range packageCounts {
+		resp.PackageTypeCounts = append(resp.PackageTypeCounts, &protoapi.PackageTypeCount{Value: value, Count: count})
+	}
+	slices.SortFunc(matching, func(a, b *protoapi.Finding) int { return v0sCompareFindings(a, b, req.OrderBy) })
+	started := req.PageToken == ""
+	for _, f := range matching {
 		key := v0sFindingKey(f)
-		if key <= req.PageToken || !v0sMatches(f, req.Filter) {
+		if !started {
+			started = key == req.PageToken
 			continue
 		}
 		if len(resp.Findings) == int(req.PageSize) {
@@ -111,6 +199,139 @@ func (c *v0sClient) CountFindings(_ context.Context, req *protoapi.CountFindings
 	resp := &protoapi.CountFindingsResponse{}
 	for key, count := range counts {
 		resp.Buckets = append(resp.Buckets, &protoapi.CountFindingsResponse_Bucket{Key: key, Count: count})
+	}
+	return resp, nil
+}
+
+func (c *v0sClient) vulnerabilityGroups(filter *protoapi.FindingFilter, selector *protoapi.WorkloadSelector) []*protoapi.VulnerabilitySummary {
+	groups := map[string]*protoapi.VulnerabilitySummary{}
+	workloads := map[string]map[string]bool{}
+	for _, f := range c.findings {
+		if !v0sMatches(f, filter) || !v0sWorkloadSelected(f.Workload, selector) {
+			continue
+		}
+		group := groups[f.VulnerabilityId]
+		if group == nil {
+			group = &protoapi.VulnerabilitySummary{VulnerabilityId: f.VulnerabilityId, Severity: protoapi.Severity_SEVERITY_UNKNOWN}
+			groups[f.VulnerabilityId] = group
+			workloads[f.VulnerabilityId] = map[string]bool{}
+		}
+		group.FindingCount++
+		group.Severity = max(group.Severity, f.Severity)
+		w := f.Workload
+		workloads[f.VulnerabilityId][strings.Join([]string{w.Environment, w.Team, w.Name}, "\x00")] = true
+	}
+	result := make([]*protoapi.VulnerabilitySummary, 0, len(groups))
+	for id, group := range groups {
+		group.AffectedWorkloadCount = int64(len(workloads[id]))
+		result = append(result, group)
+	}
+	return result
+}
+
+func (c *v0sClient) ListVulnerabilities(_ context.Context, req *protoapi.ListVulnerabilitiesRequest, _ ...grpc.CallOption) (*protoapi.ListVulnerabilitiesResponse, error) {
+	groups := c.vulnerabilityGroups(req.Filter, req.WorkloadSelector)
+	order := req.OrderBy
+	if order == nil {
+		order = &protoapi.VulnerabilityOrderBy{Field: protoapi.VulnerabilityOrderBy_FIELD_SEVERITY, Direction: protoapi.VulnerabilityOrderBy_DIRECTION_DESC}
+	}
+	slices.SortFunc(groups, func(a, b *protoapi.VulnerabilitySummary) int {
+		var compared int
+		switch order.Field {
+		case protoapi.VulnerabilityOrderBy_FIELD_VULNERABILITY_ID:
+			compared = strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
+		case protoapi.VulnerabilityOrderBy_FIELD_AFFECTED_WORKLOAD_COUNT:
+			compared = cmp.Compare(a.AffectedWorkloadCount, b.AffectedWorkloadCount)
+		default:
+			if a.Severity == protoapi.Severity_SEVERITY_UNKNOWN && b.Severity != a.Severity {
+				return 1
+			}
+			if b.Severity == protoapi.Severity_SEVERITY_UNKNOWN && a.Severity != b.Severity {
+				return -1
+			}
+			compared = cmp.Compare(a.Severity, b.Severity)
+		}
+		if order.Direction == protoapi.VulnerabilityOrderBy_DIRECTION_DESC {
+			compared = -compared
+		}
+		if compared != 0 {
+			return compared
+		}
+		return strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
+	})
+	resp := &protoapi.ListVulnerabilitiesResponse{TotalCount: int64(len(groups))}
+	started := req.PageToken == ""
+	for _, group := range groups {
+		if !started {
+			started = group.VulnerabilityId == req.PageToken
+			continue
+		}
+		if len(resp.Vulnerabilities) == int(req.PageSize) {
+			resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
+			break
+		}
+		resp.Vulnerabilities = append(resp.Vulnerabilities, group)
+		resp.Cursors = append(resp.Cursors, group.VulnerabilityId)
+	}
+	return resp, nil
+}
+
+func (c *v0sClient) GetSummary(_ context.Context, req *protoapi.GetSummaryRequest, _ ...grpc.CallOption) (*protoapi.GetSummaryResponse, error) {
+	filter := proto.Clone(req.FindingFilter).(*protoapi.FindingFilter)
+	filter.Team, filter.Environment, filter.Workload = req.Team, req.Environment, req.Workload
+	groups := c.vulnerabilityGroups(filter, req.WorkloadSelector)
+	resp := &protoapi.GetSummaryResponse{
+		UniqueVulnerabilityCount: int64(len(groups)), SeverityCounts: &protoapi.VulnerabilitySeverityCounts{},
+		Coverage: &protoapi.WorkloadCoverage{},
+	}
+	for _, group := range groups {
+		resp.FindingCount += group.FindingCount
+		switch group.Severity {
+		case protoapi.Severity_SEVERITY_CRITICAL:
+			resp.SeverityCounts.Critical++
+		case protoapi.Severity_SEVERITY_HIGH:
+			resp.SeverityCounts.High++
+		case protoapi.Severity_SEVERITY_MEDIUM:
+			resp.SeverityCounts.Medium++
+		case protoapi.Severity_SEVERITY_LOW:
+			resp.SeverityCounts.Low++
+		default:
+			resp.SeverityCounts.Unknown++
+		}
+	}
+	affected, kevWorkloads, kevIDs := map[string]bool{}, map[string]bool{}, map[string]bool{}
+	for _, f := range c.findings {
+		if !v0sMatches(f, filter) || !v0sWorkloadSelected(f.Workload, req.WorkloadSelector) {
+			continue
+		}
+		w := f.Workload
+		key := strings.Join([]string{w.Environment, w.Team, w.Name}, "\x00")
+		affected[key] = true
+		if f.KnownExploited {
+			kevWorkloads[key], kevIDs[f.VulnerabilityId] = true, true
+		}
+	}
+	resp.AffectedWorkloadCount, resp.KevAffectedWorkloadCount = int64(len(affected)), int64(len(kevWorkloads))
+	resp.UniqueKevVulnerabilityCount = int64(len(kevIDs))
+	for _, w := range c.workloads {
+		if (req.Team != "" && req.Team != w.Team) || (req.Environment != "" && req.Environment != w.Environment) ||
+			(req.Workload != "" && req.Workload != w.Name) ||
+			!v0sWorkloadSelected(&protoapi.WorkloadRef{Environment: w.Environment, Team: w.Team, Name: w.Name}, req.WorkloadSelector) {
+			continue
+		}
+		resp.Coverage.TotalWorkloadCount++
+		switch {
+		case w.Image == nil:
+			resp.Coverage.UnresolvedImageCount++
+		case w.Image.Status == protoapi.ImageStatus_IMAGE_STATUS_SCANNED:
+			resp.Coverage.ScannedCount++
+		case w.Image.Status == protoapi.ImageStatus_IMAGE_STATUS_NO_SBOM:
+			resp.Coverage.NoSbomCount++
+		case w.Image.Status == protoapi.ImageStatus_IMAGE_STATUS_FAILED:
+			resp.Coverage.FailedCount++
+		default:
+			resp.Coverage.PendingCount++
+		}
 	}
 	return resp, nil
 }

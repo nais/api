@@ -8,7 +8,7 @@ import (
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/slug"
-	protoapi "github.com/nais/v0s-api/v0s/v1"
+	protoapi "github.com/nais/v0s/api/v0s/v1"
 )
 
 func writeManager(ctx context.Context, team slug.Slug) (*Manager, error) {

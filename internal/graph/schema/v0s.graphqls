@@ -5,8 +5,10 @@ extend type Query {
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
-		"Continue after this cursor, using the same filter."
+		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
+		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
 	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
 	vulnerability(
@@ -31,8 +33,10 @@ extend type Team {
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
-		"Continue after this cursor, using the same filter."
+		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
+		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
 	"Current assessments for existing workloads in this team."
 	vulnerabilitySuppressions(
@@ -52,8 +56,10 @@ extend type TeamEnvironment {
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
-		"Continue after this cursor, using the same filter."
+		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
+		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
 	"Current assessments for existing workloads in this team environment."
 	vulnerabilitySuppressions(
@@ -73,11 +79,18 @@ extend interface Workload {
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
-		"Continue after this cursor, using the same filter."
+		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
+		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
+	"Server-aggregated counts for this workload's current image. Missing or outdated scan inventory gives zero known findings and PENDING coverage, not a clean result."
+	vulnerabilityOverview(
+		"Filter findings before counting unique vulnerabilities and selecting their highest known severity."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityWorkloadOverview!
 }
 
 extend type Application {
@@ -87,11 +100,18 @@ extend type Application {
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
-		"Continue after this cursor, using the same filter."
+		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
+		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
+	"Server-aggregated counts for this application's current image. Missing or outdated scan inventory gives zero known findings and PENDING coverage, not a clean result."
+	vulnerabilityOverview(
+		"Filter findings before counting unique vulnerabilities and selecting their highest known severity."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityWorkloadOverview!
 }
 
 extend type Job {
@@ -101,11 +121,18 @@ extend type Job {
 		filter: VulnerabilityFindingFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
-		"Continue after this cursor, using the same filter."
+		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
+		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
 	"Scan coverage of the currently deployed image."
 	vulnerabilityCoverage: VulnerabilityCoverage!
+	"Server-aggregated counts for this job's current image. Missing or outdated scan inventory gives zero known findings and PENDING coverage, not a clean result."
+	vulnerabilityOverview(
+		"Filter findings before counting unique vulnerabilities and selecting their highest known severity."
+		filter: VulnerabilityFindingFilter
+	): VulnerabilityWorkloadOverview!
 }
 
 "Filters applied before finding pagination and aggregation."
@@ -114,6 +141,8 @@ input VulnerabilityFindingFilter {
 	vulnerabilityIdentifiers: [String!]
 	"Match a full package URL, or a version-independent package key."
 	package: String
+	"Match a package ecosystem, such as npm or maven, case-insensitively. Unknown types match no findings."
+	packageType: String
 	"Include only findings with these severities."
 	severities: [VulnerabilitySeverity!]
 	"Include only findings with a known fixed version."
@@ -122,6 +151,22 @@ input VulnerabilityFindingFilter {
 	onlyKnownExploited: Boolean = false
 	"Whether assessed findings are included."
 	suppressed: SuppressedFilter = EXCLUDE
+}
+
+"Server-side ordering of vulnerability findings, with stable identity tie-breakers."
+input VulnerabilityFindingOrder {
+	"The value to sort by."
+	field: VulnerabilityFindingOrderField!
+	"The sort direction."
+	direction: OrderDirection!
+}
+
+"Values available for ordering vulnerability findings."
+enum VulnerabilityFindingOrderField {
+	"Severity: DESC is CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN; ASC reverses known severities. UNKNOWN is always last. Ties use identifier, environment, team, workload and package URL ascending."
+	SEVERITY
+	"Bytewise, case-sensitive identifier ordering. Ties use environment, team, workload and package URL ascending."
+	IDENTIFIER
 }
 
 "How workload assessments affect the finding selection."
@@ -158,11 +203,104 @@ type VulnerabilityFindingConnection {
 	pageInfo: PageInfo!
 	"Counts over the full filtered selection, regardless of pagination."
 	facets: VulnerabilityFindingFacets!
+	"Server-aggregated counts across the full filtered selection, independent of finding pagination and ordering. Coverage includes all workloads in scope, regardless of finding filters."
+	summary: VulnerabilitySelectionSummary!
+	"Unique vulnerabilities across the full filtered workload selection, independent of the finding page and ordering."
+	vulnerabilities(
+		"Get the first n vulnerabilities, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue after this cursor with the same scope, filter and vulnerability ordering."
+		after: Cursor
+		"Order the full vulnerability selection. Defaults to severity descending, with UNKNOWN last and identifier ascending for ties."
+		orderBy: VulnerabilityOverviewOrder
+	): VulnerabilityOverviewConnection!
+}
+
+"Counts across a filtered workload selection. These scoped statistics have no independent identity."
+type VulnerabilitySelectionSummary {
+	"Matching package/vulnerability occurrences, counting shared images once for each workload."
+	findingCount: Int!
+	"Distinct canonical vulnerabilities across the whole selection, not the sum of per-workload unique counts."
+	uniqueVulnerabilityCount: Int!
+	"Distinct workloads with matching findings."
+	affectedWorkloadCount: Int!
+	"Distinct matching vulnerabilities listed in CISA KEV."
+	knownExploitedVulnerabilityCount: Int!
+	"Distinct workloads with at least one matching KEV finding."
+	knownExploitedWorkloadCount: Int!
+	"Unique vulnerabilities at their highest known matching severity across the whole selection. UNKNOWN applies only when all matching findings are UNKNOWN."
+	countsBySeverity: VulnerabilitySeverityCounts!
+	"All current workloads in scope, independent of finding filters. Missing or outdated scan inventory counts as PENDING, not clean."
+	coverage: VulnerabilityCoverageCounts!
+}
+
+"A forward-paginated selection of unique canonical vulnerabilities."
+type VulnerabilityOverviewConnection {
+	"Vulnerability groups and their continuation cursors."
+	edges: [VulnerabilityOverviewEdge!]!
+	"The groups in the same order as edges."
+	nodes: [VulnerabilityOverview!]!
+	"Pagination information. The total counts unique vulnerabilities, not findings or workloads."
+	pageInfo: PageInfo!
+}
+
+"A vulnerability group and its continuation cursor."
+type VulnerabilityOverviewEdge {
+	"The cursor immediately after this group."
+	cursor: Cursor!
+	"The vulnerability group."
+	node: VulnerabilityOverview!
+}
+
+"Counts for one canonical vulnerability in a filtered workload selection."
+type VulnerabilityOverview {
+	"The canonical vulnerability identifier."
+	vulnerabilityIdentifier: String!
+	"Advisory details, if still available."
+	vulnerability: Vulnerability
+	"Highest known severity among matching findings. UNKNOWN only if all matching findings are UNKNOWN."
+	severity: VulnerabilitySeverity!
+	"Matching workload/package occurrences, counting shared images once for each workload."
+	findingCount: Int!
+	"Distinct workloads with matching findings, regardless of how many packages are affected."
+	affectedWorkloadCount: Int!
+}
+
+"Server-side ordering of unique vulnerability groups."
+input VulnerabilityOverviewOrder {
+	"The value to sort by."
+	field: VulnerabilityOverviewOrderField!
+	"The sort direction."
+	direction: OrderDirection!
+}
+
+"Values available for ordering unique vulnerability groups."
+enum VulnerabilityOverviewOrderField {
+	"Severity of the group. UNKNOWN is last in both directions. Ties use identifier ascending."
+	SEVERITY
+	"Bytewise, case-sensitive canonical identifier ordering."
+	IDENTIFIER
+	"Number of distinct affected workloads. Ties use identifier ascending."
+	AFFECTED_WORKLOAD_COUNT
+}
+
+"Counts for one workload's current image after finding filters, with unfiltered scan coverage."
+type VulnerabilityWorkloadOverview {
+	"Matching package/vulnerability occurrences."
+	findingCount: Int!
+	"Distinct canonical vulnerabilities among matching findings."
+	uniqueVulnerabilityCount: Int!
+	"Distinct matching vulnerabilities listed in CISA KEV."
+	knownExploitedVulnerabilityCount: Int!
+	"Unique vulnerabilities grouped at their highest known matching severity. The sum equals uniqueVulnerabilityCount."
+	countsBySeverity: VulnerabilitySeverityCounts!
+	"Coverage of the current image, independent of finding filters. PENDING means zero known findings must not be interpreted as clean."
+	coverage: VulnerabilityCoverage!
 }
 
 "A vulnerability finding and the cursor immediately after it."
 type VulnerabilityFindingEdge {
-	"A cursor for continuing after this finding with the same filter."
+	"A cursor for continuing after this finding with the same filter and ordering."
 	cursor: Cursor!
 	"The vulnerability finding."
 	node: VulnerabilityFinding!
@@ -218,19 +356,21 @@ type VulnerabilityFindingFacets {
 	fixableFindings: Int!
 	"The number of findings whose vulnerability is listed in CISA KEV."
 	knownExploitedFindings: Int!
+	"Finding counts by package ecosystem across the full filtered selection, including any selected package type."
+	packageTypes: [StringFacetItem!]!
 }
 
-"Finding counts grouped by advisory severity."
+"Counts grouped by severity. The containing field specifies whether findings or unique vulnerabilities are counted."
 type VulnerabilitySeverityCounts {
-	"Findings without a recognized severity."
+	"Items without a recognized severity."
 	unknown: Int!
-	"Low-severity findings."
+	"Low-severity items."
 	low: Int!
-	"Medium-severity findings."
+	"Medium-severity items."
 	medium: Int!
-	"High-severity findings."
+	"High-severity items."
 	high: Int!
-	"Critical-severity findings."
+	"Critical-severity items."
 	critical: Int!
 }
 
