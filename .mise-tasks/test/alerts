@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+#MISE description="Test rendered Prometheus alert rules"
+
+set -e
+
+tmpdir=$(mktemp -d)
+trap 'rm -f "$tmpdir/rendered.yaml" "$tmpdir/rules.yaml" "$tmpdir/tests.yaml"; rmdir "$tmpdir"' EXIT
+
+helm template nais-api charts/nais-api \
+	--show-only templates/prometheusrule.yaml \
+	--set alerts.enabled=true > "$tmpdir/rendered.yaml"
+yq -e '.spec' "$tmpdir/rendered.yaml" > "$tmpdir/rules.yaml"
+
+promtool check rules "$tmpdir/rules.yaml"
+
+for testfile in tests/alerts/*.yaml; do
+	printf '\nTesting %s\n' "$testfile"
+	cp "$testfile" "$tmpdir/tests.yaml"
+	promtool test rules "$tmpdir/tests.yaml"
+done

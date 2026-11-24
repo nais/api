@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 #MISE description="Test all code"
+#MISE depends=["test:alerts"]
 #USAGE flag "--coverage" help="Generate a coverage profile"
 
 set -e

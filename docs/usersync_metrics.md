@@ -17,3 +17,16 @@ API sync. Deletion counts are available as metrics but do not trigger an alert.
 The `usersync complete` log includes the API sync outcome, source counts when
 available, and committed create, update and delete counts. Use the admin-only
 GraphQL `userSyncLog` query to identify affected users.
+
+## Testing alert rules locally
+
+```bash
+mise install
+mise run test:alerts
+```
+
+This tests all chart alert rules without a running API or deployment, and also
+runs as part of `mise run test`. The usersync scenarios cover regular successes,
+stalled syncs and recovery, no first success, leader changes, and disappearing
+metrics. See the [alert test guide](../tests/alerts/README.md) for sample notation,
+timing boundaries, and known limitations, including first-rollout behavior.
