@@ -46,6 +46,8 @@ spec:
               value: {{ .Values.kafka.environments | quote }}
             - name: VULNERABILITIES_ENDPOINT
               value: "{{ .Values.v13s.endpoint }}"
+            - name: V0S_ENDPOINT
+              value: {{ .Values.v0s.endpoint | quote }}
             - name: VULNERABILITIES_SERVICE_ACCOUNT
               value: "{{ .Values.serviceaccount.email }}"
             - name: USERSYNC_ENABLED

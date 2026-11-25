@@ -24,6 +24,9 @@ hookd:
 v13s:
   endpoint: "v13s:3001"
 
+v0s:
+  endpoint: "v0s:50051"
+
 serviceaccount:
   email: ""
 

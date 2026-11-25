@@ -86,6 +86,10 @@ The new vulnerability fields read v0s through the public
 v13s queries and mutations keep their existing source and behavior.
 
 Set `V0S_ENDPOINT` to the plaintext gRPC endpoint allowed by v0s's NetworkPolicy.
+The Helm chart sets it from `v0s.endpoint`, defaulting to `v0s:50051`, and allows
+egress to pods labelled `app: v0s` in the same namespace on TCP port 50051.
+Override `v0s.endpoint` with an empty string to disable the new reads for a tenant.
+This does not change the separate v13s endpoint or enable assessment writes.
 The connection is lazy: an unset endpoint or unavailable v0s does not block API
 startup, workload inventory, or legacy vulnerability fields. New fields return
 errors rather than silently falling back to v13s or reporting zero findings.
