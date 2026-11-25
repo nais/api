@@ -91,7 +91,7 @@ func getFindingByIdent(ctx context.Context, id ident.Ident) (*VulnerabilityFindi
 	}
 	var after *pagination.Cursor
 	for {
-		result, err := Findings(ctx, input, filter, new(maxPageSize), after)
+		result, err := Findings(ctx, input, filter, new(maxPageSize), after, nil)
 		if err != nil {
 			return nil, err
 		}

@@ -77,8 +77,12 @@ configuration. Activity log entries use the canonical name.
 
 ## v0s migration
 
+See the [Console migration contract](docs/v0s_console_migration.md) for existing
+support, backend prerequisites, counting semantics and the proposed rollout.
+Proposed additions in that document are not yet implemented.
+
 The new vulnerability fields read v0s through the public
-[v0s gRPC client module](https://github.com/nais/v0s-api). Existing
+[v0s gRPC client module](https://github.com/nais/v0s/tree/main/api). Existing
 v13s queries and mutations keep their existing source and behavior.
 
 Set `V0S_ENDPOINT` to the plaintext gRPC endpoint allowed by v0s's NetworkPolicy.
@@ -87,12 +91,16 @@ startup, workload inventory, or legacy vulnerability fields. New fields return
 errors rather than silently falling back to v13s or reporting zero findings.
 Environment names are the same user-facing names used by `Workloads.ListImages`.
 
-`V0S_SUPPRESSIONS_ENABLED` defaults to false. Keep it false while v13s owns
-assessments and synchronizes them into v0s. Enable only after old user writes are
-frozen, synchronization has caught up, and the sync worker and its retries have
-stopped. The new mutations authorize the whole team's batch and derive the actor
+`V0S_SUPPRESSIONS_ENABLED` defaults to false. Keep it false for the Console
+migration until durable activity-log delivery is implemented and verified.
+Currently the assessment batch commits in v0s before activity-log entries are
+written separately in API, so a log error can follow a successful assessment
+write. The new mutations authorize the whole team's batch and derive the actor
 from the authenticated user. Deletions do not require an active finding.
-Successful sets and deletions are recorded in the team's activity log.
+Existing v13s mutations remain available for legacy clients. Importing old
+assessments, and stopping any external importer before it can overwrite v0s
+assessments, are separate rollout responsibilities; no assessment sync is
+established by configuring this API.
 
 New lists are forward-only (`first` from 1 to 200) and use the standard
 `edges`, `nodes` and `PageInfo` contract. `totalCount` covers the full filtered
@@ -103,16 +111,64 @@ suppressions are available at the root and scoped through `Team` and
 `TeamEnvironment`. Findings are also available on each workload.
 `vulnerabilityFindings.facets` describes the full filtered selection, including
 when filtering by multiple vulnerability identifiers or aliases.
+Use `filter: {packageType: "npm"}` to select an ecosystem (case-insensitive).
+`facets.packageTypes { value count }` returns finding counts for the entire
+filtered selection, including the package-type filter, not only the current page.
+Removed workloads and obsolete deployed images are excluded using an explicit
+backend workload selection.
 Findings, advisories and assessments have global IDs and can be fetched through
 `node`. A finding's ID includes its image digest, so an obsolete-image finding
 is not returned after the workload changes images. Assessments for workloads
 missing from current inventory are not listed or returned by `node`, but are
 not deleted from v0s. The activity log stores assessment details independently.
 
-Keyset cursors wrap v0s's per-item tokens and are scoped to the operation and
-filter. They remain usable when an earlier item disappears, and cannot be used
+Finding `orderBy` accepts `SEVERITY` or `IDENTIFIER` with `ASC` or `DESC`.
+Severity DESC is CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN; ASC reverses the known
+severities, with UNKNOWN still last. Severity ties use identifier ASC, then
+environment/team/workload/package URL ASC. Identifier ordering is bytewise and
+case-sensitive, with environment/team/workload/package URL ASC for ties.
+Omitting `orderBy` preserves environment/team/workload/identifier/package URL ASC.
+For example:
+
+```graphql
+{
+	team(slug: "my-team") {
+		vulnerabilityFindings(
+			first: 20
+			filter: { packageType: "npm" }
+			orderBy: { field: SEVERITY, direction: DESC }
+		) {
+			nodes {
+				vulnerabilityIdentifier
+				severity
+				purl
+			}
+			facets {
+				packageTypes {
+					value
+					count
+				}
+			}
+			pageInfo {
+				hasNextPage
+				endCursor
+				totalCount
+			}
+		}
+	}
+}
+```
+
+Keyset cursors wrap v0s's per-item tokens. Finding cursors are bound to the
+operation, normalized filter, ordering and current workload selection;
+assessment cursors are bound to operation and filter.
+They remain usable when an earlier finding disappears, and cannot be used
 with the old offset-paginated fields. Deploy v0s with per-item cursors and
-multiple-identifier filtering before configuring `V0S_ENDPOINT` for this API.
+the pinned client contract's ordering, package facets and workload selectors
+before configuring `V0S_ENDPOINT` for this API. Existing finding cursors from
+before this integration must be discarded. Restart without a cursor after
+changing filters, ordering or workload selection. Pages are live, not a snapshot
+across calls; changes to sort values can move findings between pages.
 
 `workloads.facets.vulnerabilityCoverage` counts scan statuses across the full
 workload selection. Use `Team.workloads(filter: {vulnerabilityCoverageStatuses:
@@ -120,10 +176,92 @@ workload selection. Use `Team.workloads(filter: {vulnerabilityCoverageStatuses:
 inventory: workloads missing from v0s or associated with an old image are
 pending, not clean. Removed workloads and old-image findings are excluded.
 
-The pinned v0s protobuf schema is in `internal/v0s/protoapi/schema/v0s.proto`.
-`mise run generate:proto` generates the client locally, without depending on the
-v0s scanner module or its Go version. Update the pinned schema and regenerate when
-the upstream contract changes.
+The v0s protobuf client is imported from `github.com/nais/v0s/api`, pinned in
+`go.mod`. Updating the client requires a published upstream contract and a
+compatible deployed backend, not changes to this repository's proto generation.
+Finding identifier filters use `vulnerability_ids` even for a single ID;
+the former singular filter field is reserved in the current contract.
+Unique vulnerability groups are available through
+`vulnerabilityFindings.vulnerabilities(first:, after:, orderBy:)`. They inherit
+the full finding filter and scope, not the parent finding page or ordering.
+The default group order is severity DESC, UNKNOWN last, then identifier ASC.
+Groups also support identifier and affected-workload-count ordering in either
+direction. `pageInfo.totalCount` counts unique vulnerabilities, including on an
+empty continuation page; each row distinguishes `findingCount` from
+`affectedWorkloadCount`. Severity is the highest known severity among matching
+findings, or UNKNOWN if all matching findings are UNKNOWN.
+
+Keep using existing API workload lists and their filters, sorting and pagination.
+Add `nodes { vulnerabilityOverview { ... } }` for counts fetched in request-scoped
+batches from v0s.
+The batch loader uses the simplified `v0.11.0` contract and follows
+`next_page_token`; it does not depend on workload row cursors or custom ordering.
+Each overview contains finding and unique-vulnerability counts,
+unique KEV counts, unique-vulnerability severity buckets, and unfiltered coverage.
+These derived rows have no independent node identity; navigate to the existing
+workload or advisory instead. Missing v0s workloads and obsolete image references
+remain in the API list with PENDING coverage and zero known findings, not a clean
+result. Backend failures return errors, not pending zero-count overviews.
+The overview filter changes counts, not workload-list membership or coverage.
+Workload sorting on v0s finding counts and global affected-only workload selection
+are not integrated; legacy vulnerability sorting still uses v13s.
+Tenant and team summaries are available as `vulnerabilityFindings.summary`,
+including through `Team` and `TeamEnvironment`. They use the full scope and
+finding filter, independently of page size, cursor and ordering. The response
+distinguishes findings, unique vulnerabilities, affected workloads, unique KEV
+vulnerabilities and KEV-affected workloads. Severity buckets count unique
+vulnerabilities at their highest known matching severity across the entire
+selection, not the sum of per-workload counts.
+
+Summary coverage always counts all API workloads in scope, independently of
+finding filters. Missing or outdated v0s workload inventory contributes PENDING
+coverage and no obsolete findings. v0s computes the distinct finding aggregates;
+API only reconciles the coverage denominator with its inventory. If v0s's
+workload total changes between inventory lookup and aggregation, the request
+returns an error and should be retried rather than reporting inconsistent counts.
+Inventory reconciliation and backend aggregation are not a cross-service snapshot.
+
+```graphql
+{
+	vulnerabilityFindings {
+		summary {
+			uniqueVulnerabilityCount
+			affectedWorkloadCount
+			coverage {
+				totalWorkloads
+				scanned
+				pending
+			}
+		}
+	}
+	team(slug: "my-team") {
+		vulnerabilityFindings(filter: { packageType: "npm" }) {
+			summary {
+				findingCount
+				uniqueVulnerabilityCount
+				affectedWorkloadCount
+				knownExploitedVulnerabilityCount
+				knownExploitedWorkloadCount
+				countsBySeverity {
+					critical
+					high
+					medium
+					low
+					unknown
+				}
+				coverage {
+					totalWorkloads
+					scanned
+					pending
+					noSbom
+					failed
+					unresolvedImage
+				}
+			}
+		}
+	}
+}
+```
 
 ## Development practices
 
