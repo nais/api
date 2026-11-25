@@ -319,6 +319,75 @@ func (ec *executionContext) fieldContext_PostgresBackup_sizeBytes(_ context.Cont
 	return graphql.NewScalarFieldContext("PostgresBackup", field, false, false, errors.New("field of type BigInt does not have child fields"))
 }
 
+func (ec *executionContext) _PostgresBackup_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBackup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBackup_majorVersion(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.MajorVersion, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBackup_majorVersion(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBackup", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBackup_diskSize(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBackup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBackup_diskSize(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.DiskSize, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBackup_diskSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBackup", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresBackup_extensions(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBackup) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresBackup_extensions(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Extensions, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []string) graphql.Marshaler {
+			return ec.marshalNString2ᚕstringᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresBackup_extensions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresBackup", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _PostgresBackup_errorMessage(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBackup) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -980,6 +1049,15 @@ func (ec *executionContext) _PostgresBackup(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._PostgresBackup_expiresAt(ctx, field, obj)
 		case "sizeBytes":
 			out.Values[i] = ec._PostgresBackup_sizeBytes(ctx, field, obj)
+		case "majorVersion":
+			out.Values[i] = ec._PostgresBackup_majorVersion(ctx, field, obj)
+		case "diskSize":
+			out.Values[i] = ec._PostgresBackup_diskSize(ctx, field, obj)
+		case "extensions":
+			out.Values[i] = ec._PostgresBackup_extensions(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "errorMessage":
 			out.Values[i] = ec._PostgresBackup_errorMessage(ctx, field, obj)
 		default:

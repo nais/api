@@ -145,7 +145,7 @@ func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
 }
 
 func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
-	teamSlug, environmentName, name, err := parseAccessIdent(id)
+	teamSlug, environmentName, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) 
 }
 
 func GetPostgresAccessByIdent(ctx context.Context, id ident.Ident) (*PostgresAccess, error) {
-	teamSlug, environmentName, name, err := parseAccessIdent(id)
+	teamSlug, environmentName, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}

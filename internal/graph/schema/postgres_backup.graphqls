@@ -38,6 +38,12 @@ type PostgresBackup implements Node {
 	expiresAt: Time
 	"Verified backup size in bytes, if known."
 	sizeBytes: BigInt
+	"PostgreSQL major version recorded from the source database, if known."
+	majorVersion: String
+	"Disk size recorded from the source database, if known."
+	diskSize: String
+	"PostgreSQL extensions recorded from the source database."
+	extensions: [String!]!
 	"User-facing message when the backup fails."
 	errorMessage: String
 }

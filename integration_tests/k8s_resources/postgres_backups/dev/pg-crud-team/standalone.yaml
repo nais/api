@@ -9,6 +9,10 @@ spec:
   retentionDays: 30
 status:
   phase: Completed
+  majorVersion: "17"
+  diskSize: 20Gi
+  extensions:
+    - name: vector
   completedAt: "2026-11-25T10:01:00Z"
   expiresAt: "2026-12-25T10:01:00Z"
   sizeBytes: 5368709120

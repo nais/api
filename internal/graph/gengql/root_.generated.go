@@ -2047,9 +2047,12 @@ type ComplexityRoot struct {
 	PostgresBackup struct {
 		CompletedAt    func(childComplexity int) int
 		CreatedAt      func(childComplexity int) int
+		DiskSize       func(childComplexity int) int
 		ErrorMessage   func(childComplexity int) int
 		ExpiresAt      func(childComplexity int) int
+		Extensions     func(childComplexity int) int
 		ID             func(childComplexity int) int
+		MajorVersion   func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Phase          func(childComplexity int) int
 		RetentionDays  func(childComplexity int) int
@@ -13025,6 +13028,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBackup.CreatedAt(childComplexity), true
 
+	case "PostgresBackup.diskSize":
+		if e.ComplexityRoot.PostgresBackup.DiskSize == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.DiskSize(childComplexity), true
+
 	case "PostgresBackup.errorMessage":
 		if e.ComplexityRoot.PostgresBackup.ErrorMessage == nil {
 			break
@@ -13039,12 +13049,26 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.PostgresBackup.ExpiresAt(childComplexity), true
 
+	case "PostgresBackup.extensions":
+		if e.ComplexityRoot.PostgresBackup.Extensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.Extensions(childComplexity), true
+
 	case "PostgresBackup.id":
 		if e.ComplexityRoot.PostgresBackup.ID == nil {
 			break
 		}
 
 		return e.ComplexityRoot.PostgresBackup.ID(childComplexity), true
+
+	case "PostgresBackup.majorVersion":
+		if e.ComplexityRoot.PostgresBackup.MajorVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.MajorVersion(childComplexity), true
 
 	case "PostgresBackup.name":
 		if e.ComplexityRoot.PostgresBackup.Name == nil {
@@ -32020,6 +32044,12 @@ type PostgresBackup implements Node {
 	expiresAt: Time
 	"Verified backup size in bytes, if known."
 	sizeBytes: BigInt
+	"PostgreSQL major version recorded from the source database, if known."
+	majorVersion: String
+	"Disk size recorded from the source database, if known."
+	diskSize: String
+	"PostgreSQL extensions recorded from the source database."
+	extensions: [String!]!
 	"User-facing message when the backup fails."
 	errorMessage: String
 }
@@ -43852,6 +43882,12 @@ func (ec *executionContext) childFields_PostgresBackup(ctx context.Context, fiel
 		return ec.fieldContext_PostgresBackup_expiresAt(ctx, field)
 	case "sizeBytes":
 		return ec.fieldContext_PostgresBackup_sizeBytes(ctx, field)
+	case "majorVersion":
+		return ec.fieldContext_PostgresBackup_majorVersion(ctx, field)
+	case "diskSize":
+		return ec.fieldContext_PostgresBackup_diskSize(ctx, field)
+	case "extensions":
+		return ec.fieldContext_PostgresBackup_extensions(ctx, field)
 	case "errorMessage":
 		return ec.fieldContext_PostgresBackup_errorMessage(ctx, field)
 	}

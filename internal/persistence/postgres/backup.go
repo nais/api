@@ -40,13 +40,15 @@ type PostgresBackup struct {
 	CreatedAt                             time.Time
 	StartedAt, CompletedAt, ExpiresAt     *time.Time
 	SizeBytes                             *int64
+	MajorVersion, DiskSize                *string
+	Extensions                            []string
 	ErrorMessage                          *string
 }
 
 func (PostgresBackup) IsNode() {}
 
 func (p *PostgresBackup) ID() ident.Ident {
-	return ident.NewIdent(identPostgresBackup, p.TeamSlug.String(), p.EnvironmentName, p.Name)
+	return newPostgresBackupIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
 
 type (
@@ -82,7 +84,7 @@ func postgresBackupClient(ctx context.Context, teamSlug slug.Slug, environment s
 }
 
 func GetPostgresBackupByIdent(ctx context.Context, id ident.Ident) (*PostgresBackup, error) {
-	teamSlug, environment, name, err := parseAccessIdent(id)
+	teamSlug, environment, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +149,7 @@ func toPostgresBackup(u *unstructured.Unstructured, environment string) (*Postgr
 	p := &PostgresBackup{
 		Name: obj.Name, SourcePostgres: obj.Spec.Postgres, TeamSlug: slug.Slug(obj.Namespace), EnvironmentName: environment,
 		CreatedAt: obj.CreationTimestamp.Time, RetentionDays: int(obj.Spec.EffectiveRetentionDays()), Phase: PostgresBackupPhasePreparing,
+		Extensions: []string{},
 	}
 	if s := obj.Status; s != nil {
 		switch s.Phase {
@@ -156,13 +159,46 @@ func toPostgresBackup(u *unstructured.Unstructured, environment string) (*Postgr
 			p.Phase = PostgresBackupPhaseCompleted
 		case naisv1.PostgresBackupPhaseFailed:
 			p.Phase = PostgresBackupPhaseFailed
-			// Controller errors can include internal paths and cloud identities.
-			p.ErrorMessage = new("The backup failed. Contact support if the problem persists.")
+			p.ErrorMessage = backupFailureMessage(s)
 		}
 		p.StartedAt, p.CompletedAt, p.ExpiresAt = backupTime(s.StartedAt), backupTime(s.CompletedAt), backupTime(s.ExpiresAt)
 		p.SizeBytes = s.SizeBytes
+		if s.MajorVersion != "" {
+			p.MajorVersion = new(s.MajorVersion)
+		}
+		if s.DiskSize != nil && !s.DiskSize.IsZero() {
+			p.DiskSize = new(s.DiskSize.String())
+		}
+		if len(s.Extensions) > 0 {
+			p.Extensions = make([]string, 0, len(s.Extensions))
+			for _, ext := range s.Extensions {
+				p.Extensions = append(p.Extensions, ext.Name)
+			}
+		}
 	}
 	return p, nil
+}
+
+// backupFailureMessage maps controller failure reasons without exposing
+// internal bucket names, object paths or cloud identities from worker jobs.
+func backupFailureMessage(s *naisv1.PostgresBackupStatus) *string {
+	var reason string
+	for _, condition := range s.Conditions {
+		if condition.Type == "Ready" {
+			reason = condition.Reason
+			break
+		}
+	}
+	switch {
+	case reason == "DRStorageNotConfigured" || s.ErrorMessage == "disaster-recovery storage is not configured":
+		return new("Standalone backup storage is not configured in this environment.")
+	case reason == "BackupFailed":
+		return new("The database base backup failed. Check that the source database is healthy and try again.")
+	case reason == "CopyFailed":
+		return new("Copying or verifying the standalone backup failed. Contact support if the problem persists.")
+	default:
+		return new("The backup failed. Contact support if the problem persists.")
+	}
 }
 
 func backupTime(t *metav1.Time) *time.Time {

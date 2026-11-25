@@ -8,11 +8,12 @@ Helper.readK8sResources("k8s_resources/postgres_backups")
 Test.gql("A retained backup is visible without its source database", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query [[{ team(slug: "pg-crud-team") { environment(name: "dev") {
-		postgresBackup(name: "retained-backup") { name sourcePostgres phase sizeBytes completedAt expiresAt }
+		postgresBackup(name: "retained-backup") { name sourcePostgres phase majorVersion diskSize extensions sizeBytes completedAt expiresAt }
 		postgresBackups(first: 1, filter: { sourcePostgres: "deleted-source" }) { nodes { name } pageInfo { totalCount } }
 	} } }]]
 	t.check { data = { team = { environment = {
 		postgresBackup = { name = "retained-backup", sourcePostgres = "deleted-source", phase = "COMPLETED",
+			majorVersion = "17", diskSize = "20Gi", extensions = { "vector" },
 			sizeBytes = 5368709120, completedAt = "2026-11-25T10:01:00Z", expiresAt = "2026-12-25T10:01:00Z" },
 		postgresBackups = { nodes = { { name = "retained-backup" } }, pageInfo = { totalCount = 1 } },
 	} } } }
