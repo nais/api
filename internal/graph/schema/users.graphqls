@@ -130,9 +130,14 @@ Filters for the list of users.
 """
 input UserFilter {
 	"""
-	Include users from any of these categories. Omit this field to include all users, even those without a recorded source. An empty list matches no users.
+	Include users from any of these categories. Omit this field to allow any source, including users without a recorded source. An empty list matches no users.
 	"""
 	sources: [UserSource!]
+
+	"""
+	True to include only global admins, false to include only non-admins. Omit this field to include both.
+	"""
+	isAdmin: Boolean
 }
 
 """

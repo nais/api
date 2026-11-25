@@ -29,10 +29,14 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder, 
 	q := db(ctx)
 
 	var sources []string
-	if filter != nil && filter.Sources != nil {
-		sources = make([]string, len(filter.Sources))
-		for i, source := range filter.Sources {
-			sources[i] = string(source)
+	var isAdmin *bool
+	if filter != nil {
+		isAdmin = filter.IsAdmin
+		if filter.Sources != nil {
+			sources = make([]string, len(filter.Sources))
+			for i, source := range filter.Sources {
+				sources[i] = string(source)
+			}
 		}
 	}
 	ret, err := q.List(ctx, usersql.ListParams{
@@ -40,6 +44,7 @@ func List(ctx context.Context, page *pagination.Pagination, orderBy *UserOrder, 
 		Limit:   page.Limit(),
 		OrderBy: orderBy.String(),
 		Sources: sources,
+		IsAdmin: isAdmin,
 	})
 	if err != nil {
 		return nil, err
