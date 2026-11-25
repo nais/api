@@ -1,4 +1,5 @@
-User.new("Tenant user", "tenant@example.com", "tenant", "TENANT")
+local tenant = User.new("Tenant user", "tenant@example.com", "tenant", "TENANT")
+tenant:admin(true)
 local nais = User.new("Nais user", "viewer@example.com", "nais", "NAIS")
 User.new("Unclassified user", "unclassified@nais.io", "unclassified")
 
@@ -16,6 +17,41 @@ Test.gql("expose the recorded user source", function(t)
 			me = { source = "NAIS" },
 			tenant = { source = "TENANT" },
 			unclassified = { source = Null },
+		},
+	}
+end)
+
+Test.gql("filter the users list by global admin status", function(t)
+	t.addHeader("x-user-email", nais:email())
+	t.query [[
+		query {
+			admins: users(first: 1, filter: {isAdmin: true}) {
+				nodes { email isAdmin }
+				pageInfo { totalCount hasNextPage }
+			}
+			nonAdmins: users(filter: {isAdmin: false}) {
+				nodes { email isAdmin }
+				pageInfo { totalCount }
+			}
+			tenantAdmins: users(filter: {sources: [TENANT], isAdmin: true}) { pageInfo { totalCount } }
+			naisAdmins: users(filter: {sources: [NAIS], isAdmin: true}) { pageInfo { totalCount } }
+		}
+	]]
+	t.check {
+		data = {
+			admins = {
+				nodes = { { email = "tenant@example.com", isAdmin = true } },
+				pageInfo = { totalCount = 1, hasNextPage = false },
+			},
+			nonAdmins = {
+				nodes = {
+					{ email = "viewer@example.com",   isAdmin = false },
+					{ email = "unclassified@nais.io", isAdmin = false },
+				},
+				pageInfo = { totalCount = 2 },
+			},
+			tenantAdmins = { pageInfo = { totalCount = 1 } },
+			naisAdmins = { pageInfo = { totalCount = 0 } },
 		},
 	}
 end)

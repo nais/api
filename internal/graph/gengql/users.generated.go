@@ -432,7 +432,7 @@ func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj an
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"sources"}
+	fieldsInOrder := [...]string{"sources", "isAdmin"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -446,6 +446,13 @@ func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj an
 				return it, err
 			}
 			it.Sources = data
+		case "isAdmin":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAdmin"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsAdmin = data
 		}
 	}
 	return it, nil

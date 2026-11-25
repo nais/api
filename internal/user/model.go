@@ -82,6 +82,7 @@ func (e *UserSource) UnmarshalGQL(v any) error {
 
 type UserFilter struct {
 	Sources []UserSource `json:"sources"`
+	IsAdmin *bool        `json:"isAdmin"`
 }
 
 type UserOrder struct {
