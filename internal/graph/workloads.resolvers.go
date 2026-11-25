@@ -6,6 +6,7 @@ import (
 
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/environment"
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
@@ -55,28 +56,40 @@ func (r *environmentResolver) Workloads(ctx context.Context, obj *environment.En
 }
 
 func (r *teamResolver) Workloads(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) (*workload.WorkloadConnection, error) {
+	scope := v0s.Scope{Team: obj.Slug}
+	var vulnerabilityFilter *v0s.VulnerabilityFindingFilter
+	if filter != nil {
+		vulnerabilityFilter = filter.VulnerabilityFilter
+	}
+	if orderBy != nil && orderBy.Field.IsUniqueVulnerabilityOrder() {
+		page, binding, err := v0s.ParseWorkloadPage(scope, filter, vulnerabilityFilter, orderBy, first, after, last, before)
+		if err != nil {
+			return nil, err
+		}
+		filtered := selectTeamWorkloads(ctx, obj.Slug, filter)
+		statuses, err := v0s.SortWorkloads(ctx, filtered, vulnerabilityFilter, orderBy)
+		if err != nil {
+			return nil, err
+		}
+		connection := newWorkloadConnection(scope, filtered, pagination.Slice(filtered, page), page, countWorkloadCoverage(statuses))
+		if err := v0s.BindWorkloadCursors(&connection.Connection, binding); err != nil {
+			return nil, err
+		}
+		return connection, nil
+	}
+	if vulnerabilityFilter != nil {
+		return nil, apierror.Errorf("filter.vulnerabilityFilter requires a VULNERABILITY_UNIQUE workload order field")
+	}
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 
-	apps := application.ListAllForTeam(ctx, obj.Slug, nil, nil)
-	jobs := job.ListAllForTeam(ctx, obj.Slug, nil, nil)
-
-	workloads := make([]workload.Workload, 0, len(apps)+len(jobs))
-	for _, app := range apps {
-		workloads = append(workloads, app)
-	}
-	for _, j := range jobs {
-		workloads = append(workloads, j)
-	}
-
-	filtered := workload.SortFilter.Filter(ctx, workloads, filter)
+	filtered := selectTeamWorkloads(ctx, obj.Slug, filter)
 	filtered, err = filterWorkloadsBySBOMStatus(ctx, filtered, filter)
 	if err != nil {
 		return nil, err
 	}
-	scope := v0s.Scope{Team: obj.Slug}
 	var coverage *workload.VulnerabilityCoverageCounts
 	if filter != nil && len(filter.VulnerabilityCoverageStatuses) > 0 {
 		statuses, err := v0s.WorkloadCoverageStatuses(ctx, scope, filtered)

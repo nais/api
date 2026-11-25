@@ -1,0 +1,7 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: alpha
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/staging/alpha:2

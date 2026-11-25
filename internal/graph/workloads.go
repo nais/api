@@ -41,6 +41,19 @@ func countWorkloadCoverage(statuses []v0s.VulnerabilityCoverageStatus) *workload
 	}
 }
 
+func selectTeamWorkloads(ctx context.Context, team slug.Slug, filter *workload.TeamWorkloadsFilter) []workload.Workload {
+	apps := application.ListAllForTeam(ctx, team, nil, nil)
+	jobs := job.ListAllForTeam(ctx, team, nil, nil)
+	items := make([]workload.Workload, 0, len(apps)+len(jobs))
+	for _, app := range apps {
+		items = append(items, app)
+	}
+	for _, j := range jobs {
+		items = append(items, j)
+	}
+	return workload.SortFilter.Filter(ctx, items, filter)
+}
+
 // tryWorkload attempts to find a workload by name, first as an application, then as a job.
 func tryWorkload(ctx context.Context, teamSlug slug.Slug, environmentName, workloadName string) (workload.Workload, error) {
 	app, _ := application.Get(ctx, teamSlug, environmentName, workloadName)

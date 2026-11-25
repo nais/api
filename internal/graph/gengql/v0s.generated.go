@@ -19,6 +19,7 @@ import (
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
 	"github.com/nais/api/internal/v0s"
+	"github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/workload"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -883,8 +884,8 @@ func (ec *executionContext) _VulnerabilityFinding_severity(ctx context.Context, 
 			return obj.Severity, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v v0s.VulnerabilitySeverity) graphql.Marshaler {
-			return ec.marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverity(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v filter.VulnerabilitySeverity) graphql.Marshaler {
+			return ec.marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverity(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1509,8 +1510,8 @@ func (ec *executionContext) _VulnerabilityOverview_severity(ctx context.Context,
 			return obj.Severity, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v v0s.VulnerabilitySeverity) graphql.Marshaler {
-			return ec.marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverity(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v filter.VulnerabilitySeverity) graphql.Marshaler {
+			return ec.marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverity(ctx, selections, v)
 		},
 		true,
 		true,
@@ -3152,8 +3153,8 @@ func (ec *executionContext) unmarshalInputSetVulnerabilitySuppressionsInput(ctx 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputVulnerabilityFindingFilter(ctx context.Context, obj any) (v0s.VulnerabilityFindingFilter, error) {
-	var it v0s.VulnerabilityFindingFilter
+func (ec *executionContext) unmarshalInputVulnerabilityFindingFilter(ctx context.Context, obj any) (filter.VulnerabilityFindingFilter, error) {
+	var it filter.VulnerabilityFindingFilter
 	if obj == nil {
 		return it, nil
 	}
@@ -3203,7 +3204,7 @@ func (ec *executionContext) unmarshalInputVulnerabilityFindingFilter(ctx context
 			it.PackageType = data
 		case "severities":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("severities"))
-			data, err := ec.unmarshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverityᚄ(ctx, v)
+			data, err := ec.unmarshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverityᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3224,7 +3225,7 @@ func (ec *executionContext) unmarshalInputVulnerabilityFindingFilter(ctx context
 			it.OnlyKnownExploited = data
 		case "suppressed":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("suppressed"))
-			data, err := ec.unmarshalOSuppressedFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐSuppressedFilter(ctx, v)
+			data, err := ec.unmarshalOSuppressedFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐSuppressedFilter(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5248,13 +5249,13 @@ func (ec *executionContext) marshalNVulnerabilitySelectionSummary2ᚖgithubᚗco
 	return ec._VulnerabilitySelectionSummary(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverity(ctx context.Context, v any) (v0s.VulnerabilitySeverity, error) {
-	var res v0s.VulnerabilitySeverity
+func (ec *executionContext) unmarshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverity(ctx context.Context, v any) (filter.VulnerabilitySeverity, error) {
+	var res filter.VulnerabilitySeverity
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverity(ctx context.Context, sel ast.SelectionSet, v v0s.VulnerabilitySeverity) graphql.Marshaler {
+func (ec *executionContext) marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverity(ctx context.Context, sel ast.SelectionSet, v filter.VulnerabilitySeverity) graphql.Marshaler {
 	return v
 }
 
@@ -5408,16 +5409,16 @@ func (ec *executionContext) marshalNVulnerabilityWorkloadOverview2ᚖgithubᚗco
 	return ec._VulnerabilityWorkloadOverview(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOSuppressedFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐSuppressedFilter(ctx context.Context, v any) (*v0s.SuppressedFilter, error) {
+func (ec *executionContext) unmarshalOSuppressedFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐSuppressedFilter(ctx context.Context, v any) (*filter.SuppressedFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
-	var res = new(v0s.SuppressedFilter)
+	var res = new(filter.SuppressedFilter)
 	err := res.UnmarshalGQL(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOSuppressedFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐSuppressedFilter(ctx context.Context, sel ast.SelectionSet, v *v0s.SuppressedFilter) graphql.Marshaler {
+func (ec *executionContext) marshalOSuppressedFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐSuppressedFilter(ctx context.Context, sel ast.SelectionSet, v *filter.SuppressedFilter) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5475,7 +5476,7 @@ func (ec *executionContext) marshalOVulnerabilityEpss2ᚖgithubᚗcomᚋnaisᚋa
 	return ec._VulnerabilityEpss(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingFilter(ctx context.Context, v any) (*v0s.VulnerabilityFindingFilter, error) {
+func (ec *executionContext) unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilityFindingFilter(ctx context.Context, v any) (*filter.VulnerabilityFindingFilter, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5499,17 +5500,17 @@ func (ec *executionContext) unmarshalOVulnerabilityOverviewOrder2ᚖgithubᚗcom
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverityᚄ(ctx context.Context, v any) ([]v0s.VulnerabilitySeverity, error) {
+func (ec *executionContext) unmarshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverityᚄ(ctx context.Context, v any) ([]filter.VulnerabilitySeverity, error) {
 	if v == nil {
 		return nil, nil
 	}
 	var vSlice []any
 	vSlice = graphql.CoerceList(v)
 	var err error
-	res := make([]v0s.VulnerabilitySeverity, len(vSlice))
+	res := make([]filter.VulnerabilitySeverity, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverity(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverity(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -5517,14 +5518,14 @@ func (ec *executionContext) unmarshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋna
 	return res, nil
 }
 
-func (ec *executionContext) marshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverityᚄ(ctx context.Context, sel ast.SelectionSet, v []v0s.VulnerabilitySeverity) graphql.Marshaler {
+func (ec *executionContext) marshalOVulnerabilitySeverity2ᚕgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverityᚄ(ctx context.Context, sel ast.SelectionSet, v []filter.VulnerabilitySeverity) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilitySeverity(ctx, sel, v[i])
+		return ec.marshalNVulnerabilitySeverity2githubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilitySeverity(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {

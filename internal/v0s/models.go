@@ -2,9 +2,7 @@ package v0s
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"slices"
 	"strconv"
 	"time"
 
@@ -12,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	v0sfilter "github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/workload"
 )
 
@@ -21,15 +20,7 @@ type Scope struct {
 	Workload    string
 }
 
-type VulnerabilityFindingFilter struct {
-	VulnerabilityIdentifiers []string
-	Package                  *string
-	PackageType              *string
-	Severities               []VulnerabilitySeverity
-	OnlyWithFix              *bool
-	OnlyKnownExploited       *bool
-	Suppressed               *SuppressedFilter
-}
+type VulnerabilityFindingFilter = v0sfilter.VulnerabilityFindingFilter
 
 type VulnerabilityFindingOrder struct {
 	Field     VulnerabilityFindingOrderField
@@ -243,41 +234,23 @@ type DeleteVulnerabilitySuppressionsPayload struct {
 	Deleted []*VulnerabilitySuppressionSnapshot
 }
 
-type VulnerabilitySeverity string
+type VulnerabilitySeverity = v0sfilter.VulnerabilitySeverity
 
 const (
-	VulnerabilitySeverityUnknown  VulnerabilitySeverity = "UNKNOWN"
-	VulnerabilitySeverityLow      VulnerabilitySeverity = "LOW"
-	VulnerabilitySeverityMedium   VulnerabilitySeverity = "MEDIUM"
-	VulnerabilitySeverityHigh     VulnerabilitySeverity = "HIGH"
-	VulnerabilitySeverityCritical VulnerabilitySeverity = "CRITICAL"
+	VulnerabilitySeverityUnknown  = v0sfilter.VulnerabilitySeverityUnknown
+	VulnerabilitySeverityLow      = v0sfilter.VulnerabilitySeverityLow
+	VulnerabilitySeverityMedium   = v0sfilter.VulnerabilitySeverityMedium
+	VulnerabilitySeverityHigh     = v0sfilter.VulnerabilitySeverityHigh
+	VulnerabilitySeverityCritical = v0sfilter.VulnerabilitySeverityCritical
 )
 
-func (v VulnerabilitySeverity) MarshalGQL(w io.Writer) {
-	_, _ = io.WriteString(w, strconv.Quote(string(v)))
-}
-
-func (v *VulnerabilitySeverity) UnmarshalGQL(value any) error {
-	s, err := enumValue(value, "UNKNOWN", "LOW", "MEDIUM", "HIGH", "CRITICAL")
-	*v = VulnerabilitySeverity(s)
-	return err
-}
-
-type SuppressedFilter string
+type SuppressedFilter = v0sfilter.SuppressedFilter
 
 const (
-	SuppressedFilterExclude SuppressedFilter = "EXCLUDE"
-	SuppressedFilterInclude SuppressedFilter = "INCLUDE"
-	SuppressedFilterOnly    SuppressedFilter = "ONLY"
+	SuppressedFilterExclude = v0sfilter.SuppressedFilterExclude
+	SuppressedFilterInclude = v0sfilter.SuppressedFilterInclude
+	SuppressedFilterOnly    = v0sfilter.SuppressedFilterOnly
 )
-
-func (v SuppressedFilter) MarshalGQL(w io.Writer) { _, _ = io.WriteString(w, strconv.Quote(string(v))) }
-
-func (v *SuppressedFilter) UnmarshalGQL(value any) error {
-	s, err := enumValue(value, "EXCLUDE", "INCLUDE", "ONLY")
-	*v = SuppressedFilter(s)
-	return err
-}
 
 type VulnerabilityCoverageStatus string
 
@@ -318,9 +291,5 @@ func (v *VulnerabilitySuppressionState) UnmarshalGQL(value any) error {
 }
 
 func enumValue(value any, allowed ...string) (string, error) {
-	s, ok := value.(string)
-	if !ok || !slices.Contains(allowed, s) {
-		return "", fmt.Errorf("invalid enum value")
-	}
-	return s, nil
+	return v0sfilter.EnumValue(value, allowed...)
 }

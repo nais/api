@@ -905,13 +905,20 @@ func (ec *executionContext) unmarshalInputTeamWorkloadsFilter(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"environments", "labels", "sbomStatus", "vulnerabilityCoverageStatuses"}
+	fieldsInOrder := [...]string{"vulnerabilityFilter", "environments", "labels", "sbomStatus", "vulnerabilityCoverageStatuses"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "vulnerabilityFilter":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("vulnerabilityFilter"))
+			data, err := ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilityFindingFilter(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VulnerabilityFilter = data
 		case "environments":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
 			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
