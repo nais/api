@@ -61,7 +61,7 @@ func TestAccessSelectionUsesFreshObservedParent(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			ctx = NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
+			ctx = NewLoaderContext(ctx, postgreses, nil, "", "", "nav", mgr.GetDynamicClients())
 			parentGets := 0
 			client.(*dynamicfake.FakeDynamicClient).PrependReactor("get", "postgres", func(k8stesting.Action) (bool, runtime.Object, error) {
 				parentGets++

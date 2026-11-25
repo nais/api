@@ -19,6 +19,8 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/client-go/dynamic"
 )
@@ -51,13 +53,33 @@ func (p *PostgresBackup) ID() ident.Ident {
 	return newPostgresBackupIdent(p.TeamSlug, p.EnvironmentName, p.Name)
 }
 
+func (p *PostgresBackup) GetObjectKind() schema.ObjectKind { return schema.EmptyObjectKind }
+func (p *PostgresBackup) DeepCopyObject() runtime.Object   { return p }
+func (p *PostgresBackup) GetName() string                  { return p.Name }
+func (p *PostgresBackup) GetNamespace() string             { return p.TeamSlug.String() }
+func (p *PostgresBackup) GetLabels() map[string]string     { return nil }
+
 type (
 	PostgresBackupConnection = pagination.Connection[*PostgresBackup]
 	PostgresBackupEdge       = pagination.Edge[*PostgresBackup]
 )
 
 type PostgresBackupFilter struct {
+	Environments   []string
 	SourcePostgres *string
+}
+
+func (f *PostgresBackupFilter) Matches(b *PostgresBackup) bool {
+	if f == nil {
+		return true
+	}
+	if len(f.Environments) > 0 && !slices.Contains(f.Environments, b.EnvironmentName) {
+		return false
+	}
+	if f.SourcePostgres != nil && b.SourcePostgres != *f.SourcePostgres {
+		return false
+	}
+	return true
 }
 
 type CreatePostgresBackupInput struct {
@@ -76,7 +98,7 @@ type DeletePostgresBackupInput struct {
 type DeletePostgresBackupPayload struct{ DeletionRequested bool }
 
 func postgresBackupClient(ctx context.Context, teamSlug slug.Slug, environment string) (dynamic.ResourceInterface, error) {
-	c, err := fromContext(ctx).postgresWatcher.SystemAuthenticatedClient(ctx, environment, watcher.WithImpersonatedClientGVR(naisv1.GroupVersion.WithResource("postgresbackups")))
+	c, err := fromContext(ctx).postgresBackupWatcher.SystemAuthenticatedClient(ctx, environment)
 	if err != nil {
 		return nil, err
 	}
@@ -95,46 +117,17 @@ func GetPostgresBackup(ctx context.Context, teamSlug slug.Slug, environment, nam
 	if err := authz.CanReadPostgresBackups(ctx, teamSlug); err != nil {
 		return nil, err
 	}
-	c, err := postgresBackupClient(ctx, teamSlug, environment)
-	if err != nil {
-		return nil, err
-	}
-	obj, err := c.Get(ctx, name, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-	if obj.GetDeletionTimestamp() != nil {
-		return nil, k8serrors.NewNotFound(naisv1.GroupVersion.WithResource("postgresbackups").GroupResource(), name)
-	}
-	return toPostgresBackup(obj, environment)
+	return fromContext(ctx).postgresBackupWatcher.Get(environment, teamSlug.String(), name)
 }
 
-func ListPostgresBackups(ctx context.Context, teamSlug slug.Slug, environment string, page *pagination.Pagination, filter *PostgresBackupFilter) (*PostgresBackupConnection, error) {
+func ListPostgresBackupsForTeam(ctx context.Context, teamSlug slug.Slug, page *pagination.Pagination, filter *PostgresBackupFilter) (*PostgresBackupConnection, error) {
 	if err := authz.CanReadPostgresBackups(ctx, teamSlug); err != nil {
 		return nil, err
 	}
-	c, err := postgresBackupClient(ctx, teamSlug, environment)
-	if err != nil {
-		return nil, err
-	}
-	list, err := c.List(ctx, metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return postgresBackupConnection(list.Items, environment, page, filter)
-}
-
-func postgresBackupConnection(items []unstructured.Unstructured, environment string, page *pagination.Pagination, filter *PostgresBackupFilter) (*PostgresBackupConnection, error) {
-	backups := make([]*PostgresBackup, 0, len(items))
-	for _, item := range items {
-		if item.GetDeletionTimestamp() != nil {
-			continue
-		}
-		backup, err := toPostgresBackup(&item, environment)
-		if err != nil {
-			return nil, err
-		}
-		if filter == nil || filter.SourcePostgres == nil || backup.SourcePostgres == *filter.SourcePostgres {
+	all := watcher.Objects(fromContext(ctx).postgresBackupWatcher.GetByNamespace(teamSlug.String(), watcher.WithoutDeleted()))
+	backups := make([]*PostgresBackup, 0, len(all))
+	for _, backup := range all {
+		if filter.Matches(backup) {
 			backups = append(backups, backup)
 		}
 	}
@@ -142,7 +135,10 @@ func postgresBackupConnection(items []unstructured.Unstructured, environment str
 		if n := b.CreatedAt.Compare(a.CreatedAt); n != 0 {
 			return n
 		}
-		return cmp.Compare(a.Name, b.Name)
+		if n := cmp.Compare(a.Name, b.Name); n != 0 {
+			return n
+		}
+		return cmp.Compare(a.EnvironmentName, b.EnvironmentName)
 	})
 	return pagination.NewConnection(pagination.Slice(backups, page), page, len(backups)), nil
 }

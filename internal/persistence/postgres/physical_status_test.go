@@ -118,7 +118,7 @@ func TestPostgresAccessCorroboratesFreshPhysicalStatus(t *testing.T) {
 	if !mgr.WaitForReady(ready) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgreses, nil, "", "", "nav", mgr.GetDynamicClients())
 	state, err := readyPostgresState(ctx, "team", "dev", "orders")
 	if err != nil || state != PostgresStateProgressing {
 		t.Fatalf("provisioning = %q, %v", state, err)

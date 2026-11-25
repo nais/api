@@ -42,6 +42,7 @@ type (
 	SqlDatabaseWatcher             = watcher.Watcher[*sqlinstance.SQLDatabase]
 	SqlInstanceWatcher             = watcher.Watcher[*sqlinstance.SQLInstance]
 	PostgresWatcher                = watcher.Watcher[*postgres.Postgres]
+	PostgresBackupWatcher          = watcher.Watcher[*postgres.PostgresBackup]
 	KafkaTopicWatcher              = watcher.Watcher[*kafkatopic.KafkaTopic]
 	PodWatcher                     = watcher.Watcher[*v1.Pod]
 	IngressWatcher                 = watcher.Watcher[*netv1.Ingress]
@@ -69,6 +70,7 @@ type Watchers struct {
 	SqlDatabaseWatcher             *SqlDatabaseWatcher
 	SqlInstanceWatcher             *SqlInstanceWatcher
 	PostgresWatcher                *PostgresWatcher
+	PostgresBackupWatcher          *PostgresBackupWatcher
 	KafkaTopicWatcher              *KafkaTopicWatcher
 	PodWatcher                     *PodWatcher
 	IngressWatcher                 *IngressWatcher
@@ -102,6 +104,7 @@ func SetupWatchers(
 		SqlDatabaseWatcher:             sqlinstance.NewDatabaseWatcher(ctx, watcherMgr),
 		SqlInstanceWatcher:             sqlinstance.NewInstanceWatcher(ctx, watcherMgr),
 		PostgresWatcher:                postgres.NewPostgresWatcher(ctx, watcherMgr),
+		PostgresBackupWatcher:          postgres.NewPostgresBackupWatcher(ctx, watcherMgr),
 		KafkaTopicWatcher:              kafkatopic.NewWatcher(ctx, watcherMgr),
 		PodWatcher:                     workload.NewWatcher(ctx, watcherMgr),
 		IngressWatcher:                 application.NewIngressWatcher(ctx, watcherMgr),

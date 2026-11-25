@@ -16,35 +16,39 @@ const loadersKey ctxKey = iota
 func NewLoaderContext(
 	ctx context.Context,
 	postgresWatcher *watcher.Watcher[*Postgres],
+	postgresBackupWatcher *watcher.Watcher[*PostgresBackup],
 	auditLogProjectID string,
 	auditLogLocation string,
 	tenantName string,
 	clients map[string]dynamic.Interface,
 ) context.Context {
-	return context.WithValue(ctx, loadersKey, newLoaders(postgresWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
+	return context.WithValue(ctx, loadersKey, newLoaders(postgresWatcher, postgresBackupWatcher, auditLogProjectID, auditLogLocation, tenantName, clients))
 }
 
 type loaders struct {
-	postgresWatcher   *watcher.Watcher[*Postgres]
-	auditLogProjectID string
-	auditLogLocation  string
-	tenantName        string
-	clients           map[string]dynamic.Interface
+	postgresWatcher       *watcher.Watcher[*Postgres]
+	postgresBackupWatcher *watcher.Watcher[*PostgresBackup]
+	auditLogProjectID     string
+	auditLogLocation      string
+	tenantName            string
+	clients               map[string]dynamic.Interface
 }
 
 func newLoaders(
 	postgresWatcher *watcher.Watcher[*Postgres],
+	postgresBackupWatcher *watcher.Watcher[*PostgresBackup],
 	auditLogProjectID string,
 	auditLogLocation string,
 	tenantName string,
 	clients map[string]dynamic.Interface,
 ) *loaders {
 	return &loaders{
-		postgresWatcher:   postgresWatcher,
-		auditLogProjectID: auditLogProjectID,
-		auditLogLocation:  auditLogLocation,
-		tenantName:        tenantName,
-		clients:           clients,
+		postgresWatcher:       postgresWatcher,
+		postgresBackupWatcher: postgresBackupWatcher,
+		auditLogProjectID:     auditLogProjectID,
+		auditLogLocation:      auditLogLocation,
+		tenantName:            tenantName,
+		clients:               clients,
 	}
 }
 
@@ -60,6 +64,17 @@ func NewPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watc
 		return ret, err == nil
 	}), watcher.WithGVR(schema.GroupVersionResource{
 		Group: "nais.io", Version: "v1", Resource: "postgres",
+	}))
+	w.Start(ctx)
+	return w
+}
+
+func NewPostgresBackupWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*PostgresBackup] {
+	w := watcher.Watch(mgr, &PostgresBackup{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		ret, err := toPostgresBackup(o, environmentName)
+		return ret, err == nil
+	}), watcher.WithGVR(schema.GroupVersionResource{
+		Group: "nais.io", Version: "v1", Resource: "postgresbackups",
 	}))
 	w.Start(ctx)
 	return w

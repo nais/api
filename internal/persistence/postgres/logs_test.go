@@ -227,5 +227,5 @@ func postgresLogTestContext(t *testing.T) context.Context {
 	if !mgr.WaitForReady(ready) {
 		t.Fatal("watchers did not synchronize")
 	}
-	return NewLoaderContext(ctx, postgreses, "", "", "nav", mgr.GetDynamicClients())
+	return NewLoaderContext(ctx, postgreses, nil, "", "", "nav", mgr.GetDynamicClients())
 }

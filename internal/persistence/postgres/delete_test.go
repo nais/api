@@ -42,7 +42,7 @@ func TestWorkloadUsesMultiplePostgresResources(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("watchers did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	ctx = application.NewLoaderContext(ctx, appWatcher, nil, nil, log)
 	ctx = job.NewLoaderContext(ctx, jobWatcher, nil)
 	team := slug.Slug("postgres-workload-team")
@@ -150,7 +150,7 @@ func TestReadyPostgresUsesObservedCluster(t *testing.T) {
 	if !mgr.WaitForReady(wait) {
 		t.Fatal("Postgres watcher did not synchronize")
 	}
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	team := slug.Slug("someteamname")
 	state, err := readyPostgresState(ctx, team, "dev", "foobar")
 	if err != nil || state != PostgresStateAvailable {
@@ -187,7 +187,7 @@ func TestCreatePostgresAccessRejectsMissingInstance(t *testing.T) {
 		t.Fatal("Postgres watcher did not synchronize")
 	}
 	postgresWatcher := NewPostgresWatcher(ctx, mgr)
-	ctx = NewLoaderContext(ctx, postgresWatcher, "", "", "nav", mgr.GetDynamicClients())
+	ctx = NewLoaderContext(ctx, postgresWatcher, nil, "", "", "nav", mgr.GetDynamicClients())
 	input := CreatePostgresAccessInput{
 		Postgres: "foobar", TeamSlug: slug.Slug("myteam"),
 		EnvironmentName: "dev", AccessLevel: PostgresAccessLevelRead,
