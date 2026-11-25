@@ -26,6 +26,7 @@ v13s:
 
 v0s:
   endpoint: "v0s:50051"
+  suppressionsEnabled: false
 
 serviceaccount:
   email: ""

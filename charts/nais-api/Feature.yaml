@@ -193,6 +193,12 @@ values:
     config:
       type: string
 
+  v0s.suppressionsEnabled:
+    displayName: Write vulnerability assessments to v0s
+    description: Defaults to false. Enable per tenant once its v13s suppressions are migrated to v0s and Console writes through the new mutations.
+    config:
+      type: bool
+
   unleash.enabled:
     displayName: Unleash feature flag
     description: Enable Unleash feature flag
