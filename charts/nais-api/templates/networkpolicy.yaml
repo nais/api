@@ -44,6 +44,13 @@ spec:
     - to:
         - podSelector:
             matchLabels:
+              app: v0s
+      ports:
+        - port: 50051
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
               app.kubernetes.io/name: bifrost
   ingress:
     - from:
