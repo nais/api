@@ -67,7 +67,7 @@ func TestPostgresBackupPublicStatus(t *testing.T) {
 			BaseStatus:   api.BaseStatus{Conditions: []metav1.Condition{{Type: "Ready", Reason: "CopyFailed"}}},
 			Phase:        naisv1.PostgresBackupPhaseFailed,
 			ErrorMessage: "gs://internal-bucket/prefix failed",
-		}, PostgresBackupPhaseFailed, "Copying or verifying the standalone backup failed. Contact support if the problem persists."},
+		}, PostgresBackupPhaseFailed, "Copying or verifying the standalone backup failed. Contact the Nais team if the problem persists."},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			obj, err := kubernetes.ToUnstructured(&naisv1.PostgresBackup{

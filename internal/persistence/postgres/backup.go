@@ -195,9 +195,9 @@ func backupFailureMessage(s *naisv1.PostgresBackupStatus) *string {
 	case reason == "BackupFailed":
 		return new("The database base backup failed. Check that the source database is healthy and try again.")
 	case reason == "CopyFailed":
-		return new("Copying or verifying the standalone backup failed. Contact support if the problem persists.")
+		return new("Copying or verifying the standalone backup failed. Contact the Nais team if the problem persists.")
 	default:
-		return new("The backup failed. Contact support if the problem persists.")
+		return new("The backup failed. Contact the Nais team if the problem persists.")
 	}
 }
 
