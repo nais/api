@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
+	"github.com/nais/api/internal/workload"
 	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"google.golang.org/protobuf/proto"
 )
@@ -94,18 +95,48 @@ func WorkloadOverview(ctx context.Context, input Scope, filter *VulnerabilityFin
 	if err != nil {
 		return nil, err
 	}
-	f, err := findingFilter(scope{}, filter)
+	encoded, err := workloadOverviewFilter(filter)
 	if err != nil {
 		return nil, err
 	}
-	data, err := proto.Marshal(f)
-	if err != nil {
-		return nil, fmt.Errorf("encode v0s workload overview filter: %w", err)
-	}
 	s := input.selection()
 	return l.workloadOverviews.Load(ctx, workloadOverviewKey{
-		workload: workloadKey{s.environment, s.team, s.workload}, filter: string(data),
+		workload: workloadKey{s.environment, s.team, s.workload}, filter: encoded,
 	})
+}
+
+func workloadOverviewFilter(filter *VulnerabilityFindingFilter) (string, error) {
+	f, err := findingFilter(scope{}, filter)
+	if err != nil {
+		return "", err
+	}
+	data, err := proto.Marshal(f)
+	if err != nil {
+		return "", fmt.Errorf("encode v0s workload overview filter: %w", err)
+	}
+	return string(data), nil
+}
+
+func WorkloadOverviews(ctx context.Context, items []workload.Workload, filter *VulnerabilityFindingFilter) ([]*VulnerabilityWorkloadOverview, error) {
+	if err := requireRead(ctx); err != nil {
+		return nil, err
+	}
+	l, err := fromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	encoded, err := workloadOverviewFilter(filter)
+	if err != nil {
+		return nil, err
+	}
+	keys := make([]workloadOverviewKey, len(items))
+	for i, w := range items {
+		keys[i] = workloadOverviewKey{
+			workload: workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()},
+			filter:   encoded,
+		}
+	}
+	return l.workloadOverviews.LoadAll(ctx, keys)
 }
 
 type workloadOverviewKey struct {

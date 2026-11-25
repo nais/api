@@ -14,6 +14,88 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type selectedWorkload struct {
+	workload.Workload
+	name string
+}
+
+func (w selectedWorkload) GetName() string            { return w.name }
+func (w selectedWorkload) GetEnvironmentName() string { return "dev" }
+func (w selectedWorkload) GetTeamSlug() slug.Slug     { return slug.Slug("team-one") }
+
+func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *testing.T) {
+	c := &client{}
+	ctx := c.context(t, "app", "outside", "stale")
+	c.workloads[2].ImageReference = "repo/stale:old"
+	c.list = func(req *protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
+		if refs := req.WorkloadSelector.GetWorkloads(); len(refs) != 1 || refs[0].Name != "app" {
+			t.Errorf("findings did not retain the selected current workloads: %v", req.WorkloadSelector)
+		}
+		return &protoapi.ListFindingsResponse{}
+	}
+	c.summary = func(req *protoapi.GetSummaryRequest) (*protoapi.GetSummaryResponse, error) {
+		if refs := req.WorkloadSelector.GetWorkloads(); len(refs) != 1 || refs[0].Name != "app" {
+			t.Errorf("summary selection differs from findings: %v", req.WorkloadSelector)
+		}
+		if req.FindingFilter.PackageType != "npm" || !req.FindingFilter.HasFix {
+			t.Errorf("summary lost finding predicates: %v", req.FindingFilter)
+		}
+		return &protoapi.GetSummaryResponse{
+			FindingCount: 9, UniqueVulnerabilityCount: 2, AffectedWorkloadCount: 1,
+			SeverityCounts: &protoapi.VulnerabilitySeverityCounts{Critical: 1, High: 1},
+			Coverage:       &protoapi.WorkloadCoverage{TotalWorkloadCount: 1, ScannedCount: 1},
+		}, nil
+	}
+	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")},
+		[]workload.Workload{selectedWorkload{name: "app"}, selectedWorkload{name: "stale"}, selectedWorkload{name: "without-image"}},
+		&v0s.VulnerabilityFindingFilter{PackageType: new("npm"), OnlyWithFix: new(true)}, new(1), nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := page.Summary(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := &v0s.VulnerabilitySelectionSummary{
+		FindingCount: 9, UniqueVulnerabilityCount: 2, AffectedWorkloadCount: 1,
+		CountsBySeverity: &v0s.VulnerabilitySeverityCounts{Critical: 1, High: 1},
+		Coverage:         &workload.VulnerabilityCoverageCounts{TotalWorkloads: 3, Scanned: 1, Pending: 2},
+	}
+	if diff := cmp.Diff(want, got); diff != "" {
+		t.Fatalf("selected summary (-want +got):\n%s", diff)
+	}
+}
+
+func TestSummaryExplicitEmptySelectionIsNotUnrestricted(t *testing.T) {
+	c := &client{}
+	ctx := c.context(t, "app")
+	c.list = func(req *protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
+		if req.WorkloadSelector == nil || len(req.WorkloadSelector.Workloads) != 0 {
+			t.Errorf("empty finding selector became unrestricted: %v", req.WorkloadSelector)
+		}
+		return &protoapi.ListFindingsResponse{}
+	}
+	c.summary = func(req *protoapi.GetSummaryRequest) (*protoapi.GetSummaryResponse, error) {
+		if req.WorkloadSelector == nil || len(req.WorkloadSelector.Workloads) != 0 {
+			t.Errorf("empty summary selector became unrestricted: %v", req.WorkloadSelector)
+		}
+		return &protoapi.GetSummaryResponse{
+			SeverityCounts: &protoapi.VulnerabilitySeverityCounts{}, Coverage: &protoapi.WorkloadCoverage{},
+		}, nil
+	}
+	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")}, nil, nil, new(1), nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := page.Summary(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.FindingCount != 0 || got.Coverage.TotalWorkloads != 0 {
+		t.Fatalf("empty selection counted unselected inventory: %+v", got)
+	}
+}
+
 func TestSummaryUsesServerCountsAndCompleteInventoryCoverage(t *testing.T) {
 	c := &client{list: func(*protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
 		return &protoapi.ListFindingsResponse{}

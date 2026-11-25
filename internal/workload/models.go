@@ -14,6 +14,7 @@ import (
 	"github.com/nais/api/internal/graph/model"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/slug"
+	v0sfilter "github.com/nais/api/internal/v0s/filter"
 	nais_io_v1 "github.com/nais/liberator/pkg/apis/nais.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -221,8 +222,27 @@ type WorkloadOrder struct {
 
 type WorkloadOrderField string
 
+const (
+	WorkloadOrderFieldVulnerabilityUniqueCritical WorkloadOrderField = "VULNERABILITY_UNIQUE_CRITICAL"
+	WorkloadOrderFieldVulnerabilityUniqueHigh     WorkloadOrderField = "VULNERABILITY_UNIQUE_HIGH"
+	WorkloadOrderFieldVulnerabilityUniqueMedium   WorkloadOrderField = "VULNERABILITY_UNIQUE_MEDIUM"
+	WorkloadOrderFieldVulnerabilityUniqueLow      WorkloadOrderField = "VULNERABILITY_UNIQUE_LOW"
+	WorkloadOrderFieldVulnerabilityUniqueUnknown  WorkloadOrderField = "VULNERABILITY_UNIQUE_UNKNOWN"
+)
+
+func (e WorkloadOrderField) IsUniqueVulnerabilityOrder() bool {
+	switch e {
+	case WorkloadOrderFieldVulnerabilityUniqueCritical, WorkloadOrderFieldVulnerabilityUniqueHigh,
+		WorkloadOrderFieldVulnerabilityUniqueMedium, WorkloadOrderFieldVulnerabilityUniqueLow,
+		WorkloadOrderFieldVulnerabilityUniqueUnknown:
+		return true
+	default:
+		return false
+	}
+}
+
 func (e WorkloadOrderField) IsValid() bool {
-	return SortFilter.SupportsSort(e)
+	return e.IsUniqueVulnerabilityOrder() || SortFilter.SupportsSort(e)
 }
 
 func (e WorkloadOrderField) String() string {
@@ -397,12 +417,13 @@ func ReferenceFromOwnerReferences(ownerReferences []metav1.OwnerReference) *Refe
 }
 
 type TeamWorkloadsFilter struct {
-	Environments                  []string             `json:"environments,omitempty"`
-	States                        []string             `json:"states,omitempty"`
-	WorkloadStatusErrorTypes      []string             `json:"workloadStatusErrorTypes,omitempty"`
-	Labels                        []*model.LabelFilter `json:"labels,omitempty"`
-	SbomStatus                    *string              `json:"sbomStatus,omitempty"`
-	VulnerabilityCoverageStatuses []string             `json:"vulnerabilityCoverageStatuses,omitempty"`
+	VulnerabilityFilter           *v0sfilter.VulnerabilityFindingFilter `json:"vulnerabilityFilter,omitempty"`
+	Environments                  []string                              `json:"environments,omitempty"`
+	States                        []string                              `json:"states,omitempty"`
+	WorkloadStatusErrorTypes      []string                              `json:"workloadStatusErrorTypes,omitempty"`
+	Labels                        []*model.LabelFilter                  `json:"labels,omitempty"`
+	SbomStatus                    *string                               `json:"sbomStatus,omitempty"`
+	VulnerabilityCoverageStatuses []string                              `json:"vulnerabilityCoverageStatuses,omitempty"`
 }
 
 type UpdateWorkloadEnvironmentVariableInput struct {

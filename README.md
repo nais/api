@@ -207,8 +207,27 @@ workload or advisory instead. Missing v0s workloads and obsolete image reference
 remain in the API list with PENDING coverage and zero known findings, not a clean
 result. Backend failures return errors, not pending zero-count overviews.
 The overview filter changes counts, not workload-list membership or coverage.
-Workload sorting on v0s finding counts and global affected-only workload selection
-are not integrated; legacy vulnerability sorting still uses v13s.
+`Team.vulnerabilityFindings(workloadFilter:)` shares environment/label selection
+with `Team.workloads(filter:)`, including all matching workloads in coverage.
+Labels retain AND matching, key existence for omitted values, and exact matching
+for explicit empty strings. The new v0s paths reject other workload predicates.
+For v0s sorting, use `VULNERABILITY_UNIQUE_CRITICAL`, `VULNERABILITY_UNIQUE_HIGH`,
+`VULNERABILITY_UNIQUE_MEDIUM`, `VULNERABILITY_UNIQUE_LOW` or
+`VULNERABILITY_UNIQUE_UNKNOWN`. Pass the same `filter.vulnerabilityFilter` to the list
+and `filter` to each row overview. Sorting uses these unique-severity counts,
+not finding counts or v13s statistics.
+On `Team.vulnerabilityFindings`, keep finding predicates in its existing `filter`
+argument; `workloadFilter` accepts only environment/label selection.
+Incomplete scans are first in both directions; scanned workloads then sort by
+count, with name/environment/type ascending as stable ties. API loads selected
+team aggregates in batches before paging, without fetching all findings.
+New-mode cursors bind normalized selection and ordering, keep existing
+forward/backward workload pagination, and are incompatible with legacy cursors.
+Pages are live offsets, not snapshots. See the
+[shared-filter query example](docs/v0s_console_migration.md#additive-graphql-navigation).
+No v0s change or new client release is required.
+Global affected-only workload selection is not integrated; legacy vulnerability
+sorting still uses v13s.
 Tenant and team summaries are available as `vulnerabilityFindings.summary`,
 including through `Team` and `TeamEnvironment`. They use the full scope and
 finding filter, independently of page size, cursor and ordering. The response

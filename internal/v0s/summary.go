@@ -9,18 +9,22 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func selectionSummary(ctx context.Context, l *loaders, s scope, filter *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload) (*VulnerabilitySelectionSummary, error) {
+func selectionSummary(ctx context.Context, l *loaders, s scope, filter *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload, selectedTotal *int64) (*VulnerabilitySelectionSummary, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
-	inventory, err := l.inventory.Load(ctx, struct{}{})
-	if err != nil {
-		return nil, err
-	}
 	var total int64
-	for key := range inventory {
-		if s.matches(key) {
-			total++
+	if selectedTotal != nil {
+		total = *selectedTotal
+	} else {
+		inventory, err := l.inventory.Load(ctx, struct{}{})
+		if err != nil {
+			return nil, err
+		}
+		for key := range inventory {
+			if s.matches(key) {
+				total++
+			}
 		}
 	}
 	f := proto.Clone(filter).(*protoapi.FindingFilter)

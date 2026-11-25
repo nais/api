@@ -139,6 +139,17 @@ func workloadSelector(current map[workloadKey]*protoapi.Workload) *protoapi.Work
 }
 
 func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+	return findings(ctx, input, nil, filter, first, after, orderBy)
+}
+
+func FindingsForWorkloads(ctx context.Context, input Scope, selected []workload.Workload, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+	if selected == nil {
+		selected = []workload.Workload{}
+	}
+	return findings(ctx, input, selected, filter, first, after, orderBy)
+}
+
+func findings(ctx context.Context, input Scope, selected []workload.Workload, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -158,6 +169,23 @@ func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilt
 	current, err := l.currentWorkloads(ctx, s)
 	if err != nil {
 		return nil, err
+	}
+	var selectedTotal *int64
+	if selected != nil {
+		keys := make(map[workloadKey]bool, len(selected))
+		for _, w := range selected {
+			key := workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()}
+			if !s.matches(key) {
+				return nil, apierror.Errorf("Selected workload is outside the vulnerability scope")
+			}
+			keys[key] = true
+		}
+		for key := range current {
+			if !keys[key] {
+				delete(current, key)
+			}
+		}
+		selectedTotal = new(int64(len(keys)))
 	}
 	request := &protoapi.ListFindingsRequest{Filter: f, OrderBy: order, WorkloadSelector: findingWorkloadSelector(current)}
 	data, err := proto.Marshal(request)
@@ -203,7 +231,7 @@ func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilt
 			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, first, after, orderBy)
 		},
 		loadSummary: func(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
-			return selectionSummary(ctx, l, s, f, current)
+			return selectionSummary(ctx, l, s, f, current, selectedTotal)
 		},
 	}
 	for _, edge := range edges {
