@@ -87,7 +87,7 @@ func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.Fi
 	return result, nil
 }
 
-func WorkloadOverview(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter) (*VulnerabilityWorkloadOverview, error) {
+func WorkloadOverview(ctx context.Context, input workload.Workload, filter *VulnerabilityFindingFilter) (*VulnerabilityWorkloadOverview, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -99,10 +99,7 @@ func WorkloadOverview(ctx context.Context, input Scope, filter *VulnerabilityFin
 	if err != nil {
 		return nil, err
 	}
-	s := input.selection()
-	return l.workloadOverviews.Load(ctx, workloadOverviewKey{
-		workload: workloadKey{s.environment, s.team, s.workload}, filter: encoded,
-	})
+	return l.workloadOverviews.Load(ctx, overviewKey(input, encoded))
 }
 
 func workloadOverviewFilter(filter *VulnerabilityFindingFilter) (string, error) {
@@ -131,47 +128,50 @@ func WorkloadOverviews(ctx context.Context, items []workload.Workload, filter *V
 	}
 	keys := make([]workloadOverviewKey, len(items))
 	for i, w := range items {
-		keys[i] = workloadOverviewKey{
-			workload: workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()},
-			filter:   encoded,
-		}
+		keys[i] = overviewKey(w, encoded)
 	}
 	return l.workloadOverviews.LoadAll(ctx, keys)
 }
 
-type workloadOverviewKey struct {
+type workloadIdentity struct {
 	workload workloadKey
-	filter   string
+	kind     workload.Type
+}
+
+type workloadOverviewKey struct {
+	workloadIdentity
+	image, filter string
+}
+
+func overviewKey(w workload.Workload, filter string) workloadOverviewKey {
+	return workloadOverviewKey{
+		workloadIdentity: workloadIdentity{
+			workload: workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()},
+			kind:     w.GetType(),
+		},
+		image: w.GetImageString(), filter: filter,
+	}
 }
 
 func (l *loaders) loadWorkloadOverviews(ctx context.Context, keys []workloadOverviewKey) ([]*VulnerabilityWorkloadOverview, []error) {
 	values := make([]*VulnerabilityWorkloadOverview, len(keys))
 	errs := make([]error, len(keys))
-	inventory, err := l.inventory.Load(ctx, struct{}{})
-	if err != nil {
-		for i := range keys {
-			errs[i] = err
-		}
-		return values, errs
-	}
 	groups := make(map[string][]int)
 	for i, key := range keys {
 		groups[key.filter] = append(groups[key.filter], i)
 	}
 	for filter, indices := range groups {
-		selected := make([]workloadKey, 0, len(indices))
+		selected := make([]workloadOverviewKey, 0, len(indices))
 		for _, i := range indices {
-			if _, exists := inventory[keys[i].workload]; exists {
-				selected = append(selected, keys[i].workload)
-			}
+			selected = append(selected, keys[i])
 		}
-		rows, err := l.fetchWorkloadOverviews(ctx, filter, selected, inventory)
+		rows, err := l.fetchWorkloadOverviews(ctx, filter, selected)
 		for _, i := range indices {
 			if err != nil {
 				errs[i] = err
 				continue
 			}
-			value := rows[keys[i].workload]
+			value := rows[keys[i]]
 			if value == nil {
 				value = &VulnerabilityWorkloadOverview{
 					CountsBySeverity: &VulnerabilitySeverityCounts{},
@@ -184,22 +184,22 @@ func (l *loaders) loadWorkloadOverviews(ctx context.Context, keys []workloadOver
 	return values, errs
 }
 
-func (l *loaders) fetchWorkloadOverviews(ctx context.Context, encodedFilter string, selected []workloadKey, inventory map[workloadKey]string) (map[workloadKey]*VulnerabilityWorkloadOverview, error) {
+func (l *loaders) fetchWorkloadOverviews(ctx context.Context, encodedFilter string, selected []workloadOverviewKey) (map[workloadOverviewKey]*VulnerabilityWorkloadOverview, error) {
 	filter := &protoapi.FindingFilter{}
 	if err := proto.Unmarshal([]byte(encodedFilter), filter); err != nil {
 		return nil, fmt.Errorf("decode v0s workload overview filter: %w", err)
 	}
-	selector := &protoapi.WorkloadSelector{}
+	identities := make(map[workloadKey][]workloadOverviewKey)
+	refs := make(map[workloadKey]*protoapi.Workload)
 	for _, key := range selected {
-		selector.Workloads = append(selector.Workloads, &protoapi.WorkloadRef{
-			Environment: key.environment, Team: key.team, Name: key.name,
-		})
+		identities[key.workload] = append(identities[key.workload], key)
+		refs[key.workload] = nil
 	}
 	req := &protoapi.ListWorkloadsRequest{
-		WorkloadSelector: selector, PageSize: 1000,
+		WorkloadSelector: workloadSelector(refs), PageSize: 1000,
 		Overview: &protoapi.WorkloadOverviewOptions{FindingFilter: filter},
 	}
-	result := make(map[workloadKey]*VulnerabilityWorkloadOverview)
+	result := make(map[workloadOverviewKey]*VulnerabilityWorkloadOverview)
 	for {
 		resp, err := l.manager.Vulnerabilities.ListWorkloads(ctx, req)
 		if err != nil {
@@ -210,8 +210,13 @@ func (l *loaders) fetchWorkloadOverviews(ctx context.Context, encodedFilter stri
 		}
 		for _, w := range resp.GetWorkloads() {
 			key := workloadKey{w.GetEnvironment(), w.GetTeam(), w.GetName()}
-			image, exists := inventory[key]
-			if !exists || image != w.GetImageReference() {
+			matching := make([]workloadOverviewKey, 0, len(identities[key]))
+			for _, identity := range identities[key] {
+				if identity.image != "" && identity.image == w.GetImageReference() {
+					matching = append(matching, identity)
+				}
+			}
+			if len(matching) == 0 {
 				continue
 			}
 			counts := w.GetFindingCounts()
@@ -223,7 +228,7 @@ func (l *loaders) fetchWorkloadOverviews(ctx context.Context, encodedFilter stri
 				return nil, err
 			}
 			severities := counts.GetSeverityCounts()
-			result[key] = &VulnerabilityWorkloadOverview{
+			value := &VulnerabilityWorkloadOverview{
 				FindingCount: counts.GetFindingCount(), UniqueVulnerabilityCount: counts.GetUniqueVulnerabilityCount(),
 				KnownExploitedVulnerabilityCount: counts.GetUniqueKevVulnerabilityCount(),
 				CountsBySeverity: &VulnerabilitySeverityCounts{
@@ -231,6 +236,9 @@ func (l *loaders) fetchWorkloadOverviews(ctx context.Context, encodedFilter stri
 					Low: severities.GetLow(), Unknown: severities.GetUnknown(),
 				},
 				Coverage: scan,
+			}
+			for _, identity := range matching {
+				result[identity] = value
 			}
 		}
 		next := resp.GetNextPageToken()

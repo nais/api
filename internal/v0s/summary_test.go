@@ -16,16 +16,76 @@ import (
 
 type selectedWorkload struct {
 	workload.Workload
-	name string
+	name  string
+	kind  workload.Type
+	image string
 }
 
 func (w selectedWorkload) GetName() string            { return w.name }
 func (w selectedWorkload) GetEnvironmentName() string { return "dev" }
 func (w selectedWorkload) GetTeamSlug() slug.Slug     { return slug.Slug("team-one") }
+func (w selectedWorkload) GetType() workload.Type     { return w.kind }
+func (w selectedWorkload) GetImageString() string {
+	if w.image != "" {
+		return w.image
+	}
+	return "repo/" + w.name + ":1"
+}
+
+func TestSummaryCoverageCountsSameNameWorkloadTypesAndOwnImages(t *testing.T) {
+	for _, scan := range []string{"missing", "scanned", "failed"} {
+		t.Run(scan, func(t *testing.T) {
+			c := &client{list: func(*protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
+				return &protoapi.ListFindingsResponse{}
+			}}
+			ctx := c.context(t, "same")
+			backendCoverage := &protoapi.WorkloadCoverage{}
+			want := &workload.VulnerabilityCoverageCounts{TotalWorkloads: 2, Pending: 1}
+			switch scan {
+			case "missing":
+				c.workloads = nil
+				want.Pending = 2
+			case "scanned":
+				c.workloads[0].ImageReference = "repo/job:2"
+				c.workloads[0].Image.Status = protoapi.ImageStatus_IMAGE_STATUS_SCANNED
+				backendCoverage.TotalWorkloadCount, backendCoverage.ScannedCount = 1, 1
+				want.Scanned = 1
+			case "failed":
+				c.workloads[0].ImageReference = "repo/job:2"
+				c.workloads[0].Image.Status = protoapi.ImageStatus_IMAGE_STATUS_FAILED
+				backendCoverage.TotalWorkloadCount, backendCoverage.FailedCount = 1, 1
+				want.Failed = 1
+			}
+			c.summary = func(req *protoapi.GetSummaryRequest) (*protoapi.GetSummaryResponse, error) {
+				if int64(len(req.WorkloadSelector.GetWorkloads())) != backendCoverage.TotalWorkloadCount {
+					t.Errorf("summary selected the wrong workload image: %v", req.WorkloadSelector)
+				}
+				return &protoapi.GetSummaryResponse{
+					SeverityCounts: &protoapi.VulnerabilitySeverityCounts{}, Coverage: backendCoverage,
+				}, nil
+			}
+			app := selectedWorkload{name: "same", kind: workload.TypeApplication, image: "repo/app:2"}
+			job := selectedWorkload{name: "same", kind: workload.TypeJob, image: "repo/job:2"}
+			page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")},
+				[]workload.Workload{app, job, app}, nil, new(1), nil, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := page.Summary(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(want, got.Coverage); diff != "" {
+				t.Fatalf("coverage (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
 
 func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *testing.T) {
 	c := &client{}
 	ctx := c.context(t, "app", "outside", "stale")
+	c.workloads[0].Image.Status = protoapi.ImageStatus_IMAGE_STATUS_SCANNED
 	c.workloads[2].ImageReference = "repo/stale:old"
 	c.list = func(req *protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
 		if refs := req.WorkloadSelector.GetWorkloads(); len(refs) != 1 || refs[0].Name != "app" {

@@ -75,7 +75,7 @@ func TestWorkloadOverviewBatchPreservesMissingAndStaleWorkloads(t *testing.T) {
 	}
 	keys := make([]workloadOverviewKey, 0, 5)
 	for _, name := range []string{"app", "stale", "fresh", "clean", "unresolved"} {
-		keys = append(keys, workloadOverviewKey{workload: workloadKey{"dev", "team", name}, filter: string(filter)})
+		keys = append(keys, workloadOverviewKey{workloadIdentity: workloadIdentity{workload: workloadKey{"dev", "team", name}}, image: "repo/" + name + ":2", filter: string(filter)})
 	}
 	values, err := l.workloadOverviews.LoadAll(t.Context(), keys)
 	if err != nil {
@@ -135,7 +135,7 @@ func TestWorkloadOverviewDoesNotHideBackendFailures(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			l := overviewLoaders(t, &overviewClient{list: tt.list}, "app")
-			value, err := l.workloadOverviews.Load(t.Context(), workloadOverviewKey{workload: workloadKey{"dev", "team", "app"}})
+			value, err := l.workloadOverviews.Load(t.Context(), workloadOverviewKey{workloadIdentity: workloadIdentity{workload: workloadKey{"dev", "team", "app"}}, image: "repo/app:2"})
 			if err == nil || value != nil {
 				t.Fatalf("backend failure became a successful zero count: %+v, %v", value, err)
 			}
@@ -172,8 +172,8 @@ func TestWorkloadOverviewBatchFollowsContinuationWithoutRowCursors(t *testing.T)
 	}}
 	l := overviewLoaders(t, c, "app", "job")
 	values, err := l.workloadOverviews.LoadAll(t.Context(), []workloadOverviewKey{
-		{workload: workloadKey{"dev", "team", "app"}},
-		{workload: workloadKey{"dev", "team", "job"}},
+		{workloadIdentity: workloadIdentity{workload: workloadKey{"dev", "team", "app"}}, image: "repo/app:2"},
+		{workloadIdentity: workloadIdentity{workload: workloadKey{"dev", "team", "job"}}, image: "repo/job:2"},
 	})
 	if err != nil {
 		t.Fatal(err)

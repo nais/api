@@ -24,14 +24,81 @@ type orderedWorkload struct {
 	workload.Workload
 	name, environment string
 	kind              workload.Type
+	image             string
 }
 
 func (w orderedWorkload) GetName() string            { return w.name }
 func (w orderedWorkload) GetEnvironmentName() string { return w.environment }
 func (w orderedWorkload) GetTeamSlug() slug.Slug     { return slug.Slug("team") }
 func (w orderedWorkload) GetType() workload.Type     { return w.kind }
+func (w orderedWorkload) GetImageString() string {
+	if w.image != "" {
+		return w.image
+	}
+	return "repo/" + w.name + ":2"
+}
 
 type workloadReadActor struct{ authz.AuthenticatedUser }
+
+func TestSameNameWorkloadsUseOwnImagesInSortAndRowCache(t *testing.T) {
+	app := orderedWorkload{name: "same", environment: "dev", kind: workload.TypeApplication, image: "repo/app:2"}
+	job := orderedWorkload{name: "same", environment: "dev", kind: workload.TypeJob, image: "repo/job:2"}
+	calls := 0
+	c := &overviewClient{list: func(req *protoapi.ListWorkloadsRequest) (*protoapi.ListWorkloadsResponse, error) {
+		calls++
+		if len(req.WorkloadSelector.GetWorkloads()) != 1 {
+			t.Errorf("backend selectors must deduplicate names, not API identities: %v", req.WorkloadSelector)
+		}
+		return &protoapi.ListWorkloadsResponse{
+			TotalCount: new(int64(1)),
+			Workloads: []*protoapi.Workload{{
+				Environment: "dev", Team: "team", Name: "same", ImageReference: job.image,
+				Image: &protoapi.Image{Status: protoapi.ImageStatus_IMAGE_STATUS_SCANNED},
+				FindingCounts: &protoapi.WorkloadFindingCounts{
+					FindingCount: 3, UniqueVulnerabilityCount: 1,
+					SeverityCounts: &protoapi.VulnerabilitySeverityCounts{Critical: 1},
+				},
+			}},
+		}, nil
+	}}
+	ctx := authz.ContextWithActor(t.Context(), workloadReadActor{}, nil)
+	ctx = WithManager(ctx, &Manager{Vulnerabilities: c})
+	ctx = NewLoaderContext(ctx, func(context.Context) (*inventoryapi.ListWorkloadImagesResponse, error) {
+		return &inventoryapi.ListWorkloadImagesResponse{}, nil
+	})
+	items := []workload.Workload{job, app}
+	statuses, err := SortWorkloads(ctx, items, nil,
+		&workload.WorkloadOrder{Field: workload.WorkloadOrderFieldVulnerabilityUniqueCritical, Direction: model.OrderDirectionAsc})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if items[0].GetType() != workload.TypeApplication || items[1].GetType() != workload.TypeJob {
+		t.Fatal("same-name application was sorted using the job's scan")
+	}
+	if diff := cmp.Diff([]VulnerabilityCoverageStatus{VulnerabilityCoverageStatusPending, VulnerabilityCoverageStatusScanned}, statuses); diff != "" {
+		t.Fatalf("coverage (-want +got):\n%s", diff)
+	}
+	for i, item := range items {
+		value, err := WorkloadOverview(ctx, item, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if value.Coverage.Status != statuses[i] || value.CountsBySeverity.Critical != int64(i) {
+			t.Fatalf("row inherited another workload's counts or scan: %+v", value)
+		}
+	}
+	if calls != 1 {
+		t.Fatalf("rows did not reuse the sort batch: %d calls", calls)
+	}
+	app.image = job.image
+	value, err := WorkloadOverview(ctx, app, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value.Coverage.Status != VulnerabilityCoverageStatusScanned || calls != 2 {
+		t.Fatal("an updated image reused the obsolete overview cache entry")
+	}
+}
 
 func TestUniqueWorkloadOrderingUsesFilteredCountsAndIncompleteFirst(t *testing.T) {
 	fields := []workload.WorkloadOrderField{
@@ -132,7 +199,7 @@ func TestUniqueWorkloadOrderingUsesFilteredCountsAndIncompleteFirst(t *testing.T
 					if w.GetName() == "same" {
 						got[i] += "/" + w.GetEnvironmentName() + "/" + w.GetType().String()
 					}
-					overview, err := WorkloadOverview(ctx, WorkloadScope(w), &VulnerabilityFindingFilter{PackageType: new("npm"), OnlyWithFix: new(true)})
+					overview, err := WorkloadOverview(ctx, w, &VulnerabilityFindingFilter{PackageType: new("npm"), OnlyWithFix: new(true)})
 					if err != nil {
 						t.Fatal(err)
 					}

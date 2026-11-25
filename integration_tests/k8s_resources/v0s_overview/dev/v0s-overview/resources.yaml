@@ -93,3 +93,19 @@ metadata:
   labels: { group: core, present: "yes" }
 spec:
   image: repo/dev/not-empty:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: collision
+  labels: { group: collision, owner: app }
+spec:
+  image: repo/dev/collision-app:2
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: collision
+  labels: { group: collision, owner: job }
+spec:
+  image: repo/dev/collision-job:2

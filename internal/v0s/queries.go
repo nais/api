@@ -166,26 +166,27 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, fi
 	if err != nil {
 		return nil, err
 	}
-	current, err := l.currentWorkloads(ctx, s)
-	if err != nil {
-		return nil, err
-	}
-	var selectedTotal *int64
+	var current map[workloadKey]*protoapi.Workload
 	if selected != nil {
-		keys := make(map[workloadKey]bool, len(selected))
+		all, err := l.workloads.Load(ctx, scope{team: s.team, environment: s.environment})
+		if err != nil {
+			return nil, err
+		}
+		current = make(map[workloadKey]*protoapi.Workload)
 		for _, w := range selected {
 			key := workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()}
 			if !s.matches(key) {
 				return nil, apierror.Errorf("Selected workload is outside the vulnerability scope")
 			}
-			keys[key] = true
-		}
-		for key := range current {
-			if !keys[key] {
-				delete(current, key)
+			if row := all[key]; row != nil && w.GetImageString() != "" && row.GetImageReference() == w.GetImageString() {
+				current[key] = row
 			}
 		}
-		selectedTotal = new(int64(len(keys)))
+	} else {
+		current, err = l.currentWorkloads(ctx, s)
+		if err != nil {
+			return nil, err
+		}
 	}
 	request := &protoapi.ListFindingsRequest{Filter: f, OrderBy: order, WorkloadSelector: findingWorkloadSelector(current)}
 	data, err := proto.Marshal(request)
@@ -231,7 +232,7 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, fi
 			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, first, after, orderBy)
 		},
 		loadSummary: func(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
-			return selectionSummary(ctx, l, s, f, current, selectedTotal)
+			return selectionSummary(ctx, l, s, f, current, selected)
 		},
 	}
 	for _, edge := range edges {

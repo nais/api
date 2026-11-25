@@ -119,6 +119,11 @@ and pagination. Each workload exposes `vulnerabilityOverview(filter:)`; the
 finding filter changes its counts, not membership in the workload list.
 The request-scoped loader fetches server-aggregated counts in batches for the
 requested workload identities, grouped by effective finding filter.
+API workload identities and overview caches distinguish application from job,
+even when name, team and environment are identical. Each item is reconciled
+against its own deployed image; a backend record for the other item's image
+cannot provide its counts or scan status. Backend selectors remain deduplicated
+by environment/team/name, while summary coverage counts each selected API identity.
 Workloads not yet observed by v0s, or whose deployed image reference has changed,
 remain in the list as PENDING with zero known findings. Those zeroes do not mean
 clean. Backend errors and unsupported overview responses are errors, not pending

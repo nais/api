@@ -9,14 +9,12 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func selectionSummary(ctx context.Context, l *loaders, s scope, filter *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload, selectedTotal *int64) (*VulnerabilitySelectionSummary, error) {
+func selectionSummary(ctx context.Context, l *loaders, s scope, filter *protoapi.FindingFilter, current map[workloadKey]*protoapi.Workload, selected []workload.Workload) (*VulnerabilitySelectionSummary, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
 	var total int64
-	if selectedTotal != nil {
-		total = *selectedTotal
-	} else {
+	if selected == nil {
 		inventory, err := l.inventory.Load(ctx, struct{}{})
 		if err != nil {
 			return nil, err
@@ -44,6 +42,17 @@ func selectionSummary(ctx context.Context, l *loaders, s scope, filter *protoapi
 		c.GetScannedCount()+c.GetPendingCount()+c.GetNoSbomCount()+c.GetFailedCount()+c.GetUnresolvedImageCount() != c.GetTotalWorkloadCount() {
 		return nil, fmt.Errorf("v0s vulnerability summary coverage changed; retry the request")
 	}
+	coverageCounts := &workload.VulnerabilityCoverageCounts{
+		TotalWorkloads: int(total), Scanned: int(c.GetScannedCount()),
+		Pending: int(c.GetPendingCount() + total - c.GetTotalWorkloadCount()),
+		NoSbom:  int(c.GetNoSbomCount()), Failed: int(c.GetFailedCount()), UnresolvedImage: int(c.GetUnresolvedImageCount()),
+	}
+	if selected != nil {
+		coverageCounts, err = selectedWorkloadCoverage(selected, current)
+		if err != nil {
+			return nil, err
+		}
+	}
 	severities := resp.GetSeverityCounts()
 	return &VulnerabilitySelectionSummary{
 		FindingCount: resp.GetFindingCount(), UniqueVulnerabilityCount: resp.GetUniqueVulnerabilityCount(),
@@ -54,10 +63,40 @@ func selectionSummary(ctx context.Context, l *loaders, s scope, filter *protoapi
 			Critical: severities.GetCritical(), High: severities.GetHigh(), Medium: severities.GetMedium(),
 			Low: severities.GetLow(), Unknown: severities.GetUnknown(),
 		},
-		Coverage: &workload.VulnerabilityCoverageCounts{
-			TotalWorkloads: int(total), Scanned: int(c.GetScannedCount()),
-			Pending: int(c.GetPendingCount() + total - c.GetTotalWorkloadCount()),
-			NoSbom:  int(c.GetNoSbomCount()), Failed: int(c.GetFailedCount()), UnresolvedImage: int(c.GetUnresolvedImageCount()),
-		},
+		Coverage: coverageCounts,
 	}, nil
+}
+
+func selectedWorkloadCoverage(selected []workload.Workload, current map[workloadKey]*protoapi.Workload) (*workload.VulnerabilityCoverageCounts, error) {
+	counts := &workload.VulnerabilityCoverageCounts{}
+	seen := make(map[workloadIdentity]bool, len(selected))
+	for _, item := range selected {
+		key := overviewKey(item, "")
+		if seen[key.workloadIdentity] {
+			continue
+		}
+		seen[key.workloadIdentity] = true
+		row := current[key.workload]
+		if key.image == "" || row.GetImageReference() != key.image {
+			row = nil
+		}
+		scan, err := coverage(row)
+		if err != nil {
+			return nil, err
+		}
+		counts.TotalWorkloads++
+		switch scan.Status {
+		case VulnerabilityCoverageStatusScanned:
+			counts.Scanned++
+		case VulnerabilityCoverageStatusNoSbom:
+			counts.NoSbom++
+		case VulnerabilityCoverageStatusFailed:
+			counts.Failed++
+		case VulnerabilityCoverageStatusUnresolvedImage:
+			counts.UnresolvedImage++
+		case VulnerabilityCoverageStatusPending:
+			counts.Pending++
+		}
+	}
+	return counts, nil
 }

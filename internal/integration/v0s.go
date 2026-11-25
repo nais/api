@@ -64,10 +64,13 @@ func (c *v0sClient) addWorkloadOverviewFixtures() {
 	for _, environment := range []string{"dev", "staging"} {
 		names := []string{"alpha"}
 		if environment == "dev" {
-			names = append(names, "zeta", "clean", "failed", "no-sbom", "unresolved", "stale", "other-group", "missing-key", "nonempty", "not-empty")
+			names = append(names, "zeta", "clean", "failed", "no-sbom", "unresolved", "stale", "other-group", "missing-key", "nonempty", "not-empty", "collision")
 		}
 		for _, name := range names {
 			imageName := "repo/" + environment + "/" + name
+			if name == "collision" {
+				imageName += "-job"
+			}
 			w := &protoapi.Workload{
 				Environment: environment, Team: "v0s-overview", Name: name, ImageReference: imageName + ":2",
 				Image: &protoapi.Image{Name: imageName, Digest: "sha256:" + environment + "-" + name, Status: protoapi.ImageStatus_IMAGE_STATUS_SCANNED},

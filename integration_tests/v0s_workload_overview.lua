@@ -174,3 +174,40 @@ Test.gql("New vulnerability selection rejects unsupported workload predicates an
 		path = { "team", "vulnerabilityFindings" }, locations = NotNull(),
 	} } }
 end)
+
+Test.gql("Same-name application and job keep their own images and coverage", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[{
+		team(slug: "v0s-overview") {
+			vulnerabilityFindings(workloadFilter: {environments: ["dev"], labels: [{key: "group", value: "collision"}]}) {
+				summary { findingCount coverage { totalWorkloads scanned pending } }
+			}
+			appOnly: vulnerabilityFindings(workloadFilter: {environments: ["dev"], labels: [{key: "owner", value: "app"}]}) {
+				nodes { vulnerabilityIdentifier }
+				summary { findingCount coverage { totalWorkloads scanned pending } }
+			}
+			workloads(filter: {environments: ["dev"], labels: [{key: "group", value: "collision"}]},
+				orderBy: {field: VULNERABILITY_UNIQUE_CRITICAL, direction: ASC}) {
+				nodes {
+					__typename name
+					vulnerabilityOverview { findingCount countsBySeverity { critical } coverage { status } }
+				}
+				facets { vulnerabilityCoverage { totalWorkloads scanned pending } }
+			}
+		}
+	}]]
+	local coverage = { totalWorkloads = 2, scanned = 1, pending = 1 }
+	t.check { data = { team = {
+		vulnerabilityFindings = { summary = { findingCount = 1, coverage = coverage } },
+		appOnly = { nodes = {}, summary = { findingCount = 0, coverage = { totalWorkloads = 1, scanned = 0, pending = 1 } } },
+		workloads = {
+			nodes = {
+				{ __typename = "Application", name = "collision",
+					vulnerabilityOverview = { findingCount = 0, countsBySeverity = { critical = 0 }, coverage = { status = "PENDING" } } },
+				{ __typename = "Job", name = "collision",
+					vulnerabilityOverview = { findingCount = 1, countsBySeverity = { critical = 1 }, coverage = { status = "SCANNED" } } },
+			},
+			facets = { vulnerabilityCoverage = coverage },
+		},
+	} } }
+end)

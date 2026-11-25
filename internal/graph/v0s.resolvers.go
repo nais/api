@@ -23,7 +23,7 @@ func (r *applicationResolver) VulnerabilityCoverage(ctx context.Context, obj *ap
 }
 
 func (r *applicationResolver) VulnerabilityOverview(ctx context.Context, obj *application.Application, filter *filter.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error) {
-	return v0s.WorkloadOverview(ctx, v0s.WorkloadScope(obj), filter)
+	return v0s.WorkloadOverview(ctx, obj, filter)
 }
 
 func (r *jobResolver) VulnerabilityFindings(ctx context.Context, obj *job.Job, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
@@ -35,7 +35,7 @@ func (r *jobResolver) VulnerabilityCoverage(ctx context.Context, obj *job.Job) (
 }
 
 func (r *jobResolver) VulnerabilityOverview(ctx context.Context, obj *job.Job, filter *filter.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error) {
-	return v0s.WorkloadOverview(ctx, v0s.WorkloadScope(obj), filter)
+	return v0s.WorkloadOverview(ctx, obj, filter)
 }
 
 func (r *mutationResolver) SetVulnerabilitySuppressions(ctx context.Context, input v0s.SetVulnerabilitySuppressionsInput) (*v0s.SetVulnerabilitySuppressionsPayload, error) {
