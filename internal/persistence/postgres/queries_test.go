@@ -609,6 +609,9 @@ func TestUpdateBackupRetentionDays(t *testing.T) {
 			if days := tt.pg.Spec.BackupRetentionDays(); days != tt.wantDays {
 				t.Errorf("retention = %d, want %d", days, tt.wantDays)
 			}
+			if len(tt.want) != 0 && (tt.pg.Spec.PITR == nil || tt.pg.Spec.PITR.WindowDays == nil || *tt.pg.Spec.PITR.WindowDays != tt.wantDays) {
+				t.Errorf("update did not write spec.pitr.windowDays: %+v", tt.pg.Spec.PITR)
+			}
 		})
 	}
 }

@@ -1,0 +1,159 @@
+extend type TeamEnvironment {
+	"Look up a standalone Postgres backup by name."
+	postgresBackup("Name of the backup." name: String!): PostgresBackup!
+	"Standalone Postgres backups, newest first. Available even after their source databases are deleted."
+	postgresBackups(
+		"Get the first n backups."
+		first: Int
+		"Get backups after this cursor."
+		after: Cursor
+		"Get the last n backups."
+		last: Int
+		"Get backups before this cursor."
+		before: Cursor
+		"Filter backups by their source database name."
+		filter: PostgresBackupFilter
+	): PostgresBackupConnection!
+}
+
+"A standalone backup, independent of the source database's point-in-time recovery window."
+type PostgresBackup implements Node {
+	"Opaque identifier for this backup."
+	id: ID!
+	"Name of the backup in its team environment."
+	name: String!
+	"Name of the source database. The database may no longer exist."
+	sourcePostgres: String!
+	"Requested retention in days, measured from completion."
+	retentionDays: Int!
+	"Current phase of the backup."
+	phase: PostgresBackupPhase!
+	"When the backup was requested."
+	createdAt: Time!
+	"When the backup started, if known."
+	startedAt: Time
+	"When the standalone copy was completed, if successful."
+	completedAt: Time
+	"When the backup expires, if known."
+	expiresAt: Time
+	"Verified backup size in bytes, if known."
+	sizeBytes: BigInt
+	"User-facing message when the backup fails."
+	errorMessage: String
+}
+
+"A signed 64-bit integer."
+scalar BigInt
+
+"Lifecycle phase of a standalone Postgres backup."
+enum PostgresBackupPhase {
+	"The backup request is waiting for execution."
+	PREPARING
+	"The backup or its standalone copy is in progress."
+	RUNNING
+	"The standalone backup was copied and verified."
+	COMPLETED
+	"The backup did not complete successfully."
+	FAILED
+}
+
+"Filters for standalone Postgres backups."
+input PostgresBackupFilter {
+	"Only return backups with this source database name."
+	sourcePostgres: String
+}
+
+"A page of standalone Postgres backups."
+type PostgresBackupConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+	"Backups in this page."
+	nodes: [PostgresBackup!]!
+	"Backups alongside their pagination cursors."
+	edges: [PostgresBackupEdge!]!
+}
+
+"A standalone Postgres backup and its pagination cursor."
+type PostgresBackupEdge {
+	"Pagination cursor for this backup."
+	cursor: Cursor!
+	"The backup."
+	node: PostgresBackup!
+}
+
+extend type Mutation {
+	"Request a standalone backup of a Postgres database in a team environment."
+	createPostgresBackup(input: CreatePostgresBackupInput!): CreatePostgresBackupPayload!
+	"Request deletion of a standalone backup. Cleanup is asynchronous."
+	deletePostgresBackup(input: DeletePostgresBackupInput!): DeletePostgresBackupPayload!
+}
+
+"Input for requesting a standalone Postgres backup."
+input CreatePostgresBackupInput {
+	"Name of the new backup."
+	name: String!
+	"Name of the source database in the same team environment."
+	sourcePostgres: String!
+	"Team that owns the database."
+	teamSlug: Slug!
+	"Environment containing the database."
+	environmentName: String!
+	"Retention in days (1–730). Defaults to 30."
+	retentionDays: Int
+}
+
+"Result of requesting a standalone Postgres backup."
+type CreatePostgresBackupPayload {
+	"The requested backup. Its phase indicates whether it is ready."
+	backup: PostgresBackup!
+}
+
+"Identifies the standalone Postgres backup to delete."
+input DeletePostgresBackupInput {
+	"Name of the backup."
+	name: String!
+	"Team that owns the backup."
+	teamSlug: Slug!
+	"Environment containing the backup."
+	environmentName: String!
+}
+
+"Result of requesting deletion of a standalone Postgres backup."
+type DeletePostgresBackupPayload {
+	"Whether deletion has been requested. This does not imply cleanup has completed."
+	deletionRequested: Boolean!
+}
+
+extend enum ActivityLogActivityType {
+	"A standalone Postgres backup was requested."
+	POSTGRES_BACKUP_CREATED
+	"Deletion of a standalone Postgres backup was requested."
+	POSTGRES_BACKUP_DELETION_REQUESTED
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A standalone Postgres backup."
+	POSTGRES_BACKUP
+}
+
+"Activity log entry for a standalone Postgres backup request or deletion request."
+type PostgresBackupActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"Identity of the actor who performed the action."
+	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+	"Creation time of the entry."
+	createdAt: Time!
+	"Summary of the action."
+	message: String!
+	"Type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected backup."
+	resourceName: String!
+	"Team slug that the entry belongs to."
+	teamSlug: Slug!
+	"Environment that the entry belongs to."
+	environmentName: String
+}

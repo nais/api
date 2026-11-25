@@ -672,7 +672,7 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 	if input.BackupRetentionDays != nil {
-		pg.Spec.Backup = &nais_io_v1.PostgresBackupPolicy{RetentionDays: new(int32(*input.BackupRetentionDays))} // #nosec G115 -- validated to 2-30
+		pg.Spec.PITR = &nais_io_v1.PostgresPITRPolicy{WindowDays: new(int32(*input.BackupRetentionDays))} // #nosec G115 -- validated to 2-30
 	}
 
 	obj, err := toUnstructuredWithoutZeroResources(pg)
@@ -947,7 +947,7 @@ func updateBackupRetentionDays(pg *nais_io_v1.Postgres, input UpdatePostgresInpu
 	if old == days {
 		return nil, nil
 	}
-	pg.Spec.Backup = &nais_io_v1.PostgresBackupPolicy{RetentionDays: &days}
+	pg.Spec.PITR = &nais_io_v1.PostgresPITRPolicy{WindowDays: &days}
 	return []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
 		Field:    "backupRetentionDays",
 		OldValue: new(strconv.Itoa(int(old))),

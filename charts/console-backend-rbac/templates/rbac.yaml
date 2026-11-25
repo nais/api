@@ -167,6 +167,15 @@ rules:
       - create
       - delete
   - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresbackups
+    verbs:
+      - get
+      - list
+      - create
+      - delete
+  - apiGroups:
       - postgresql.cnpg.io
     resources:
       - clusters
@@ -357,6 +366,15 @@ rules:
       - postgresaccesses
     verbs:
       - get
+      - create
+      - delete
+  - apiGroups:
+      - "nais.io"
+    resources:
+      - postgresbackups
+    verbs:
+      - get
+      - list
       - create
       - delete
   - apiGroups:

@@ -12,11 +12,13 @@ type identType int
 const (
 	identPostgresAccess identType = iota
 	identPostgres
+	identPostgresBackup
 )
 
 func init() {
 	ident.RegisterIdentType(identPostgresAccess, "PA", GetPostgresAccessByIdent)
 	ident.RegisterIdentType(identPostgres, "PG", GetPostgresByIdent)
+	ident.RegisterIdentType(identPostgresBackup, "PGB", GetPostgresBackupByIdent)
 }
 
 func parseAccessIdent(id ident.Ident) (teamSlug slug.Slug, environmentName, name string, err error) {

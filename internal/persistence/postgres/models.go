@@ -649,7 +649,7 @@ func validateQuantities(verr *validate.ValidationErrors, cpu, memory, diskSize *
 	}
 }
 
-// Mirrors the bounds of spec.backup.retentionDays in the Postgres CRD.
+// Mirrors the bounds of spec.pitr.windowDays in the Postgres CRD.
 const (
 	minBackupRetentionDays = 2
 	maxBackupRetentionDays = 30
