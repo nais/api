@@ -145,7 +145,7 @@ func CountForTeam(ctx context.Context, teamSlug slug.Slug) int {
 }
 
 func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) {
-	teamSlug, environmentName, name, err := parseAccessIdent(id)
+	teamSlug, environmentName, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func GetPostgresByIdent(ctx context.Context, id ident.Ident) (*Postgres, error) 
 }
 
 func GetPostgresAccessByIdent(ctx context.Context, id ident.Ident) (*PostgresAccess, error) {
-	teamSlug, environmentName, name, err := parseAccessIdent(id)
+	teamSlug, environmentName, name, err := parseIdent(id)
 	if err != nil {
 		return nil, err
 	}
@@ -672,7 +672,7 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 	if input.BackupRetentionDays != nil {
-		pg.Spec.Backup = &nais_io_v1.PostgresBackupPolicy{RetentionDays: new(int32(*input.BackupRetentionDays))} // #nosec G115 -- validated to 2-30
+		pg.Spec.PITR = &nais_io_v1.PostgresPITRPolicy{WindowDays: new(int32(*input.BackupRetentionDays))} // #nosec G115 -- validated to 2-30
 	}
 
 	obj, err := toUnstructuredWithoutZeroResources(pg)
@@ -947,7 +947,7 @@ func updateBackupRetentionDays(pg *nais_io_v1.Postgres, input UpdatePostgresInpu
 	if old == days {
 		return nil, nil
 	}
-	pg.Spec.Backup = &nais_io_v1.PostgresBackupPolicy{RetentionDays: &days}
+	pg.Spec.PITR = &nais_io_v1.PostgresPITRPolicy{WindowDays: &days}
 	return []*PostgresUpdatedActivityLogEntryDataUpdatedField{{
 		Field:    "backupRetentionDays",
 		OldValue: new(strconv.Itoa(int(old))),

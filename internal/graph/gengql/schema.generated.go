@@ -92,6 +92,8 @@ type MutationResolver interface {
 	CreatePostgres(ctx context.Context, input postgres.CreatePostgresInput) (*postgres.CreatePostgresPayload, error)
 	UpdatePostgres(ctx context.Context, input postgres.UpdatePostgresInput) (*postgres.UpdatePostgresPayload, error)
 	DeletePostgres(ctx context.Context, input postgres.DeletePostgresInput) (*postgres.DeletePostgresPayload, error)
+	CreatePostgresBackup(ctx context.Context, input postgres.CreatePostgresBackupInput) (*postgres.CreatePostgresBackupPayload, error)
+	DeletePostgresBackup(ctx context.Context, input postgres.DeletePostgresBackupInput) (*postgres.DeletePostgresBackupPayload, error)
 	EnableReconciler(ctx context.Context, input reconciler.EnableReconcilerInput) (*reconciler.Reconciler, error)
 	DisableReconciler(ctx context.Context, input reconciler.DisableReconcilerInput) (*reconciler.Reconciler, error)
 	ConfigureReconciler(ctx context.Context, input reconciler.ConfigureReconcilerInput) (*reconciler.Reconciler, error)
@@ -397,6 +399,20 @@ func (ec *executionContext) field_Mutation_createPostgresAccess_args(ctx context
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_createPostgresBackup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (postgres.CreatePostgresBackupInput, error) {
+			return ec.unmarshalNCreatePostgresBackupInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresBackupInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createPostgres_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -599,6 +615,20 @@ func (ec *executionContext) field_Mutation_deleteOpenSearch_args(ctx context.Con
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
 		func(ctx context.Context, v any) (opensearch.DeleteOpenSearchInput, error) {
 			return ec.unmarshalNDeleteOpenSearchInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋopensearchᚐDeleteOpenSearchInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deletePostgresBackup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (postgres.DeletePostgresBackupInput, error) {
+			return ec.unmarshalNDeletePostgresBackupInput2githubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresBackupInput(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -3195,6 +3225,94 @@ func (ec *executionContext) fieldContext_Mutation_deletePostgres(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deletePostgres_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createPostgresBackup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_createPostgresBackup(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().CreatePostgresBackup(ctx, fc.Args["input"].(postgres.CreatePostgresBackupInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.CreatePostgresBackupPayload) graphql.Marshaler {
+			return ec.marshalNCreatePostgresBackupPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐCreatePostgresBackupPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_createPostgresBackup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_CreatePostgresBackupPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPostgresBackup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deletePostgresBackup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_deletePostgresBackup(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().DeletePostgresBackup(ctx, fc.Args["input"].(postgres.DeletePostgresBackupInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *postgres.DeletePostgresBackupPayload) graphql.Marshaler {
+			return ec.marshalNDeletePostgresBackupPayload2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋpersistenceᚋpostgresᚐDeletePostgresBackupPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_deletePostgresBackup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_DeletePostgresBackupPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deletePostgresBackup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7679,6 +7797,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBackupActivityLogEntry:
+		return ec._PostgresBackupActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBackupActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBackupActivityLogEntry(ctx, sel, obj)
 	case postgres.Postgres:
 		return ec._Postgres(ctx, sel, &obj)
 	case *postgres.Postgres:
@@ -8080,6 +8205,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._ReconcilerError(ctx, sel, obj)
+	case postgres.PostgresBackup:
+		return ec._PostgresBackup(ctx, sel, &obj)
+	case *postgres.PostgresBackup:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBackup(ctx, sel, obj)
 	case postgres.PostgresAccess:
 		return ec._PostgresAccess(ctx, sel, &obj)
 	case *postgres.PostgresAccess:
@@ -8446,6 +8578,20 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deletePostgres":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deletePostgres(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createPostgresBackup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPostgresBackup(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deletePostgresBackup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deletePostgresBackup(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

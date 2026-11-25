@@ -336,6 +336,18 @@ func CanDeletePostgres(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "postgres:delete")
 }
 
+func CanReadPostgresBackups(ctx context.Context, teamSlug slug.Slug) error {
+	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:backups:read")
+}
+
+func CanCreatePostgresBackup(ctx context.Context, teamSlug slug.Slug) error {
+	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:backups:create")
+}
+
+func CanDeletePostgresBackup(ctx context.Context, teamSlug slug.Slug) error {
+	return requireStrictTeamAuthorization(ctx, teamSlug, "postgres:backups:delete")
+}
+
 func CanCreateKafkaCredentials(ctx context.Context, teamSlug slug.Slug) error {
 	return requireTeamAuthorization(ctx, teamSlug, "kafka:credentials:create")
 }

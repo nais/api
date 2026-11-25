@@ -926,6 +926,13 @@ func (ec *executionContext) _ActivityLogEntry(ctx context.Context, sel ast.Selec
 			return graphql.Null
 		}
 		return ec._PostgresCreatedActivityLogEntry(ctx, sel, obj)
+	case postgres.PostgresBackupActivityLogEntry:
+		return ec._PostgresBackupActivityLogEntry(ctx, sel, &obj)
+	case *postgres.PostgresBackupActivityLogEntry:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._PostgresBackupActivityLogEntry(ctx, sel, obj)
 	case opensearch.OpenSearchUpdatedActivityLogEntry:
 		return ec._OpenSearchUpdatedActivityLogEntry(ctx, sel, &obj)
 	case *opensearch.OpenSearchUpdatedActivityLogEntry:

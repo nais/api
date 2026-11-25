@@ -791,6 +791,10 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 	}
 
+	CreatePostgresBackupPayload struct {
+		Backup func(childComplexity int) int
+	}
+
 	CreatePostgresPayload struct {
 		Postgres func(childComplexity int) int
 	}
@@ -859,6 +863,10 @@ type ComplexityRoot struct {
 
 	DeleteOpenSearchPayload struct {
 		OpenSearchDeleted func(childComplexity int) int
+	}
+
+	DeletePostgresBackupPayload struct {
+		DeletionRequested func(childComplexity int) int
 	}
 
 	DeletePostgresPayload struct {
@@ -1716,6 +1724,7 @@ type ComplexityRoot struct {
 		CreateOpenSearchCredentials      func(childComplexity int, input opensearch.CreateOpenSearchCredentialsInput) int
 		CreatePostgres                   func(childComplexity int, input postgres.CreatePostgresInput) int
 		CreatePostgresAccess             func(childComplexity int, input postgres.CreatePostgresAccessInput) int
+		CreatePostgresBackup             func(childComplexity int, input postgres.CreatePostgresBackupInput) int
 		CreateSecret                     func(childComplexity int, input secret.CreateSecretInput) int
 		CreateServiceAccount             func(childComplexity int, input serviceaccount.CreateServiceAccountInput) int
 		CreateServiceAccountToken        func(childComplexity int, input serviceaccount.CreateServiceAccountTokenInput) int
@@ -1731,6 +1740,7 @@ type ComplexityRoot struct {
 		DeleteJobRun                     func(childComplexity int, input job.DeleteJobRunInput) int
 		DeleteOpenSearch                 func(childComplexity int, input opensearch.DeleteOpenSearchInput) int
 		DeletePostgres                   func(childComplexity int, input postgres.DeletePostgresInput) int
+		DeletePostgresBackup             func(childComplexity int, input postgres.DeletePostgresBackupInput) int
 		DeleteSecret                     func(childComplexity int, input secret.DeleteSecretInput) int
 		DeleteServiceAccount             func(childComplexity int, input serviceaccount.DeleteServiceAccountInput) int
 		DeleteServiceAccountToken        func(childComplexity int, input serviceaccount.DeleteServiceAccountTokenInput) int
@@ -2033,6 +2043,46 @@ type ComplexityRoot struct {
 		RelayToken    func(childComplexity int) int
 		ServerName    func(childComplexity int) int
 		Username      func(childComplexity int) int
+	}
+
+	PostgresBackup struct {
+		CompletedAt    func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		DiskSize       func(childComplexity int) int
+		ErrorMessage   func(childComplexity int) int
+		ExpiresAt      func(childComplexity int) int
+		Extensions     func(childComplexity int) int
+		ID             func(childComplexity int) int
+		MajorVersion   func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Phase          func(childComplexity int) int
+		RetentionDays  func(childComplexity int) int
+		SizeBytes      func(childComplexity int) int
+		SourcePostgres func(childComplexity int) int
+		StartedAt      func(childComplexity int) int
+	}
+
+	PostgresBackupActivityLogEntry struct {
+		Actor             func(childComplexity int) int
+		CreatedAt         func(childComplexity int) int
+		EnvironmentName   func(childComplexity int) int
+		GitHubActorClaims func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Message           func(childComplexity int) int
+		ResourceName      func(childComplexity int) int
+		ResourceType      func(childComplexity int) int
+		TeamSlug          func(childComplexity int) int
+	}
+
+	PostgresBackupConnection struct {
+		Edges    func(childComplexity int) int
+		Nodes    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	PostgresBackupEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	PostgresConfiguration struct {
@@ -3248,6 +3298,8 @@ type ComplexityRoot struct {
 		OpenSearch                func(childComplexity int, name string) int
 		Postgres                  func(childComplexity int, name string) int
 		PostgresAccess            func(childComplexity int, name string) int
+		PostgresBackup            func(childComplexity int, name string) int
+		PostgresBackups           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresBackupFilter) int
 		SQLInstance               func(childComplexity int, name string) int
 		Secret                    func(childComplexity int, name string) int
 		SlackAlertsChannel        func(childComplexity int) int
@@ -7162,6 +7214,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.CreatePostgresAccessPayload.Name(childComplexity), true
 
+	case "CreatePostgresBackupPayload.backup":
+		if e.ComplexityRoot.CreatePostgresBackupPayload.Backup == nil {
+			break
+		}
+
+		return e.ComplexityRoot.CreatePostgresBackupPayload.Backup(childComplexity), true
+
 	case "CreatePostgresPayload.postgres":
 		if e.ComplexityRoot.CreatePostgresPayload.Postgres == nil {
 			break
@@ -7315,6 +7374,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.DeleteOpenSearchPayload.OpenSearchDeleted(childComplexity), true
+
+	case "DeletePostgresBackupPayload.deletionRequested":
+		if e.ComplexityRoot.DeletePostgresBackupPayload.DeletionRequested == nil {
+			break
+		}
+
+		return e.ComplexityRoot.DeletePostgresBackupPayload.DeletionRequested(childComplexity), true
 
 	case "DeletePostgresPayload.deletionRequested":
 		if e.ComplexityRoot.DeletePostgresPayload.DeletionRequested == nil {
@@ -11032,6 +11098,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Mutation.CreatePostgresAccess(childComplexity, args["input"].(postgres.CreatePostgresAccessInput)), true
 
+	case "Mutation.createPostgresBackup":
+		if e.ComplexityRoot.Mutation.CreatePostgresBackup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPostgresBackup_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.CreatePostgresBackup(childComplexity, args["input"].(postgres.CreatePostgresBackupInput)), true
+
 	case "Mutation.createSecret":
 		if e.ComplexityRoot.Mutation.CreateSecret == nil {
 			break
@@ -11211,6 +11289,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.DeletePostgres(childComplexity, args["input"].(postgres.DeletePostgresInput)), true
+
+	case "Mutation.deletePostgresBackup":
+		if e.ComplexityRoot.Mutation.DeletePostgresBackup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePostgresBackup_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.DeletePostgresBackup(childComplexity, args["input"].(postgres.DeletePostgresBackupInput)), true
 
 	case "Mutation.deleteSecret":
 		if e.ComplexityRoot.Mutation.DeleteSecret == nil {
@@ -12924,6 +13014,202 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresAccessConnectionDetails.Username(childComplexity), true
+
+	case "PostgresBackup.completedAt":
+		if e.ComplexityRoot.PostgresBackup.CompletedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.CompletedAt(childComplexity), true
+
+	case "PostgresBackup.createdAt":
+		if e.ComplexityRoot.PostgresBackup.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.CreatedAt(childComplexity), true
+
+	case "PostgresBackup.diskSize":
+		if e.ComplexityRoot.PostgresBackup.DiskSize == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.DiskSize(childComplexity), true
+
+	case "PostgresBackup.errorMessage":
+		if e.ComplexityRoot.PostgresBackup.ErrorMessage == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.ErrorMessage(childComplexity), true
+
+	case "PostgresBackup.expiresAt":
+		if e.ComplexityRoot.PostgresBackup.ExpiresAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.ExpiresAt(childComplexity), true
+
+	case "PostgresBackup.extensions":
+		if e.ComplexityRoot.PostgresBackup.Extensions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.Extensions(childComplexity), true
+
+	case "PostgresBackup.id":
+		if e.ComplexityRoot.PostgresBackup.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.ID(childComplexity), true
+
+	case "PostgresBackup.majorVersion":
+		if e.ComplexityRoot.PostgresBackup.MajorVersion == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.MajorVersion(childComplexity), true
+
+	case "PostgresBackup.name":
+		if e.ComplexityRoot.PostgresBackup.Name == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.Name(childComplexity), true
+
+	case "PostgresBackup.phase":
+		if e.ComplexityRoot.PostgresBackup.Phase == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.Phase(childComplexity), true
+
+	case "PostgresBackup.retentionDays":
+		if e.ComplexityRoot.PostgresBackup.RetentionDays == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.RetentionDays(childComplexity), true
+
+	case "PostgresBackup.sizeBytes":
+		if e.ComplexityRoot.PostgresBackup.SizeBytes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.SizeBytes(childComplexity), true
+
+	case "PostgresBackup.sourcePostgres":
+		if e.ComplexityRoot.PostgresBackup.SourcePostgres == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.SourcePostgres(childComplexity), true
+
+	case "PostgresBackup.startedAt":
+		if e.ComplexityRoot.PostgresBackup.StartedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackup.StartedAt(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.actor":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.Actor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.Actor(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.createdAt":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.CreatedAt == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.CreatedAt(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.environmentName":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.EnvironmentName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.EnvironmentName(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.gitHubActorClaims":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.GitHubActorClaims == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.GitHubActorClaims(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.id":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.ID == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.ID(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.message":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.Message == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.Message(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.resourceName":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.ResourceName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.ResourceName(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.resourceType":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.ResourceType == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.ResourceType(childComplexity), true
+
+	case "PostgresBackupActivityLogEntry.teamSlug":
+		if e.ComplexityRoot.PostgresBackupActivityLogEntry.TeamSlug == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupActivityLogEntry.TeamSlug(childComplexity), true
+
+	case "PostgresBackupConnection.edges":
+		if e.ComplexityRoot.PostgresBackupConnection.Edges == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupConnection.Edges(childComplexity), true
+
+	case "PostgresBackupConnection.nodes":
+		if e.ComplexityRoot.PostgresBackupConnection.Nodes == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupConnection.Nodes(childComplexity), true
+
+	case "PostgresBackupConnection.pageInfo":
+		if e.ComplexityRoot.PostgresBackupConnection.PageInfo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupConnection.PageInfo(childComplexity), true
+
+	case "PostgresBackupEdge.cursor":
+		if e.ComplexityRoot.PostgresBackupEdge.Cursor == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupEdge.Cursor(childComplexity), true
+
+	case "PostgresBackupEdge.node":
+		if e.ComplexityRoot.PostgresBackupEdge.Node == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresBackupEdge.Node(childComplexity), true
 
 	case "PostgresConfiguration.parameters":
 		if e.ComplexityRoot.PostgresConfiguration.Parameters == nil {
@@ -18663,6 +18949,30 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.TeamEnvironment.PostgresAccess(childComplexity, args["name"].(string)), true
 
+	case "TeamEnvironment.postgresBackup":
+		if e.ComplexityRoot.TeamEnvironment.PostgresBackup == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_postgresBackup_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.PostgresBackup(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.postgresBackups":
+		if e.ComplexityRoot.TeamEnvironment.PostgresBackups == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_postgresBackups_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.PostgresBackups(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["filter"].(*postgres.PostgresBackupFilter)), true
+
 	case "TeamEnvironment.sqlInstance":
 		if e.ComplexityRoot.TeamEnvironment.SQLInstance == nil {
 			break
@@ -24092,6 +24402,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateOpenSearchCredentialsInput,
 		ec.unmarshalInputCreateOpenSearchInput,
 		ec.unmarshalInputCreatePostgresAccessInput,
+		ec.unmarshalInputCreatePostgresBackupInput,
 		ec.unmarshalInputCreatePostgresInput,
 		ec.unmarshalInputCreateSecretInput,
 		ec.unmarshalInputCreateServiceAccountInput,
@@ -24107,6 +24418,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteJobInput,
 		ec.unmarshalInputDeleteJobRunInput,
 		ec.unmarshalInputDeleteOpenSearchInput,
+		ec.unmarshalInputDeletePostgresBackupInput,
 		ec.unmarshalInputDeletePostgresInput,
 		ec.unmarshalInputDeleteSecretInput,
 		ec.unmarshalInputDeleteServiceAccountInput,
@@ -24141,6 +24453,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOpenSearchAccessOrder,
 		ec.unmarshalInputOpenSearchFilter,
 		ec.unmarshalInputOpenSearchOrder,
+		ec.unmarshalInputPostgresBackupFilter,
 		ec.unmarshalInputPostgresRecoveryInput,
 		ec.unmarshalInputReconcilerConfigInput,
 		ec.unmarshalInputRemoveConfigValueInput,
@@ -31690,6 +32003,169 @@ input UpdatePostgresInput {
 type UpdatePostgresPayload {
 	"The Postgres that was updated."
 	postgres: Postgres!
+}
+`, BuiltIn: false},
+	{Name: "../schema/postgres_backup.graphqls", Input: `extend type TeamEnvironment {
+	"Look up a standalone Postgres backup by name."
+	postgresBackup("Name of the backup." name: String!): PostgresBackup!
+	"Standalone Postgres backups, newest first. Available even after their source databases are deleted."
+	postgresBackups(
+		"Get the first n backups."
+		first: Int
+		"Get backups after this cursor."
+		after: Cursor
+		"Get the last n backups."
+		last: Int
+		"Get backups before this cursor."
+		before: Cursor
+		"Filter backups by their source database name."
+		filter: PostgresBackupFilter
+	): PostgresBackupConnection!
+}
+
+"A standalone backup, independent of the source database's point-in-time recovery window."
+type PostgresBackup implements Node {
+	"Opaque identifier for this backup."
+	id: ID!
+	"Name of the backup in its team environment."
+	name: String!
+	"Name of the source database. The database may no longer exist."
+	sourcePostgres: String!
+	"Requested retention in days, measured from completion."
+	retentionDays: Int!
+	"Current phase of the backup."
+	phase: PostgresBackupPhase!
+	"When the backup was requested."
+	createdAt: Time!
+	"When the backup started, if known."
+	startedAt: Time
+	"When the standalone copy was completed, if successful."
+	completedAt: Time
+	"When the backup expires, if known."
+	expiresAt: Time
+	"Verified backup size in bytes, if known."
+	sizeBytes: Int
+	"PostgreSQL major version recorded from the source database, if known."
+	majorVersion: String
+	"Disk size recorded from the source database, if known."
+	diskSize: String
+	"PostgreSQL extensions recorded from the source database."
+	extensions: [String!]!
+	"User-facing message when the backup fails."
+	errorMessage: String
+}
+
+"Lifecycle phase of a standalone Postgres backup."
+enum PostgresBackupPhase {
+	"The backup request is waiting for execution."
+	PREPARING
+	"The backup or its standalone copy is in progress."
+	RUNNING
+	"The standalone backup was copied and verified."
+	COMPLETED
+	"The backup did not complete successfully."
+	FAILED
+}
+
+"Filters for standalone Postgres backups."
+input PostgresBackupFilter {
+	"Only return backups with this source database name."
+	sourcePostgres: String
+}
+
+"A page of standalone Postgres backups."
+type PostgresBackupConnection {
+	"Pagination information."
+	pageInfo: PageInfo!
+	"Backups in this page."
+	nodes: [PostgresBackup!]!
+	"Backups alongside their pagination cursors."
+	edges: [PostgresBackupEdge!]!
+}
+
+"A standalone Postgres backup and its pagination cursor."
+type PostgresBackupEdge {
+	"Pagination cursor for this backup."
+	cursor: Cursor!
+	"The backup."
+	node: PostgresBackup!
+}
+
+extend type Mutation {
+	"Request a standalone backup of a Postgres database in a team environment."
+	createPostgresBackup(input: CreatePostgresBackupInput!): CreatePostgresBackupPayload!
+	"Request deletion of a standalone backup. Cleanup is asynchronous."
+	deletePostgresBackup(input: DeletePostgresBackupInput!): DeletePostgresBackupPayload!
+}
+
+"Input for requesting a standalone Postgres backup."
+input CreatePostgresBackupInput {
+	"Name of the new backup."
+	name: String!
+	"Name of the source database in the same team environment."
+	sourcePostgres: String!
+	"Team that owns the database."
+	teamSlug: Slug!
+	"Environment containing the database."
+	environmentName: String!
+	"Retention in days (1–730). Defaults to 30."
+	retentionDays: Int
+}
+
+"Result of requesting a standalone Postgres backup."
+type CreatePostgresBackupPayload {
+	"The requested backup. Its phase indicates whether it is ready."
+	backup: PostgresBackup!
+}
+
+"Identifies the standalone Postgres backup to delete."
+input DeletePostgresBackupInput {
+	"Name of the backup."
+	name: String!
+	"Team that owns the backup."
+	teamSlug: Slug!
+	"Environment containing the backup."
+	environmentName: String!
+}
+
+"Result of requesting deletion of a standalone Postgres backup."
+type DeletePostgresBackupPayload {
+	"Whether deletion has been requested. This does not imply cleanup has completed."
+	deletionRequested: Boolean!
+}
+
+extend enum ActivityLogActivityType {
+	"A standalone Postgres backup was requested."
+	POSTGRES_BACKUP_CREATED
+	"Deletion of a standalone Postgres backup was requested."
+	POSTGRES_BACKUP_DELETION_REQUESTED
+}
+
+extend enum ActivityLogEntryResourceType {
+	"A standalone Postgres backup."
+	POSTGRES_BACKUP
+}
+
+"Activity log entry for a standalone Postgres backup request or deletion request."
+type PostgresBackupActivityLogEntry implements ActivityLogEntry & Node {
+	"ID of the entry."
+	id: ID!
+	"Identity of the actor who performed the action."
+	actor: String!
+	"GitHub Actions OIDC claims when authenticated by a GitHub repository."
+	gitHubActorClaims: GitHubActorClaims
+	"Creation time of the entry."
+	createdAt: Time!
+	"Summary of the action."
+	message: String!
+	"Type of resource affected."
+	resourceType: ActivityLogEntryResourceType!
+	"Name of the affected backup."
+	resourceName: String!
+	"Team slug that the entry belongs to."
+	teamSlug: Slug!
+	"Environment that the entry belongs to."
+	environmentName: String
 }
 `, BuiltIn: false},
 	{Name: "../schema/price.graphqls", Input: `extend type Query {
@@ -41618,6 +42094,14 @@ func (ec *executionContext) childFields_CreatePostgresAccessPayload(ctx context.
 	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresAccessPayload", field.Name)
 }
 
+func (ec *executionContext) childFields_CreatePostgresBackupPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "backup":
+		return ec.fieldContext_CreatePostgresBackupPayload_backup(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type CreatePostgresBackupPayload", field.Name)
+}
+
 func (ec *executionContext) childFields_CreatePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "postgres":
@@ -41756,6 +42240,14 @@ func (ec *executionContext) childFields_DeleteOpenSearchPayload(ctx context.Cont
 		return ec.fieldContext_DeleteOpenSearchPayload_openSearchDeleted(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type DeleteOpenSearchPayload", field.Name)
+}
+
+func (ec *executionContext) childFields_DeletePostgresBackupPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "deletionRequested":
+		return ec.fieldContext_DeletePostgresBackupPayload_deletionRequested(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type DeletePostgresBackupPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_DeletePostgresPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -43386,6 +43878,62 @@ func (ec *executionContext) childFields_PostgresAccessConnectionDetails(ctx cont
 	return nil, fmt.Errorf("no field named %q was found under type PostgresAccessConnectionDetails", field.Name)
 }
 
+func (ec *executionContext) childFields_PostgresBackup(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "id":
+		return ec.fieldContext_PostgresBackup_id(ctx, field)
+	case "name":
+		return ec.fieldContext_PostgresBackup_name(ctx, field)
+	case "sourcePostgres":
+		return ec.fieldContext_PostgresBackup_sourcePostgres(ctx, field)
+	case "retentionDays":
+		return ec.fieldContext_PostgresBackup_retentionDays(ctx, field)
+	case "phase":
+		return ec.fieldContext_PostgresBackup_phase(ctx, field)
+	case "createdAt":
+		return ec.fieldContext_PostgresBackup_createdAt(ctx, field)
+	case "startedAt":
+		return ec.fieldContext_PostgresBackup_startedAt(ctx, field)
+	case "completedAt":
+		return ec.fieldContext_PostgresBackup_completedAt(ctx, field)
+	case "expiresAt":
+		return ec.fieldContext_PostgresBackup_expiresAt(ctx, field)
+	case "sizeBytes":
+		return ec.fieldContext_PostgresBackup_sizeBytes(ctx, field)
+	case "majorVersion":
+		return ec.fieldContext_PostgresBackup_majorVersion(ctx, field)
+	case "diskSize":
+		return ec.fieldContext_PostgresBackup_diskSize(ctx, field)
+	case "extensions":
+		return ec.fieldContext_PostgresBackup_extensions(ctx, field)
+	case "errorMessage":
+		return ec.fieldContext_PostgresBackup_errorMessage(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBackup", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBackupConnection(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "pageInfo":
+		return ec.fieldContext_PostgresBackupConnection_pageInfo(ctx, field)
+	case "nodes":
+		return ec.fieldContext_PostgresBackupConnection_nodes(ctx, field)
+	case "edges":
+		return ec.fieldContext_PostgresBackupConnection_edges(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBackupConnection", field.Name)
+}
+
+func (ec *executionContext) childFields_PostgresBackupEdge(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "cursor":
+		return ec.fieldContext_PostgresBackupEdge_cursor(ctx, field)
+	case "node":
+		return ec.fieldContext_PostgresBackupEdge_node(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type PostgresBackupEdge", field.Name)
+}
+
 func (ec *executionContext) childFields_PostgresConfiguration(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "parameters":
@@ -44794,6 +45342,10 @@ func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, fie
 		return ec.fieldContext_TeamEnvironment_postgres(ctx, field)
 	case "postgresAccess":
 		return ec.fieldContext_TeamEnvironment_postgresAccess(ctx, field)
+	case "postgresBackup":
+		return ec.fieldContext_TeamEnvironment_postgresBackup(ctx, field)
+	case "postgresBackups":
+		return ec.fieldContext_TeamEnvironment_postgresBackups(ctx, field)
 	case "secret":
 		return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 	case "sqlInstance":
