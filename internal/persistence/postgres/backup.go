@@ -103,6 +103,9 @@ func GetPostgresBackup(ctx context.Context, teamSlug slug.Slug, environment, nam
 	if err != nil {
 		return nil, err
 	}
+	if obj.GetDeletionTimestamp() != nil {
+		return nil, k8serrors.NewNotFound(naisv1.GroupVersion.WithResource("postgresbackups").GroupResource(), name)
+	}
 	return toPostgresBackup(obj, environment)
 }
 
@@ -124,6 +127,9 @@ func ListPostgresBackups(ctx context.Context, teamSlug slug.Slug, environment st
 func postgresBackupConnection(items []unstructured.Unstructured, environment string, page *pagination.Pagination, filter *PostgresBackupFilter) (*PostgresBackupConnection, error) {
 	backups := make([]*PostgresBackup, 0, len(items))
 	for _, item := range items {
+		if item.GetDeletionTimestamp() != nil {
+			continue
+		}
 		backup, err := toPostgresBackup(&item, environment)
 		if err != nil {
 			return nil, err

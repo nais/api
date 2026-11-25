@@ -27,6 +27,20 @@ func TestPostgresBackupConnectionFiltersAndPagesIndependentlyOfSource(t *testing
 		}
 		items = append(items, *obj)
 	}
+	terminating := naisv1.PostgresBackup{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:              "terminating",
+			Namespace:         "team",
+			CreationTimestamp: metav1.NewTime(time.Unix(10, 0)),
+			DeletionTimestamp: new(metav1.NewTime(time.Unix(11, 0))),
+		},
+		Spec: naisv1.PostgresBackupSpec{Postgres: "deleted-db"},
+	}
+	terminatingObj, err := kubernetes.ToUnstructured(&terminating)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items = append(items, *terminatingObj)
 	page, err := pagination.ParsePage(new(1), nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
