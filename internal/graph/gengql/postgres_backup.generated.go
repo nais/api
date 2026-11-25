@@ -309,14 +309,14 @@ func (ec *executionContext) _PostgresBackup_sizeBytes(ctx context.Context, field
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *int64) graphql.Marshaler {
-			return ec.marshalOBigInt2ᚖint64(ctx, selections, v)
+			return ec.marshalOInt2ᚖint64(ctx, selections, v)
 		},
 		true,
 		false,
 	)
 }
 func (ec *executionContext) fieldContext_PostgresBackup_sizeBytes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("PostgresBackup", field, false, false, errors.New("field of type BigInt does not have child fields"))
+	return graphql.NewScalarFieldContext("PostgresBackup", field, false, false, errors.New("field of type Int does not have child fields"))
 }
 
 func (ec *executionContext) _PostgresBackup_majorVersion(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresBackup) (ret graphql.Marshaler) {
@@ -1369,24 +1369,6 @@ func (ec *executionContext) marshalNPostgresBackupPhase2githubᚗcomᚋnaisᚋap
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 	}
-	return res
-}
-
-func (ec *executionContext) unmarshalOBigInt2ᚖint64(ctx context.Context, v any) (*int64, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt64(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOBigInt2ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	_ = sel
-	_ = ctx
-	res := graphql.MarshalInt64(*v)
 	return res
 }
 

@@ -126,10 +126,6 @@ models:
       - github.com/99designs/gqlgen/graphql.Int32
       - github.com/nais/api/internal/persistence/opensearch.StorageGB
 
-  BigInt:
-    model:
-      - github.com/99designs/gqlgen/graphql.Int64
-
   Date:
     model:
       - github.com/nais/api/internal/graph/scalar.Date

@@ -32043,7 +32043,7 @@ type PostgresBackup implements Node {
 	"When the backup expires, if known."
 	expiresAt: Time
 	"Verified backup size in bytes, if known."
-	sizeBytes: BigInt
+	sizeBytes: Int
 	"PostgreSQL major version recorded from the source database, if known."
 	majorVersion: String
 	"Disk size recorded from the source database, if known."
@@ -32053,9 +32053,6 @@ type PostgresBackup implements Node {
 	"User-facing message when the backup fails."
 	errorMessage: String
 }
-
-"A signed 64-bit integer."
-scalar BigInt
 
 "Lifecycle phase of a standalone Postgres backup."
 enum PostgresBackupPhase {
