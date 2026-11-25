@@ -52,6 +52,7 @@ import (
 	"github.com/nais/api/internal/usersync"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/v0s"
+	"github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -167,7 +168,7 @@ type QueryResolver interface {
 	Me(ctx context.Context) (authz.AuthenticatedUser, error)
 	UserSyncLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[usersync.UserSyncLogEntry], error)
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
-	VulnerabilityFindings(ctx context.Context, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
+	VulnerabilityFindings(ctx context.Context, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
 	Vulnerability(ctx context.Context, identifier string) (*v0s.Vulnerability, error)
 	VulnerabilitySuppressions(ctx context.Context, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
 	ImageVulnerabilityHistory(ctx context.Context, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
@@ -1978,8 +1979,8 @@ func (ec *executionContext) field_Query_vulnerabilityFindings_args(ctx context.C
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
-		func(ctx context.Context, v any) (*v0s.VulnerabilityFindingFilter, error) {
-			return ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingFilter(ctx, v)
+		func(ctx context.Context, v any) (*filter.VulnerabilityFindingFilter, error) {
+			return ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilityFindingFilter(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -6600,7 +6601,7 @@ func (ec *executionContext) _Query_vulnerabilityFindings(ctx context.Context, fi
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().VulnerabilityFindings(ctx, fc.Args["filter"].(*v0s.VulnerabilityFindingFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
+			return ec.Resolvers.Query().VulnerabilityFindings(ctx, fc.Args["filter"].(*filter.VulnerabilityFindingFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityFindingConnection) graphql.Marshaler {

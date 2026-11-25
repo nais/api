@@ -53,10 +53,57 @@ func newV0sManager(config *Config) *v0s.Manager {
 		VulnerabilityId: "CVE-2", Purl: "pkg:npm/other@1", PackageKey: "pkg:npm/other",
 		InstalledVersion: "1", FixedVersion: "2", Severity: protoapi.Severity_SEVERITY_CRITICAL,
 	})
+	c.addWorkloadOverviewFixtures()
 	slices.SortFunc(c.findings, func(a, b *protoapi.Finding) int {
 		return strings.Compare(v0sFindingKey(a), v0sFindingKey(b))
 	})
 	return &v0s.Manager{Vulnerabilities: c, Suppressions: c, SuppressionsEnabled: true}
+}
+
+func (c *v0sClient) addWorkloadOverviewFixtures() {
+	for _, environment := range []string{"dev", "staging"} {
+		names := []string{"alpha"}
+		if environment == "dev" {
+			names = append(names, "zeta", "clean", "failed", "no-sbom", "unresolved", "stale", "other-group", "missing-key", "nonempty", "not-empty", "collision")
+		}
+		for _, name := range names {
+			imageName := "repo/" + environment + "/" + name
+			if name == "collision" {
+				imageName += "-job"
+			}
+			w := &protoapi.Workload{
+				Environment: environment, Team: "v0s-overview", Name: name, ImageReference: imageName + ":2",
+				Image: &protoapi.Image{Name: imageName, Digest: "sha256:" + environment + "-" + name, Status: protoapi.ImageStatus_IMAGE_STATUS_SCANNED},
+			}
+			switch name {
+			case "failed":
+				w.Image.Status = protoapi.ImageStatus_IMAGE_STATUS_FAILED
+			case "no-sbom":
+				w.Image.Status = protoapi.ImageStatus_IMAGE_STATUS_NO_SBOM
+			case "unresolved":
+				w.Image, w.ResolveError = nil, "cannot resolve"
+			case "stale":
+				w.ImageReference = imageName + ":1"
+			}
+			c.workloads = append(c.workloads, w)
+			add := func(id, ecosystem, pkg string, severity protoapi.Severity) {
+				c.findings = append(c.findings, &protoapi.Finding{
+					Workload: &protoapi.WorkloadRef{Environment: environment, Team: w.Team, Name: name}, Image: w.Image,
+					VulnerabilityId: id, PackageKey: "pkg:" + ecosystem + "/" + pkg, Purl: "pkg:" + ecosystem + "/" + pkg + "@1",
+					InstalledVersion: "1", FixedVersion: "2", Severity: severity, KnownExploited: true,
+				})
+			}
+			if name == "alpha" && environment == "dev" {
+				add("CVE-shared", "npm", "first", protoapi.Severity_SEVERITY_HIGH)
+				add("CVE-shared", "npm", "second", protoapi.Severity_SEVERITY_CRITICAL)
+				add("CVE-go", "golang", "example", protoapi.Severity_SEVERITY_CRITICAL)
+			} else if name == "zeta" {
+				add("CVE-shared", "npm", "first", protoapi.Severity_SEVERITY_CRITICAL)
+			} else if name != "clean" && name != "failed" && name != "no-sbom" && name != "unresolved" {
+				add("CVE-outside", "npm", "outside", protoapi.Severity_SEVERITY_CRITICAL)
+			}
+		}
+	}
 }
 
 func (c *v0sClient) ListWorkloads(_ context.Context, req *protoapi.ListWorkloadsRequest, _ ...grpc.CallOption) (*protoapi.ListWorkloadsResponse, error) {

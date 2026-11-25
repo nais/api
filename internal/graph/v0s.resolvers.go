@@ -3,16 +3,18 @@ package graph
 import (
 	"context"
 
+	"github.com/nais/api/internal/graph/apierror"
 	"github.com/nais/api/internal/graph/gengql"
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/v0s"
+	"github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
 	"github.com/nais/api/internal/workload/job"
 )
 
-func (r *applicationResolver) VulnerabilityFindings(ctx context.Context, obj *application.Application, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
+func (r *applicationResolver) VulnerabilityFindings(ctx context.Context, obj *application.Application, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
 	return v0s.Findings(ctx, v0s.WorkloadScope(obj), filter, first, after, orderBy)
 }
 
@@ -20,11 +22,11 @@ func (r *applicationResolver) VulnerabilityCoverage(ctx context.Context, obj *ap
 	return v0s.WorkloadCoverage(ctx, obj)
 }
 
-func (r *applicationResolver) VulnerabilityOverview(ctx context.Context, obj *application.Application, filter *v0s.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error) {
-	return v0s.WorkloadOverview(ctx, v0s.WorkloadScope(obj), filter)
+func (r *applicationResolver) VulnerabilityOverview(ctx context.Context, obj *application.Application, filter *filter.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error) {
+	return v0s.WorkloadOverview(ctx, obj, filter)
 }
 
-func (r *jobResolver) VulnerabilityFindings(ctx context.Context, obj *job.Job, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
+func (r *jobResolver) VulnerabilityFindings(ctx context.Context, obj *job.Job, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
 	return v0s.Findings(ctx, v0s.WorkloadScope(obj), filter, first, after, orderBy)
 }
 
@@ -32,8 +34,8 @@ func (r *jobResolver) VulnerabilityCoverage(ctx context.Context, obj *job.Job) (
 	return v0s.WorkloadCoverage(ctx, obj)
 }
 
-func (r *jobResolver) VulnerabilityOverview(ctx context.Context, obj *job.Job, filter *v0s.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error) {
-	return v0s.WorkloadOverview(ctx, v0s.WorkloadScope(obj), filter)
+func (r *jobResolver) VulnerabilityOverview(ctx context.Context, obj *job.Job, filter *filter.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error) {
+	return v0s.WorkloadOverview(ctx, obj, filter)
 }
 
 func (r *mutationResolver) SetVulnerabilitySuppressions(ctx context.Context, input v0s.SetVulnerabilitySuppressionsInput) (*v0s.SetVulnerabilitySuppressionsPayload, error) {
@@ -44,7 +46,7 @@ func (r *mutationResolver) DeleteVulnerabilitySuppressions(ctx context.Context, 
 	return v0s.DeleteSuppressions(ctx, input)
 }
 
-func (r *queryResolver) VulnerabilityFindings(ctx context.Context, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
+func (r *queryResolver) VulnerabilityFindings(ctx context.Context, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
 	return v0s.Findings(ctx, v0s.Scope{}, filter, first, after, orderBy)
 }
 
@@ -56,15 +58,22 @@ func (r *queryResolver) VulnerabilitySuppressions(ctx context.Context, filter *v
 	return v0s.Suppressions(ctx, v0s.Scope{}, filter, first, after)
 }
 
-func (r *teamResolver) VulnerabilityFindings(ctx context.Context, obj *team.Team, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
-	return v0s.Findings(ctx, v0s.Scope{Team: obj.Slug}, filter, first, after, orderBy)
+func (r *teamResolver) VulnerabilityFindings(ctx context.Context, obj *team.Team, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder, workloadFilter *workload.TeamWorkloadsFilter) (*v0s.VulnerabilityFindingConnection, error) {
+	scope := v0s.Scope{Team: obj.Slug}
+	if workloadFilter != nil && workloadFilter.VulnerabilityFilter != nil {
+		return nil, apierror.Errorf("Use filter to select vulnerability findings; workloadFilter only supports environments and labels")
+	}
+	if err := v0s.ValidateWorkloadFilter(workloadFilter); err != nil {
+		return nil, err
+	}
+	return v0s.FindingsForWorkloads(ctx, scope, selectTeamWorkloads(ctx, obj.Slug, workloadFilter), filter, first, after, orderBy)
 }
 
 func (r *teamResolver) VulnerabilitySuppressions(ctx context.Context, obj *team.Team, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error) {
 	return v0s.Suppressions(ctx, v0s.Scope{Team: obj.Slug}, filter, first, after)
 }
 
-func (r *teamEnvironmentResolver) VulnerabilityFindings(ctx context.Context, obj *team.TeamEnvironment, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
+func (r *teamEnvironmentResolver) VulnerabilityFindings(ctx context.Context, obj *team.TeamEnvironment, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
 	return v0s.Findings(ctx, v0s.Scope{Team: obj.TeamSlug, Environment: obj.EnvironmentName}, filter, first, after, orderBy)
 }
 

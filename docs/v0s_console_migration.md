@@ -22,17 +22,17 @@ v0s results in a Console view before that source switch.
 
 ## Implementation gaps
 
-| Capability                       | Current implementation                                                                      | Required work                                                                      |
-| -------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments | Extend these fields, not another finding API                                       |
-| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors | Reset old finding cursors when deploying this integration                          |
-| Finding counts/facets            | Full-selection facets and tenant/team summaries; distinct vulnerability/workload totals     | Shared global workload filtering                                                   |
-| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                         | Verify deployed inventory reconciliation                                           |
-| Workload selection               | Team/environment/workload scopes; existing workload environment/label filters               | Shared global selection and existing `TeamScopeInput` support                      |
-| Workload/vulnerability overviews | Unique-vulnerability connection; existing API workload pages with batch-loaded v0s counts   | Global affected-only workload selection; v0s count-based workload sorting deferred |
-| Assessment writes                | Team-authorized, gated v0s batches                                                          | Durable activity-log delivery before enablement                                    |
-| Vulnerability Issues             | Existing producers use v13s                                                                 | Switch the three producers and remove obsolete risk-score payload                  |
-| Manual reanalysis                | No public v0s RPC                                                                           | Do not expose a working reanalysis control                                         |
+| Capability                       | Current implementation                                                                                                      | Required work                                                     |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                                 | Extend these fields, not another finding API                      |
+| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors                                 | Reset old finding cursors when deploying this integration         |
+| Finding counts/facets            | Full-selection facets and tenant/team summaries; distinct vulnerability/workload totals                                     | Shared global workload filtering                                  |
+| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                         | Verify deployed inventory reconciliation                          |
+| Workload selection               | Team/environment/workload scopes; shared team environment/label filters for findings, summaries and workload lists          | Shared global selection and existing `TeamScopeInput` support     |
+| Workload/vulnerability overviews | Unique-vulnerability connection; existing API workload pages with batch-loaded v0s counts and team unique-severity ordering | Global affected-only workload selection                           |
+| Assessment writes                | Team-authorized, gated v0s batches                                                                                          | Durable activity-log delivery before enablement                   |
+| Vulnerability Issues             | Existing producers use v13s                                                                                                 | Switch the three producers and remove obsolete risk-score payload |
+| Manual reanalysis                | No public v0s RPC                                                                                                           | Do not expose a working reanalysis control                        |
 
 ### GitHub contract status
 
@@ -73,10 +73,17 @@ API fakes alone cannot establish backend conformance.
 ## Selection and counting semantics
 
 Current finding and summary scopes select team, environment and workload.
-Existing API workload lists retain their environment and label filters, with
-v0s counts available on each returned workload. Shared label and "my teams"
-selection for global findings, groups and summaries is not implemented in this
-PR; it must reuse existing `TeamScopeInput` and label matching in follow-up work.
+`Team.vulnerabilityFindings(workloadFilter:)` and `Team.workloads(filter:)`
+share the authoritative API workload inventory and existing environment/label
+matching. All labels are ANDed: an omitted value requires the key to exist;
+an explicit empty string requires an empty value. Environment values are ORed.
+Selection applies to finding rows, facets, summaries and nested vulnerability
+groups before pagination. The v0s selection and unique-count sorting paths
+accept only environments and labels from `TeamWorkloadsFilter`; other workload
+predicates fail explicitly rather than silently invoking legacy SBOM semantics.
+Legacy workload filtering remains unchanged.
+Shared label and "my teams" selection for global findings, groups and summaries
+is not implemented; it must reuse existing `TeamScopeInput` in follow-up work.
 A restricted empty selection must never become unrestricted.
 
 Finding predicates select vulnerability IDs/aliases, package/PURL, package type,
@@ -94,9 +101,12 @@ page, including when a page is empty:
 - **Unique vulnerability count:** distinct canonical vulnerability identifiers.
   Aliases do not add another vulnerability.
 - **Affected workload count:** distinct current workloads with matching findings.
-- **Severity counts:** finding counts unless explicitly named as unique
-  vulnerability counts. A grouped vulnerability takes the highest recognized
-  severity among its filtered findings, or UNKNOWN if all are UNKNOWN.
+- **Severity counts:** finding facets count findings. Summary and workload
+  `vulnerabilityOverview.countsBySeverity` count unique canonical vulnerabilities,
+  each once at its highest recognized severity among matching findings (UNKNOWN
+  if all are UNKNOWN). The summary deduplicates across the whole selection;
+  workload rows deduplicate within that workload. These counts need not add up
+  across rows.
 - **KEV counts:** explicitly distinguish findings, unique vulnerabilities and
   unique workloads. A `CountFindings` vulnerability bucket is a finding count,
   not a distinct workload count.
@@ -109,20 +119,33 @@ and pagination. Each workload exposes `vulnerabilityOverview(filter:)`; the
 finding filter changes its counts, not membership in the workload list.
 The request-scoped loader fetches server-aggregated counts in batches for the
 requested workload identities, grouped by effective finding filter.
+API workload identities and overview caches distinguish application from job,
+even when name, team and environment are identical. Each item is reconciled
+against its own deployed image; a backend record for the other item's image
+cannot provide its counts or scan status. Backend selectors remain deduplicated
+by environment/team/name, while summary coverage counts each selected API identity.
 Workloads not yet observed by v0s, or whose deployed image reference has changed,
 remain in the list as PENDING with zero known findings. Those zeroes do not mean
 clean. Backend errors and unsupported overview responses are errors, not pending
 fallbacks. A matching workload's coverage is independent of its finding filter.
-v0s finding-count ordering for workload lists is deliberately deferred, and the
-global affected-only workload list is not integrated yet. Existing legacy
-vulnerability ordering continues to use v13s and must not be used in a v0s view.
+`Team.workloads` supports `VULNERABILITY_UNIQUE_CRITICAL`, `HIGH`, `MEDIUM`,
+`LOW` and `UNKNOWN` order fields (all with the `VULNERABILITY_UNIQUE_` prefix).
+These sort on the corresponding unique-severity bucket, using the same
+`filter.vulnerabilityFilter` supplied to each row's `vulnerabilityOverview(filter:)`.
+This filter changes counts, not membership or coverage. Passing it with a
+legacy or omitted order field is an error. Existing `VULNERABILITY_SEVERITY_*`
+ordering continues to use v13s and must not be used in a v0s view.
+`Team.vulnerabilityFindings.workloadFilter` still accepts only environments and
+labels; put finding predicates in that field's existing `filter` argument.
+The global affected-only workload list is not integrated yet.
 
 Package types are PURL ecosystems. Facets follow the complete filter, including
 any selected package type, consistently with the existing finding facets.
 
 ## Ordering and pagination
 
-New v0s lists use `first`/`after`, defaulting to 20 with a range of 1..200.
+Finding, vulnerability-group and suppression connections use `first`/`after`,
+defaulting to 20 with a range of 1..200.
 Legacy v13s connections retain their existing bidirectional pagination.
 
 Omitting finding `orderBy` preserves environment, team, workload, identifier
@@ -143,6 +166,37 @@ Finding cursors issued before this integration must be discarded; restart
 without a cursor. Changes to the resolved workload selection also require a restart.
 Deterministic ordering does not imply a snapshot across concurrent updates.
 Do not fetch all findings in Console or API to emulate sorting or grouping.
+
+### Unique-severity workload ordering
+
+Workloads without a completed scan (PENDING, NO_SBOM, FAILED and
+UNRESOLVED_IMAGE) come **first in both ASC and DESC**, ordered by name,
+environment and workload type ascending. Missing or obsolete backend inventory
+remains PENDING. These workloads are not treated as measured zero-count clean
+workloads. SCANNED workloads then sort by the selected unique-severity count,
+with the same ascending identity tie-breakers in either direction. Scanned
+zero-count workloads participate normally in the completed-scan group.
+Default NAME ASC and all legacy ordering retain their behavior.
+
+Filtering and aggregation precede sorting and pagination. API bulk-loads v0s
+aggregates for all selected team workloads, follows backend continuation and
+shares the request cache with row overviews. It does not enumerate findings.
+The cost is proportional to the selected team workload count; this is not
+backend-sized count-sorted pagination.
+
+The workload connection keeps its existing `first`/`after` and `last`/`before`
+semantics. New unique-count modes issue versioned cursors bound to team,
+normalized environments/labels, finding filter, severity and direction.
+Equivalent reordered/deduplicated filters and different page sizes are accepted;
+key-only labels remain distinct from explicit empty values. Changed selections
+or ordering, unsupported cursor versions and old unbound cursors are rejected.
+Legacy modes retain their offset cursors and reject new-mode cursors.
+Positions are live offsets, not a snapshot: changed counts or inventory between
+requests can shift page boundaries. Restart a traversal after such changes.
+
+No nais/v0s change or new client release is required: the pinned `v0.11.0`
+already supports explicit selectors, filtered workload aggregates and summary
+coverage independent of finding filters.
 
 ## Additive GraphQL navigation
 
@@ -180,9 +234,19 @@ is not integrated yet. The earlier proposed parallel
 come from API rather than the asynchronously updated v0s inventory.
 
 ```graphql
-query Overviews($after: Cursor, $workloadAfter: Cursor) {
-	team(slug: "my-team") {
-		vulnerabilityFindings(filter: { packageType: "npm" }) {
+query Overviews(
+	$team: Slug!
+	$environments: [String!]
+	$labels: [LabelFilter!]
+	$findings: VulnerabilityFindingFilter
+	$after: Cursor
+	$workloadAfter: Cursor
+) {
+	team(slug: $team) {
+		vulnerabilityFindings(
+			workloadFilter: { environments: $environments, labels: $labels }
+			filter: $findings
+		) {
 			summary {
 				findingCount
 				uniqueVulnerabilityCount
@@ -231,10 +295,15 @@ query Overviews($after: Cursor, $workloadAfter: Cursor) {
 				}
 			}
 		}
-		workloads(first: 20, after: $workloadAfter) {
+		workloads(
+			first: 20
+			after: $workloadAfter
+			filter: { environments: $environments, labels: $labels, vulnerabilityFilter: $findings }
+			orderBy: { field: VULNERABILITY_UNIQUE_CRITICAL, direction: DESC }
+		) {
 			nodes {
 				name
-				vulnerabilityOverview(filter: { packageType: "npm" }) {
+				vulnerabilityOverview(filter: $findings) {
 					findingCount
 					uniqueVulnerabilityCount
 					knownExploitedVulnerabilityCount
@@ -261,6 +330,22 @@ query Overviews($after: Cursor, $workloadAfter: Cursor) {
 	}
 }
 ```
+
+Example variables for the same workload and finding selection in the summary,
+sort and row counts:
+
+```json
+{
+	"team": "my-team",
+	"environments": ["prod"],
+	"labels": [{ "key": "group", "value": "core" }],
+	"findings": { "packageType": "npm", "onlyWithFix": true }
+}
+```
+
+Coverage includes every matching workload, even with no matching findings or
+no completed scan. The finding and workload page sizes do not change summary
+counts or coverage.
 
 Existing advisory and package-finding queries remain available:
 

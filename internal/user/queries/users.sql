@@ -9,6 +9,10 @@ WHERE
 		sqlc.narg('sources')::TEXT[] IS NULL
 		OR source = ANY (sqlc.narg('sources')::TEXT[])
 	)
+	AND (
+		sqlc.narg('is_admin')::BOOLEAN IS NULL
+		OR admin = sqlc.narg('is_admin')::BOOLEAN
+	)
 ORDER BY
 	CASE
 		WHEN @order_by::TEXT = 'name:asc' THEN name

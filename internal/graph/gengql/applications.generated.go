@@ -34,6 +34,7 @@ import (
 	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/v0s"
+	"github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -75,9 +76,9 @@ type ApplicationResolver interface {
 	ServiceAccount(ctx context.Context, obj *application.Application) (*serviceaccount.ServiceAccount, error)
 	SQLInstances(ctx context.Context, obj *application.Application, orderBy *sqlinstance.SQLInstanceOrder) (*pagination.Connection[*sqlinstance.SQLInstance], error)
 	Utilization(ctx context.Context, obj *application.Application) (*utilization.WorkloadUtilization, error)
-	VulnerabilityFindings(ctx context.Context, obj *application.Application, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
+	VulnerabilityFindings(ctx context.Context, obj *application.Application, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
 	VulnerabilityCoverage(ctx context.Context, obj *application.Application) (*v0s.VulnerabilityCoverage, error)
-	VulnerabilityOverview(ctx context.Context, obj *application.Application, filter *v0s.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error)
+	VulnerabilityOverview(ctx context.Context, obj *application.Application, filter *filter.VulnerabilityFindingFilter) (*v0s.VulnerabilityWorkloadOverview, error)
 	Valkeys(ctx context.Context, obj *application.Application, orderBy *valkey.ValkeyOrder) (*pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter], error)
 	ImageVulnerabilityHistory(ctx context.Context, obj *application.Application, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilityFixHistory(ctx context.Context, obj *application.Application, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
@@ -547,8 +548,8 @@ func (ec *executionContext) field_Application_vulnerabilityFindings_args(ctx con
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
-		func(ctx context.Context, v any) (*v0s.VulnerabilityFindingFilter, error) {
-			return ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingFilter(ctx, v)
+		func(ctx context.Context, v any) (*filter.VulnerabilityFindingFilter, error) {
+			return ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilityFindingFilter(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -599,8 +600,8 @@ func (ec *executionContext) field_Application_vulnerabilityOverview_args(ctx con
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "filter",
-		func(ctx context.Context, v any) (*v0s.VulnerabilityFindingFilter, error) {
-			return ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingFilter(ctx, v)
+		func(ctx context.Context, v any) (*filter.VulnerabilityFindingFilter, error) {
+			return ec.unmarshalOVulnerabilityFindingFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚋfilterᚐVulnerabilityFindingFilter(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1706,7 +1707,7 @@ func (ec *executionContext) _Application_vulnerabilityFindings(ctx context.Conte
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Application().VulnerabilityFindings(ctx, obj, fc.Args["filter"].(*v0s.VulnerabilityFindingFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
+			return ec.Resolvers.Application().VulnerabilityFindings(ctx, obj, fc.Args["filter"].(*filter.VulnerabilityFindingFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityFindingConnection) graphql.Marshaler {
@@ -1782,7 +1783,7 @@ func (ec *executionContext) _Application_vulnerabilityOverview(ctx context.Conte
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Application().VulnerabilityOverview(ctx, obj, fc.Args["filter"].(*v0s.VulnerabilityFindingFilter))
+			return ec.Resolvers.Application().VulnerabilityOverview(ctx, obj, fc.Args["filter"].(*filter.VulnerabilityFindingFilter))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityWorkloadOverview) graphql.Marshaler {

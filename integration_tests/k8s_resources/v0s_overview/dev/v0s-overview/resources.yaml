@@ -1,0 +1,111 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: alpha
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/alpha:2
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: zeta
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/zeta:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: clean
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/clean:2
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: fresh
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/fresh:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: stale
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/stale:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: unresolved
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/unresolved:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: failed
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/failed:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: no-sbom
+  labels: { group: core, present: "yes", empty: "" }
+spec:
+  image: repo/dev/no-sbom:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: other-group
+  labels: { group: other, present: "yes", empty: "" }
+spec:
+  image: repo/dev/other-group:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: missing-key
+  labels: { group: core, empty: "" }
+spec:
+  image: repo/dev/missing-key:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: nonempty
+  labels: { group: core, present: "yes", empty: "not-empty" }
+spec:
+  image: repo/dev/nonempty:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: not-empty
+  labels: { group: core, present: "yes" }
+spec:
+  image: repo/dev/not-empty:2
+---
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: collision
+  labels: { group: collision, owner: app }
+spec:
+  image: repo/dev/collision-app:2
+---
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: collision
+  labels: { group: collision, owner: job }
+spec:
+  image: repo/dev/collision-job:2

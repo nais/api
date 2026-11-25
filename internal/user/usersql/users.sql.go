@@ -105,29 +105,34 @@ WHERE
 		$1::TEXT[] IS NULL
 		OR source = ANY ($1::TEXT[])
 	)
+	AND (
+		$2::BOOLEAN IS NULL
+		OR admin = $2::BOOLEAN
+	)
 ORDER BY
 	CASE
-		WHEN $2::TEXT = 'name:asc' THEN name
+		WHEN $3::TEXT = 'name:asc' THEN name
 	END ASC,
 	CASE
-		WHEN $2::TEXT = 'name:desc' THEN name
+		WHEN $3::TEXT = 'name:desc' THEN name
 	END DESC,
 	CASE
-		WHEN $2::TEXT = 'email:asc' THEN email
+		WHEN $3::TEXT = 'email:asc' THEN email
 	END ASC,
 	CASE
-		WHEN $2::TEXT = 'email:desc' THEN email
+		WHEN $3::TEXT = 'email:desc' THEN email
 	END DESC,
 	name,
 	email ASC
 LIMIT
-	$4
+	$5
 OFFSET
-	$3
+	$4
 `
 
 type ListParams struct {
 	Sources []string
+	IsAdmin *bool
 	OrderBy string
 	Offset  int32
 	Limit   int32
@@ -141,6 +146,7 @@ type ListRow struct {
 func (q *Queries) List(ctx context.Context, arg ListParams) ([]*ListRow, error) {
 	rows, err := q.db.Query(ctx, list,
 		arg.Sources,
+		arg.IsAdmin,
 		arg.OrderBy,
 		arg.Offset,
 		arg.Limit,

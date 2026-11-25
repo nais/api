@@ -37,6 +37,8 @@ extend type Team {
 		after: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
+		"Select the team's workloads before finding filters and aggregation. Only environments and labels are supported. Coverage includes all selected workloads."
+		workloadFilter: TeamWorkloadsFilter
 	): VulnerabilityFindingConnection!
 	"Current assessments for existing workloads in this team."
 	vulnerabilitySuppressions(
