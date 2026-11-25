@@ -2226,39 +2226,40 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		ActivityLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
-		CVE                       func(childComplexity int, identifier string) int
-		CostMonthlySummary        func(childComplexity int, from scalar.Date, to scalar.Date) int
-		CurrentUnitPrices         func(childComplexity int) int
-		Cves                      func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
-		Deployments               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
-		Environment               func(childComplexity int, name string) int
-		Environments              func(childComplexity int, orderBy *environment.EnvironmentOrder) int
-		Features                  func(childComplexity int) int
-		GlobalWebhooks            func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		ImageVulnerabilityHistory func(childComplexity int, from scalar.Date) int
-		Issues                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
-		Me                        func(childComplexity int) int
-		Node                      func(childComplexity int, id ident.Ident) int
-		Reconcilers               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Roles                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
-		Search                    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
-		ServiceAccount            func(childComplexity int, id ident.Ident) int
-		ServiceAccounts           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Team                      func(childComplexity int, slug slug.Slug) int
-		Teams                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
-		TeamsUtilization          func(childComplexity int, resourceType utilization.UtilizationResourceType) int
-		UnleashReleaseChannels    func(childComplexity int) int
-		User                      func(childComplexity int, email *string) int
-		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
-		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int
-		Vulnerability             func(childComplexity int, identifier string) int
-		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
-		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
-		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
-		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
-		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
-		WebhookEventTypes         func(childComplexity int) int
+		ActivityLog                           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.TenantActivityLogFilter) int
+		CVE                                   func(childComplexity int, identifier string) int
+		CostMonthlySummary                    func(childComplexity int, from scalar.Date, to scalar.Date) int
+		CurrentUnitPrices                     func(childComplexity int) int
+		Cves                                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.CVEOrder, filter *vulnerability.CVEFilter) int
+		Deployments                           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *deployment.DeploymentOrder, filter *deployment.DeploymentFilter) int
+		Environment                           func(childComplexity int, name string) int
+		Environments                          func(childComplexity int, orderBy *environment.EnvironmentOrder) int
+		Features                              func(childComplexity int) int
+		GlobalWebhooks                        func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		ImageVulnerabilityHistory             func(childComplexity int, from scalar.Date) int
+		Issues                                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.TenantIssueFilter) int
+		Me                                    func(childComplexity int) int
+		Node                                  func(childComplexity int, id ident.Ident) int
+		Reconcilers                           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Roles                                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *authz.RoleFilter) int
+		Search                                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter search.SearchFilter) int
+		ServiceAccount                        func(childComplexity int, id ident.Ident) int
+		ServiceAccounts                       func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Team                                  func(childComplexity int, slug slug.Slug) int
+		Teams                                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamOrder, filter *team.TeamFilter) int
+		TeamsUtilization                      func(childComplexity int, resourceType utilization.UtilizationResourceType) int
+		UnleashReleaseChannels                func(childComplexity int) int
+		User                                  func(childComplexity int, email *string) int
+		UserSyncLog                           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
+		Users                                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int
+		Vulnerability                         func(childComplexity int, identifier string) int
+		VulnerabilityFindings                 func(childComplexity int, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFixHistory               func(childComplexity int, from scalar.Date) int
+		VulnerabilitySummaries                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
+		VulnerabilitySummary                  func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
+		VulnerabilitySuppressionWritesEnabled func(childComplexity int) int
+		VulnerabilitySuppressions             func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		WebhookEventTypes                     func(childComplexity int) int
 	}
 
 	Reconciler struct {
@@ -14025,6 +14026,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Query.VulnerabilitySummary(childComplexity, args["filter"].(*vulnerability.TenantVulnerabilitySummaryFilter)), true
+
+	case "Query.vulnerabilitySuppressionWritesEnabled":
+		if e.ComplexityRoot.Query.VulnerabilitySuppressionWritesEnabled == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Query.VulnerabilitySuppressionWritesEnabled(childComplexity), true
 
 	case "Query.vulnerabilitySuppressions":
 		if e.ComplexityRoot.Query.VulnerabilitySuppressions == nil {
@@ -36840,6 +36848,8 @@ type ApplicationInstanceUtilization {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilitySuppressionConnection!
+	"Whether assessments are written with setVulnerabilitySuppressions and deleteVulnerabilitySuppressions. When false, use updateImageVulnerability."
+	vulnerabilitySuppressionWritesEnabled: Boolean!
 }
 
 extend type Team {

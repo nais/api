@@ -34,6 +34,11 @@ func writeManager(ctx context.Context, team slug.Slug) (*Manager, error) {
 	return m, nil
 }
 
+func SuppressionWritesEnabled(ctx context.Context) bool {
+	m, _ := ctx.Value(managerKey).(*Manager)
+	return m != nil && m.SuppressionsEnabled
+}
+
 func suppressionKey(input *VulnerabilitySuppressionKeyInput) (*protoapi.SuppressionKey, error) {
 	if input == nil || strings.TrimSpace(input.Environment) == "" ||
 		strings.TrimSpace(input.Workload) == "" || strings.TrimSpace(input.ImageName) == "" ||

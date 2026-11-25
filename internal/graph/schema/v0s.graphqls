@@ -22,6 +22,8 @@ extend type Query {
 		"Continue after this cursor, using the same filter."
 		after: Cursor
 	): VulnerabilitySuppressionConnection!
+	"Whether assessments are written with setVulnerabilitySuppressions and deleteVulnerabilitySuppressions. When false, use updateImageVulnerability."
+	vulnerabilitySuppressionWritesEnabled: Boolean!
 }
 
 extend type Team {

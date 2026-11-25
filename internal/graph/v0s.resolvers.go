@@ -48,6 +48,10 @@ func (r *queryResolver) VulnerabilitySuppressions(ctx context.Context, filter *v
 	return v0s.Suppressions(ctx, v0s.Scope{}, filter, first, after)
 }
 
+func (r *queryResolver) VulnerabilitySuppressionWritesEnabled(ctx context.Context) (bool, error) {
+	return v0s.SuppressionWritesEnabled(ctx), nil
+}
+
 func (r *teamResolver) VulnerabilityFindings(ctx context.Context, obj *team.Team, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) (*v0s.VulnerabilityFindingConnection, error) {
 	return v0s.Findings(ctx, v0s.Scope{Team: obj.Slug}, filter, first, after)
 }

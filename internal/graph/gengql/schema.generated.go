@@ -168,6 +168,7 @@ type QueryResolver interface {
 	VulnerabilityFindings(ctx context.Context, filter *v0s.VulnerabilityFindingFilter, first *int, after *pagination.Cursor) (*v0s.VulnerabilityFindingConnection, error)
 	Vulnerability(ctx context.Context, identifier string) (*v0s.Vulnerability, error)
 	VulnerabilitySuppressions(ctx context.Context, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
+	VulnerabilitySuppressionWritesEnabled(ctx context.Context) (bool, error)
 	ImageVulnerabilityHistory(ctx context.Context, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilitySummary(ctx context.Context, filter *vulnerability.TenantVulnerabilitySummaryFilter) (*vulnerability.TenantVulnerabilitySummary, error)
 	VulnerabilitySummaries(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) (*pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary], error)
@@ -6596,6 +6597,29 @@ func (ec *executionContext) fieldContext_Query_vulnerabilitySuppressions(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_vulnerabilitySuppressionWritesEnabled(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Query_vulnerabilitySuppressionWritesEnabled(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Query().VulnerabilitySuppressionWritesEnabled(ctx)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Query_vulnerabilitySuppressionWritesEnabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Query", field, true, true, errors.New("field of type Boolean does not have child fields"))
+}
+
 func (ec *executionContext) _Query_imageVulnerabilityHistory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -9453,6 +9477,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_vulnerabilitySuppressions(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "vulnerabilitySuppressionWritesEnabled":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_vulnerabilitySuppressionWritesEnabled(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
