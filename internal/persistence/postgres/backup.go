@@ -3,6 +3,7 @@ package postgres
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"time"
@@ -114,10 +115,16 @@ func ListPostgresBackups(ctx context.Context, teamSlug slug.Slug, environment st
 		return nil, err
 	}
 	c, err := postgresBackupClient(ctx, teamSlug, environment)
+	if errors.Is(err, &watcher.ErrorUnknownEnvironment{}) {
+		return pagination.EmptyConnection[*PostgresBackup](), nil
+	}
 	if err != nil {
 		return nil, err
 	}
 	list, err := c.List(ctx, metav1.ListOptions{})
+	if k8serrors.IsNotFound(err) {
+		return pagination.EmptyConnection[*PostgresBackup](), nil
+	}
 	if err != nil {
 		return nil, err
 	}
