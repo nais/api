@@ -95,12 +95,13 @@ startup, workload inventory, or legacy vulnerability fields. New fields return
 errors rather than silently falling back to v13s or reporting zero findings.
 Environment names are the same user-facing names used by `Workloads.ListImages`.
 
-`V0S_SUPPRESSIONS_ENABLED` defaults to false. Keep it false for the Console
-migration until durable activity-log delivery is implemented and verified.
-Currently the assessment batch commits in v0s before activity-log entries are
-written separately in API, so a log error can follow a successful assessment
-write. The new mutations authorize the whole team's batch and derive the actor
-from the authenticated user. Deletions do not require an active finding.
+`V0S_SUPPRESSIONS_ENABLED` defaults to false. Enable it as part of the Console
+rollout after verifying the set and delete flows. The assessment batch commits in
+v0s before API attempts to write activity-log entries. Logging is best effort:
+entries can be missing, and API reports logging errors in its own logs without
+failing the successful assessment mutation. The mutations authorize the whole
+team's batch and derive the actor from the authenticated user. Deletions do not
+require an active finding.
 Existing v13s mutations remain available for legacy clients. Importing old
 assessments, and stopping any external importer before it can overwrite v0s
 assessments, are separate rollout responsibilities; no assessment sync is
