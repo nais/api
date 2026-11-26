@@ -1,65 +1,65 @@
 # AGENTS.md - Nais API
 
-Kjøreregler for AI-agenter som jobber med dette prosjektet.
+Guidelines for AI agents working on this project.
 
-## Prosjektstruktur
+## Project structure
 
-- **Go-prosjekt** med GraphQL API og gRPC
-- Domene-drevet design: pakker i `internal/` inneholder ett domene hver
-- GraphQL schema i `internal/graph/schema/*.graphqls`
-- SQL queries i `internal/<domain>/queries/*.sql`
-- Integrasjonstester i `integration_tests/*.lua`
+- **Go project** with a GraphQL API and gRPC
+- Domain-driven design: each package in `internal/` contains one domain
+- GraphQL schemas in `internal/graph/schema/*.graphqls`
+- SQL queries in `internal/<domain>/queries/*.sql`
+- Integration tests in `integration_tests/*.lua`
 
-## Vanlige kommandoer
+## Common commands
 
-| Oppgave                   | Kommando                    |
+| Task                      | Command                     |
 | ------------------------- | --------------------------- |
-| Bygg                      | `mise run build`            |
-| Kjør lokalt               | `mise run local`            |
-| Kjør alle tester          | `mise run test`             |
-| Kun enhetstester          | `mise run test:unit`        |
-| Integrasjonstester med UI | `mise run test:ui`          |
-| Generer all kode          | `mise run generate`         |
-| Generer GraphQL           | `mise run generate:graphql` |
-| Generer SQL               | `mise run generate:sql`     |
-| Generer mocks             | `mise run generate:mocks`   |
-| Formater kode             | `mise run fmt`              |
-| Alle sjekker              | `mise run check`            |
+| Build                     | `mise run build`            |
+| Run locally               | `mise run local`            |
+| Run all tests             | `mise run test`             |
+| Unit tests only           | `mise run test:unit`        |
+| Integration tests with UI | `mise run test:ui`          |
+| Generate all code         | `mise run generate`         |
+| Generate GraphQL          | `mise run generate:graphql` |
+| Generate SQL              | `mise run generate:sql`     |
+| Generate mocks            | `mise run generate:mocks`   |
+| Format code               | `mise run fmt`              |
+| All checks                | `mise run check`            |
 
-## Kjøre spesifikke integrasjonstester
+## Running specific integration tests
 
 ```bash
-go test -v -tags=integration_test -run "TestIntegration/<testnavn>" ./integration_tests
+go test -v -tags=integration_test -run "TestIntegration/<testname>" ./integration_tests
 ```
 
-## Arbeidsflyt
+## Workflow
 
-1. **Før du endrer kode**: Les relevante filer for å forstå eksisterende mønstre
-2. **Etter endringer i `.graphqls`**: Kjør `mise run generate:graphql`
-   1. Hvis det havner modeller i `internal/graph/model/donotuse/models_gen.go`, flytt disse til riktig pakke/domene og generer på nytt
-3. **Etter endringer i `.sql`**: Kjør `mise run generate:sql`
-4. **Etter alle endringer**: Kjør `mise run test` og `mise run fmt`
-5. **Før PR-arbeid leveres**: Kjør CI sin format- og genereringskommando `mise run fmt ::: generate`. Se gjennom `git status --short` og ta med alle endringer i genererte filer; tester og bygg alene avslører ikke utdaterte genererte filer. Når endringene er committet, skal `mise run fmt ::: generate && git diff --exit-code` passere på ren arbeidskopi.
-6. **Ved kompileringsfeil**: Sjekk at generert kode er oppdatert
+1. **Before changing code**: Read the relevant files to understand existing patterns. Whenever modifying `.graphqls` files, first read and follow `.github/instructions/graphql.instructions.md`.
+2. **After changing `.graphqls` files**: Run `mise run generate:graphql`
+   1. If models end up in `internal/graph/model/donotuse/models_gen.go`, move them to the appropriate package/domain and regenerate
+3. **After changing `.sql` files**: Run `mise run generate:sql`
+4. **After all changes**: Run `mise run test` and `mise run fmt`
+5. **Before delivering PR work**: Run CI's formatting and generation command, `mise run fmt ::: generate`. Review `git status --short` and include all changes to generated files; tests and builds alone do not reveal outdated generated files. Once the changes are committed, `mise run fmt ::: generate && git diff --exit-code` must pass on a clean working tree.
+6. **On compilation errors**: Check that generated code is up to date
 
-## Tester
+## Tests
 
-- Bruk vanlige Go-sjekker med `t.Error`/`t.Fatal` og varianter, ikke `testify/assert` eller `testify/require`.
-- Sammenlign structs med `github.com/google/go-cmp/cmp`, gjerne `cmp.Diff` for lesbare feilmeldinger.
+- Use standard Go checks with `t.Error`/`t.Fatal` and their variants, not `testify/assert` or `testify/require`.
+- Compare structs using `github.com/google/go-cmp/cmp`, preferably `cmp.Diff` for readable error messages.
 
-## Dokumentasjon
+## Documentation
 
-- **Utviklingspraksis**: `docs/practices.md`
-- **GraphQL-konvensjoner**: `docs/graphql_practices.md`
+- **Development practices**: `docs/practices.md`
+- **GraphQL conventions**: `docs/graphql_practices.md`
 - **Audit logging**: `docs/audit_events.md`
 
-## Konfigurasjoner
+## Configuration
 
 - GraphQL: `.configs/gqlgen.yaml`
 - SQL (sqlc): `.configs/sqlc.yaml`
 - Mocks: `.configs/mockery.yaml`
 
-## Lokal utvikling
+## Local development
 
 ```bash
 mise install
@@ -69,5 +69,5 @@ mise run local:setup
 mise run local
 ```
 
-For å teste som bruker, sett header `X-User-Email: dev.usersen@example.com`.
-For admin: `X-User-Email: admin.usersen@example.com`.
+To test as a user, set the header `X-User-Email: dev.usersen@example.com`.
+For an admin: `X-User-Email: admin.usersen@example.com`.

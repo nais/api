@@ -41,7 +41,8 @@ You are reviewing GraphQL schema files for **Nais API**, a platform API built on
 
 ## Filtering
 
-- Use a single `filter` input argument (named `<TypeName>Filter`) instead of multiple query arguments.
+- Use a single `filter` argument for all filtering criteria; do not expose separate filtering arguments.
+- Each query or field must have its own top-level filter input type, named for its context with a `Filter` suffix. Never share top-level filter types, even when fields return the same connection type; this lets each context evolve independently.
 - Filter input fields should be optional (nullable) so callers can combine filters freely.
 
 ## Mutation Conventions
