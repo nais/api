@@ -71,6 +71,9 @@ func NewPostgresWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watc
 
 func NewPostgresBackupWatcher(ctx context.Context, mgr *watcher.Manager) *watcher.Watcher[*PostgresBackup] {
 	w := watcher.Watch(mgr, &PostgresBackup{}, watcher.WithConverter(func(o *unstructured.Unstructured, environmentName string) (obj any, ok bool) {
+		if o.GetDeletionTimestamp() != nil {
+			return nil, false
+		}
 		ret, err := toPostgresBackup(o, environmentName)
 		return ret, err == nil
 	}), watcher.WithGVR(schema.GroupVersionResource{
