@@ -312,9 +312,13 @@ values:
     description: JSON array with objects containing `environment` and `issuer` for each supported environment.
     computed:
       template: |
-        {{- $tenantEnvs := filter "kind" "tenant" .Envs -}}
+        {{- $kinds := list "tenant" -}}
+        {{- if eq .Tenant.Name "nav" -}}
+          {{- $kinds = append $kinds "onprem" -}}
+        {{- end -}}
         {{- $result := list -}}
-        {{- range $env := $tenantEnvs -}}
+        {{- range $env := .Envs -}}
+          {{- if not (has $env.kind $kinds) }}{{ continue }}{{ end -}}
           {{- if not $env.apiserver_oidc_issuer }}{{ continue }}{{ end -}}
           {{- $currentIssuer := dict -}}
           {{- $_ := set $currentIssuer "environment" $env.name -}}
