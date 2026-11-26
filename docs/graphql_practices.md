@@ -145,9 +145,12 @@ Refer to the [`teams` query](../internal/graph/schema/teams.graphqls) in the sch
 
 ### Filtering
 
-Instead of using multiple queries or arguments to filter a list, we use a single `filter` argument. The `filter`
-argument is a type that contains all the possible filters for the list. The filter should be named `TypeNameFilter`
-(`Filter` suffix) and should be defined as follows:
+Use a single `filter` argument for all filtering criteria, not separate filtering arguments. Each query or field
+must have its own top-level filter input type, named for its context with a `Filter` suffix. Never share top-level
+filter types, even when fields return the same connection type; this lets each context evolve independently without
+exposing irrelevant criteria. For example, `Team.workloads` and `TeamEnvironment.workloads` need distinct filter types.
+
+Define filter inputs as follows:
 
 ```graphql
 type Query {
