@@ -3167,7 +3167,6 @@ type ComplexityRoot struct {
 		Member                    func(childComplexity int, email string) int
 		Members                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *team.TeamMemberOrder) int
 		OpenSearches              func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int
-		PostgresBackup            func(childComplexity int, environmentName string, name string) int
 		PostgresBackups           func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresBackupFilter) int
 		Postgreses                func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) int
 		Purpose                   func(childComplexity int) int
@@ -3303,6 +3302,7 @@ type ComplexityRoot struct {
 		OpenSearch                func(childComplexity int, name string) int
 		Postgres                  func(childComplexity int, name string) int
 		PostgresAccess            func(childComplexity int, name string) int
+		PostgresBackup            func(childComplexity int, name string) int
 		SQLInstance               func(childComplexity int, name string) int
 		Secret                    func(childComplexity int, name string) int
 		SlackAlertsChannel        func(childComplexity int) int
@@ -18197,18 +18197,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.Team.OpenSearches(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*opensearch.OpenSearchOrder), args["filter"].(*opensearch.OpenSearchFilter)), true
 
-	case "Team.postgresBackup":
-		if e.ComplexityRoot.Team.PostgresBackup == nil {
-			break
-		}
-
-		args, err := ec.field_Team_postgresBackup_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.ComplexityRoot.Team.PostgresBackup(childComplexity, args["environmentName"].(string), args["name"].(string)), true
-
 	case "Team.postgresBackups":
 		if e.ComplexityRoot.Team.PostgresBackups == nil {
 			break
@@ -18989,6 +18977,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.TeamEnvironment.PostgresAccess(childComplexity, args["name"].(string)), true
+
+	case "TeamEnvironment.postgresBackup":
+		if e.ComplexityRoot.TeamEnvironment.PostgresBackup == nil {
+			break
+		}
+
+		args, err := ec.field_TeamEnvironment_postgresBackup_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.TeamEnvironment.PostgresBackup(childComplexity, args["name"].(string)), true
 
 	case "TeamEnvironment.sqlInstance":
 		if e.ComplexityRoot.TeamEnvironment.SQLInstance == nil {
@@ -32022,14 +32022,12 @@ type UpdatePostgresPayload {
 	postgres: Postgres!
 }
 `, BuiltIn: false},
-	{Name: "../schema/postgres_backup.graphqls", Input: `extend type Team {
-	"Look up a standalone Postgres backup by environment and name."
-	postgresBackup(
-		"Environment containing the backup."
-		environmentName: String!
-		"Name of the backup."
-		name: String!
-	): PostgresBackup!
+	{Name: "../schema/postgres_backup.graphqls", Input: `extend type TeamEnvironment {
+	"Look up a standalone Postgres backup by name."
+	postgresBackup("Name of the backup." name: String!): PostgresBackup!
+}
+
+extend type Team {
 	"Standalone Postgres backups owned by the team, newest first. Available even after their source databases are deleted."
 	postgresBackups(
 		"Get the first n backups."
@@ -45208,8 +45206,6 @@ func (ec *executionContext) childFields_Team(ctx context.Context, field graphql.
 		return ec.fieldContext_Team_openSearches(ctx, field)
 	case "postgreses":
 		return ec.fieldContext_Team_postgreses(ctx, field)
-	case "postgresBackup":
-		return ec.fieldContext_Team_postgresBackup(ctx, field)
 	case "postgresBackups":
 		return ec.fieldContext_Team_postgresBackups(ctx, field)
 	case "repositories":
@@ -45378,6 +45374,8 @@ func (ec *executionContext) childFields_TeamEnvironment(ctx context.Context, fie
 		return ec.fieldContext_TeamEnvironment_postgres(ctx, field)
 	case "postgresAccess":
 		return ec.fieldContext_TeamEnvironment_postgresAccess(ctx, field)
+	case "postgresBackup":
+		return ec.fieldContext_TeamEnvironment_postgresBackup(ctx, field)
 	case "secret":
 		return ec.fieldContext_TeamEnvironment_secret(ctx, field)
 	case "sqlInstance":

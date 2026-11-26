@@ -8,9 +8,11 @@ Helper.readK8sResources("k8s_resources/postgres_backups")
 Test.gql("A retained backup is visible without its source database", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query [[{ team(slug: "pg-crud-team") {
-		postgresBackup(environmentName: "dev", name: "retained-backup") {
-			name sourcePostgres phase majorVersion diskSize extensions sizeBytes completedAt expiresAt
-			teamEnvironment { environment { name } }
+		environment(name: "dev") {
+			postgresBackup(name: "retained-backup") {
+				name sourcePostgres phase majorVersion diskSize extensions sizeBytes completedAt expiresAt
+				teamEnvironment { environment { name } }
+			}
 		}
 		postgresBackups(first: 1, filter: { environments: ["dev"], sourcePostgres: "deleted-source" }) {
 			nodes { name teamEnvironment { environment { name } } }
@@ -21,12 +23,12 @@ Test.gql("A retained backup is visible without its source database", function(t)
 		}
 	} }]]
 	t.check { data = { team = {
-		postgresBackup = {
+		environment = { postgresBackup = {
 			name = "retained-backup", sourcePostgres = "deleted-source", phase = "COMPLETED",
 			majorVersion = "17", diskSize = "20Gi", extensions = { "vector" },
 			sizeBytes = 5368709120, completedAt = "2026-11-25T10:01:00Z", expiresAt = "2026-12-25T10:01:00Z",
 			teamEnvironment = { environment = { name = "dev" } },
-		},
+		} },
 		postgresBackups = {
 			nodes = { { name = "retained-backup", teamEnvironment = { environment = { name = "dev" } } } },
 			pageInfo = { totalCount = 1 },
@@ -37,8 +39,8 @@ end)
 
 Test.gql("Only team members can read standalone backups", function(t)
 	t.addHeader("x-user-email", outsider:email())
-	t.query [[{ team(slug: "pg-crud-team") { postgresBackup(environmentName: "dev", name: "retained-backup") { name } } }]]
-	t.check { data = Null, errors = { { locations = NotNull(), path = { "team", "postgresBackup" }, message = Contains("You are authenticated") } } }
+	t.query [[{ team(slug: "pg-crud-team") { environment(name: "dev") { postgresBackup(name: "retained-backup") { name } } } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), path = { "team", "environment", "postgresBackup" }, message = Contains("You are authenticated") } } }
 end)
 
 Test.gql("A team member can request a standalone backup", function(t)

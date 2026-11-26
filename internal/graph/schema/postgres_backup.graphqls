@@ -1,11 +1,9 @@
+extend type TeamEnvironment {
+	"Look up a standalone Postgres backup by name."
+	postgresBackup("Name of the backup." name: String!): PostgresBackup!
+}
+
 extend type Team {
-	"Look up a standalone Postgres backup by environment and name."
-	postgresBackup(
-		"Environment containing the backup."
-		environmentName: String!
-		"Name of the backup."
-		name: String!
-	): PostgresBackup!
 	"Standalone Postgres backups owned by the team, newest first. Available even after their source databases are deleted."
 	postgresBackups(
 		"Get the first n backups."

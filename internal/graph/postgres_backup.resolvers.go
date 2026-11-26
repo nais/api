@@ -25,16 +25,16 @@ func (r *postgresBackupResolver) TeamEnvironment(ctx context.Context, obj *postg
 	return team.GetTeamEnvironment(ctx, obj.TeamSlug, obj.EnvironmentName)
 }
 
-func (r *teamResolver) PostgresBackup(ctx context.Context, obj *team.Team, environmentName string, name string) (*postgres.PostgresBackup, error) {
-	return postgres.GetPostgresBackup(ctx, obj.Slug, environmentName, name)
-}
-
 func (r *teamResolver) PostgresBackups(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresBackupFilter) (*pagination.Connection[*postgres.PostgresBackup], error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {
 		return nil, err
 	}
 	return postgres.ListPostgresBackupsForTeam(ctx, obj.Slug, page, filter)
+}
+
+func (r *teamEnvironmentResolver) PostgresBackup(ctx context.Context, obj *team.TeamEnvironment, name string) (*postgres.PostgresBackup, error) {
+	return postgres.GetPostgresBackup(ctx, obj.TeamSlug, obj.EnvironmentName, name)
 }
 
 func (r *Resolver) PostgresBackup() gengql.PostgresBackupResolver { return &postgresBackupResolver{r} }
