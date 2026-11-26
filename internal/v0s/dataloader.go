@@ -39,6 +39,7 @@ type loaders struct {
 	manager           *Manager
 	inventory         *dataloadgen.Loader[struct{}, map[workloadKey]string]
 	workloads         *dataloadgen.Loader[scope, map[workloadKey]*protoapi.Workload]
+	selectedWorkloads *dataloadgen.Loader[workloadKey, *protoapi.Workload]
 	counts            *dataloadgen.Loader[string, map[string]int64]
 	advisories        *dataloadgen.Loader[string, *Vulnerability]
 	suppressionCounts *dataloadgen.Loader[string, int]
@@ -71,7 +72,24 @@ func NewLoaderContext(ctx context.Context, inventory func(context.Context) (*inv
 		values := make([]map[workloadKey]*protoapi.Workload, len(keys))
 		errs := make([]error, len(keys))
 		for i, key := range keys {
-			values[i], errs[i] = l.listWorkloads(ctx, key)
+			values[i], errs[i] = l.listWorkloads(ctx, &protoapi.ListWorkloadsRequest{
+				Team: key.team, Environment: key.environment, PageSize: 1000,
+			})
+		}
+		return values, errs
+	}, loader.DefaultDataLoaderOptions...)
+	l.selectedWorkloads = dataloadgen.NewLoader(func(ctx context.Context, keys []workloadKey) ([]*protoapi.Workload, []error) {
+		selected := make(map[workloadKey]*protoapi.Workload, len(keys))
+		for _, key := range keys {
+			selected[key] = nil
+		}
+		rows, err := l.listWorkloads(ctx, &protoapi.ListWorkloadsRequest{
+			WorkloadSelector: workloadSelector(selected), PageSize: 1000,
+		})
+		values := make([]*protoapi.Workload, len(keys))
+		errs := make([]error, len(keys))
+		for i, key := range keys {
+			values[i], errs[i] = rows[key], err
 		}
 		return values, errs
 	}, loader.DefaultDataLoaderOptions...)
@@ -177,9 +195,8 @@ func fromContext(ctx context.Context) (*loaders, error) {
 	return l, nil
 }
 
-func (l *loaders) listWorkloads(ctx context.Context, s scope) (map[workloadKey]*protoapi.Workload, error) {
+func (l *loaders) listWorkloads(ctx context.Context, req *protoapi.ListWorkloadsRequest) (map[workloadKey]*protoapi.Workload, error) {
 	result := make(map[workloadKey]*protoapi.Workload)
-	req := &protoapi.ListWorkloadsRequest{Team: s.team, Environment: s.environment, PageSize: 1000}
 	for {
 		resp, err := l.manager.Vulnerabilities.ListWorkloads(ctx, req)
 		if err != nil {

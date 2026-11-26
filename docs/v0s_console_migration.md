@@ -219,6 +219,9 @@ be resumed; this is not snapshot pagination.
 
 API follows all backend workload-aggregate continuation pages for the selected
 inventory, keeps positive filtered finding counts, then sorts and paginates.
+Current-image reconciliation also uses an explicit selector for the selected
+workloads, cached and batched per request. Empty selections do not fetch backend
+workload inventory; restricted selections do not fetch tenant-wide inventory.
 It does not enumerate finding pages to calculate membership. Cost is
 O(selected workloads), not backend-sized affected-only pagination. The pinned
 v0.11.0 contract is sufficient; no nais/v0s dependency change is required.

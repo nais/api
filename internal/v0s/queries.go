@@ -172,18 +172,24 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, wo
 	}
 	var current map[workloadKey]*protoapi.Workload
 	if selected != nil {
-		all, err := l.workloads.Load(ctx, scope{team: s.team, environment: s.environment})
-		if err != nil {
-			return nil, err
-		}
-		current = make(map[workloadKey]*protoapi.Workload)
-		for _, w := range selected {
+		keys := make([]workloadKey, len(selected))
+		for i, w := range selected {
 			key := workloadKey{w.GetEnvironmentName(), w.GetTeamSlug().String(), w.GetName()}
 			if !s.matches(key) {
 				return nil, apierror.Errorf("Selected workload is outside the vulnerability scope")
 			}
-			if row := all[key]; row != nil && w.GetImageString() != "" && row.GetImageReference() == w.GetImageString() {
-				current[key] = row
+			keys[i] = key
+		}
+		current = make(map[workloadKey]*protoapi.Workload)
+		if len(keys) > 0 {
+			rows, err := l.selectedWorkloads.LoadAll(ctx, keys)
+			if err != nil {
+				return nil, err
+			}
+			for i, w := range selected {
+				if row := rows[i]; row != nil && w.GetImageString() != "" && row.GetImageReference() == w.GetImageString() {
+					current[keys[i]] = row
+				}
 			}
 		}
 	} else {

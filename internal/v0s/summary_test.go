@@ -87,6 +87,32 @@ func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *te
 	ctx := c.context(t, "app", "outside", "stale")
 	c.workloads[0].Image.Status = protoapi.ImageStatus_IMAGE_STATUS_SCANNED
 	c.workloads[2].ImageReference = "repo/stale:old"
+	workloadCalls := 0
+	c.listWorkloads = func(req *protoapi.ListWorkloadsRequest) (*protoapi.ListWorkloadsResponse, error) {
+		workloadCalls++
+		if req.WorkloadSelector == nil {
+			t.Fatal("metadata-selected reconciliation fetched unrestricted inventory")
+		}
+		names := make([]string, 0)
+		for _, ref := range req.WorkloadSelector.Workloads {
+			if ref.Team != "team-one" || ref.Environment != "dev" {
+				t.Errorf("unexpected selected workload: %v", ref)
+			}
+			names = append(names, ref.Name)
+		}
+		if diff := cmp.Diff([]string{"app", "stale", "without-image"}, names); diff != "" {
+			t.Errorf("reconciliation selector (-want +got):\n%s", diff)
+		}
+		switch req.PageToken {
+		case "":
+			return &protoapi.ListWorkloadsResponse{Workloads: c.workloads[:1], NextPageToken: "rest"}, nil
+		case "rest":
+			return &protoapi.ListWorkloadsResponse{Workloads: c.workloads[2:]}, nil
+		default:
+			t.Fatalf("unexpected workload cursor: %q", req.PageToken)
+			return nil, nil
+		}
+	}
 	c.list = func(req *protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
 		if refs := req.WorkloadSelector.GetWorkloads(); len(refs) != 1 || refs[0].Name != "app" {
 			t.Errorf("findings did not retain the selected current workloads: %v", req.WorkloadSelector)
@@ -106,7 +132,7 @@ func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *te
 			Coverage:       &protoapi.WorkloadCoverage{TotalWorkloadCount: 1, ScannedCount: 1},
 		}, nil
 	}
-	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")},
+	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{},
 		[]workload.Workload{selectedWorkload{name: "app"}, selectedWorkload{name: "stale"}, selectedWorkload{name: "without-image"}},
 		&v0s.VulnerabilityFindingFilter{PackageType: new("npm"), OnlyWithFix: new(true)}, new(1), nil, nil)
 	if err != nil {
@@ -124,11 +150,22 @@ func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *te
 	if diff := cmp.Diff(want, got); diff != "" {
 		t.Fatalf("selected summary (-want +got):\n%s", diff)
 	}
+	if _, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: "team-one", Environment: "dev", Workload: "app"},
+		[]workload.Workload{selectedWorkload{name: "app"}}, nil, nil, nil, nil); err != nil {
+		t.Fatal(err)
+	}
+	if workloadCalls != 2 {
+		t.Fatalf("selected inventory was not paged once and reused for row reads: %d calls", workloadCalls)
+	}
 }
 
 func TestSummaryExplicitEmptySelectionIsNotUnrestricted(t *testing.T) {
 	c := &client{}
 	ctx := c.context(t, "app")
+	c.listWorkloads = func(*protoapi.ListWorkloadsRequest) (*protoapi.ListWorkloadsResponse, error) {
+		t.Fatal("empty selection must not fetch backend workload inventory")
+		return nil, nil
+	}
 	c.list = func(req *protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse {
 		if req.WorkloadSelector == nil || len(req.WorkloadSelector.Workloads) != 0 {
 			t.Errorf("empty finding selector became unrestricted: %v", req.WorkloadSelector)
@@ -153,6 +190,13 @@ func TestSummaryExplicitEmptySelectionIsNotUnrestricted(t *testing.T) {
 	}
 	if got.FindingCount != 0 || got.Coverage.TotalWorkloads != 0 {
 		t.Fatalf("empty selection counted unselected inventory: %+v", got)
+	}
+	affected, err := page.AffectedWorkloads(ctx, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(affected.Edges) != 0 || affected.PageInfo.TotalCount != 0 {
+		t.Fatalf("empty selection returned affected workloads: %+v", affected)
 	}
 }
 
