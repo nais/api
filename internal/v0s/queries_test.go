@@ -22,13 +22,17 @@ type client struct {
 	protoapi.VulnerabilityServiceClient
 	protoapi.SuppressionServiceClient
 	workloads       []*protoapi.Workload
+	listWorkloads   func(*protoapi.ListWorkloadsRequest) (*protoapi.ListWorkloadsResponse, error)
 	list            func(*protoapi.ListFindingsRequest) *protoapi.ListFindingsResponse
 	countCalls      int
 	vulnerabilities func(*protoapi.ListVulnerabilitiesRequest) (*protoapi.ListVulnerabilitiesResponse, error)
 	summary         func(*protoapi.GetSummaryRequest) (*protoapi.GetSummaryResponse, error)
 }
 
-func (c *client) ListWorkloads(context.Context, *protoapi.ListWorkloadsRequest, ...grpc.CallOption) (*protoapi.ListWorkloadsResponse, error) {
+func (c *client) ListWorkloads(_ context.Context, req *protoapi.ListWorkloadsRequest, _ ...grpc.CallOption) (*protoapi.ListWorkloadsResponse, error) {
+	if c.listWorkloads != nil {
+		return c.listWorkloads(req)
+	}
 	return &protoapi.ListWorkloadsResponse{Workloads: c.workloads}, nil
 }
 

@@ -207,7 +207,7 @@ workload or advisory instead. Missing v0s workloads and obsolete image reference
 remain in the API list with PENDING coverage and zero known findings, not a clean
 result. Backend failures return errors, not pending zero-count overviews.
 The overview filter changes counts, not workload-list membership or coverage.
-`Team.vulnerabilityFindings(workloadFilter:)` shares environment/label selection
+`Team.vulnerabilityFindings(filter:)` shares environment/label selection
 with `Team.workloads(filter:)`, including all matching workloads in coverage.
 Labels retain AND matching, key existence for omitted values, and exact matching
 for explicit empty strings. The new v0s paths reject other workload predicates.
@@ -216,8 +216,8 @@ For v0s sorting, use `VULNERABILITY_UNIQUE_CRITICAL`, `VULNERABILITY_UNIQUE_HIGH
 `VULNERABILITY_UNIQUE_UNKNOWN`. Pass the same `filter.vulnerabilityFilter` to the list
 and `filter` to each row overview. Sorting uses these unique-severity counts,
 not finding counts or v13s statistics.
-On `Team.vulnerabilityFindings`, keep finding predicates in its existing `filter`
-argument; `workloadFilter` accepts only environment/label selection.
+On `Team.vulnerabilityFindings`, combine environments, labels and finding
+predicates in its single `TeamVulnerabilityFindingsFilter`.
 Incomplete scans are first in both directions; scanned workloads then sort by
 count, with name/environment/type ascending as stable ties. API loads selected
 team aggregates in batches before paging, without fetching all findings.
@@ -226,8 +226,19 @@ forward/backward workload pagination, and are incompatible with legacy cursors.
 Pages are live offsets, not snapshots. See the
 [shared-filter query example](docs/v0s_console_migration.md#additive-graphql-navigation).
 No v0s change or new client release is required.
-Global affected-only workload selection is not integrated; legacy vulnerability
-sorting still uses v13s.
+Global `vulnerabilityFindings(filter:)` reuses `TeamScopeInput`,
+including `memberOfViewer`, with the same environment/label rules. The parent
+selection applies to findings, groups, facets, summaries and
+`affectedWorkloads(first:, after:)`. This connection deduplicates current API
+workloads before pagination, orders by name/environment/team/type ascending,
+and keeps coverage over the full metadata selection. It uses filtered workload
+aggregates, not enumeration of findings; cost is O(selected workloads).
+See the [CVE navigation and assessment examples](docs/v0s_console_migration.md#global-cve-list).
+Legacy vulnerability sorting still uses v13s.
+Each v0s field has a context-specific top-level filter input. Workload interface
+fields use the same argument types on applications and jobs, as required by
+GraphQL. Migrate typed query variables along with the consolidated filter;
+the separate `workloadFilter` argument is no longer available.
 Tenant and team summaries are available as `vulnerabilityFindings.summary`,
 including through `Team` and `TeamEnvironment`. They use the full scope and
 finding filter, independently of page size, cursor and ordering. The response

@@ -38,7 +38,7 @@ func vulnerabilityOverviewOrder(input *VulnerabilityOverviewOrder) (*protoapi.Vu
 	return order, nil
 }
 
-func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.FindingFilter, selector *protoapi.WorkloadSelector, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
+func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.FindingFilter, selector *protoapi.WorkloadSelector, binding string, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.Fi
 	if err != nil {
 		return nil, fmt.Errorf("encode v0s vulnerability overview selection: %w", err)
 	}
-	p, err := parsePage(first, after, selectionKey("vulnerability-overview", string(data)))
+	p, err := parsePage(first, after, selectionKey("vulnerability-overview", binding+string(data)))
 	if err != nil {
 		return nil, err
 	}

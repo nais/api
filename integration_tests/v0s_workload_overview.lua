@@ -29,7 +29,7 @@ Test.gql("Summary and sorted workloads share environment and AND label selection
 	t.addHeader("x-user-email", user:email())
 	t.query(string.format([[{
 		team(slug: "v0s-overview") {
-			vulnerabilityFindings(first: 1, workloadFilter: %s, filter: %s) {
+			vulnerabilityFindings(first: 1, filter: {%s, %s}) {
 				nodes { vulnerabilityIdentifier }
 				summary {
 					findingCount uniqueVulnerabilityCount affectedWorkloadCount
@@ -50,7 +50,7 @@ Test.gql("Summary and sorted workloads share environment and AND label selection
 				facets { vulnerabilityCoverage { totalWorkloads scanned pending noSbom failed unresolvedImage } }
 			}
 		}
-	}]], workloads, findings, filteredWorkloads, findings))
+	}]], workloads:sub(2, -2), findings:sub(2, -2), filteredWorkloads, findings))
 	local coverage = { totalWorkloads = 8, scanned = 3, pending = 2, noSbom = 1, failed = 1, unresolvedImage = 1 }
 	t.check { data = { team = {
 		vulnerabilityFindings = {
@@ -118,10 +118,10 @@ Test.gql("Ascending keeps incomplete scans first and finding filters do not shri
 		team(slug: "v0s-overview") {
 			workloads(filter: %s,
 				orderBy: {field: VULNERABILITY_UNIQUE_CRITICAL, direction: ASC}) { nodes { name } }
-			vulnerabilityFindings(workloadFilter: %s, filter: {packageType: "absent"}) {
+			vulnerabilityFindings(filter: {%s, packageType: "absent"}) {
 				summary { findingCount uniqueVulnerabilityCount affectedWorkloadCount coverage { totalWorkloads scanned pending } }
 			}
-			empty: vulnerabilityFindings(workloadFilter: {environments: ["dev"], labels: [{key: "absent"}]}) {
+			empty: vulnerabilityFindings(filter: {environments: ["dev"], labels: [{key: "absent"}]}) {
 				nodes { vulnerabilityIdentifier } summary { findingCount coverage { totalWorkloads } }
 			}
 			emptyWorkloads: workloads(filter: {environments: ["dev"], labels: [{key: "absent"}]},
@@ -129,7 +129,7 @@ Test.gql("Ascending keeps incomplete scans first and finding filters do not shri
 				nodes { name } pageInfo { totalCount }
 			}
 		}
-	}]], filteredWorkloads, workloads))
+	}]], filteredWorkloads, workloads:sub(2, -2)))
 	t.check { data = { team = {
 		workloads = { nodes = {
 			{ name = "failed" }, { name = "fresh" }, { name = "no-sbom" }, { name = "stale" },
@@ -148,12 +148,12 @@ Test.gql("New vulnerability selection rejects unsupported workload predicates an
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
 		team(slug: "v0s-overview") {
-			vulnerabilityFindings(workloadFilter: {vulnerabilityCoverageStatuses: [SCANNED]}) { summary { findingCount } }
+			vulnerabilityFindings(filter: {vulnerabilityCoverageStatuses: [SCANNED]}) { summary { findingCount } }
 		}
 	}]]
 	t.check { data = Null, errors = { {
-		message = "Only environments and labels are supported for vulnerability workload selection",
-		path = { "team", "vulnerabilityFindings" }, locations = NotNull(),
+		message = 'Field "vulnerabilityCoverageStatuses" is not defined by type "TeamVulnerabilityFindingsFilter".',
+		extensions = { code = "GRAPHQL_VALIDATION_FAILED" }, locations = NotNull(),
 	} } }
 	t.query [[{
 		team(slug: "v0s-overview") {
@@ -166,12 +166,12 @@ Test.gql("New vulnerability selection rejects unsupported workload predicates an
 	} } }
 	t.query [[{
 		team(slug: "v0s-overview") {
-			vulnerabilityFindings(workloadFilter: {vulnerabilityFilter: {packageType: "npm"}}) { summary { findingCount } }
+			vulnerabilityFindings(workloadFilter: {environments: ["dev"]}) { summary { findingCount } }
 		}
 	}]]
 	t.check { data = Null, errors = { {
-		message = "Use filter to select vulnerability findings; workloadFilter only supports environments and labels",
-		path = { "team", "vulnerabilityFindings" }, locations = NotNull(),
+		message = 'Unknown argument "workloadFilter" on field "Team.vulnerabilityFindings".',
+		extensions = { code = "GRAPHQL_VALIDATION_FAILED" }, locations = NotNull(),
 	} } }
 end)
 
@@ -179,10 +179,10 @@ Test.gql("Same-name application and job keep their own images and coverage", fun
 	t.addHeader("x-user-email", user:email())
 	t.query [[{
 		team(slug: "v0s-overview") {
-			vulnerabilityFindings(workloadFilter: {environments: ["dev"], labels: [{key: "group", value: "collision"}]}) {
+			vulnerabilityFindings(filter: {environments: ["dev"], labels: [{key: "group", value: "collision"}]}) {
 				summary { findingCount coverage { totalWorkloads scanned pending } }
 			}
-			appOnly: vulnerabilityFindings(workloadFilter: {environments: ["dev"], labels: [{key: "owner", value: "app"}]}) {
+			appOnly: vulnerabilityFindings(filter: {environments: ["dev"], labels: [{key: "owner", value: "app"}]}) {
 				nodes { vulnerabilityIdentifier }
 				summary { findingCount coverage { totalWorkloads scanned pending } }
 			}

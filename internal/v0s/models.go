@@ -10,6 +10,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/graph/scalar"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team/teamscope"
 	v0sfilter "github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/workload"
 )
@@ -21,6 +22,35 @@ type Scope struct {
 }
 
 type VulnerabilityFindingFilter = v0sfilter.VulnerabilityFindingFilter
+
+type VulnerabilityFindingsFilter struct {
+	VulnerabilityFindingFilter
+	TeamScope    *teamscope.TeamScopeInput
+	Environments []string
+	Labels       []*model.LabelFilter
+}
+
+type TeamVulnerabilityFindingsFilter struct {
+	VulnerabilityFindingFilter
+	Environments []string
+	Labels       []*model.LabelFilter
+}
+
+type TeamEnvironmentVulnerabilityFindingsFilter VulnerabilityFindingFilter
+
+type WorkloadVulnerabilityFindingsFilter VulnerabilityFindingFilter
+
+type WorkloadVulnerabilityOverviewFilter VulnerabilityFindingFilter
+
+type TeamVulnerabilitySuppressionsFilter VulnerabilitySuppressionFilter
+
+type TeamEnvironmentVulnerabilitySuppressionsFilter VulnerabilitySuppressionFilter
+
+type VulnerabilityWorkloadFilter struct {
+	TeamScope    *teamscope.TeamScopeInput
+	Environments []string
+	Labels       []*model.LabelFilter
+}
 
 type VulnerabilityFindingOrder struct {
 	Field     VulnerabilityFindingOrderField
@@ -48,9 +78,14 @@ type VulnerabilityFindingEdge = pagination.Edge[*VulnerabilityFinding]
 
 type VulnerabilityFindingConnection struct {
 	pagination.Connection[*VulnerabilityFinding]
-	loadFacets          func(context.Context) (*VulnerabilityFindingFacets, error)
-	loadVulnerabilities func(context.Context, *int, *pagination.Cursor, *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error)
-	loadSummary         func(context.Context) (*VulnerabilitySelectionSummary, error)
+	loadFacets            func(context.Context) (*VulnerabilityFindingFacets, error)
+	loadVulnerabilities   func(context.Context, *int, *pagination.Cursor, *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error)
+	loadSummary           func(context.Context) (*VulnerabilitySelectionSummary, error)
+	loadAffectedWorkloads func(context.Context, *int, *pagination.Cursor) (*workload.WorkloadConnection, error)
+}
+
+func (c *VulnerabilityFindingConnection) AffectedWorkloads(ctx context.Context, first *int, after *pagination.Cursor) (*workload.WorkloadConnection, error) {
+	return c.loadAffectedWorkloads(ctx, first, after)
 }
 
 func (c *VulnerabilityFindingConnection) Summary(ctx context.Context) (*VulnerabilitySelectionSummary, error) {

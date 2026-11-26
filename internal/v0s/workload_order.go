@@ -134,10 +134,7 @@ func ParseWorkloadPage(scope Scope, filter *workload.TeamWorkloadsFilter, findin
 			}
 		}
 	}
-	slices.Sort(environments)
-	environments = slices.Compact(environments)
-	slices.SortFunc(labels, compareLabelFilters)
-	labels = slices.CompactFunc(labels, func(a, b *model.LabelFilter) bool { return compareLabelFilters(a, b) == 0 })
+	environments, labels = normalizedWorkloadMetadata(environments, labels)
 	data, err := json.Marshal(struct {
 		Scope        Scope
 		Environments []string
