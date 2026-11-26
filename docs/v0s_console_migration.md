@@ -30,7 +30,7 @@ v0s results in a Console view before that source switch.
 | Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                       | Verify deployed inventory reconciliation                          |
 | Workload selection               | Global `TeamScopeInput` and environment/label filters; existing team/environment/workload scopes                          | No additional API selection contract needed                       |
 | Workload/vulnerability overviews | Unique-vulnerability groups, affected-workload connection, batch-loaded workload counts and team unique-severity ordering | No additional backend release needed for CVE navigation           |
-| Assessment writes                | Team-authorized, gated v0s batches                                                                                        | Durable activity-log delivery before enablement                   |
+| Assessment writes                | Team-authorized, gated v0s batches with best-effort activity logging                                                      | Verify set and delete before enablement                           |
 | Vulnerability Issues             | Existing producers use v13s                                                                                               | Switch the three producers and remove obsolete risk-score payload |
 | Manual reanalysis                | No public v0s RPC                                                                                                         | Do not expose a working reanalysis control                        |
 
@@ -814,13 +814,12 @@ Writes use `vulnerability:update` authorization for the whole owning-team
 batch. The authenticated actor is supplied by API, not user input. v0s
 canonicalizes keys and commits each set/delete batch atomically.
 
-Currently activity-log entries are written separately after the v0s commit.
-This does not guarantee delivery: a log failure can occur after a successful
-assessment write. Before enabling new writes, the required backend extension
-must commit immutable change events in the same transaction as the assessment.
-API must consume those events idempotently, committing deduplication and the
-activity entry together before acknowledging delivery. Preserve original
-actor, action, key, state, reason and timestamp, including deletion snapshots.
+Activity logging is best effort. After the v0s batch commits, API attempts to
+record an activity entry for each assessment returned by v0s, using the
+authenticated actor and the returned assessment snapshot. API logs activity
+write failures and continues processing the batch without failing the mutation.
+Activity entries can be missing if a log write fails or API stops after the v0s
+commit. Guaranteed delivery is not required for this rollout.
 
 Importing old v13s assessments is a separate rollout responsibility. Do not
 silently map RESOLVED or IN_TRIAGE to ACCEPTED_RISK. v0s's internal migration of
@@ -848,8 +847,9 @@ available; Console must not present one as functional.
    multiple-ID filtering. Verify actual server behavior.
 2. Deploy additive API fields and explicit readiness information. Keep legacy
    v13s APIs operational; no implicit fallback between models.
-3. Deploy transactional assessment events and replay-safe API log ingestion.
-   Keep new assessment writes disabled until delivery guarantees are verified.
+3. Keep assessment writes disabled by default. Verify set and delete in a test
+   environment, including that activity logging failures do not fail a
+   successful assessment mutation.
 4. Handle any old assessment import externally, including unmatched records and
    incompatible states. Any importer must not overwrite subsequent v0s writes.
 5. Switch the three shared vulnerability issue producers to v0s and verify their
@@ -860,5 +860,5 @@ available; Console must not present one as functional.
    Eventual removal is a separate change.
 
 Rolling Console back does not copy newer v0s assessments into v13s. Preserve
-assessment state and undelivered log events; explicitly reconcile any data
-transfer instead of claiming consistency between independent models.
+assessment state; explicitly reconcile any data transfer instead of claiming
+consistency between independent models.

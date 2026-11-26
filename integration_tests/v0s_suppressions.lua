@@ -90,3 +90,40 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 	assert((State.workload1 == "app" and State.workload2 == "stale") or
 		(State.workload1 == "stale" and State.workload2 == "app"))
 end)
+
+Test.sql("Reject assessment activity inserts for the test team", function()
+	Helper.SQLExec([[
+		ALTER TABLE activity_log_entries ADD CONSTRAINT reject_v0s_test_activity
+		CHECK (team_slug <> 'v0s-team' OR resource_type <> 'VULNERABILITY_SUPPRESSION') NOT VALID
+	]])
+end)
+
+Test.gql("Set and delete succeed even when writing activity fails", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query(string.format([[mutation {
+		setVulnerabilitySuppressions(input: {team: "v0s-team", items: [{
+			key: %s, state: ACCEPTED_RISK, reason: "assessed"
+		}]}) { suppressions { reason } }
+	}]], app))
+	t.check { data = { setVulnerabilitySuppressions = { suppressions = { { reason = "assessed" } } } } }
+
+	t.query(delete)
+	t.check { data = { deleteVulnerabilitySuppressions = { deleted = { { workloadName = "app" } } } } }
+
+	t.query [[{
+		team(slug: "v0s-team") {
+			vulnerabilitySuppressions { pageInfo { totalCount } }
+			updated: activityLog(filter: {activityTypes: [VULNERABILITY_SUPPRESSION_UPDATED]}) { pageInfo { totalCount } }
+			deleted: activityLog(filter: {activityTypes: [VULNERABILITY_SUPPRESSION_DELETED]}) { pageInfo { totalCount } }
+		}
+	}]]
+	t.check { data = { team = {
+		vulnerabilitySuppressions = { pageInfo = { totalCount = 0 } },
+		updated = { pageInfo = { totalCount = 2 } },
+		deleted = { pageInfo = { totalCount = 2 } },
+	} } }
+end)
+
+Test.sql("Restore assessment activity inserts", function()
+	Helper.SQLExec("ALTER TABLE activity_log_entries DROP CONSTRAINT reject_v0s_test_activity")
+end)

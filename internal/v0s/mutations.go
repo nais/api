@@ -105,9 +105,7 @@ func SetSuppressions(ctx context.Context, input SetVulnerabilitySuppressionsInpu
 		if err != nil {
 			return nil, err
 		}
-		if err := recordAssessment(ctx, activitylog.ActivityLogEntryActionUpdated, s); err != nil {
-			return nil, err
-		}
+		recordAssessment(ctx, activitylog.ActivityLogEntryActionUpdated, s)
 		result.Suppressions = append(result.Suppressions, s)
 	}
 	return result, nil
@@ -139,9 +137,7 @@ func DeleteSuppressions(ctx context.Context, input DeleteVulnerabilitySuppressio
 		if err != nil {
 			return nil, err
 		}
-		if err := recordAssessment(ctx, activitylog.ActivityLogEntryActionDeleted, s); err != nil {
-			return nil, err
-		}
+		recordAssessment(ctx, activitylog.ActivityLogEntryActionDeleted, s)
 		result.Deleted = append(result.Deleted, assessmentSnapshot(s))
 	}
 	return result, nil

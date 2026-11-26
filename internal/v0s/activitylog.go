@@ -8,6 +8,7 @@ import (
 	"github.com/nais/api/internal/activitylog"
 	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/slug"
+	"github.com/sirupsen/logrus"
 )
 
 const activityLogResourceType activitylog.ActivityLogEntryResourceType = "VULNERABILITY_SUPPRESSION"
@@ -59,13 +60,20 @@ type VulnerabilitySuppressionSnapshot struct {
 	UpdatedAt               time.Time                     `json:"updatedAt"`
 }
 
-func recordAssessment(ctx context.Context, action activitylog.ActivityLogEntryAction, assessment *VulnerabilitySuppression) error {
-	return activitylog.Create(ctx, activitylog.CreateInput{
+func recordAssessment(ctx context.Context, action activitylog.ActivityLogEntryAction, assessment *VulnerabilitySuppression) {
+	if err := activitylog.Create(ctx, activitylog.CreateInput{
 		Action: action, Actor: authz.ActorFromContext(ctx).User,
 		ResourceType: activityLogResourceType, ResourceName: assessment.Workload,
 		TeamSlug: &assessment.Team, EnvironmentName: &assessment.Environment,
 		Data: VulnerabilitySuppressionActivityLogEntryData{Assessment: assessmentSnapshot(assessment)},
-	})
+	}); err != nil {
+		logrus.WithContext(ctx).WithError(err).WithFields(logrus.Fields{
+			"action":      action,
+			"team":        assessment.Team,
+			"environment": assessment.Environment,
+			"workload":    assessment.Workload,
+		}).Error("unable to create vulnerability assessment activity log entry")
+	}
 }
 
 func assessmentSnapshot(assessment *VulnerabilitySuppression) *VulnerabilitySuppressionSnapshot {
