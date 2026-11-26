@@ -9,6 +9,8 @@ extend type Query {
 		after: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
+		"Select workloads before filtering findings and computing aggregates. Coverage includes all matching workloads."
+		workloadFilter: VulnerabilityWorkloadFilter
 	): VulnerabilityFindingConnection!
 	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
 	vulnerability(
@@ -137,6 +139,16 @@ extend type Job {
 	): VulnerabilityWorkloadOverview!
 }
 
+"Select workloads before filtering findings, grouping vulnerabilities and computing coverage."
+input VulnerabilityWorkloadFilter {
+	"Select explicit teams or teams the viewer belongs to, using the existing union semantics."
+	teamScope: TeamScopeInput
+	"Include workloads in any of these environments. Omitted or empty means all environments."
+	environments: [String!]
+	"Match all labels. An omitted value requires the key to exist; an explicit value, including an empty string, matches exactly."
+	labels: [LabelFilter!]
+}
+
 "Filters applied before finding pagination and aggregation."
 input VulnerabilityFindingFilter {
 	"Match any of these vulnerability identifiers or aliases."
@@ -207,6 +219,13 @@ type VulnerabilityFindingConnection {
 	facets: VulnerabilityFindingFacets!
 	"Server-aggregated counts across the full filtered selection, independent of finding pagination and ordering. Coverage includes all workloads in scope, regardless of finding filters."
 	summary: VulnerabilitySelectionSummary!
+	"Current workloads with matching findings, deduplicated before pagination. Independent of the finding page and ordered by name, environment, team and workload type ascending. Coverage includes all selected workloads, not just affected workloads."
+	affectedWorkloads(
+		"Get the first n affected workloads, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue with the same scope, workload selection and finding filter."
+		after: Cursor
+	): WorkloadConnection!
 	"Unique vulnerabilities across the full filtered workload selection, independent of the finding page and ordering."
 	vulnerabilities(
 		"Get the first n vulnerabilities, between 1 and 200. Defaults to 20."

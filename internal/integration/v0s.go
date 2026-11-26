@@ -137,7 +137,7 @@ func (c *v0sClient) ListWorkloads(_ context.Context, req *protoapi.ListWorkloads
 				}
 				if slices.ContainsFunc(c.findings, func(f *protoapi.Finding) bool {
 					return f.VulnerabilityId == group.VulnerabilityId && f.KnownExploited &&
-						v0sMatches(f, filter) && v0sWorkloadSelected(f.Workload, &protoapi.WorkloadSelector{Workloads: []*protoapi.WorkloadRef{ref}})
+						c.matchesFinding(f, filter) && v0sWorkloadSelected(f.Workload, &protoapi.WorkloadSelector{Workloads: []*protoapi.WorkloadRef{ref}})
 				}) {
 					counts.UniqueKevVulnerabilityCount++
 				}
@@ -157,17 +157,39 @@ func v0sFindingKey(f *protoapi.Finding) string {
 	return strings.Join([]string{w.Environment, w.Team, w.Name, f.VulnerabilityId, f.Purl}, "\x00")
 }
 
-func v0sMatches(f *protoapi.Finding, filter *protoapi.FindingFilter) bool {
+func v0sCanonicalIdentifier(id string) string {
+	if id == "GHSA-shared" {
+		return "CVE-shared"
+	}
+	return id
+}
+
+func (c *v0sClient) findingSuppression(f *protoapi.Finding) *protoapi.Suppression {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for _, s := range c.suppressions {
+		if s.Team == f.Workload.Team && s.Environment == f.Workload.Environment && s.Workload == f.Workload.Name &&
+			s.ImageName == f.Image.GetName() && s.PackageKey == f.PackageKey && s.VulnerabilityId == f.VulnerabilityId {
+			return s
+		}
+	}
+	return nil
+}
+
+func (c *v0sClient) matchesFinding(f *protoapi.Finding, filter *protoapi.FindingFilter) bool {
 	packageType, _, _ := strings.Cut(strings.TrimPrefix(f.PackageKey, "pkg:"), "/")
+	assessed := c.findingSuppression(f) != nil
 	return (filter.Team == "" || filter.Team == f.Workload.Team) &&
 		(filter.Environment == "" || filter.Environment == f.Workload.Environment) &&
 		(filter.Workload == "" || filter.Workload == f.Workload.Name) &&
-		(len(filter.VulnerabilityIds) == 0 || slices.Contains(filter.VulnerabilityIds, f.VulnerabilityId)) &&
+		(len(filter.VulnerabilityIds) == 0 || slices.ContainsFunc(filter.VulnerabilityIds, func(id string) bool { return v0sCanonicalIdentifier(id) == f.VulnerabilityId })) &&
 		(filter.Package == "" || filter.Package == f.Purl || filter.Package == f.PackageKey) &&
 		(filter.PackageType == "" || strings.EqualFold(filter.PackageType, packageType)) &&
 		(len(filter.Severities) == 0 || slices.Contains(filter.Severities, f.Severity)) &&
 		(!filter.HasFix || f.FixedVersion != "") && (!filter.OnlyKnownExploited || f.KnownExploited) &&
-		filter.Suppressed != protoapi.SuppressedFilter_SUPPRESSED_FILTER_ONLY
+		((filter.Suppressed == protoapi.SuppressedFilter_SUPPRESSED_FILTER_INCLUDE) ||
+			(filter.Suppressed == protoapi.SuppressedFilter_SUPPRESSED_FILTER_ONLY && assessed) ||
+			(filter.Suppressed != protoapi.SuppressedFilter_SUPPRESSED_FILTER_ONLY && !assessed))
 }
 
 func v0sWorkloadSelected(w *protoapi.WorkloadRef, selector *protoapi.WorkloadSelector) bool {
@@ -235,7 +257,7 @@ func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRe
 	matching := make([]*protoapi.Finding, 0)
 	packageCounts := map[string]int64{}
 	for _, f := range c.findings {
-		if v0sMatches(f, req.Filter) && v0sWorkloadSelected(f.Workload, req.WorkloadSelector) {
+		if c.matchesFinding(f, req.Filter) && v0sWorkloadSelected(f.Workload, req.WorkloadSelector) {
 			matching = append(matching, f)
 			packageType, _, _ := strings.Cut(strings.TrimPrefix(f.PackageKey, "pkg:"), "/")
 			packageCounts[packageType]++
@@ -259,7 +281,9 @@ func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRe
 		if err != nil {
 			return nil, err
 		}
-		resp.Findings = append(resp.Findings, f)
+		value := proto.Clone(f).(*protoapi.Finding)
+		value.Suppression = c.findingSuppression(f)
+		resp.Findings = append(resp.Findings, value)
 		resp.Cursors = append(resp.Cursors, cursor)
 	}
 	return resp, nil
@@ -268,7 +292,7 @@ func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRe
 func (c *v0sClient) CountFindings(_ context.Context, req *protoapi.CountFindingsRequest, _ ...grpc.CallOption) (*protoapi.CountFindingsResponse, error) {
 	counts := map[string]int64{}
 	for _, f := range c.findings {
-		if v0sMatches(f, req.Filter) {
+		if c.matchesFinding(f, req.Filter) {
 			w := f.Workload
 			counts[w.Environment+"/"+w.Team+"/"+w.Name]++
 		}
@@ -284,7 +308,7 @@ func (c *v0sClient) vulnerabilityGroups(filter *protoapi.FindingFilter, selector
 	groups := map[string]*protoapi.VulnerabilitySummary{}
 	workloads := map[string]map[string]bool{}
 	for _, f := range c.findings {
-		if !v0sMatches(f, filter) || !v0sWorkloadSelected(f.Workload, selector) {
+		if !c.matchesFinding(f, filter) || !v0sWorkloadSelected(f.Workload, selector) {
 			continue
 		}
 		group := groups[f.VulnerabilityId]
@@ -390,7 +414,7 @@ func (c *v0sClient) GetSummary(_ context.Context, req *protoapi.GetSummaryReques
 	}
 	affected, kevWorkloads, kevIDs := map[string]bool{}, map[string]bool{}, map[string]bool{}
 	for _, f := range c.findings {
-		if !v0sMatches(f, filter) || !v0sWorkloadSelected(f.Workload, req.WorkloadSelector) {
+		if !c.matchesFinding(f, filter) || !v0sWorkloadSelected(f.Workload, req.WorkloadSelector) {
 			continue
 		}
 		w := f.Workload
@@ -433,8 +457,8 @@ func (*v0sClient) GetVulnerability(_ context.Context, req *protoapi.GetVulnerabi
 		return nil, status.Error(codes.NotFound, "unknown vulnerability")
 	}
 	return &protoapi.GetVulnerabilityResponse{Vulnerability: &protoapi.Vulnerability{
-		Id:         req.Id,
-		References: []string{"https://example.com/advisories/" + req.Id},
+		Id:         v0sCanonicalIdentifier(req.Id),
+		References: []string{"https://example.com/advisories/" + v0sCanonicalIdentifier(req.Id)},
 	}}, nil
 }
 
@@ -470,7 +494,14 @@ func (c *v0sClient) SetSuppressions(_ context.Context, req *protoapi.SetSuppress
 			PackageKey: key.Package, VulnerabilityId: key.VulnerabilityId, State: item.State, Detail: item.Detail,
 			UpdatedBy: req.Actor, UpdatedAt: timestamppb.Now(),
 		}
-		c.suppressions = append(c.suppressions, s)
+		existing := slices.IndexFunc(c.suppressions, func(value *protoapi.Suppression) bool {
+			return v0sSuppressionKey(value) == v0sSuppressionKey(s)
+		})
+		if existing < 0 {
+			c.suppressions = append(c.suppressions, s)
+		} else {
+			c.suppressions[existing] = s
+		}
 		resp.Suppressions = append(resp.Suppressions, s)
 	}
 	return resp, nil

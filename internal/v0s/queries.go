@@ -139,17 +139,21 @@ func workloadSelector(current map[workloadKey]*protoapi.Workload) *protoapi.Work
 }
 
 func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
-	return findings(ctx, input, nil, filter, first, after, orderBy)
+	return findings(ctx, input, nil, nil, filter, first, after, orderBy)
 }
 
 func FindingsForWorkloads(ctx context.Context, input Scope, selected []workload.Workload, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+	return FindingsForSelection(ctx, input, selected, nil, filter, first, after, orderBy)
+}
+
+func FindingsForSelection(ctx context.Context, input Scope, selected []workload.Workload, workloadFilter *VulnerabilityWorkloadFilter, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
 	if selected == nil {
 		selected = []workload.Workload{}
 	}
-	return findings(ctx, input, selected, filter, first, after, orderBy)
+	return findings(ctx, input, selected, workloadFilter, filter, first, after, orderBy)
 }
 
-func findings(ctx context.Context, input Scope, selected []workload.Workload, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+func findings(ctx context.Context, input Scope, selected []workload.Workload, workloadFilter *VulnerabilityWorkloadFilter, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -193,7 +197,14 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, fi
 	if err != nil {
 		return nil, fmt.Errorf("encode v0s finding selection: %w", err)
 	}
-	p, err := parsePage(first, after, selectionKey("findings", string(data)))
+	binding := ""
+	if selected != nil {
+		binding, err = workloadSelectionBinding(ctx, selected, workloadFilter)
+		if err != nil {
+			return nil, err
+		}
+	}
+	p, err := parsePage(first, after, selectionKey("findings", binding+string(data)))
 	if err != nil {
 		return nil, err
 	}
@@ -229,10 +240,16 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, fi
 			return findingFacets(ctx, l, grouped, current, packageTypes)
 		},
 		loadVulnerabilities: func(ctx context.Context, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
-			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, first, after, orderBy)
+			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, binding, first, after, orderBy)
 		},
 		loadSummary: func(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
 			return selectionSummary(ctx, l, s, f, current, selected)
+		},
+		loadAffectedWorkloads: func(ctx context.Context, first *int, after *pagination.Cursor) (*workload.WorkloadConnection, error) {
+			if selected == nil {
+				return nil, fmt.Errorf("affected workloads require an explicit API workload selection")
+			}
+			return affectedWorkloads(ctx, input, selected, current, filter, binding, first, after)
 		},
 	}
 	for _, edge := range edges {

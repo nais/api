@@ -44,6 +44,28 @@ type VulnerabilitySuppressionResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_VulnerabilityFindingConnection_affectedWorkloads_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "after",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_VulnerabilityFindingConnection_vulnerabilities_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1184,6 +1206,50 @@ func (ec *executionContext) fieldContext_VulnerabilityFindingConnection_summary(
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_VulnerabilitySelectionSummary(ctx, field)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _VulnerabilityFindingConnection_affectedWorkloads(ctx context.Context, field graphql.CollectedField, obj *v0s.VulnerabilityFindingConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_VulnerabilityFindingConnection_affectedWorkloads(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return obj.AffectedWorkloads(ctx, fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *workload.WorkloadConnection) graphql.Marshaler {
+			return ec.marshalNWorkloadConnection2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋworkloadᚐWorkloadConnection(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_VulnerabilityFindingConnection_affectedWorkloads(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "VulnerabilityFindingConnection",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_WorkloadConnection(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_VulnerabilityFindingConnection_affectedWorkloads_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -3404,6 +3470,50 @@ func (ec *executionContext) unmarshalInputVulnerabilitySuppressionKeyInput(ctx c
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputVulnerabilityWorkloadFilter(ctx context.Context, obj any) (v0s.VulnerabilityWorkloadFilter, error) {
+	var it v0s.VulnerabilityWorkloadFilter
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"teamScope", "environments", "labels"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "teamScope":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("teamScope"))
+			data, err := ec.unmarshalOTeamScopeInput2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋteamᚋteamscopeᚐTeamScopeInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TeamScope = data
+		case "environments":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("environments"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Environments = data
+		case "labels":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labels"))
+			data, err := ec.unmarshalOLabelFilter2ᚕᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋmodelᚐLabelFilterᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Labels = data
+		}
+	}
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3947,6 +4057,42 @@ func (ec *executionContext) _VulnerabilityFindingConnection(ctx context.Context,
 					}
 				}()
 				res = ec._VulnerabilityFindingConnection_summary(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "affectedWorkloads":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._VulnerabilityFindingConnection_affectedWorkloads(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -5549,6 +5695,14 @@ func (ec *executionContext) unmarshalOVulnerabilitySuppressionFilter2ᚖgithub�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputVulnerabilitySuppressionFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOVulnerabilityWorkloadFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityWorkloadFilter(ctx context.Context, v any) (*v0s.VulnerabilityWorkloadFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputVulnerabilityWorkloadFilter(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

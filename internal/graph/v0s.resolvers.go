@@ -15,7 +15,7 @@ import (
 )
 
 func (r *applicationResolver) VulnerabilityFindings(ctx context.Context, obj *application.Application, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
-	return v0s.Findings(ctx, v0s.WorkloadScope(obj), filter, first, after, orderBy)
+	return v0s.FindingsForWorkloads(ctx, v0s.WorkloadScope(obj), []workload.Workload{obj}, filter, first, after, orderBy)
 }
 
 func (r *applicationResolver) VulnerabilityCoverage(ctx context.Context, obj *application.Application) (*v0s.VulnerabilityCoverage, error) {
@@ -27,7 +27,7 @@ func (r *applicationResolver) VulnerabilityOverview(ctx context.Context, obj *ap
 }
 
 func (r *jobResolver) VulnerabilityFindings(ctx context.Context, obj *job.Job, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
-	return v0s.Findings(ctx, v0s.WorkloadScope(obj), filter, first, after, orderBy)
+	return v0s.FindingsForWorkloads(ctx, v0s.WorkloadScope(obj), []workload.Workload{obj}, filter, first, after, orderBy)
 }
 
 func (r *jobResolver) VulnerabilityCoverage(ctx context.Context, obj *job.Job) (*v0s.VulnerabilityCoverage, error) {
@@ -46,8 +46,12 @@ func (r *mutationResolver) DeleteVulnerabilitySuppressions(ctx context.Context, 
 	return v0s.DeleteSuppressions(ctx, input)
 }
 
-func (r *queryResolver) VulnerabilityFindings(ctx context.Context, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
-	return v0s.Findings(ctx, v0s.Scope{}, filter, first, after, orderBy)
+func (r *queryResolver) VulnerabilityFindings(ctx context.Context, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder, workloadFilter *v0s.VulnerabilityWorkloadFilter) (*v0s.VulnerabilityFindingConnection, error) {
+	selected, err := selectVulnerabilityWorkloads(ctx, workloadFilter)
+	if err != nil {
+		return nil, err
+	}
+	return v0s.FindingsForSelection(ctx, v0s.Scope{}, selected, workloadFilter, filter, first, after, orderBy)
 }
 
 func (r *queryResolver) Vulnerability(ctx context.Context, identifier string) (*v0s.Vulnerability, error) {
@@ -66,7 +70,11 @@ func (r *teamResolver) VulnerabilityFindings(ctx context.Context, obj *team.Team
 	if err := v0s.ValidateWorkloadFilter(workloadFilter); err != nil {
 		return nil, err
 	}
-	return v0s.FindingsForWorkloads(ctx, scope, selectTeamWorkloads(ctx, obj.Slug, workloadFilter), filter, first, after, orderBy)
+	var metadata *v0s.VulnerabilityWorkloadFilter
+	if workloadFilter != nil {
+		metadata = &v0s.VulnerabilityWorkloadFilter{Environments: workloadFilter.Environments, Labels: workloadFilter.Labels}
+	}
+	return v0s.FindingsForSelection(ctx, scope, selectTeamWorkloads(ctx, obj.Slug, workloadFilter), metadata, filter, first, after, orderBy)
 }
 
 func (r *teamResolver) VulnerabilitySuppressions(ctx context.Context, obj *team.Team, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error) {
@@ -74,7 +82,8 @@ func (r *teamResolver) VulnerabilitySuppressions(ctx context.Context, obj *team.
 }
 
 func (r *teamEnvironmentResolver) VulnerabilityFindings(ctx context.Context, obj *team.TeamEnvironment, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error) {
-	return v0s.Findings(ctx, v0s.Scope{Team: obj.TeamSlug, Environment: obj.EnvironmentName}, filter, first, after, orderBy)
+	selected := selectTeamWorkloads(ctx, obj.TeamSlug, &workload.TeamWorkloadsFilter{Environments: []string{obj.EnvironmentName}})
+	return v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: obj.TeamSlug, Environment: obj.EnvironmentName}, selected, filter, first, after, orderBy)
 }
 
 func (r *teamEnvironmentResolver) VulnerabilitySuppressions(ctx context.Context, obj *team.TeamEnvironment, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error) {

@@ -22,17 +22,17 @@ v0s results in a Console view before that source switch.
 
 ## Implementation gaps
 
-| Capability                       | Current implementation                                                                                                      | Required work                                                     |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                                 | Extend these fields, not another finding API                      |
-| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors                                 | Reset old finding cursors when deploying this integration         |
-| Finding counts/facets            | Full-selection facets and tenant/team summaries; distinct vulnerability/workload totals                                     | Shared global workload filtering                                  |
-| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                         | Verify deployed inventory reconciliation                          |
-| Workload selection               | Team/environment/workload scopes; shared team environment/label filters for findings, summaries and workload lists          | Shared global selection and existing `TeamScopeInput` support     |
-| Workload/vulnerability overviews | Unique-vulnerability connection; existing API workload pages with batch-loaded v0s counts and team unique-severity ordering | Global affected-only workload selection                           |
-| Assessment writes                | Team-authorized, gated v0s batches                                                                                          | Durable activity-log delivery before enablement                   |
-| Vulnerability Issues             | Existing producers use v13s                                                                                                 | Switch the three producers and remove obsolete risk-score payload |
-| Manual reanalysis                | No public v0s RPC                                                                                                           | Do not expose a working reanalysis control                        |
+| Capability                       | Current implementation                                                                                                    | Required work                                                     |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                               | Extend these fields, not another finding API                      |
+| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors                               | Reset old finding cursors when deploying this integration         |
+| Finding counts/facets            | Full-selection facets and summaries; shared team/environment/label selection, distinct vulnerability/workload totals      | Verify deployed backend conformance                               |
+| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                       | Verify deployed inventory reconciliation                          |
+| Workload selection               | Global `TeamScopeInput` and environment/label filters; existing team/environment/workload scopes                          | No additional API selection contract needed                       |
+| Workload/vulnerability overviews | Unique-vulnerability groups, affected-workload connection, batch-loaded workload counts and team unique-severity ordering | No additional backend release needed for CVE navigation           |
+| Assessment writes                | Team-authorized, gated v0s batches                                                                                        | Durable activity-log delivery before enablement                   |
+| Vulnerability Issues             | Existing producers use v13s                                                                                               | Switch the three producers and remove obsolete risk-score payload |
+| Manual reanalysis                | No public v0s RPC                                                                                                         | Do not expose a working reanalysis control                        |
 
 ### GitHub contract status
 
@@ -70,6 +70,30 @@ Published contracts and source inspection do not verify deployed tenant
 versions. Deploy compatible backend support before enabling new API features;
 API fakes alone cannot establish backend conformance.
 
+### CVE navigation: workload identity
+
+The existing filtered workload aggregates can identify affected workloads without
+enumerating findings: API can load aggregates for its metadata-selected inventory,
+keep workloads with matching findings, and sort before pagination. This costs
+O(selected workloads), not O(findings), and package duplicates do not add rows.
+
+The pinned protobuf `WorkloadRef` and `WorkloadSelector` identify workloads only by
+environment/team/name, matching the backend workload primary key. This is
+consistent with the platform invariant: naiserator rejects resource generation
+for an application if a job with the same name exists in the same team/environment,
+and vice versa. Both directions have regression fixtures:
+
+- [Application name check](https://github.com/nais/naiserator/blob/master/pkg/generators/application.go#L76)
+- [Job name check](https://github.com/nais/naiserator/blob/master/pkg/generators/naisjob.go#L61)
+- [Application conflict fixture](https://github.com/nais/naiserator/blob/master/pkg/resourcecreator/testdata/error_name_conflict.yaml)
+- [Job conflict fixture](https://github.com/nais/naiserator/blob/master/pkg/resourcecreator/testdata/naisjob/error_name_conflict.yaml)
+
+Workload type is therefore not a backend prerequisite for CVE navigation or
+assessment keys. API should retain current-image reconciliation and existing
+workload node identities. Defensive app/job collision tests do not establish a
+supported deployment scenario and must not drive a backend identity migration.
+No suppression flag or default needs to change for this reason.
+
 ## Selection and counting semantics
 
 Current finding and summary scopes select team, environment and workload.
@@ -82,9 +106,16 @@ groups before pagination. The v0s selection and unique-count sorting paths
 accept only environments and labels from `TeamWorkloadsFilter`; other workload
 predicates fail explicitly rather than silently invoking legacy SBOM semantics.
 Legacy workload filtering remains unchanged.
-Shared label and "my teams" selection for global findings, groups and summaries
-is not implemented; it must reuse existing `TeamScopeInput` in follow-up work.
-A restricted empty selection must never become unrestricted.
+Global `vulnerabilityFindings(workloadFilter:)` accepts the same environment/label
+selection and the existing `TeamScopeInput`. `{memberOfViewer: true}` selects
+the viewer's teams; explicit `teamSlugs` and membership-derived teams are a
+union, intersected with environments and labels. It does not impose a new
+membership requirement on ordinary reads. Without a team restriction, the full
+API inventory remains selected. An explicit empty `teamSlugs: []`, or a viewer
+with no memberships using `memberOfViewer: true`, selects no workloads, even
+for an administrator. A restricted empty selection never becomes unrestricted.
+These rules apply equally to findings, groups, facets, summary and
+`affectedWorkloads`. Existing read authorization is unchanged.
 
 Finding predicates select vulnerability IDs/aliases, package/PURL, package type,
 severity, available fix, KEV and assessment presence. `suppressed` defaults to
@@ -137,14 +168,16 @@ legacy or omitted order field is an error. Existing `VULNERABILITY_SEVERITY_*`
 ordering continues to use v13s and must not be used in a v0s view.
 `Team.vulnerabilityFindings.workloadFilter` still accepts only environments and
 labels; put finding predicates in that field's existing `filter` argument.
-The global affected-only workload list is not integrated yet.
+`vulnerabilityFindings.affectedWorkloads` is the affected-only list for both
+global and team CVE navigation. Unlike the complete workload list, it includes
+only workloads with at least one matching current-image finding.
 
 Package types are PURL ecosystems. Facets follow the complete filter, including
 any selected package type, consistently with the existing finding facets.
 
 ## Ordering and pagination
 
-Finding, vulnerability-group and suppression connections use `first`/`after`,
+Finding, vulnerability-group, affected-workload and suppression connections use `first`/`after`,
 defaulting to 20 with a range of 1..200.
 Legacy v13s connections retain their existing bidirectional pagination.
 
@@ -162,10 +195,36 @@ ordering. Reject mismatches; changing filters or ordering starts a new traversal
 The finding adapter passes an explicit current-workload selector to the backend,
 so package facets exclude removed workloads and stale deployed images before
 pagination. Empty selections remain explicitly empty, not unrestricted.
-Finding cursors issued before this integration must be discarded; restart
+Finding and vulnerability-group cursors issued before this integration must be discarded; restart
 without a cursor. Changes to the resolved workload selection also require a restart.
 Deterministic ordering does not imply a snapshot across concurrent updates.
 Do not fetch all findings in Console or API to emulate sorting or grouping.
+
+### Affected-workload pagination
+
+`affectedWorkloads` inherits the parent workload selection and finding filter,
+including vulnerability IDs/aliases and `suppressed`. Its own `first`/`after`
+is independent of the parent finding page and order. The server filters and
+deduplicates workloads before pagination; multiple matching packages produce
+one row. `pageInfo.totalCount` is the full affected-workload total, not the
+finding count. Rows are existing Workload nodes with stable `id` and `__typename`.
+
+The fixed order is name, environment, team and workload type ascending, using
+bytewise case-sensitive comparison. Cursors bind that order, effective scope,
+resolved team selection, normalized metadata/finding filters and selected
+workload identities/deployed images. Changing a filter, scope or deployed
+selection requires a fresh traversal. Equivalent reordered/deduplicated
+metadata filters are accepted. A deleted/nonmatching sort boundary can still
+be resumed; this is not snapshot pagination.
+
+API follows all backend workload-aggregate continuation pages for the selected
+inventory, keeps positive filtered finding counts, then sorts and paginates.
+It does not enumerate finding pages to calculate membership. Cost is
+O(selected workloads), not backend-sized affected-only pagination. The pinned
+v0.11.0 contract is sufficient; no nais/v0s dependency change is required.
+`facets.vulnerabilityCoverage` covers the entire metadata-selected inventory,
+just like the parent summary, not just affected rows. Missing/stale scans
+remain pending and are never inferred clean.
 
 ### Unique-severity workload ordering
 
@@ -203,6 +262,8 @@ coverage independent of finding filters.
 Implemented without replacing legacy root queries:
 
 - `vulnerabilityFindings.vulnerabilities`: paginated canonical vulnerability groups.
+- `vulnerabilityFindings.affectedWorkloads`: paginated current API workloads
+  with matching findings, globally and in existing scoped finding connections.
 - `vulnerabilityFindings.summary`: full-selection finding, unique-vulnerability
   and workload counts, KEV counts and coverage. Available globally and through
   team/environment scopes without separate summary APIs.
@@ -228,9 +289,9 @@ The categories sum to the API workload total. Backend errors and missing summary
 data fail explicitly. A changed backend workload total during reconciliation is
 an error requiring retry; the two services do not share an inventory snapshot.
 
-Direct advisory-to-affected-workload navigation
-is not integrated yet. The earlier proposed parallel
-`vulnerabilityFindings.workloads` list is not introduced: complete workload lists
+Advisory details still use `vulnerability(identifier:)`. Use that same canonical
+ID or alias in the existing finding filter to navigate to affected workloads;
+there is no parallel advisory or finding API. Complete workload lists still
 come from API rather than the asynchronously updated v0s inventory.
 
 ```graphql
@@ -408,7 +469,283 @@ query Packages($after: Cursor) {
 }
 ```
 
+## CVE navigation examples
+
+### Global CVE list
+
+Use the existing finding connection as a shared selection container. Console
+does not need to request finding rows to render this list:
+
+```graphql
+query GlobalCves(
+	$selection: VulnerabilityWorkloadFilter
+	$filter: VulnerabilityFindingFilter
+	$after: Cursor
+) {
+	vulnerabilityFindings(workloadFilter: $selection, filter: $filter) {
+		summary {
+			findingCount
+			uniqueVulnerabilityCount
+			affectedWorkloadCount
+			knownExploitedVulnerabilityCount
+			coverage {
+				totalWorkloads
+				scanned
+				pending
+				noSbom
+				failed
+				unresolvedImage
+			}
+		}
+		facets {
+			packageTypes {
+				value
+				count
+			}
+		}
+		vulnerabilities(first: 20, after: $after) {
+			nodes {
+				vulnerabilityIdentifier
+				severity
+				findingCount
+				affectedWorkloadCount
+				vulnerability {
+					identifier
+					knownExploited
+					epss {
+						score
+						date
+					}
+				}
+			}
+			pageInfo {
+				totalCount
+				endCursor
+				hasNextPage
+			}
+		}
+	}
+}
+```
+
+```json
+{
+	"selection": {
+		"teamScope": { "memberOfViewer": true },
+		"environments": ["dev"],
+		"labels": [{ "key": "group", "value": "core" }]
+	},
+	"filter": { "packageType": "npm", "suppressed": "INCLUDE" }
+}
+```
+
+### Global and team CVE details
+
+The same details fragment works on global and team finding connections.
+`$filter` must contain the selected CVE's canonical ID or alias. Repeat the
+finding filter on row reads: child workload connections do not implicitly
+inherit a parent's arguments. Paginate their package findings separately if
+the selected rows contain more than one finding page.
+
+```graphql
+fragment CveWorkloads on VulnerabilityFindingConnection {
+	summary {
+		findingCount
+		uniqueVulnerabilityCount
+		affectedWorkloadCount
+		coverage {
+			totalWorkloads
+			scanned
+			pending
+			noSbom
+			failed
+			unresolvedImage
+		}
+	}
+	affectedWorkloads(first: 20, after: $after) {
+		nodes {
+			id
+			__typename
+			name
+			teamEnvironment {
+				team {
+					slug
+				}
+				environment {
+					name
+				}
+			}
+			vulnerabilityFindings(first: 100, filter: $filter) {
+				nodes {
+					vulnerabilityIdentifier
+					image {
+						name
+					}
+					packageKey
+					purl
+					fixedVersion
+					suppression {
+						id
+						state
+						reason
+						updatedBy
+						updatedAt
+					}
+				}
+				pageInfo {
+					totalCount
+					endCursor
+					hasNextPage
+				}
+			}
+		}
+		pageInfo {
+			totalCount
+			endCursor
+			hasNextPage
+		}
+		facets {
+			vulnerabilityCoverage {
+				totalWorkloads
+				scanned
+				pending
+				noSbom
+				failed
+				unresolvedImage
+			}
+		}
+	}
+}
+
+query GlobalCveDetails(
+	$identifier: String!
+	$selection: VulnerabilityWorkloadFilter
+	$filter: VulnerabilityFindingFilter!
+	$after: Cursor
+) {
+	vulnerability(identifier: $identifier) {
+		identifier
+		title
+		description
+		references
+		knownExploited
+		epss {
+			score
+			date
+		}
+	}
+	vulnerabilityFindings(workloadFilter: $selection, filter: $filter) {
+		...CveWorkloads
+	}
+}
+
+query TeamCveDetails(
+	$team: Slug!
+	$identifier: String!
+	$selection: TeamWorkloadsFilter
+	$filter: VulnerabilityFindingFilter!
+	$after: Cursor
+) {
+	vulnerability(identifier: $identifier) {
+		identifier
+		title
+		description
+		references
+		knownExploited
+		epss {
+			score
+			date
+		}
+	}
+	team(slug: $team) {
+		vulnerabilityFindings(workloadFilter: $selection, filter: $filter) {
+			...CveWorkloads
+		}
+	}
+}
+```
+
+For global details, reuse the global list's `$selection` and set
+`"identifier": "CVE-2024-12345"` and
+`"filter": {"vulnerabilityIdentifiers": ["CVE-2024-12345"], "suppressed": "INCLUDE"}`.
+For team details, supply `"team": "my-team"` and only `environments`/`labels`
+inside `$selection`. An alias is also accepted; returned finding identifiers
+are canonical. `INCLUDE` lets the UI show assessed and unassessed packages;
+`ONLY`/`EXCLUDE` select assessed/unassessed findings consistently in affected
+rows, groups, facets and counts. They never narrow coverage.
+
 ## Assessments
+
+### Bulk assessments for selected rows
+
+There is no single assessment per CVE/workload row: each matching package and
+repository has its own assessment. Read `suppression` on the selected rows'
+findings, including subsequent package pages where needed. Build keys from
+the workload's team/environment/name and each finding's `image.name`,
+`packageKey` and canonical `vulnerabilityIdentifier`. Do not send a workload
+node ID or image tag/digest as an assessment key. Deduplicate identical keys
+and group selected rows into separate owning-team batches.
+
+Use only the existing mutations, when writes are enabled:
+
+```graphql
+mutation AssessSelectedPackages($input: SetVulnerabilitySuppressionsInput!) {
+	setVulnerabilitySuppressions(input: $input) {
+		suppressions {
+			id
+			imageName
+			packageKey
+			state
+			reason
+		}
+	}
+}
+
+mutation DeleteSelectedAssessments($input: DeleteVulnerabilitySuppressionsInput!) {
+	deleteVulnerabilitySuppressions(input: $input) {
+		deleted {
+			environment
+			workload
+			imageName
+			packageKey
+			vulnerabilityIdentifier
+		}
+	}
+}
+```
+
+Example set input (delete uses the same keys in `input.keys`):
+
+```json
+{
+	"input": {
+		"team": "my-team",
+		"items": [
+			{
+				"key": {
+					"environment": "dev",
+					"workload": "my-app",
+					"imageName": "registry.example/my-app",
+					"packageKey": "pkg:npm/example",
+					"vulnerabilityIdentifier": "CVE-2024-12345"
+				},
+				"state": "ACCEPTED_RISK",
+				"reason": "Reviewed by the owning team"
+			}
+		]
+	}
+}
+```
+
+After a successful set/delete, refetch the v0s selection and discard affected
+cursors if the selected filter changes. An `EXCLUDE` view may lose a row once
+all its matching packages are assessed; `ONLY` may gain it. Existing team
+authorization, atomic per-team batches and activity-log behavior remain
+unchanged. This API change neither enables `V0S_SUPPRESSIONS_ENABLED` nor
+changes its default. Disabled writes remain disabled; do not use
+`updateImageVulnerability` as a write fallback for a v0s view.
+
+### Existing assessment guarantees and rollout constraints
 
 New assessments use only NOT_AFFECTED, FALSE_POSITIVE and ACCEPTED_RISK.
 Their key is `(team, environment, workload, image repository, versionless

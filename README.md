@@ -226,8 +226,15 @@ forward/backward workload pagination, and are incompatible with legacy cursors.
 Pages are live offsets, not snapshots. See the
 [shared-filter query example](docs/v0s_console_migration.md#additive-graphql-navigation).
 No v0s change or new client release is required.
-Global affected-only workload selection is not integrated; legacy vulnerability
-sorting still uses v13s.
+Global `vulnerabilityFindings(workloadFilter:)` reuses `TeamScopeInput`,
+including `memberOfViewer`, with the same environment/label rules. The parent
+selection applies to findings, groups, facets, summaries and
+`affectedWorkloads(first:, after:)`. This connection deduplicates current API
+workloads before pagination, orders by name/environment/team/type ascending,
+and keeps coverage over the full metadata selection. It uses filtered workload
+aggregates, not enumeration of findings; cost is O(selected workloads).
+See the [CVE navigation and assessment examples](docs/v0s_console_migration.md#global-cve-list).
+Legacy vulnerability sorting still uses v13s.
 Tenant and team summaries are available as `vulnerabilityFindings.summary`,
 including through `Team` and `TeamEnvironment`. They use the full scope and
 finding filter, independently of page size, cursor and ordering. The response

@@ -7,6 +7,7 @@ import (
 	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/issue"
 	"github.com/nais/api/internal/slug"
+	"github.com/nais/api/internal/team"
 	"github.com/nais/api/internal/v0s"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -52,6 +53,27 @@ func selectTeamWorkloads(ctx context.Context, team slug.Slug, filter *workload.T
 		items = append(items, j)
 	}
 	return workload.SortFilter.Filter(ctx, items, filter)
+}
+
+func selectVulnerabilityWorkloads(ctx context.Context, filter *v0s.VulnerabilityWorkloadFilter) ([]workload.Workload, error) {
+	var slugs []slug.Slug
+	metadata := &workload.TeamWorkloadsFilter{}
+	if filter != nil {
+		slugs = filter.TeamScope.Resolve(ctx)
+		metadata.Environments, metadata.Labels = filter.Environments, filter.Labels
+	}
+	if slugs == nil {
+		var err error
+		slugs, err = team.ListAllSlugs(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	selected := make([]workload.Workload, 0)
+	for _, team := range slugs {
+		selected = append(selected, selectTeamWorkloads(ctx, team, metadata)...)
+	}
+	return selected, nil
 }
 
 // tryWorkload attempts to find a workload by name, first as an application, then as a job.

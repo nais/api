@@ -2310,7 +2310,7 @@ type ComplexityRoot struct {
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int
 		Vulnerability             func(childComplexity int, identifier string) int
-		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder, workloadFilter *v0s.VulnerabilityWorkloadFilter) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
@@ -4113,12 +4113,13 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityFindingConnection struct {
-		Edges           func(childComplexity int) int
-		Facets          func(childComplexity int) int
-		Nodes           func(childComplexity int) int
-		PageInfo        func(childComplexity int) int
-		Summary         func(childComplexity int) int
-		Vulnerabilities func(childComplexity int, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityOverviewOrder) int
+		AffectedWorkloads func(childComplexity int, first *int, after *pagination.Cursor) int
+		Edges             func(childComplexity int) int
+		Facets            func(childComplexity int) int
+		Nodes             func(childComplexity int) int
+		PageInfo          func(childComplexity int) int
+		Summary           func(childComplexity int) int
+		Vulnerabilities   func(childComplexity int, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityOverviewOrder) int
 	}
 
 	VulnerabilityFindingEdge struct {
@@ -14359,7 +14360,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder), args["workloadFilter"].(*v0s.VulnerabilityWorkloadFilter)), true
 
 	case "Query.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Query.VulnerabilityFixHistory == nil {
@@ -22336,6 +22337,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.VulnerabilityFinding.Workload(childComplexity), true
 
+	case "VulnerabilityFindingConnection.affectedWorkloads":
+		if e.ComplexityRoot.VulnerabilityFindingConnection.AffectedWorkloads == nil {
+			break
+		}
+
+		args, err := ec.field_VulnerabilityFindingConnection_affectedWorkloads_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.VulnerabilityFindingConnection.AffectedWorkloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor)), true
+
 	case "VulnerabilityFindingConnection.edges":
 		if e.ComplexityRoot.VulnerabilityFindingConnection.Edges == nil {
 			break
@@ -24546,6 +24559,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputVulnerabilitySummaryOrder,
 		ec.unmarshalInputVulnerabilitySuppressionFilter,
 		ec.unmarshalInputVulnerabilitySuppressionKeyInput,
+		ec.unmarshalInputVulnerabilityWorkloadFilter,
 		ec.unmarshalInputWebhookEventSelection,
 		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
@@ -37584,6 +37598,8 @@ type ApplicationInstanceUtilization {
 		after: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
+		"Select workloads before filtering findings and computing aggregates. Coverage includes all matching workloads."
+		workloadFilter: VulnerabilityWorkloadFilter
 	): VulnerabilityFindingConnection!
 	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
 	vulnerability(
@@ -37712,6 +37728,16 @@ extend type Job {
 	): VulnerabilityWorkloadOverview!
 }
 
+"Select workloads before filtering findings, grouping vulnerabilities and computing coverage."
+input VulnerabilityWorkloadFilter {
+	"Select explicit teams or teams the viewer belongs to, using the existing union semantics."
+	teamScope: TeamScopeInput
+	"Include workloads in any of these environments. Omitted or empty means all environments."
+	environments: [String!]
+	"Match all labels. An omitted value requires the key to exist; an explicit value, including an empty string, matches exactly."
+	labels: [LabelFilter!]
+}
+
 "Filters applied before finding pagination and aggregation."
 input VulnerabilityFindingFilter {
 	"Match any of these vulnerability identifiers or aliases."
@@ -37782,6 +37808,13 @@ type VulnerabilityFindingConnection {
 	facets: VulnerabilityFindingFacets!
 	"Server-aggregated counts across the full filtered selection, independent of finding pagination and ordering. Coverage includes all workloads in scope, regardless of finding filters."
 	summary: VulnerabilitySelectionSummary!
+	"Current workloads with matching findings, deduplicated before pagination. Independent of the finding page and ordered by name, environment, team and workload type ascending. Coverage includes all selected workloads, not just affected workloads."
+	affectedWorkloads(
+		"Get the first n affected workloads, between 1 and 200. Defaults to 20."
+		first: Int
+		"Continue with the same scope, workload selection and finding filter."
+		after: Cursor
+	): WorkloadConnection!
 	"Unique vulnerabilities across the full filtered workload selection, independent of the finding page and ordering."
 	vulnerabilities(
 		"Get the first n vulnerabilities, between 1 and 200. Defaults to 20."
@@ -46540,6 +46573,8 @@ func (ec *executionContext) childFields_VulnerabilityFindingConnection(ctx conte
 		return ec.fieldContext_VulnerabilityFindingConnection_facets(ctx, field)
 	case "summary":
 		return ec.fieldContext_VulnerabilityFindingConnection_summary(ctx, field)
+	case "affectedWorkloads":
+		return ec.fieldContext_VulnerabilityFindingConnection_affectedWorkloads(ctx, field)
 	case "vulnerabilities":
 		return ec.fieldContext_VulnerabilityFindingConnection_vulnerabilities(ctx, field)
 	}

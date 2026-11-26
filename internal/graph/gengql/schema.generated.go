@@ -168,7 +168,7 @@ type QueryResolver interface {
 	Me(ctx context.Context) (authz.AuthenticatedUser, error)
 	UserSyncLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[usersync.UserSyncLogEntry], error)
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
-	VulnerabilityFindings(ctx context.Context, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
+	VulnerabilityFindings(ctx context.Context, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder, workloadFilter *v0s.VulnerabilityWorkloadFilter) (*v0s.VulnerabilityFindingConnection, error)
 	Vulnerability(ctx context.Context, identifier string) (*v0s.Vulnerability, error)
 	VulnerabilitySuppressions(ctx context.Context, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
 	ImageVulnerabilityHistory(ctx context.Context, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
@@ -2010,6 +2010,14 @@ func (ec *executionContext) field_Query_vulnerabilityFindings_args(ctx context.C
 		return nil, err
 	}
 	args["orderBy"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "workloadFilter",
+		func(ctx context.Context, v any) (*v0s.VulnerabilityWorkloadFilter, error) {
+			return ec.unmarshalOVulnerabilityWorkloadFilter2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityWorkloadFilter(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["workloadFilter"] = arg4
 	return args, nil
 }
 
@@ -6601,7 +6609,7 @@ func (ec *executionContext) _Query_vulnerabilityFindings(ctx context.Context, fi
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().VulnerabilityFindings(ctx, fc.Args["filter"].(*filter.VulnerabilityFindingFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
+			return ec.Resolvers.Query().VulnerabilityFindings(ctx, fc.Args["filter"].(*filter.VulnerabilityFindingFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder), fc.Args["workloadFilter"].(*v0s.VulnerabilityWorkloadFilter))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityFindingConnection) graphql.Marshaler {
