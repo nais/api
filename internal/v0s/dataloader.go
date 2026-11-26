@@ -196,23 +196,15 @@ func fromContext(ctx context.Context) (*loaders, error) {
 }
 
 func (l *loaders) listWorkloads(ctx context.Context, req *protoapi.ListWorkloadsRequest) (map[workloadKey]*protoapi.Workload, error) {
-	result := make(map[workloadKey]*protoapi.Workload)
-	for {
-		resp, err := l.manager.Vulnerabilities.ListWorkloads(ctx, req)
-		if err != nil {
-			return nil, backendError("list v0s workloads", err)
-		}
-		for _, w := range resp.GetWorkloads() {
-			result[workloadKey{w.GetEnvironment(), w.GetTeam(), w.GetName()}] = w
-		}
-		if resp.GetNextPageToken() == "" {
-			return result, nil
-		}
-		if resp.GetNextPageToken() == req.PageToken {
-			return nil, fmt.Errorf("v0s returned a non-advancing workload cursor")
-		}
-		req.PageToken = resp.GetNextPageToken()
+	rows, err := ListWorkloads(ctx, l.manager.Vulnerabilities, req)
+	if err != nil {
+		return nil, err
 	}
+	result := make(map[workloadKey]*protoapi.Workload)
+	for _, w := range rows {
+		result[workloadKey{w.GetEnvironment(), w.GetTeam(), w.GetName()}] = w
+	}
+	return result, nil
 }
 
 // currentWorkloads excludes removed workloads and findings for an obsolete deployed image.

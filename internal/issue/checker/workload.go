@@ -32,7 +32,6 @@ type Workload struct {
 	PodWatcher        watcher.Watcher[*v1.Pod]
 	RunWatcher        watcher.Watcher[*batchv1.Job]
 	DeploymentWatcher *watcher.Watcher[*appsv1.Deployment]
-	V13sClient        V13sClient
 
 	log logrus.FieldLogger
 }
@@ -66,8 +65,6 @@ func (w Workload) Run(ctx context.Context) ([]Issue, error) {
 		ret = appendIssues(ret, w.lastRunFailed(job.GetName(), job.GetNamespace(), env))
 		ret = appendIssues(ret, w.workloadProblems(job.Obj, env, issue.ResourceTypeJob)...)
 	}
-
-	ret = appendIssues(ret, w.vulnerabilities(ctx)...)
 
 	return ret, nil
 }

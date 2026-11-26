@@ -28,6 +28,18 @@ type v0sClient struct {
 	suppressions []*protoapi.Suppression
 }
 
+func newSBOMClient() *v0sClient {
+	c := &v0sClient{}
+	for _, team := range []string{"devteam", "myteam"} {
+		c.workloads = append(c.workloads, &protoapi.Workload{
+			Environment: "dev-gcp", Team: team, Name: "missing-sbom",
+			ImageReference: "europe-north1-docker.pkg.dev/nais/navikt/app-name:latest",
+			Image:          &protoapi.Image{Status: protoapi.ImageStatus_IMAGE_STATUS_NO_SBOM},
+		})
+	}
+	return c
+}
+
 func newV0sManager(config *Config) *v0s.Manager {
 	if !config.V0s {
 		return nil
