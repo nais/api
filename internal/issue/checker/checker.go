@@ -15,6 +15,7 @@ import (
 	"github.com/nais/api/internal/persistence/sqlinstance"
 	"github.com/nais/api/internal/thirdparty/aiven"
 	"github.com/nais/api/internal/unleash"
+	"github.com/nais/api/internal/v0s"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -30,6 +31,7 @@ type check interface {
 type Checker struct {
 	checks        []check
 	db            checkersql.Querier
+	sbom          sbomCheck
 	log           logrus.FieldLogger
 	durationGauge metric.Float64Gauge
 	issuesGauge   metric.Int64Gauge
@@ -38,7 +40,7 @@ type Checker struct {
 type Config struct {
 	AivenClient    aiven.AivenClient
 	CloudSQLClient *sqlinstance.Client
-	V13sClient     V13sClient
+	V0sClient      v0s.WorkloadClient
 	Tenant         string
 	Clusters       []string
 	BifrostClient  unleash.BifrostClient
@@ -55,7 +57,7 @@ type Issue struct {
 	IssueDetails any
 }
 
-func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, fakeEnabled bool, log logrus.FieldLogger) (*Checker, error) {
+func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, log logrus.FieldLogger) (*Checker, error) {
 	meter := otel.GetMeterProvider().Meter("nais_api_issues")
 	d, err := meter.Float64Gauge("nais_api_issue_checker_duration")
 	if err != nil {
@@ -73,16 +75,17 @@ func New(config Config, pool *pgxpool.Pool, watchers *watchers.Watchers, fakeEna
 	}
 	envs := Map(config.Clusters, func(c string) string { return environmentmapper.EnvironmentName(c) })
 
-	v13s := config.V13sClient
-	if fakeEnabled {
-		v13s = &fakeV13sClient{}
+	if config.V0sClient == nil {
+		return nil, fmt.Errorf("v0s MISSING_SBOM checks require V0S_ENDPOINT")
 	}
 
+	workloads := Workload{AppWatcher: *watchers.AppWatcher, IngressWatcher: *watchers.IngressWatcher, JobWatcher: *watchers.JobWatcher, PodWatcher: *watchers.PodWatcher, RunWatcher: *watchers.RunWatcher, DeploymentWatcher: watchers.DeploymentWatcher, log: log.WithField("check", "Workload")}
+	checker.sbom = sbomCheck{workloads: workloads, v0s: config.V0sClient}
 	checker.checks = []check{
 		Postgres{PostgresWatcher: watchers.PostgresWatcher},
 		Aiven{aivenClient: config.AivenClient, tenant: config.Tenant, environments: envs, log: log.WithField("check", "Aiven")},
 		SQLInstance{Client: config.CloudSQLClient, SQLInstanceWatcher: watchers.SqlInstanceWatcher, Log: log.WithField("check", "SQLInstance")},
-		Workload{AppWatcher: *watchers.AppWatcher, IngressWatcher: *watchers.IngressWatcher, JobWatcher: *watchers.JobWatcher, PodWatcher: *watchers.PodWatcher, RunWatcher: *watchers.RunWatcher, DeploymentWatcher: watchers.DeploymentWatcher, V13sClient: v13s, log: log.WithField("check", "Workload")},
+		workloads,
 		Unleash{UnleashWatcher: watchers.UnleashWatcher, BifrostClient: config.BifrostClient, Log: log.WithField("check", "Unleash")},
 	}
 
@@ -125,6 +128,13 @@ func (c *Checker) runChecks(ctx context.Context) {
 		issues = append(issues, checkIssues...)
 
 	}
+	sbomTime := time.Now()
+	sbomIssues, err := c.sbom.issues(ctx)
+	if err != nil {
+		c.log.WithError(err).Error("collect MISSING_SBOM issues")
+	}
+	issues = append(issues, sbomIssues...)
+	c.durationGauge.Record(ctx, time.Since(sbomTime).Seconds(), metric.WithAttributes(attribute.String("operation", "MISSING_SBOM")))
 	c.durationGauge.Record(ctx, time.Since(totalTime).Seconds(), metric.WithAttributes(attribute.String("operation", "all_checks")))
 
 	batchIssues := make([]checkersql.BatchInsertIssuesParams, 0)
@@ -149,7 +159,7 @@ func (c *Checker) runChecks(ctx context.Context) {
 
 	dbTime := time.Now()
 
-	err := c.db.DeleteIssues(ctx)
+	err = c.db.DeleteIssues(ctx)
 	if err != nil {
 		c.log.WithError(err).Error("delete existing issues")
 	}

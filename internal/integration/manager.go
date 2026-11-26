@@ -178,13 +178,13 @@ func newManager(_ context.Context, container *postgres.PostgresContainer, connSt
 			checker.Config{
 				AivenClient:    fakeAivenClient,
 				CloudSQLClient: sqlAdminService,
+				V0sClient:      newSBOMClient(),
 				Tenant:         "tenant",
 				Clusters:       clusters(),
 				BifrostClient:  unleash.NewFakeBifrostClient(watchers.UnleashWatcher),
 			},
 			pool,
 			watchers,
-			true,
 			log.WithField("subsystem", "issue_checker"),
 		)
 		if err != nil {

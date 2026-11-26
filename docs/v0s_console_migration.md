@@ -13,26 +13,27 @@ assessment mutations, ordering and pagination retain their v13s behavior.
 Console must use one coherent vulnerability read/write flow, not combine v0s
 findings with v13s summaries or assessments. v0s reads never fall back to v13s.
 
-This PR only extends v0s reads. Shared vulnerability Issues still use v13s.
-Switching `MISSING_SBOM`, `VULNERABLE_IMAGE` and
-`EXTERNAL_INGRESS_URGENT_VULNERABILITY` to v0s is separate follow-up work.
-`VulnerableImageIssue.riskScore` is unchanged here; removing it is a separate
-breaking change coordinated with Console. Do not mix those legacy Issues with
-v0s results in a Console view before that source switch.
+Of the vulnerability-derived Issues, only `MISSING_SBOM` remains produced.
+`VULNERABLE_IMAGE` and `EXTERNAL_INGRESS_URGENT_VULNERABILITY` are retired;
+the first checker snapshot after deployment removes their stored rows.
+Their GraphQL types and fields, including `VulnerableImageIssue.riskScore`,
+remain unchanged for compatibility. No v0s risk score is fabricated.
+`MISSING_SBOM` uses v0s directly from deployment, without a source-selection
+flag or fallback to v13s. `V0S_ENDPOINT` must be configured.
 
 ## Implementation gaps
 
-| Capability                       | Current implementation                                                                                                    | Required work                                                     |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                               | Extend these fields, not another finding API                      |
-| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors                               | Reset old finding cursors when deploying this integration         |
-| Finding counts/facets            | Full-selection facets and summaries; shared team/environment/label selection, distinct vulnerability/workload totals      | Verify deployed backend conformance                               |
-| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                       | Verify deployed inventory reconciliation                          |
-| Workload selection               | Global `TeamScopeInput` and environment/label filters; existing team/environment/workload scopes                          | No additional API selection contract needed                       |
-| Workload/vulnerability overviews | Unique-vulnerability groups, affected-workload connection, batch-loaded workload counts and team unique-severity ordering | No additional backend release needed for CVE navigation           |
-| Assessment writes                | Team-authorized, gated v0s batches with best-effort activity logging                                                      | Verify set and delete before enablement                           |
-| Vulnerability Issues             | Existing producers use v13s                                                                                               | Switch the three producers and remove obsolete risk-score payload |
-| Manual reanalysis                | No public v0s RPC                                                                                                         | Do not expose a working reanalysis control                        |
+| Capability                       | Current implementation                                                                                                    | Required work                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                               | Extend these fields, not another finding API              |
+| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors                               | Reset old finding cursors when deploying this integration |
+| Finding counts/facets            | Full-selection facets and summaries; shared team/environment/label selection, distinct vulnerability/workload totals      | Verify deployed backend conformance                       |
+| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                       | Verify deployed inventory reconciliation                  |
+| Workload selection               | Global `TeamScopeInput` and environment/label filters; existing team/environment/workload scopes                          | No additional API selection contract needed               |
+| Workload/vulnerability overviews | Unique-vulnerability groups, affected-workload connection, batch-loaded workload counts and team unique-severity ordering | No additional backend release needed for CVE navigation   |
+| Assessment writes                | Team-authorized, gated v0s batches with best-effort activity logging                                                      | Verify set and delete before enablement                   |
+| Vulnerability Issues             | KEV producers retired; MISSING_SBOM uses only v0s                                                                         | Verify deployed coverage before deployment                |
+| Manual reanalysis                | No public v0s RPC                                                                                                         | Do not expose a working reanalysis control                |
 
 ### GitHub contract status
 
@@ -827,14 +828,50 @@ its own legacy assessment table is not a v13s import.
 
 ## Issues and reanalysis
 
-The planned v0s Urgent producer will combine unsuppressed KEV data with existing confirmed external
-exposure logic for applications; KEV alone is not Urgent. Jobs should retain
-the general known-exploited-image issue. Issue counts must state their unit.
-Only NO_SBOM means missing SBOM; pending, failed and unresolved are different.
+`VULNERABLE_IMAGE` and `EXTERNAL_INGRESS_URGENT_VULNERABILITY` are no longer
+produced for applications or jobs. Existing rows disappear on the next checker
+snapshot. The legacy GraphQL issue
+types, `riskScore`, `critical`, `priorityUrgent` and ingress payloads are not
+removed or repurposed. Console must not rely on these retired Issues for KEV or
+Urgent indicators; a future indicator would need its own agreed consumer
+contract. KEV alone is not evidence of external exposure.
 
-Replace old vulnerability-derived issue rows before advertising v0s issue
-readiness. Do not fall back to v13s on errors or clear vulnerability Issues in a
-way that falsely reports a clean state. Other issue families remain unchanged.
+The remaining SBOM producer always uses v0s and requires `V0S_ENDPOINT`.
+There is no source-selection flag and no fallback to v13s on an error.
+`V0S_SUPPRESSIONS_ENABLED` and assessment writes remain unchanged.
+
+API snapshots its synchronized application/job inventory, selects
+those identities explicitly in batched `ListWorkloads` requests, and follows all
+pages before generating issues. No findings or finding aggregates are fetched.
+Each returned workload must match the current effective image reference.
+Only explicit `NO_SBOM` creates one issue per workload. `SCANNED`, pending,
+failed, unresolved, missing and stale records do not produce `MISSING_SBOM`.
+An empty inventory does not become an unrestricted backend request.
+
+**Snapshot replacement is intentional:** the checker retains its existing full
+delete-and-insert behavior. A confirmed empty result removes old rows; source
+errors and unknown coverage can also remove previous SBOM issues. Errors are
+logged, partial RPC results are discarded, and unresolved coverage is logged.
+There is no last-known-good retention or new transactional persistence layer.
+Absence of a `MISSING_SBOM` issue therefore does not prove a successful scan.
+Use v0s coverage fields to distinguish scanned, pending, failed and unresolved.
+Other issue families retain their existing behavior.
+
+Plain `ListWorkloads` does not provide an overview total count. Reaching the final
+page does not prove every selected API workload is known to v0s: absent rows
+remain unknown, never inferred `NO_SBOM`. Nil/malformed responses, conflicting
+duplicates, continuation cycles and backend failures are reported as errors.
+Collection is time-bounded, and inventory changes invalidate that run's result.
+Verify the deployed backend honors selectors, image references, statuses and
+pagination before deployment; fake tests do not establish this.
+
+Deployment switches the SBOM source immediately. Stop/drain all old
+issue-checker replicas before starting this version with `V0S_ENDPOINT`
+configured. Older versions can recreate retired KEV rows and replace the
+snapshot with v13s results. Do not overlap old and new checker versions.
+Leader election alone is insufficient: leadership can move between versions.
+Apply the same non-overlapping procedure when rolling back to an older binary;
+that rollback also restores its retired KEV producers.
 
 v0s automatically reanalyses stored SBOMs when its Trivy database changes.
 Restarting v0s does not force reanalysis. No manual-reanalysis RPC is currently
@@ -852,10 +889,12 @@ available; Console must not present one as functional.
    successful assessment mutation.
 4. Handle any old assessment import externally, including unmatched records and
    incompatible states. Any importer must not overwrite subsequent v0s writes.
-5. Switch the three shared vulnerability issue producers to v0s and verify their
-   refreshed data, including mixed-version rollout behavior.
-6. Switch Console to the coherent v0s read/write flow. Remove the obsolete
-   riskScore issue fragment and legacy vulnerability fragments.
+5. Verify deployed v0s coverage and configure `V0S_ENDPOINT`. Use the
+   non-overlapping deployment procedure above: this version retires both
+   KEV-based issue producers and switches `MISSING_SBOM` directly to v0s.
+6. Switch Console to the coherent v0s read/write flow. Stop depending on retired
+   KEV issue types and remove their obsolete riskScore fragments together with
+   legacy vulnerability fragments. GraphQL type removal remains separate work.
 7. Leave legacy v13s queries and mutations available for legacy consumers.
    Eventual removal is a separate change.
 

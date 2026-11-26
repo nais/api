@@ -214,7 +214,7 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 
 	// TODO: Once all tenants and consumers have moved to v0s, remove the legacy
 	// vulnerability GraphQL fields (including updateImageVulnerability), client,
-	// configuration, and v13s-backed issue checks. Keep Workloads.ListImages for v0s.
+	// configuration. Keep Workloads.ListImages for v0s.
 	vulnMgr, err := vulnerability.NewManager(
 		ctx,
 		cfg.VulnerabilitiesAPI.Endpoint,
@@ -486,14 +486,13 @@ func run(ctx context.Context, cfg *Config, log logrus.FieldLogger) error {
 		checker.Config{
 			AivenClient:    aivenClient,
 			CloudSQLClient: sqlAdminService,
-			V13sClient:     vulnMgr.Client,
+			V0sClient:      v0sMgr.Vulnerabilities,
 			Tenant:         cfg.Tenant,
 			Clusters:       cfg.K8s.AllClusterNames(),
 			BifrostClient:  bifrostClient,
 		},
 		pool,
 		watchers,
-		cfg.VulnerabilitiesAPI.Endpoint == vulnerability.FakeVulnerabilitiesAPIURL,
 		log.WithField("subsystem", "issue_checker"),
 	)
 	if err != nil {

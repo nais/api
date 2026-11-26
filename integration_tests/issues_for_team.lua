@@ -4,7 +4,23 @@ Team.new("myteam", "purpose", "#slack_channel")
 Team.new("sortteam", "purpose", "#slack_channel")
 Team.new("devteam", "purpose", "#slack_channel")
 local checker = IssueChecker.new()
+Helper.SQLExec([[
+	INSERT INTO issues (issue_type, resource_name, resource_type, team, env, severity, message)
+	VALUES
+		('VULNERABLE_IMAGE', 'vulnerable', 'APPLICATION', 'myteam', 'dev-gcp', 'WARNING', 'old KEV issue'),
+		('EXTERNAL_INGRESS_URGENT_VULNERABILITY', 'vulnerable', 'APPLICATION', 'myteam', 'dev-gcp', 'CRITICAL', 'old urgent issue'),
+		('MISSING_SBOM', 'vulnerable', 'APPLICATION', 'myteam', 'dev-gcp', 'WARNING', 'old SBOM issue')
+]])
 checker:runChecks()
+
+Test.sql("Checker replaces old vulnerability issues", function(t)
+	t.query [[
+		SELECT count(*) AS count FROM issues
+		WHERE issue_type IN ('VULNERABLE_IMAGE', 'EXTERNAL_INGRESS_URGENT_VULNERABILITY')
+		   OR message = 'old SBOM issue'
+	]]
+	t.check { { count = 0 } }
+end)
 
 Test.gql("Order by severity", function(t)
 	t.addHeader("x-user-email", user:email())
@@ -560,7 +576,7 @@ Test.gql("VulnerableImageIssue", function(t)
 	}
 end)
 
-Test.gql("Known exploited workload without external ingress has only image issue", function(t)
+Test.gql("Retired KEV issue types remain queryable but empty", function(t)
 	t.addHeader("x-user-email", user:email())
 
 	t.query [[
@@ -593,18 +609,7 @@ Test.gql("Known exploited workload without external ingress has only image issue
 		data = {
 			team = {
 				imageIssues = {
-					nodes = {
-						{
-							__typename = "VulnerableImageIssue",
-							severity = "WARNING",
-							message = "Image 'vulnerable-image' has 2 known-exploited vulnerabilities",
-							critical = 5,
-							riskScore = 250,
-							workload = {
-								name = "vulnerable",
-							},
-						},
-					},
+					nodes = {},
 				},
 				urgentIssues = {
 					nodes = {},
@@ -646,18 +651,7 @@ Test.gql("ExternalIngressUrgentVulnerabilityIssue", function(t)
 		data = {
 			team = {
 				issues = {
-					nodes = {
-						{
-							__typename = "ExternalIngressUrgentVulnerabilityIssue",
-							message = "Urgent: Workload 'vulnerable' is exposed via external ingress and has 2 known-exploited vulnerabilities",
-							severity = "CRITICAL",
-							priorityUrgent = 2,
-							ingresses = { "https://vulnerable.example.com" },
-							workload = {
-								name = "vulnerable",
-							},
-						},
-					},
+					nodes = {},
 				},
 			},
 		},
@@ -697,7 +691,7 @@ Test.gql("MissingSbomIssue", function(t)
 					nodes = {
 						{
 							__typename = "MissingSbomIssue",
-							message = "Image 'missing-sbom-image:tag1' is missing a Software Bill of Materials (SBOM)",
+							message = "Image 'europe-north1-docker.pkg.dev/nais/navikt/app-name:latest' is missing a Software Bill of Materials (SBOM)",
 							severity = "WARNING",
 							workload = {
 								name = "missing-sbom",
