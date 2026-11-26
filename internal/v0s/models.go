@@ -23,6 +23,29 @@ type Scope struct {
 
 type VulnerabilityFindingFilter = v0sfilter.VulnerabilityFindingFilter
 
+type VulnerabilityFindingsFilter struct {
+	VulnerabilityFindingFilter
+	TeamScope    *teamscope.TeamScopeInput
+	Environments []string
+	Labels       []*model.LabelFilter
+}
+
+type TeamVulnerabilityFindingsFilter struct {
+	VulnerabilityFindingFilter
+	Environments []string
+	Labels       []*model.LabelFilter
+}
+
+type TeamEnvironmentVulnerabilityFindingsFilter VulnerabilityFindingFilter
+
+type WorkloadVulnerabilityFindingsFilter VulnerabilityFindingFilter
+
+type WorkloadVulnerabilityOverviewFilter VulnerabilityFindingFilter
+
+type TeamVulnerabilitySuppressionsFilter VulnerabilitySuppressionFilter
+
+type TeamEnvironmentVulnerabilitySuppressionsFilter VulnerabilitySuppressionFilter
+
 type VulnerabilityWorkloadFilter struct {
 	TeamScope    *teamscope.TeamScopeInput
 	Environments []string

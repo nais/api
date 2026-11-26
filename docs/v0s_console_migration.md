@@ -96,17 +96,47 @@ No suppression flag or default needs to change for this reason.
 
 ## Selection and counting semantics
 
+### Context-specific filter inputs
+
+Each field takes a single `filter`, combining all criteria supported in that
+context. Query variables must use the corresponding input type:
+
+| Field                                       | Filter input                                     |
+| ------------------------------------------- | ------------------------------------------------ |
+| `Query.vulnerabilityFindings`               | `VulnerabilityFindingsFilter`                    |
+| `Team.vulnerabilityFindings`                | `TeamVulnerabilityFindingsFilter`                |
+| `TeamEnvironment.vulnerabilityFindings`     | `TeamEnvironmentVulnerabilityFindingsFilter`     |
+| `Workload.vulnerabilityFindings`            | `WorkloadVulnerabilityFindingsFilter`            |
+| `Workload.vulnerabilityOverview`            | `WorkloadVulnerabilityOverviewFilter`            |
+| `Query.vulnerabilitySuppressions`           | `VulnerabilitySuppressionFilter`                 |
+| `Team.vulnerabilitySuppressions`            | `TeamVulnerabilitySuppressionsFilter`            |
+| `TeamEnvironment.vulnerabilitySuppressions` | `TeamEnvironmentVulnerabilitySuppressionsFilter` |
+
+`Application` and `Job` implement the Workload fields with the interface's exact
+argument types, as GraphQL requires. Shared nested finding criteria in
+`TeamWorkloadsFilter.vulnerabilityFilter` still use `VulnerabilityFindingFilter`;
+that is not a top-level field filter.
+
+This replaces the previous shared top-level finding/suppression types and the
+separate `workloadFilter` argument. Move environments/labels (and global
+`teamScope`) into the field's single filter alongside finding criteria, and
+update typed variables. This is a v0s contract change; v13s fields are unchanged.
+Finding, assessment and coverage semantics are unchanged.
+
+### Workload selection
+
 Current finding and summary scopes select team, environment and workload.
-`Team.vulnerabilityFindings(workloadFilter:)` and `Team.workloads(filter:)`
+`Team.vulnerabilityFindings(filter:)` and `Team.workloads(filter:)`
 share the authoritative API workload inventory and existing environment/label
 matching. All labels are ANDed: an omitted value requires the key to exist;
 an explicit empty string requires an empty value. Environment values are ORed.
 Selection applies to finding rows, facets, summaries and nested vulnerability
-groups before pagination. The v0s selection and unique-count sorting paths
-accept only environments and labels from `TeamWorkloadsFilter`; other workload
-predicates fail explicitly rather than silently invoking legacy SBOM semantics.
+groups before pagination. The team finding filter exposes only environments
+and labels as workload criteria; the unique-count sorting path also accepts only
+these workload criteria from `TeamWorkloadsFilter`. Other workload predicates
+fail explicitly rather than silently invoking legacy SBOM semantics.
 Legacy workload filtering remains unchanged.
-Global `vulnerabilityFindings(workloadFilter:)` accepts the same environment/label
+Global `vulnerabilityFindings(filter:)` accepts the same environment/label
 selection and the existing `TeamScopeInput`. `{memberOfViewer: true}` selects
 the viewer's teams; explicit `teamSlugs` and membership-derived teams are a
 union, intersected with environments and labels. It does not impose a new
@@ -166,8 +196,8 @@ These sort on the corresponding unique-severity bucket, using the same
 This filter changes counts, not membership or coverage. Passing it with a
 legacy or omitted order field is an error. Existing `VULNERABILITY_SEVERITY_*`
 ordering continues to use v13s and must not be used in a v0s view.
-`Team.vulnerabilityFindings.workloadFilter` still accepts only environments and
-labels; put finding predicates in that field's existing `filter` argument.
+`Team.vulnerabilityFindings` combines environments, labels and finding
+predicates in a single `TeamVulnerabilityFindingsFilter`.
 `vulnerabilityFindings.affectedWorkloads` is the affected-only list for both
 global and team CVE navigation. Unlike the complete workload list, it includes
 only workloads with at least one matching current-image finding.
@@ -302,14 +332,19 @@ query Overviews(
 	$team: Slug!
 	$environments: [String!]
 	$labels: [LabelFilter!]
-	$findings: VulnerabilityFindingFilter
+	$packageType: String
+	$onlyWithFix: Boolean
 	$after: Cursor
 	$workloadAfter: Cursor
 ) {
 	team(slug: $team) {
 		vulnerabilityFindings(
-			workloadFilter: { environments: $environments, labels: $labels }
-			filter: $findings
+			filter: {
+				environments: $environments
+				labels: $labels
+				packageType: $packageType
+				onlyWithFix: $onlyWithFix
+			}
 		) {
 			summary {
 				findingCount
@@ -362,12 +397,16 @@ query Overviews(
 		workloads(
 			first: 20
 			after: $workloadAfter
-			filter: { environments: $environments, labels: $labels, vulnerabilityFilter: $findings }
+			filter: {
+				environments: $environments
+				labels: $labels
+				vulnerabilityFilter: { packageType: $packageType, onlyWithFix: $onlyWithFix }
+			}
 			orderBy: { field: VULNERABILITY_UNIQUE_CRITICAL, direction: DESC }
 		) {
 			nodes {
 				name
-				vulnerabilityOverview(filter: $findings) {
+				vulnerabilityOverview(filter: { packageType: $packageType, onlyWithFix: $onlyWithFix }) {
 					findingCount
 					uniqueVulnerabilityCount
 					knownExploitedVulnerabilityCount
@@ -403,7 +442,8 @@ sort and row counts:
 	"team": "my-team",
 	"environments": ["prod"],
 	"labels": [{ "key": "group", "value": "core" }],
-	"findings": { "packageType": "npm", "onlyWithFix": true }
+	"packageType": "npm",
+	"onlyWithFix": true
 }
 ```
 
@@ -480,12 +520,8 @@ Use the existing finding connection as a shared selection container. Console
 does not need to request finding rows to render this list:
 
 ```graphql
-query GlobalCves(
-	$selection: VulnerabilityWorkloadFilter
-	$filter: VulnerabilityFindingFilter
-	$after: Cursor
-) {
-	vulnerabilityFindings(workloadFilter: $selection, filter: $filter) {
+query GlobalCves($filter: VulnerabilityFindingsFilter, $after: Cursor) {
+	vulnerabilityFindings(filter: $filter) {
 		summary {
 			findingCount
 			uniqueVulnerabilityCount
@@ -533,22 +569,24 @@ query GlobalCves(
 
 ```json
 {
-	"selection": {
+	"filter": {
 		"teamScope": { "memberOfViewer": true },
 		"environments": ["dev"],
-		"labels": [{ "key": "group", "value": "core" }]
-	},
-	"filter": { "packageType": "npm", "suppressed": "INCLUDE" }
+		"labels": [{ "key": "group", "value": "core" }],
+		"packageType": "npm",
+		"suppressed": "INCLUDE"
+	}
 }
 ```
 
 ### Global and team CVE details
 
 The same details fragment works on global and team finding connections.
-`$filter` must contain the selected CVE's canonical ID or alias. Repeat the
-finding filter on row reads: child workload connections do not implicitly
-inherit a parent's arguments. Paginate their package findings separately if
-the selected rows contain more than one finding page.
+`$filter` must contain the selected CVE's canonical ID or alias. Supply the same
+finding criteria in `$rowFilter`, whose type is specific to workload findings:
+child workload connections do not implicitly inherit a parent's arguments.
+Paginate their package findings separately if the selected rows contain more
+than one finding page.
 
 ```graphql
 fragment CveWorkloads on VulnerabilityFindingConnection {
@@ -578,7 +616,7 @@ fragment CveWorkloads on VulnerabilityFindingConnection {
 					name
 				}
 			}
-			vulnerabilityFindings(first: 100, filter: $filter) {
+			vulnerabilityFindings(first: 100, filter: $rowFilter) {
 				nodes {
 					vulnerabilityIdentifier
 					image {
@@ -622,8 +660,8 @@ fragment CveWorkloads on VulnerabilityFindingConnection {
 
 query GlobalCveDetails(
 	$identifier: String!
-	$selection: VulnerabilityWorkloadFilter
-	$filter: VulnerabilityFindingFilter!
+	$filter: VulnerabilityFindingsFilter!
+	$rowFilter: WorkloadVulnerabilityFindingsFilter!
 	$after: Cursor
 ) {
 	vulnerability(identifier: $identifier) {
@@ -637,7 +675,7 @@ query GlobalCveDetails(
 			date
 		}
 	}
-	vulnerabilityFindings(workloadFilter: $selection, filter: $filter) {
+	vulnerabilityFindings(filter: $filter) {
 		...CveWorkloads
 	}
 }
@@ -645,8 +683,8 @@ query GlobalCveDetails(
 query TeamCveDetails(
 	$team: Slug!
 	$identifier: String!
-	$selection: TeamWorkloadsFilter
-	$filter: VulnerabilityFindingFilter!
+	$filter: TeamVulnerabilityFindingsFilter!
+	$rowFilter: WorkloadVulnerabilityFindingsFilter!
 	$after: Cursor
 ) {
 	vulnerability(identifier: $identifier) {
@@ -661,18 +699,35 @@ query TeamCveDetails(
 		}
 	}
 	team(slug: $team) {
-		vulnerabilityFindings(workloadFilter: $selection, filter: $filter) {
+		vulnerabilityFindings(filter: $filter) {
 			...CveWorkloads
 		}
 	}
 }
 ```
 
-For global details, reuse the global list's `$selection` and set
-`"identifier": "CVE-2024-12345"` and
-`"filter": {"vulnerabilityIdentifiers": ["CVE-2024-12345"], "suppressed": "INCLUDE"}`.
-For team details, supply `"team": "my-team"` and only `environments`/`labels`
-inside `$selection`. An alias is also accepted; returned finding identifiers
+For global details, retain the global list's workload criteria inside `$filter`
+and add the selected identifier. For example:
+
+```json
+{
+	"identifier": "CVE-2024-12345",
+	"filter": {
+		"teamScope": { "memberOfViewer": true },
+		"environments": ["dev"],
+		"labels": [{ "key": "group", "value": "core" }],
+		"vulnerabilityIdentifiers": ["CVE-2024-12345"],
+		"suppressed": "INCLUDE"
+	},
+	"rowFilter": {
+		"vulnerabilityIdentifiers": ["CVE-2024-12345"],
+		"suppressed": "INCLUDE"
+	}
+}
+```
+
+For team details, add `"team": "my-team"` and omit `teamScope` from `$filter`;
+the team's identity is implicit. An alias is also accepted; returned finding identifiers
 are canonical. `INCLUDE` lets the UI show assessed and unassessed packages;
 `ONLY`/`EXCLUDE` select assessed/unassessed findings consistently in affected
 rows, groups, facets and counts. They never narrow coverage.
@@ -707,8 +762,8 @@ mutation AssessSelectedPackages($input: SetVulnerabilitySuppressionsInput!) {
 mutation DeleteSelectedAssessments($input: DeleteVulnerabilitySuppressionsInput!) {
 	deleteVulnerabilitySuppressions(input: $input) {
 		deleted {
-			environment
-			workload
+			environmentName
+			workloadName
 			imageName
 			packageKey
 			vulnerabilityIdentifier

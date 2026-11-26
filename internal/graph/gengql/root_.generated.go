@@ -42,7 +42,6 @@ import (
 	"github.com/nais/api/internal/user"
 	"github.com/nais/api/internal/utilization"
 	"github.com/nais/api/internal/v0s"
-	"github.com/nais/api/internal/v0s/filter"
 	"github.com/nais/api/internal/vulnerability"
 	"github.com/nais/api/internal/workload"
 	"github.com/nais/api/internal/workload/application"
@@ -288,9 +287,9 @@ type ComplexityRoot struct {
 		Utilization               func(childComplexity int) int
 		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
 		VulnerabilityCoverage     func(childComplexity int) int
-		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
-		VulnerabilityOverview     func(childComplexity int, filter *filter.VulnerabilityFindingFilter) int
+		VulnerabilityOverview     func(childComplexity int, filter *v0s.WorkloadVulnerabilityOverviewFilter) int
 	}
 
 	ApplicationConnection struct {
@@ -1340,9 +1339,9 @@ type ComplexityRoot struct {
 		TeamEnvironment           func(childComplexity int) int
 		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
 		VulnerabilityCoverage     func(childComplexity int) int
-		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
-		VulnerabilityOverview     func(childComplexity int, filter *filter.VulnerabilityFindingFilter) int
+		VulnerabilityOverview     func(childComplexity int, filter *v0s.WorkloadVulnerabilityOverviewFilter) int
 	}
 
 	JobConnection struct {
@@ -2310,7 +2309,7 @@ type ComplexityRoot struct {
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int
 		Vulnerability             func(childComplexity int, identifier string) int
-		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder, workloadFilter *v0s.VulnerabilityWorkloadFilter) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
@@ -3181,11 +3180,11 @@ type ComplexityRoot struct {
 		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int
 		ViewerIsMember            func(childComplexity int) int
 		ViewerIsOwner             func(childComplexity int) int
-		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder, workloadFilter *workload.TeamWorkloadsFilter) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.TeamVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
-		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.TeamVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor) int
 		Webhooks                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		WorkloadUtilization       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Workloads                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
@@ -3309,8 +3308,8 @@ type ComplexityRoot struct {
 		Team                      func(childComplexity int) int
 		Tunnel                    func(childComplexity int, name string) int
 		Valkey                    func(childComplexity int, name string) int
-		VulnerabilityFindings     func(childComplexity int, filter *filter.VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
-		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor) int
 		Workload                  func(childComplexity int, name string) int
 	}
 
@@ -5140,7 +5139,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Application.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Application.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Application.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Application.VulnerabilityFixHistory == nil {
@@ -5164,7 +5163,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Application.VulnerabilityOverview(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter)), true
+		return e.ComplexityRoot.Application.VulnerabilityOverview(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityOverviewFilter)), true
 
 	case "ApplicationConnection.edges":
 		if e.ComplexityRoot.ApplicationConnection.Edges == nil {
@@ -9425,7 +9424,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Job.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Job.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Job.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Job.VulnerabilityFixHistory == nil {
@@ -9449,7 +9448,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Job.VulnerabilityOverview(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter)), true
+		return e.ComplexityRoot.Job.VulnerabilityOverview(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityOverviewFilter)), true
 
 	case "JobConnection.edges":
 		if e.ComplexityRoot.JobConnection.Edges == nil {
@@ -14360,7 +14359,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder), args["workloadFilter"].(*v0s.VulnerabilityWorkloadFilter)), true
+		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Query.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Query.VulnerabilityFixHistory == nil {
@@ -18341,7 +18340,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder), args["workloadFilter"].(*workload.TeamWorkloadsFilter)), true
+		return e.ComplexityRoot.Team.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.TeamVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Team.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Team.VulnerabilityFixHistory == nil {
@@ -18389,7 +18388,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.Team.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.TeamVulnerabilitySuppressionsFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
 
 	case "Team.webhooks":
 		if e.ComplexityRoot.Team.Webhooks == nil {
@@ -19063,7 +19062,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.TeamEnvironment.VulnerabilityFindings(childComplexity, args["filter"].(*filter.VulnerabilityFindingFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.TeamEnvironment.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.TeamEnvironmentVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "TeamEnvironment.vulnerabilitySuppressions":
 		if e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions == nil {
@@ -19075,7 +19074,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.TeamEnvironmentVulnerabilitySuppressionsFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
 
 	case "TeamEnvironment.workload":
 		if e.ComplexityRoot.TeamEnvironment.Workload == nil {
@@ -24513,6 +24512,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamAlertsFilter,
 		ec.unmarshalInputTeamApplicationsFilter,
 		ec.unmarshalInputTeamCostDailyFilter,
+		ec.unmarshalInputTeamEnvironmentVulnerabilityFindingsFilter,
+		ec.unmarshalInputTeamEnvironmentVulnerabilitySuppressionsFilter,
 		ec.unmarshalInputTeamFilter,
 		ec.unmarshalInputTeamJobsFilter,
 		ec.unmarshalInputTeamMemberOrder,
@@ -24520,7 +24521,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputTeamPostgresFilter,
 		ec.unmarshalInputTeamRepositoryFilter,
 		ec.unmarshalInputTeamScopeInput,
+		ec.unmarshalInputTeamVulnerabilityFindingsFilter,
 		ec.unmarshalInputTeamVulnerabilitySummaryFilter,
+		ec.unmarshalInputTeamVulnerabilitySuppressionsFilter,
 		ec.unmarshalInputTeamWorkloadsFilter,
 		ec.unmarshalInputTenantActivityLogFilter,
 		ec.unmarshalInputTenantIssueFilter,
@@ -24555,16 +24558,18 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputViewSecretValuesInput,
 		ec.unmarshalInputVulnerabilityFindingFilter,
 		ec.unmarshalInputVulnerabilityFindingOrder,
+		ec.unmarshalInputVulnerabilityFindingsFilter,
 		ec.unmarshalInputVulnerabilityOverviewOrder,
 		ec.unmarshalInputVulnerabilitySummaryOrder,
 		ec.unmarshalInputVulnerabilitySuppressionFilter,
 		ec.unmarshalInputVulnerabilitySuppressionKeyInput,
-		ec.unmarshalInputVulnerabilityWorkloadFilter,
 		ec.unmarshalInputWebhookEventSelection,
 		ec.unmarshalInputWorkloadEventFilter,
 		ec.unmarshalInputWorkloadLogSubscriptionFilter,
 		ec.unmarshalInputWorkloadOrder,
 		ec.unmarshalInputWorkloadUtilizationSeriesInput,
+		ec.unmarshalInputWorkloadVulnerabilityFindingsFilter,
+		ec.unmarshalInputWorkloadVulnerabilityOverviewFilter,
 	)
 	first := true
 
@@ -37591,15 +37596,13 @@ type ApplicationInstanceUtilization {
 	"Current vulnerability findings for deployed applications and jobs."
 	vulnerabilityFindings(
 		"Filter the full finding selection."
-		filter: VulnerabilityFindingFilter
+		filter: VulnerabilityFindingsFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
-		"Select workloads before filtering findings and computing aggregates. Coverage includes all matching workloads."
-		workloadFilter: VulnerabilityWorkloadFilter
 	): VulnerabilityFindingConnection!
 	"Advisory details for a vulnerability identifier or alias. Unknown identifiers return null."
 	vulnerability(
@@ -37621,20 +37624,18 @@ extend type Team {
 	"Current vulnerability findings for this team's workloads."
 	vulnerabilityFindings(
 		"Filter the full finding selection."
-		filter: VulnerabilityFindingFilter
+		filter: TeamVulnerabilityFindingsFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
-		"Select the team's workloads before finding filters and aggregation. Only environments and labels are supported. Coverage includes all selected workloads."
-		workloadFilter: TeamWorkloadsFilter
 	): VulnerabilityFindingConnection!
 	"Current assessments for existing workloads in this team."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
-		filter: VulnerabilitySuppressionFilter
+		filter: TeamVulnerabilitySuppressionsFilter
 		"Get the first n assessments, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
@@ -37646,7 +37647,7 @@ extend type TeamEnvironment {
 	"Current vulnerability findings for this team's workloads in the environment."
 	vulnerabilityFindings(
 		"Filter the full finding selection."
-		filter: VulnerabilityFindingFilter
+		filter: TeamEnvironmentVulnerabilityFindingsFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
@@ -37657,7 +37658,7 @@ extend type TeamEnvironment {
 	"Current assessments for existing workloads in this team environment."
 	vulnerabilitySuppressions(
 		"Filter the assessment selection."
-		filter: VulnerabilitySuppressionFilter
+		filter: TeamEnvironmentVulnerabilitySuppressionsFilter
 		"Get the first n assessments, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter."
@@ -37669,7 +37670,7 @@ extend interface Workload {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
 		"Filter this workload's findings."
-		filter: VulnerabilityFindingFilter
+		filter: WorkloadVulnerabilityFindingsFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
@@ -37682,7 +37683,7 @@ extend interface Workload {
 	"Server-aggregated counts for this workload's current image. Missing or outdated scan inventory gives zero known findings and PENDING coverage, not a clean result."
 	vulnerabilityOverview(
 		"Filter findings before counting unique vulnerabilities and selecting their highest known severity."
-		filter: VulnerabilityFindingFilter
+		filter: WorkloadVulnerabilityOverviewFilter
 	): VulnerabilityWorkloadOverview!
 }
 
@@ -37690,7 +37691,7 @@ extend type Application {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
 		"Filter this application's findings."
-		filter: VulnerabilityFindingFilter
+		filter: WorkloadVulnerabilityFindingsFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
@@ -37703,7 +37704,7 @@ extend type Application {
 	"Server-aggregated counts for this application's current image. Missing or outdated scan inventory gives zero known findings and PENDING coverage, not a clean result."
 	vulnerabilityOverview(
 		"Filter findings before counting unique vulnerabilities and selecting their highest known severity."
-		filter: VulnerabilityFindingFilter
+		filter: WorkloadVulnerabilityOverviewFilter
 	): VulnerabilityWorkloadOverview!
 }
 
@@ -37711,7 +37712,7 @@ extend type Job {
 	"Current vulnerability findings in the deployed image."
 	vulnerabilityFindings(
 		"Filter this job's findings."
-		filter: VulnerabilityFindingFilter
+		filter: WorkloadVulnerabilityFindingsFilter
 		"Get the first n findings, between 1 and 200. Defaults to 20."
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
@@ -37724,18 +37725,108 @@ extend type Job {
 	"Server-aggregated counts for this job's current image. Missing or outdated scan inventory gives zero known findings and PENDING coverage, not a clean result."
 	vulnerabilityOverview(
 		"Filter findings before counting unique vulnerabilities and selecting their highest known severity."
-		filter: VulnerabilityFindingFilter
+		filter: WorkloadVulnerabilityOverviewFilter
 	): VulnerabilityWorkloadOverview!
 }
 
-"Select workloads before filtering findings, grouping vulnerabilities and computing coverage."
-input VulnerabilityWorkloadFilter {
+"Select workloads and their findings before pagination, grouping and aggregation. Coverage includes all matching workloads regardless of finding criteria."
+input VulnerabilityFindingsFilter {
 	"Select explicit teams or teams the viewer belongs to, using the existing union semantics."
 	teamScope: TeamScopeInput
 	"Include workloads in any of these environments. Omitted or empty means all environments."
 	environments: [String!]
 	"Match all labels. An omitted value requires the key to exist; an explicit value, including an empty string, matches exactly."
 	labels: [LabelFilter!]
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Match a package ecosystem, such as npm or maven, case-insensitively. Unknown types match no findings."
+	packageType: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean
+	"Whether assessed findings are included. Defaults to EXCLUDE."
+	suppressed: SuppressedFilter
+}
+
+"Select this team's workloads and findings before pagination and aggregation. Coverage includes all matching workloads regardless of finding criteria."
+input TeamVulnerabilityFindingsFilter {
+	"Include workloads in any of these environments. Omitted or empty means all environments."
+	environments: [String!]
+	"Match all labels. An omitted value requires the key to exist; an explicit value, including an empty string, matches exactly."
+	labels: [LabelFilter!]
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Match a package ecosystem, such as npm or maven, case-insensitively. Unknown types match no findings."
+	packageType: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean
+	"Whether assessed findings are included. Defaults to EXCLUDE."
+	suppressed: SuppressedFilter
+}
+
+"Filter this team's findings in one environment before pagination and aggregation."
+input TeamEnvironmentVulnerabilityFindingsFilter {
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Match a package ecosystem, such as npm or maven, case-insensitively. Unknown types match no findings."
+	packageType: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean
+	"Whether assessed findings are included. Defaults to EXCLUDE."
+	suppressed: SuppressedFilter
+}
+
+"Filter findings in a workload's currently deployed image before pagination and aggregation."
+input WorkloadVulnerabilityFindingsFilter {
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Match a package ecosystem, such as npm or maven, case-insensitively. Unknown types match no findings."
+	packageType: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean
+	"Whether assessed findings are included. Defaults to EXCLUDE."
+	suppressed: SuppressedFilter
+}
+
+"Filter the findings counted in a workload's overview. Coverage is not narrowed by finding criteria."
+input WorkloadVulnerabilityOverviewFilter {
+	"Match any of these vulnerability identifiers or aliases."
+	vulnerabilityIdentifiers: [String!]
+	"Match a full package URL, or a version-independent package key."
+	package: String
+	"Match a package ecosystem, such as npm or maven, case-insensitively. Unknown types match no findings."
+	packageType: String
+	"Include only findings with these severities."
+	severities: [VulnerabilitySeverity!]
+	"Include only findings with a known fixed version."
+	onlyWithFix: Boolean
+	"Include only vulnerabilities listed in CISA KEV."
+	onlyKnownExploited: Boolean
+	"Whether assessed findings are included. Defaults to EXCLUDE."
+	suppressed: SuppressedFilter
 }
 
 "Filters applied before finding pagination and aggregation."
@@ -37749,11 +37840,11 @@ input VulnerabilityFindingFilter {
 	"Include only findings with these severities."
 	severities: [VulnerabilitySeverity!]
 	"Include only findings with a known fixed version."
-	onlyWithFix: Boolean = false
+	onlyWithFix: Boolean
 	"Include only vulnerabilities listed in CISA KEV."
-	onlyKnownExploited: Boolean = false
-	"Whether assessed findings are included."
-	suppressed: SuppressedFilter = EXCLUDE
+	onlyKnownExploited: Boolean
+	"Whether assessed findings are included. Defaults to EXCLUDE."
+	suppressed: SuppressedFilter
 }
 
 "Server-side ordering of vulnerability findings, with stable identity tie-breakers."
@@ -38068,6 +38159,22 @@ type VulnerabilityEpss {
 
 "Filters applied before assessment pagination."
 input VulnerabilitySuppressionFilter {
+	"Match a vulnerability identifier or alias."
+	vulnerabilityIdentifier: String
+	"Match an image repository name."
+	imageName: String
+}
+
+"Filter current assessments belonging to this team."
+input TeamVulnerabilitySuppressionsFilter {
+	"Match a vulnerability identifier or alias."
+	vulnerabilityIdentifier: String
+	"Match an image repository name."
+	imageName: String
+}
+
+"Filter current assessments belonging to this team in one environment."
+input TeamEnvironmentVulnerabilitySuppressionsFilter {
 	"Match a vulnerability identifier or alias."
 	vulnerabilityIdentifier: String
 	"Match an image repository name."

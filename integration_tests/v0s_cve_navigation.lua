@@ -15,6 +15,8 @@ local globalMetadata = [[{teamScope: {memberOfViewer: true}, environments: ["dev
 ]}]]
 local findings = [[{vulnerabilityIdentifiers: ["GHSA-shared"], packageType: "npm",
 	severities: [HIGH, CRITICAL], onlyWithFix: true, onlyKnownExploited: true, suppressed: INCLUDE}]]
+local globalFilter = globalMetadata:sub(1, -2) .. "," .. findings:sub(2)
+local teamFilter = metadata:sub(1, -2) .. "," .. findings:sub(2)
 local coverage = { totalWorkloads = 8, scanned = 3, pending = 2, noSbom = 1, failed = 1, unresolvedImage = 1 }
 local fields = [[
 	nodes { vulnerabilityIdentifier }
@@ -77,29 +79,29 @@ Test.gql("My teams selects the full CVE flow, including package facets and affec
 	t.addHeader("x-user-email", member:email())
 	t.query(string.format([[{
 		vulnerability(identifier: "GHSA-shared") { identifier }
-		vulnerabilityFindings(first: 1, workloadFilter: %s, filter: %s) { %s }
-	}]], globalMetadata, findings, fields))
+		vulnerabilityFindings(first: 1, filter: %s) { %s }
+	}]], globalFilter, fields))
 	t.check { data = { vulnerability = { identifier = "CVE-shared" }, vulnerabilityFindings = selectionResult() } }
 	local globalCursor = State.cve_workload_cursor
 	local alphaID = State.cve_alpha_id
 
 	t.query(string.format([[{
 		team(slug: "v0s-overview") {
-			vulnerabilityFindings(first: 1, workloadFilter: %s, filter: %s) { %s }
+			vulnerabilityFindings(first: 1, filter: %s) { %s }
 		}
-	}]], metadata, findings, fields))
+	}]], teamFilter, fields))
 	t.check { data = { team = { vulnerabilityFindings = selectionResult() } } }
 	assert(State.cve_alpha_id == alphaID, "workload identity changed with scope")
 
 	t.query(string.format([[{
-		vulnerabilityFindings(first: 1, workloadFilter: %s, filter: %s,
+		vulnerabilityFindings(first: 1, filter: %s,
 			orderBy: {field: IDENTIFIER, direction: DESC}) {
 			affectedWorkloads(first: 1, after: "%s") {
 				nodes { id name __typename }
 				pageInfo { totalCount hasNextPage hasPreviousPage }
 			}
 		}
-	}]], globalMetadata, findings, globalCursor))
+	}]], globalFilter, globalCursor))
 	t.check { data = { vulnerabilityFindings = { affectedWorkloads = {
 		nodes = { { id = Save("cve_zeta_id"), name = "zeta", __typename = "Job" } },
 		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true },
@@ -107,23 +109,24 @@ Test.gql("My teams selects the full CVE flow, including package facets and affec
 	assert(State.cve_zeta_id ~= alphaID, "different workloads shared an identity")
 
 	t.query(string.format([[{
-		vulnerabilityFindings(workloadFilter: %s, filter: {vulnerabilityIdentifiers: ["GHSA-shared"], packageType: "golang"}) {
+		vulnerabilityFindings(filter: {%s, vulnerabilityIdentifiers: ["GHSA-shared"], packageType: "golang"}) {
 			affectedWorkloads(after: "%s") { nodes { name } }
 		}
-	}]], globalMetadata, globalCursor))
+	}]], globalMetadata:sub(2, -2), globalCursor))
 	t.check { data = Null, errors = { {
 		message = "Cursor does not belong to this vulnerability selection",
 		path = { "vulnerabilityFindings", "affectedWorkloads" }, locations = NotNull(),
 	} } }
 
 	t.query(string.format([[{
-		vulnerabilityFindings(workloadFilter: {
+		vulnerabilityFindings(filter: {
 			teamScope: {memberOfViewer: true}, environments: ["dev"],
 			labels: [{key: "group", value: "core"}, {key: "present"}]
-		}, filter: %s) {
+			%s
+		}) {
 			affectedWorkloads(after: "%s") { nodes { name } }
 		}
-	}]], findings, globalCursor))
+	}]], findings:sub(2, -2), globalCursor))
 	t.check { data = Null, errors = { {
 		message = "Cursor does not belong to this vulnerability selection",
 		path = { "vulnerabilityFindings", "affectedWorkloads" }, locations = NotNull(),
@@ -133,20 +136,20 @@ end)
 Test.gql("My teams without memberships and explicit empty selections stay empty", function(t)
 	t.addHeader("x-user-email", outsider:email())
 	t.query(string.format([[{
-		vulnerabilityFindings(workloadFilter: %s, filter: %s) {
+		vulnerabilityFindings(filter: %s) {
 			nodes { vulnerabilityIdentifier } pageInfo { totalCount }
 			vulnerabilities { nodes { vulnerabilityIdentifier } pageInfo { totalCount } }
 			facets { packageTypes { value count } countsBySeverity { critical } }
 			summary { findingCount affectedWorkloadCount coverage { totalWorkloads } }
 			affectedWorkloads { nodes { name } pageInfo { totalCount } facets { vulnerabilityCoverage { totalWorkloads } } }
 		}
-		explicitEmpty: vulnerabilityFindings(workloadFilter: {teamScope: {teamSlugs: []}}) {
+		explicitEmpty: vulnerabilityFindings(filter: {teamScope: {teamSlugs: []}}) {
 			affectedWorkloads { nodes { name } pageInfo { totalCount } }
 		}
-		noLabels: vulnerabilityFindings(workloadFilter: {labels: [{key: "absent"}]}) {
+		noLabels: vulnerabilityFindings(filter: {labels: [{key: "absent"}]}) {
 			affectedWorkloads { nodes { name } pageInfo { totalCount } }
 		}
-	}]], globalMetadata, findings))
+	}]], globalFilter))
 	local empty = { nodes = {}, pageInfo = { totalCount = 0 } }
 	t.check { data = {
 		vulnerabilityFindings = {
@@ -162,10 +165,11 @@ end)
 Test.gql("Global explicit teams and membership are a union intersected with metadata", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query [[{
-		vulnerabilityFindings(workloadFilter: {
+		vulnerabilityFindings(filter: {
 			teamScope: {memberOfViewer: true, teamSlugs: ["v0s-team"]},
 			environments: ["dev"], labels: [{key: "group", value: "core"}]
-		}, filter: {vulnerabilityIdentifiers: ["CVE-shared"], onlyWithFix: true}) {
+			vulnerabilityIdentifiers: ["CVE-shared"], onlyWithFix: true
+		}) {
 			affectedWorkloads { nodes { name } pageInfo { totalCount } }
 		}
 		unrestricted: vulnerabilityFindings(filter: {vulnerabilityIdentifiers: ["CVE-1"]}) {
@@ -200,12 +204,12 @@ Test.gql("Existing batch assessments are reflected in affected rows and full-sel
 
 	for _, mode in ipairs({ "ONLY", "EXCLUDE", "INCLUDE" }) do
 		t.query(string.format([[{
-			vulnerabilityFindings(first: 1, workloadFilter: %s,
-				filter: {vulnerabilityIdentifiers: ["GHSA-shared"], packageType: "npm", suppressed: %s}) {
+			vulnerabilityFindings(first: 1,
+				filter: {%s, vulnerabilityIdentifiers: ["GHSA-shared"], packageType: "npm", suppressed: %s}) {
 				summary { findingCount affectedWorkloadCount coverage { totalWorkloads } }
 				affectedWorkloads { nodes { name } pageInfo { totalCount } }
 			}
-		}]], globalMetadata, mode))
+		}]], globalMetadata:sub(2, -2), mode))
 		local names = { { name = "alpha" }, { name = "zeta" } }
 		local count = 3
 		if mode == "ONLY" then
@@ -250,10 +254,10 @@ Test.gql("Existing batch assessments are reflected in affected rows and full-sel
 		{ packageKey = "pkg:npm/first" }, { packageKey = "pkg:npm/second" },
 	} } } }
 	t.query(string.format([[{
-		vulnerabilityFindings(workloadFilter: %s, filter: {vulnerabilityIdentifiers: ["CVE-shared"]}) {
+		vulnerabilityFindings(filter: {%s, vulnerabilityIdentifiers: ["CVE-shared"]}) {
 			affectedWorkloads { nodes { name } pageInfo { totalCount } }
 		}
-	}]], globalMetadata))
+	}]], globalMetadata:sub(2, -2)))
 	t.check { data = { vulnerabilityFindings = { affectedWorkloads = {
 		nodes = { { name = "alpha" }, { name = "zeta" } }, pageInfo = { totalCount = 2 },
 	} } } }
