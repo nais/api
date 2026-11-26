@@ -173,6 +173,7 @@ rules:
     verbs:
       - get
       - list
+      - watch
       - create
       - delete
   - apiGroups:
@@ -375,6 +376,7 @@ rules:
     verbs:
       - get
       - list
+      - watch
       - create
       - delete
   - apiGroups:

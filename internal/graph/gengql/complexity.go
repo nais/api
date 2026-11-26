@@ -257,6 +257,9 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.OpenSearches = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *opensearch.OpenSearchOrder, filter *opensearch.OpenSearchFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Team.PostgresBackups = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresBackupFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Team.Postgreses = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.TeamPostgresFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
@@ -285,9 +288,6 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.TeamEnvironment.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int {
-		return cursorComplexity(first, last) * childComplexity
-	}
-	c.TeamEnvironment.PostgresBackups = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *postgres.PostgresBackupFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.UnleashInstance.AllowedTeams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {

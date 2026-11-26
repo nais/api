@@ -5,52 +5,27 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/nais/api/internal/graph/pagination"
 	"github.com/nais/api/internal/kubernetes"
 	"github.com/nais/pgrator/pkg/api"
 	naisv1 "github.com/nais/pgrator/pkg/api/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-func TestPostgresBackupConnectionFiltersAndPagesIndependentlyOfSource(t *testing.T) {
-	var items []unstructured.Unstructured
-	for i, names := range [][2]string{{"first", "deleted-db"}, {"unrelated", "another-db"}, {"newest", "deleted-db"}} {
-		backup := naisv1.PostgresBackup{
-			ObjectMeta: metav1.ObjectMeta{Name: names[0], Namespace: "team", CreationTimestamp: metav1.NewTime(time.Unix(int64(i), 0))},
-			Spec:       naisv1.PostgresBackupSpec{Postgres: names[1]},
-		}
-		obj, err := kubernetes.ToUnstructured(&backup)
-		if err != nil {
-			t.Fatal(err)
-		}
-		items = append(items, *obj)
+func TestPostgresBackupFilterMatches(t *testing.T) {
+	backup := &PostgresBackup{Name: "newest", SourcePostgres: "deleted-db", EnvironmentName: "dev"}
+	filter := &PostgresBackupFilter{
+		Environments:   []string{"dev"},
+		SourcePostgres: new("deleted-db"),
 	}
-	terminating := naisv1.PostgresBackup{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:              "terminating",
-			Namespace:         "team",
-			CreationTimestamp: metav1.NewTime(time.Unix(10, 0)),
-			DeletionTimestamp: new(metav1.NewTime(time.Unix(11, 0))),
-		},
-		Spec: naisv1.PostgresBackupSpec{Postgres: "deleted-db"},
+	if !filter.Matches(backup) {
+		t.Fatal("expected matching backup to be included")
 	}
-	terminatingObj, err := kubernetes.ToUnstructured(&terminating)
-	if err != nil {
-		t.Fatal(err)
+	if filter.Matches(&PostgresBackup{Name: "other-env", SourcePostgres: "deleted-db", EnvironmentName: "prod"}) {
+		t.Fatal("expected backup from another environment to be filtered out")
 	}
-	items = append(items, *terminatingObj)
-	page, err := pagination.ParsePage(new(1), nil, nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	conn, err := postgresBackupConnection(items, "dev", page, &PostgresBackupFilter{SourcePostgres: new("deleted-db")})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if nodes := conn.Nodes(); len(nodes) != 1 || nodes[0].Name != "newest" || conn.PageInfo.TotalCount != 2 || !conn.PageInfo.HasNextPage {
-		t.Fatalf("unexpected filtered page: %+v", conn)
+	if filter.Matches(&PostgresBackup{Name: "other-source", SourcePostgres: "another-db", EnvironmentName: "dev"}) {
+		t.Fatal("expected backup from another source database to be filtered out")
 	}
 }
 
