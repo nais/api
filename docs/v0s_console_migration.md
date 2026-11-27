@@ -15,7 +15,8 @@ findings with v13s summaries or assessments. v0s reads never fall back to v13s.
 
 Of the vulnerability-derived Issues, only `MISSING_SBOM` remains produced.
 `VULNERABLE_IMAGE` and `EXTERNAL_INGRESS_URGENT_VULNERABILITY` are retired;
-the first checker snapshot after deployment removes their stored rows.
+Issue connections, facets and workload severity scores exclude these rows
+before the first checker snapshot removes them from storage.
 Their GraphQL types and fields, including `VulnerableImageIssue.riskScore`,
 remain unchanged for compatibility. No v0s risk score is fabricated.
 `MISSING_SBOM` uses v0s directly from deployment, without a source-selection
@@ -829,8 +830,9 @@ its own legacy assessment table is not a v13s import.
 ## Issues and reanalysis
 
 `VULNERABLE_IMAGE` and `EXTERNAL_INGRESS_URGENT_VULNERABILITY` are no longer
-produced for applications or jobs. Existing rows disappear on the next checker
-snapshot. The legacy GraphQL issue
+produced for applications or jobs. Issue connections, facets and workload
+severity scores exclude existing rows before the next checker snapshot removes
+them from storage. The legacy GraphQL issue
 types, `riskScore`, `critical`, `priorityUrgent` and ingress payloads are not
 removed or repurposed. Console must not rely on these retired Issues for KEV or
 Urgent indicators; a future indicator would need its own agreed consumer

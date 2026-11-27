@@ -11,6 +11,49 @@ Helper.SQLExec([[
 		('EXTERNAL_INGRESS_URGENT_VULNERABILITY', 'vulnerable', 'APPLICATION', 'myteam', 'dev-gcp', 'CRITICAL', 'old urgent issue'),
 		('MISSING_SBOM', 'vulnerable', 'APPLICATION', 'myteam', 'dev-gcp', 'WARNING', 'old SBOM issue')
 ]])
+
+Test.gql("Retired issues do not affect connections before the next snapshot", function(t)
+	t.addHeader("x-user-email", user:email())
+	t.query [[
+		query {
+			team(slug: "myteam") {
+				issues(first: 1, orderBy: {field: SEVERITY, direction: DESC}) {
+					nodes { __typename }
+					pageInfo { totalCount hasNextPage }
+					facets { issueTypes { issueType count } }
+				}
+				critical: issues(first: 1, filter: {severity: CRITICAL}) {
+					nodes { __typename }
+					pageInfo { totalCount hasNextPage }
+				}
+				retired: issues(first: 1, filter: {issueType: VULNERABLE_IMAGE}) {
+					nodes { __typename }
+					pageInfo { totalCount hasNextPage }
+				}
+			}
+		}
+	]]
+	t.check {
+		data = {
+			team = {
+				issues = {
+					nodes = { { __typename = "MissingSbomIssue" } },
+					pageInfo = { totalCount = 1, hasNextPage = false },
+					facets = { issueTypes = { { issueType = "MISSING_SBOM", count = 1 } } },
+				},
+				critical = {
+					nodes = {},
+					pageInfo = { totalCount = 0, hasNextPage = false },
+				},
+				retired = {
+					nodes = {},
+					pageInfo = { totalCount = 0, hasNextPage = false },
+				},
+			},
+		},
+	}
+end)
+
 checker:runChecks()
 
 Test.sql("Checker replaces old vulnerability issues", function(t)
