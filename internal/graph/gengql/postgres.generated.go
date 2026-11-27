@@ -35,6 +35,7 @@ type PostgresResolver interface {
 	Configuration(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresConfiguration, error)
 	EarliestRestoreTime(ctx context.Context, obj *postgres.Postgres) (*time.Time, error)
 
+	Recovery(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresRecovery, error)
 	Issues(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error)
 
 	Workloads(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*postgres.PostgresWorkload], error)
@@ -547,7 +548,7 @@ func (ec *executionContext) _Postgres_recovery(ctx context.Context, field graphq
 			return ec.fieldContext_Postgres_recovery(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Recovery, nil
+			return ec.Resolvers.Postgres().Recovery(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *postgres.PostgresRecovery) graphql.Marshaler {
@@ -561,8 +562,8 @@ func (ec *executionContext) fieldContext_Postgres_recovery(_ context.Context, fi
 	fc = &graphql.FieldContext{
 		Object:     "Postgres",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_PostgresRecovery(ctx, field)
 		},
@@ -4631,7 +4632,38 @@ func (ec *executionContext) _Postgres(ctx context.Context, sel ast.SelectionSet,
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "recovery":
-			out.Values[i] = ec._Postgres_recovery(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Postgres_recovery(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "issues":
 			field := field
 

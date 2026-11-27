@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"slices"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
 )
 
@@ -346,35 +348,85 @@ func postgresRecoveryFromResource(rec *nais_io_v1.PostgresRecovery, completed bo
 	return nil
 }
 
-func populateCompanionRecovery(ctx context.Context, pg *Postgres) {
-	if pg == nil || pg.Recovery != nil || !pg.hasRecoveryAnnotation {
-		return
+// RecoveryForPostgres resolves the recovery metadata for a Postgres resource
+// without mutating shared watcher objects.
+func RecoveryForPostgres(ctx context.Context, pg *Postgres) (*PostgresRecovery, error) {
+	if pg == nil {
+		return nil, nil
+	}
+	if pg.inlineRecovery != nil {
+		return pg.inlineRecovery, nil
+	}
+	if pg.recoveryResourceName == "" {
+		return nil, nil
 	}
 	recClient, err := postgresRecoveryClient(ctx, pg.TeamSlug, pg.EnvironmentName)
 	if err != nil {
-		return
+		return nil, nil
 	}
-	recObj, err := recClient.Get(ctx, pg.Name, metav1.GetOptions{})
+	recObj, err := recClient.Get(ctx, pg.recoveryResourceName, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, nil
+	}
 	if err != nil {
-		return
+		return nil, err
 	}
 	rec, err := kubernetes.ToConcrete[nais_io_v1.PostgresRecovery](recObj)
 	if err != nil {
-		return
+		return nil, err
 	}
-	pg.Recovery = postgresRecoveryFromResource(rec, pg.recoveryCompleted, pg.recoveryFailure)
+	return postgresRecoveryFromResource(rec, pg.recoveryCompleted, pg.recoveryFailure), nil
 }
 
-func patchCompanionRecoveryOwner(ctx context.Context, recClient dynamic.ResourceInterface, name string, owner *unstructured.Unstructured) {
-	recObj, err := recClient.Get(ctx, name, metav1.GetOptions{})
-	if err != nil {
-		return
+func createCompanionRecovery(ctx context.Context, recClient dynamic.ResourceInterface, companionRecovery *nais_io_v1.PostgresRecovery, created *unstructured.Unstructured) error {
+	companionRecovery.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
+	kubernetes.SetManagedByConsoleLabel(companionRecovery)
+	if uid := created.GetUID(); uid != "" {
+		companionRecovery.SetOwnerReferences([]metav1.OwnerReference{{
+			APIVersion: nais_io_v1.GroupVersion.String(),
+			Kind:       "Postgres",
+			Name:       created.GetName(),
+			UID:        uid,
+		}})
 	}
-	recObj.SetOwnerReferences([]metav1.OwnerReference{{
-		APIVersion: nais_io_v1.GroupVersion.String(),
-		Kind:       "Postgres",
-		Name:       owner.GetName(),
-		UID:        owner.GetUID(),
-	}})
-	_, _ = recClient.Update(ctx, recObj, metav1.UpdateOptions{})
+	recObj, err := kubernetes.ToUnstructured(companionRecovery)
+	if err != nil {
+		return err
+	}
+	if _, err := recClient.Create(ctx, recObj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict}); err != nil {
+		if companionRecoveryPersistedForTarget(context.WithoutCancel(ctx), recClient, companionRecovery, created.GetUID()) {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
+func companionRecoveryPersistedForTarget(ctx context.Context, recClient dynamic.ResourceInterface, want *nais_io_v1.PostgresRecovery, targetUID types.UID) bool {
+	recObj, err := recClient.Get(ctx, want.Name, metav1.GetOptions{})
+	if err != nil {
+		return false
+	}
+	got, err := kubernetes.ToConcrete[nais_io_v1.PostgresRecovery](recObj)
+	if err != nil || !reflect.DeepEqual(got.Spec, want.Spec) {
+		return false
+	}
+	if targetUID == "" {
+		return true
+	}
+	for _, owner := range got.OwnerReferences {
+		if owner.Kind == "Postgres" && owner.Name == want.Spec.Postgres && owner.UID == targetUID {
+			return true
+		}
+	}
+	return false
+}
+
+func rollbackCreatedPostgres(ctx context.Context, client dynamic.ResourceInterface, created *unstructured.Unstructured) {
+	cleanupCtx := context.WithoutCancel(ctx)
+	deleteOpts := metav1.DeleteOptions{}
+	if uid := created.GetUID(); uid != "" {
+		deleteOpts.Preconditions = &metav1.Preconditions{UID: new(uid)}
+	}
+	_ = client.Delete(cleanupCtx, created.GetName(), deleteOpts)
 }

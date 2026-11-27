@@ -68,23 +68,23 @@ type PostgresFacets struct {
 
 // Postgres represents a database used by workloads.
 type Postgres struct {
-	Name                  string                 `json:"name"`
-	EnvironmentName       string                 `json:"-"`
-	TeamSlug              slug.Slug              `json:"-"`
-	MajorVersion          string                 `json:"majorVersion"`
-	Extensions            []string               `json:"extensions"`
-	HighAvailability      bool                   `json:"highAvailability"`
-	Resources             PostgresResources      `json:"resources"`
-	Labels                []*model.ResourceLabel `json:"labels"`
-	CreatedAt             time.Time              `json:"createdAt"`
-	Recovery              *PostgresRecovery      `json:"recovery,omitempty"`
-	BackupRetentionDays   int                    `json:"backupRetentionDays"`
-	directClusterName     *string
-	physicalState         PostgresState
-	configuration         *PostgresConfiguration
-	hasRecoveryAnnotation bool
-	recoveryCompleted     bool
-	recoveryFailure       *string
+	Name                 string                 `json:"name"`
+	EnvironmentName      string                 `json:"-"`
+	TeamSlug             slug.Slug              `json:"-"`
+	MajorVersion         string                 `json:"majorVersion"`
+	Extensions           []string               `json:"extensions"`
+	HighAvailability     bool                   `json:"highAvailability"`
+	Resources            PostgresResources      `json:"resources"`
+	Labels               []*model.ResourceLabel `json:"labels"`
+	CreatedAt            time.Time              `json:"createdAt"`
+	BackupRetentionDays  int                    `json:"backupRetentionDays"`
+	directClusterName    *string
+	physicalState        PostgresState
+	configuration        *PostgresConfiguration
+	inlineRecovery       *PostgresRecovery
+	recoveryResourceName string
+	recoveryCompleted    bool
+	recoveryFailure      *string
 }
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
@@ -337,13 +337,16 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 			CPU: quantity(obj.Spec.Resources.Cpu), Memory: quantity(obj.Spec.Resources.Memory),
 			DiskSize: quantity(obj.Spec.Resources.DiskSize),
 		},
-		Labels:              model.UserLabels(obj.Labels),
-		BackupRetentionDays: int(obj.Spec.BackupRetentionDays()),
-		CreatedAt:           obj.CreationTimestamp.Time, directClusterName: clusterName,
-		physicalState: state, configuration: configuration, Recovery: recovery,
-		hasRecoveryAnnotation: obj.Annotations[nais_io_v1.PostgresRecoveryAnnotation] != "",
-		recoveryCompleted:     recoveryCompleted,
-		recoveryFailure:       recoveryFailure,
+		Labels:               model.UserLabels(obj.Labels),
+		BackupRetentionDays:  int(obj.Spec.BackupRetentionDays()),
+		CreatedAt:            obj.CreationTimestamp.Time,
+		directClusterName:    clusterName,
+		physicalState:        state,
+		configuration:        configuration,
+		inlineRecovery:       recovery,
+		recoveryResourceName: strings.TrimSpace(obj.Annotations[nais_io_v1.PostgresRecoveryAnnotation]),
+		recoveryCompleted:    recoveryCompleted,
+		recoveryFailure:      recoveryFailure,
 	}, nil
 }
 

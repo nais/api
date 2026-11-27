@@ -13,6 +13,9 @@ Test.gql("A retained backup is visible without its source database", function(t)
 				name sourcePostgres phase majorVersion diskSize extensions sizeBytes completedAt expiresAt
 				teamEnvironment { environment { name } }
 			}
+			expired: postgresBackup(name: "expired-backup") {
+				name expiresAt
+			}
 		}
 		postgresBackups(first: 1, filter: { environments: ["dev"], sourcePostgres: "deleted-source" }) {
 			nodes { name teamEnvironment { environment { name } } }
@@ -23,12 +26,17 @@ Test.gql("A retained backup is visible without its source database", function(t)
 		}
 	} }]]
 	t.check { data = { team = {
-		environment = { postgresBackup = {
-			name = "retained-backup", sourcePostgres = "deleted-source", phase = "COMPLETED",
-			majorVersion = "17", diskSize = "20Gi", extensions = { "vector" },
-			sizeBytes = 5368709120, completedAt = "2026-11-25T10:01:00Z", expiresAt = "2026-12-25T10:01:00Z",
-			teamEnvironment = { environment = { name = "dev" } },
-		} },
+		environment = {
+			postgresBackup = {
+				name = "retained-backup", sourcePostgres = "deleted-source", phase = "COMPLETED",
+				majorVersion = "17", diskSize = "20Gi", extensions = { "vector" },
+				sizeBytes = 5368709120, completedAt = "2026-11-25T10:01:00Z", expiresAt = Null,
+				teamEnvironment = { environment = { name = "dev" } },
+			},
+			expired = {
+				name = "expired-backup", expiresAt = "2020-01-31T00:01:00Z",
+			},
+		},
 		postgresBackups = {
 			nodes = { { name = "retained-backup", teamEnvironment = { environment = { name = "dev" } } } },
 			pageInfo = { totalCount = 1 },
@@ -125,13 +133,54 @@ Test.k8s("Restoring from a standalone backup creates a clean Postgres and compan
 	})
 end)
 
-Test.gql("Restoring from a standalone backup is rejected when not completed or disk is smaller", function(t)
+Test.gql("Companion recovery is resolved on team listing and update mutations", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[{ team(slug: "pg-crud-team") {
+		postgreses(filter: { environments: ["dev"] }) {
+			nodes { name recovery { sourcePostgres backupName targetTime completed failureMessage } }
+		}
+	} }]]
+	t.check { data = { team = { postgreses = { nodes = {
+		{ name = "awaiting-cluster", recovery = Null },
+		{ name = "existing",         recovery = Null },
+		{
+			name = "restored-from-backup",
+			recovery = {
+				sourcePostgres = "deleted-source", backupName = "retained-backup",
+				targetTime = Null, completed = false, failureMessage = Null,
+			},
+		},
+	} } } } }
+
+	t.query [[mutation { updatePostgres(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "restored-from-backup",
+		backupRetentionDays: 7
+	}) { postgres {
+		name backupRetentionDays
+		recovery { sourcePostgres backupName targetTime completed failureMessage }
+	} } }]]
+	t.check { data = { updatePostgres = { postgres = {
+		name = "restored-from-backup", backupRetentionDays = 7,
+		recovery = {
+			sourcePostgres = "deleted-source", backupName = "retained-backup",
+			targetTime = Null, completed = false, failureMessage = Null,
+		},
+	} } } }
+end)
+
+Test.gql("Restoring from a standalone backup is rejected when not completed, expired, or disk is smaller", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query [[mutation { createPostgres(input: {
 		teamSlug: "pg-crud-team", environmentName: "dev", name: "restore-incomplete", majorVersion: "17",
 		backupName: "fresh-backup"
 	}) { postgres { name } } }]]
 	t.check { data = Null, errors = { { locations = NotNull(), path = { "createPostgres" }, message = Contains("not completed") } } }
+
+	t.query [[mutation { createPostgres(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "restore-expired", majorVersion: "17",
+		backupName: "expired-backup"
+	}) { postgres { name } } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), path = { "createPostgres" }, message = Contains("has expired") } } }
 
 	t.query [[mutation { createPostgres(input: {
 		teamSlug: "pg-crud-team", environmentName: "dev", name: "restore-small-disk", majorVersion: "17",

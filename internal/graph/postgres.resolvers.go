@@ -91,6 +91,10 @@ func (r *postgresResolver) EarliestRestoreTime(ctx context.Context, obj *postgre
 	return postgres.PostgresEarliestRestoreTime(ctx, obj)
 }
 
+func (r *postgresResolver) Recovery(ctx context.Context, obj *postgres.Postgres) (*postgres.PostgresRecovery, error) {
+	return postgres.RecoveryForPostgres(ctx, obj)
+}
+
 func (r *postgresResolver) Issues(ctx context.Context, obj *postgres.Postgres, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *issue.IssueOrder, filter *issue.ResourceIssueFilter) (*issue.IssueConnection, error) {
 	page, err := pagination.ParsePage(first, after, last, before)
 	if err != nil {

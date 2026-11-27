@@ -7,9 +7,15 @@ import (
 	"time"
 
 	"github.com/nais/api/internal/activitylog"
+	"github.com/nais/api/internal/auth/authz"
 	"github.com/nais/api/internal/kubernetes"
+	"github.com/nais/api/internal/user"
 	nais_io_v1 "github.com/nais/pgrator/pkg/api/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic/fake"
 )
 
 func TestRecoveryInputValidation(t *testing.T) {
@@ -62,8 +68,12 @@ func TestRecoveryMetadataSurvivesWithoutSourceLookup(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got.Recovery == nil || got.Recovery.SourcePostgres != "deleted-source" || got.Recovery.Completed != completed || got.Recovery.TargetTime == nil || !got.Recovery.TargetTime.Equal(pg.Spec.Recovery.TargetTime.Time) {
-				t.Fatalf("lost recovery provenance: %#v", got.Recovery)
+			recovery, err := RecoveryForPostgres(t.Context(), got)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if recovery == nil || recovery.SourcePostgres != "deleted-source" || recovery.Completed != completed || recovery.TargetTime == nil || !recovery.TargetTime.Equal(pg.Spec.Recovery.TargetTime.Time) {
+				t.Fatalf("lost recovery provenance: %#v", recovery)
 			}
 		})
 	}
@@ -100,5 +110,57 @@ func TestRecoveryCreationAuditPreservesHistoricalEvents(t *testing.T) {
 		if got.(PostgresCreatedActivityLogEntry).Message != tc.want {
 			t.Fatalf("audit message = %q, want %q", got.(PostgresCreatedActivityLogEntry).Message, tc.want)
 		}
+	}
+}
+
+func TestCompanionRecoveryPersistenceAndRollback(t *testing.T) {
+	ctx := authz.ContextWithActor(t.Context(), &user.User{Email: "dev@example.com"}, nil)
+	client := fake.NewSimpleDynamicClientWithCustomListKinds(runtime.NewScheme(), map[schema.GroupVersionResource]string{})
+	pgClient := client.Resource(postgresTestGVR).Namespace("team")
+	recClient := client.Resource(postgresRecoveryGVR).Namespace("team")
+
+	target := &nais_io_v1.Postgres{
+		TypeMeta:   metav1.TypeMeta{Kind: "Postgres", APIVersion: "nais.io/v1"},
+		ObjectMeta: metav1.ObjectMeta{Name: "restored", Namespace: "team", UID: "target-uid"},
+		Spec:       nais_io_v1.PostgresSpec{MajorVersion: "18"},
+	}
+	targetObj, err := kubernetes.ToUnstructured(target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	created, err := pgClient.Create(ctx, targetObj, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	companion := &nais_io_v1.PostgresRecovery{
+		TypeMeta:   metav1.TypeMeta{Kind: "PostgresRecovery", APIVersion: "nais.io/v1"},
+		ObjectMeta: metav1.ObjectMeta{Name: "restored", Namespace: "team"},
+		Spec: nais_io_v1.PostgresRecoverySpec{
+			Postgres: "restored",
+			Backup: &nais_io_v1.PostgresBackupRecovery{
+				SourcePostgres: "source",
+				BackupName:     "backup-1",
+				BackupUID:      "backup-uid",
+				BucketName:     "dr-bucket",
+				Prefix:         "backup-1",
+				ServerName:     "pg-source-main",
+				BackupID:       "20261125T100000",
+			},
+		},
+	}
+	if err := createCompanionRecovery(ctx, recClient, companion, created); err != nil {
+		t.Fatal(err)
+	}
+	if !companionRecoveryPersistedForTarget(ctx, recClient, companion, "target-uid") {
+		t.Fatal("expected companion recovery to match target UID")
+	}
+	if companionRecoveryPersistedForTarget(ctx, recClient, companion, "other-uid") {
+		t.Fatal("expected companion recovery with different target UID not to match")
+	}
+
+	rollbackCreatedPostgres(ctx, pgClient, created)
+	if _, err := pgClient.Get(ctx, "restored", metav1.GetOptions{}); !k8serrors.IsNotFound(err) {
+		t.Fatalf("expected rolled-back Postgres to be deleted, got err = %v", err)
 	}
 }

@@ -394,12 +394,7 @@ func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name 
 	if err != nil {
 		return nil, err
 	}
-	pg, err := toPostgres(obj, environmentName)
-	if err != nil {
-		return nil, err
-	}
-	populateCompanionRecovery(ctx, pg)
-	return pg, nil
+	return toPostgres(obj, environmentName)
 }
 
 const (
@@ -687,20 +682,6 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		if err != nil {
 			return nil, err
 		}
-		companionRecovery.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
-		kubernetes.SetManagedByConsoleLabel(companionRecovery)
-		recObj, err := kubernetes.ToUnstructured(companionRecovery)
-		if err != nil {
-			return nil, err
-		}
-		// Create the PostgresRecovery first so the target Postgres never observes
-		// a missing recovery spec on its first reconcile.
-		if _, err := recClient.Create(ctx, recObj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict}); err != nil {
-			if k8serrors.IsAlreadyExists(err) {
-				return nil, apierror.ErrAlreadyExists
-			}
-			return nil, err
-		}
 	}
 
 	obj, err := toUnstructuredWithoutZeroResources(pg)
@@ -708,18 +689,22 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 
+	// Create the annotated target Postgres first so its name is reserved before
+	// publishing a companion PostgresRecovery. The postgres.nais.io/recovery
+	// annotation keeps pgrator waiting until the companion resource exists.
 	created, err := client.Create(ctx, obj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict})
 	if err != nil {
-		if companionRecovery != nil {
-			_ = recClient.Delete(ctx, companionRecovery.Name, metav1.DeleteOptions{})
-		}
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
 		}
 		return nil, err
 	}
-	if companionRecovery != nil && created.GetUID() != "" {
-		patchCompanionRecoveryOwner(ctx, recClient, companionRecovery.Name, created)
+
+	if companionRecovery != nil {
+		if err := createCompanionRecovery(ctx, recClient, companionRecovery, created); err != nil {
+			rollbackCreatedPostgres(ctx, client, created)
+			return nil, err
+		}
 	}
 
 	var creationData any
@@ -745,9 +730,6 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	ret, err := toPostgres(created, input.EnvironmentName)
 	if err != nil {
 		return nil, err
-	}
-	if companionRecovery != nil && ret.Recovery == nil {
-		ret.Recovery = postgresRecoveryFromResource(companionRecovery, ret.recoveryCompleted, ret.recoveryFailure)
 	}
 	return &CreatePostgresPayload{Postgres: ret}, nil
 }
