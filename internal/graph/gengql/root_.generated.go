@@ -2205,6 +2205,7 @@ type ComplexityRoot struct {
 	}
 
 	PostgresRecovery struct {
+		BackupName     func(childComplexity int) int
 		Completed      func(childComplexity int) int
 		FailureMessage func(childComplexity int) int
 		SourcePostgres func(childComplexity int) int
@@ -13736,6 +13737,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.PostgresPersonalAccessCreatedActivityLogEntryData.Username(childComplexity), true
+
+	case "PostgresRecovery.backupName":
+		if e.ComplexityRoot.PostgresRecovery.BackupName == nil {
+			break
+		}
+
+		return e.ComplexityRoot.PostgresRecovery.BackupName(childComplexity), true
 
 	case "PostgresRecovery.completed":
 		if e.ComplexityRoot.PostgresRecovery.Completed == nil {
@@ -31983,6 +31991,8 @@ input CreatePostgresInput {
 	backupRetentionDays: Int
 	"Initialize from an existing database in the same team and environment instead of creating an empty database. Omitted availability, resource and extension settings are taken from the source."
 	recovery: PostgresRecoveryInput
+	"Initialize from a completed standalone backup in the same team and environment instead of creating an empty database. Omitted disk size and extension settings are taken from the backup."
+	backupName: String
 }
 
 "An explicit point-in-time recovery source for a new Postgres database."
@@ -31997,8 +32007,10 @@ input PostgresRecoveryInput {
 type PostgresRecovery {
 	"Name of the source database. It may have been deleted since."
 	sourcePostgres: String!
-	"The point in time restored to."
-	targetTime: Time!
+	"The point in time restored to, when restored using point-in-time recovery."
+	targetTime: Time
+	"Name of the standalone backup restored from, when restored from a standalone backup."
+	backupName: String
 	"True once the database is independent of the source and has its own backup."
 	completed: Boolean!
 	"Why recovery failed, if it did."
@@ -44204,6 +44216,8 @@ func (ec *executionContext) childFields_PostgresRecovery(ctx context.Context, fi
 		return ec.fieldContext_PostgresRecovery_sourcePostgres(ctx, field)
 	case "targetTime":
 		return ec.fieldContext_PostgresRecovery_targetTime(ctx, field)
+	case "backupName":
+		return ec.fieldContext_PostgresRecovery_backupName(ctx, field)
 	case "completed":
 		return ec.fieldContext_PostgresRecovery_completed(ctx, field)
 	case "failureMessage":

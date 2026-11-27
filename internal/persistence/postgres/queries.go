@@ -394,7 +394,12 @@ func GetPostgres(ctx context.Context, teamSlug slug.Slug, environmentName, name 
 	if err != nil {
 		return nil, err
 	}
-	return toPostgres(obj, environmentName)
+	pg, err := toPostgres(obj, environmentName)
+	if err != nil {
+		return nil, err
+	}
+	populateCompanionRecovery(ctx, pg)
+	return pg, nil
 }
 
 const (
@@ -662,7 +667,8 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(pg)
 	setPostgresUserLabels(pg, input.Labels)
-	if err := resolveRecovery(ctx, client, input, pg); err != nil {
+	companionRecovery, err := resolveRecovery(ctx, client, input, pg)
+	if err != nil {
 		return nil, err
 	}
 	if input.HighAvailability != nil {
@@ -675,24 +681,62 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		pg.Spec.PITR = &nais_io_v1.PostgresPITRPolicy{WindowDays: new(int32(*input.BackupRetentionDays))} // #nosec G115 -- validated to 2-30
 	}
 
+	var recClient dynamic.ResourceInterface
+	if companionRecovery != nil {
+		recClient, err = postgresRecoveryClient(ctx, input.TeamSlug, input.EnvironmentName)
+		if err != nil {
+			return nil, err
+		}
+		companionRecovery.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
+		kubernetes.SetManagedByConsoleLabel(companionRecovery)
+		recObj, err := kubernetes.ToUnstructured(companionRecovery)
+		if err != nil {
+			return nil, err
+		}
+		// Create the PostgresRecovery first so the target Postgres never observes
+		// a missing recovery spec on its first reconcile.
+		if _, err := recClient.Create(ctx, recObj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict}); err != nil {
+			if k8serrors.IsAlreadyExists(err) {
+				return nil, apierror.ErrAlreadyExists
+			}
+			return nil, err
+		}
+	}
+
 	obj, err := toUnstructuredWithoutZeroResources(pg)
 	if err != nil {
 		return nil, err
 	}
 
-	// An older CRD must reject recovery fields, never silently prune them and
-	// turn a restore request into an empty database.
 	created, err := client.Create(ctx, obj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict})
 	if err != nil {
+		if companionRecovery != nil {
+			_ = recClient.Delete(ctx, companionRecovery.Name, metav1.DeleteOptions{})
+		}
 		if k8serrors.IsAlreadyExists(err) {
 			return nil, apierror.ErrAlreadyExists
 		}
 		return nil, err
 	}
+	if companionRecovery != nil && created.GetUID() != "" {
+		patchCompanionRecoveryOwner(ctx, recClient, companionRecovery.Name, created)
+	}
 
 	var creationData any
-	if input.Recovery != nil {
-		creationData = PostgresCreatedActivityLogEntryData{Recovery: input.Recovery, SourceUID: pg.Spec.Recovery.SourceUID}
+	if companionRecovery != nil {
+		switch {
+		case companionRecovery.Spec.PointInTime != nil:
+			creationData = PostgresCreatedActivityLogEntryData{
+				Recovery:  input.Recovery,
+				SourceUID: companionRecovery.Spec.PointInTime.SourceUID,
+			}
+		case companionRecovery.Spec.Backup != nil:
+			creationData = PostgresCreatedActivityLogEntryData{
+				BackupName:     input.BackupName,
+				BackupUID:      companionRecovery.Spec.Backup.BackupUID,
+				SourcePostgres: companionRecovery.Spec.Backup.SourcePostgres,
+			}
+		}
 	}
 	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionCreated, input.Name, input.EnvironmentName, input.TeamSlug, creationData); err != nil {
 		return nil, err
@@ -701,6 +745,9 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	ret, err := toPostgres(created, input.EnvironmentName)
 	if err != nil {
 		return nil, err
+	}
+	if companionRecovery != nil && ret.Recovery == nil {
+		ret.Recovery = postgresRecoveryFromResource(companionRecovery, ret.recoveryCompleted, ret.recoveryFailure)
 	}
 	return &CreatePostgresPayload{Postgres: ret}, nil
 }

@@ -47,7 +47,21 @@ Test.k8s("PITR pins source UID and physical archive identity", function(t)
 			highAvailability = true,
 			extensions = { { name = "pg_trgm" } },
 			resources = { cpu = "250m", memory = "1Gi", diskSize = "20Gi" },
-			recovery = { sourcePostgres = "pitr-source", sourceUID = "pitr-source-uid", bucketName = "pitr-source-archive", serverName = "pg-pitr-source-main", targetTime = "2026-09-30T12:00:00Z" },
+		},
+	})
+	t.check("nais.io/v1", "postgresrecoveries", "dev", team:slug(), "pitr-restored", {
+		apiVersion = "nais.io/v1",
+		kind = "PostgresRecovery",
+		metadata = Ignore(),
+		spec = {
+			postgres = "pitr-restored",
+			pointInTime = {
+				sourcePostgres = "pitr-source",
+				sourceUID = "pitr-source-uid",
+				bucketName = "pitr-source-archive",
+				serverName = "pg-pitr-source-main",
+				targetTime = "2026-09-30T12:00:00Z",
+			},
 		},
 	})
 end)

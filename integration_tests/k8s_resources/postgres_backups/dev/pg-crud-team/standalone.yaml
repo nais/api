@@ -13,6 +13,8 @@ status:
   diskSize: 20Gi
   extensions:
     - name: vector
+  serverName: pg-deleted-source-main
+  backupID: "20261125T100000"
   completedAt: "2026-11-25T10:01:00Z"
   expiresAt: "2026-12-25T10:01:00Z"
   sizeBytes: 5368709120

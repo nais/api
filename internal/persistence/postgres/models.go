@@ -68,20 +68,23 @@ type PostgresFacets struct {
 
 // Postgres represents a database used by workloads.
 type Postgres struct {
-	Name                string                 `json:"name"`
-	EnvironmentName     string                 `json:"-"`
-	TeamSlug            slug.Slug              `json:"-"`
-	MajorVersion        string                 `json:"majorVersion"`
-	Extensions          []string               `json:"extensions"`
-	HighAvailability    bool                   `json:"highAvailability"`
-	Resources           PostgresResources      `json:"resources"`
-	Labels              []*model.ResourceLabel `json:"labels"`
-	CreatedAt           time.Time              `json:"createdAt"`
-	Recovery            *PostgresRecovery      `json:"recovery,omitempty"`
-	BackupRetentionDays int                    `json:"backupRetentionDays"`
-	directClusterName   *string
-	physicalState       PostgresState
-	configuration       *PostgresConfiguration
+	Name                  string                 `json:"name"`
+	EnvironmentName       string                 `json:"-"`
+	TeamSlug              slug.Slug              `json:"-"`
+	MajorVersion          string                 `json:"majorVersion"`
+	Extensions            []string               `json:"extensions"`
+	HighAvailability      bool                   `json:"highAvailability"`
+	Resources             PostgresResources      `json:"resources"`
+	Labels                []*model.ResourceLabel `json:"labels"`
+	CreatedAt             time.Time              `json:"createdAt"`
+	Recovery              *PostgresRecovery      `json:"recovery,omitempty"`
+	BackupRetentionDays   int                    `json:"backupRetentionDays"`
+	directClusterName     *string
+	physicalState         PostgresState
+	configuration         *PostgresConfiguration
+	hasRecoveryAnnotation bool
+	recoveryCompleted     bool
+	recoveryFailure       *string
 }
 
 // PostgresResources contains only resource requests observed on the Postgres CR.
@@ -306,17 +309,25 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		extensions = append(extensions, extension.Name)
 	}
 	var recovery *PostgresRecovery
-	if obj.Spec.Recovery != nil {
-		recovery = &PostgresRecovery{SourcePostgres: obj.Spec.Recovery.SourcePostgres, TargetTime: obj.Spec.Recovery.TargetTime.Time}
-		if obj.Status != nil {
-			for _, condition := range obj.Status.Conditions {
-				if condition.Type == "RecoveryCompleted" && condition.Status == metav1.ConditionTrue {
-					recovery.Completed = obj.Status.Ownership != nil && obj.Status.Ownership.ClusterUID != "" && condition.Message == obj.Status.Ownership.ClusterUID
-				}
-				if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue {
-					recovery.FailureMessage = new(condition.Message)
-				}
+	var recoveryFailure *string
+	var recoveryCompleted bool
+	if obj.Status != nil {
+		for _, condition := range obj.Status.Conditions {
+			if condition.Type == "RecoveryCompleted" && condition.Status == metav1.ConditionTrue {
+				recoveryCompleted = obj.Status.Ownership != nil && obj.Status.Ownership.ClusterUID != "" && condition.Message == obj.Status.Ownership.ClusterUID
 			}
+			if condition.Type == "RecoveryFailed" && condition.Status == metav1.ConditionTrue {
+				recoveryFailure = new(condition.Message)
+			}
+		}
+	}
+	if obj.Spec.Recovery != nil {
+		targetTime := obj.Spec.Recovery.TargetTime.Time
+		recovery = &PostgresRecovery{
+			SourcePostgres: obj.Spec.Recovery.SourcePostgres,
+			TargetTime:     &targetTime,
+			Completed:      recoveryCompleted,
+			FailureMessage: recoveryFailure,
 		}
 	}
 	return &Postgres{
@@ -330,6 +341,9 @@ func toPostgres(u *unstructured.Unstructured, environmentName string) (*Postgres
 		BackupRetentionDays: int(obj.Spec.BackupRetentionDays()),
 		CreatedAt:           obj.CreationTimestamp.Time, directClusterName: clusterName,
 		physicalState: state, configuration: configuration, Recovery: recovery,
+		hasRecoveryAnnotation: obj.Annotations[nais_io_v1.PostgresRecoveryAnnotation] != "",
+		recoveryCompleted:     recoveryCompleted,
+		recoveryFailure:       recoveryFailure,
 	}, nil
 }
 
@@ -494,6 +508,7 @@ type CreatePostgresInput struct {
 	Extensions          []string               `json:"extensions,omitempty"`
 	Labels              []*model.ResourceLabel `json:"labels,omitempty"`
 	Recovery            *PostgresRecoveryInput `json:"recovery,omitempty"`
+	BackupName          *string                `json:"backupName,omitempty"`
 	BackupRetentionDays *int                   `json:"backupRetentionDays,omitempty"`
 }
 
@@ -505,10 +520,11 @@ type PostgresRecoveryInput struct {
 }
 
 type PostgresRecovery struct {
-	SourcePostgres string    `json:"sourcePostgres"`
-	TargetTime     time.Time `json:"targetTime"`
-	Completed      bool      `json:"completed"`
-	FailureMessage *string   `json:"failureMessage,omitempty"`
+	SourcePostgres string     `json:"sourcePostgres"`
+	TargetTime     *time.Time `json:"targetTime,omitempty"`
+	BackupName     *string    `json:"backupName,omitempty"`
+	Completed      bool       `json:"completed"`
+	FailureMessage *string    `json:"failureMessage,omitempty"`
 }
 
 type CreatePostgresPayload struct {
@@ -571,6 +587,9 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 	validateQuantities(verr, i.CPU, i.Memory, i.DiskSize)
 	validatePostgresUserLabels(verr, i.Labels)
 	validateBackupRetentionDays(verr, i.BackupRetentionDays)
+	if i.Recovery != nil && i.BackupName != nil {
+		verr.Add("backupName", "Cannot combine point-in-time recovery and backupName.")
+	}
 	if i.Recovery != nil {
 		i.Recovery.SourcePostgres = strings.TrimSpace(i.Recovery.SourcePostgres)
 		if i.Recovery.SourcePostgres == "" || len(validation.IsDNS1123Subdomain(i.Recovery.SourcePostgres)) > 0 {
@@ -582,6 +601,13 @@ func (i *CreatePostgresInput) ValidationErrors(_ context.Context) *validate.Vali
 			verr.Add("recovery.targetTime", "Choose an explicit restore time no later than now.")
 		} else if i.Recovery.TargetTime.Nanosecond() != 0 {
 			verr.Add("recovery.targetTime", "Restore time must have whole-second precision.")
+		}
+	}
+	if i.BackupName != nil {
+		trimmed := strings.TrimSpace(*i.BackupName)
+		*i.BackupName = trimmed
+		if trimmed == "" || len(validation.IsDNS1123Subdomain(trimmed)) > 0 {
+			verr.Add("backupName", "Select a valid standalone backup.")
 		}
 	}
 	return verr

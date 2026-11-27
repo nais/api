@@ -43,6 +43,19 @@ Test.gql("Only team members can read standalone backups", function(t)
 	t.check { data = Null, errors = { { locations = NotNull(), path = { "team", "environment", "postgresBackup" }, message = Contains("You are authenticated") } } }
 end)
 
+Test.gql("Non-members cannot create or delete standalone backups", function(t)
+	t.addHeader("x-user-email", outsider:email())
+	t.query [[mutation { createPostgresBackup(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "denied-backup", sourcePostgres: "existing"
+	}) { backup { name } } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), path = { "createPostgresBackup" }, message = Contains("You are authenticated") } } }
+
+	t.query [[mutation { deletePostgresBackup(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "retained-backup"
+	}) { deletionRequested } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), path = { "deletePostgresBackup" }, message = Contains("You are authenticated") } } }
+end)
+
 Test.gql("A team member can request a standalone backup", function(t)
 	t.addHeader("x-user-email", member:email())
 	t.query [[mutation { createPostgresBackup(input: {
@@ -60,6 +73,71 @@ Test.k8s("Creating a standalone backup writes a separate resource", function(t)
 		metadata = Ignore(),
 		spec = { postgres = "existing", retentionDays = 7 },
 	})
+end)
+
+Test.gql("A team member can restore a new Postgres from a completed standalone backup after the source is gone",
+	function(t)
+		t.addHeader("x-user-email", member:email())
+		t.query [[mutation { createPostgres(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "restored-from-backup", majorVersion: "17",
+		backupName: "retained-backup"
+	}) { postgres {
+		name majorVersion extensions resources { diskSize }
+		recovery { sourcePostgres backupName targetTime completed failureMessage }
+	} } }]]
+		t.check { data = { createPostgres = { postgres = {
+			name = "restored-from-backup", majorVersion = "17", extensions = { "vector" },
+			resources = { diskSize = "20Gi" },
+			recovery = {
+				sourcePostgres = "deleted-source", backupName = "retained-backup",
+				targetTime = Null, completed = false, failureMessage = Null,
+			},
+		} } } }
+	end)
+
+Test.k8s("Restoring from a standalone backup creates a clean Postgres and companion PostgresRecovery", function(t)
+	t.check("nais.io/v1", "postgres", "dev", team:slug(), "restored-from-backup", {
+		apiVersion = "nais.io/v1",
+		kind = "Postgres",
+		metadata = Ignore(),
+		spec = {
+			majorVersion = "17",
+			extensions = { { name = "vector" } },
+			resources = { diskSize = "20Gi" },
+		},
+	})
+	t.check("nais.io/v1", "postgresrecoveries", "dev", team:slug(), "restored-from-backup", {
+		apiVersion = "nais.io/v1",
+		kind = "PostgresRecovery",
+		metadata = Ignore(),
+		spec = {
+			postgres = "restored-from-backup",
+			backup = {
+				sourcePostgres = "deleted-source",
+				backupName = "retained-backup",
+				backupUID = "retained-backup-uid",
+				bucketName = "private-bucket",
+				prefix = "retained-backup",
+				serverName = "pg-deleted-source-main",
+				backupID = "20261125T100000",
+			},
+		},
+	})
+end)
+
+Test.gql("Restoring from a standalone backup is rejected when not completed or disk is smaller", function(t)
+	t.addHeader("x-user-email", member:email())
+	t.query [[mutation { createPostgres(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "restore-incomplete", majorVersion: "17",
+		backupName: "fresh-backup"
+	}) { postgres { name } } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), path = { "createPostgres" }, message = Contains("not completed") } } }
+
+	t.query [[mutation { createPostgres(input: {
+		teamSlug: "pg-crud-team", environmentName: "dev", name: "restore-small-disk", majorVersion: "17",
+		backupName: "retained-backup", diskSize: "10Gi"
+	}) { postgres { name } } }]]
+	t.check { data = Null, errors = { { locations = NotNull(), path = { "createPostgres" }, message = Contains("must not be smaller than the backup") } } }
 end)
 
 Test.gql("Backup deletion does not require the source database", function(t)

@@ -2927,15 +2927,38 @@ func (ec *executionContext) _PostgresRecovery_targetTime(ctx context.Context, fi
 			return obj.TargetTime, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v time.Time) graphql.Marshaler {
-			return ec.marshalNTime2timeᚐTime(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *time.Time) graphql.Marshaler {
+			return ec.marshalOTime2ᚖtimeᚐTime(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_PostgresRecovery_targetTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("PostgresRecovery", field, false, false, errors.New("field of type Time does not have child fields"))
+}
+
+func (ec *executionContext) _PostgresRecovery_backupName(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresRecovery) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_PostgresRecovery_backupName(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.BackupName, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
+			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_PostgresRecovery_backupName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("PostgresRecovery", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _PostgresRecovery_completed(ctx context.Context, field graphql.CollectedField, obj *postgres.PostgresRecovery) (ret graphql.Marshaler) {
@@ -3958,7 +3981,7 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels", "backupRetentionDays", "recovery"}
+	fieldsInOrder := [...]string{"name", "environmentName", "teamSlug", "majorVersion", "extensions", "highAvailability", "cpu", "memory", "diskSize", "labels", "backupRetentionDays", "recovery", "backupName"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4049,6 +4072,13 @@ func (ec *executionContext) unmarshalInputCreatePostgresInput(ctx context.Contex
 				return it, err
 			}
 			it.Recovery = data
+		case "backupName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backupName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BackupName = data
 		}
 	}
 	return it, nil
@@ -5837,9 +5867,8 @@ func (ec *executionContext) _PostgresRecovery(ctx context.Context, sel ast.Selec
 			}
 		case "targetTime":
 			out.Values[i] = ec._PostgresRecovery_targetTime(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
+		case "backupName":
+			out.Values[i] = ec._PostgresRecovery_backupName(ctx, field, obj)
 		case "completed":
 			out.Values[i] = ec._PostgresRecovery_completed(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

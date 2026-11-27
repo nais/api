@@ -72,7 +72,8 @@ func TestResolveRecoveryRules(t *testing.T) {
 						err = nil
 					}
 				}()
-				return resolveRecovery(t.Context(), client, input, target)
+				_, err = resolveRecovery(t.Context(), client, input, target)
+				return err
 			}()
 			if tt.wantError == "-" {
 				if err != nil && !strings.Contains(err.Error(), "context") {
