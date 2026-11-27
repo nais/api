@@ -56,6 +56,10 @@ WHERE
 		$6::TEXT = ''
 		OR team = $6
 	)
+	AND issue_type NOT IN (
+		'VULNERABLE_IMAGE',
+		'EXTERNAL_INGRESS_URGENT_VULNERABILITY'
+	)
 	AND (
 		$7::slug[] IS NULL
 		OR team = ANY ($7::slug[])
@@ -192,6 +196,10 @@ WHERE
 	AND resource_type = $2
 	AND env = $3
 	AND team = $4
+	AND issue_type NOT IN (
+		'VULNERABLE_IMAGE',
+		'EXTERNAL_INGRESS_URGENT_VULNERABILITY'
+	)
 `
 
 type GetSeverityScoreForWorkloadParams struct {
@@ -223,6 +231,10 @@ WHERE
 	(
 		$1::TEXT = ''
 		OR team = $1
+	)
+	AND issue_type NOT IN (
+		'VULNERABLE_IMAGE',
+		'EXTERNAL_INGRESS_URGENT_VULNERABILITY'
 	)
 	AND (
 		$2::slug[] IS NULL

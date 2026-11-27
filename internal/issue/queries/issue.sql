@@ -24,6 +24,10 @@ WHERE
 	AND resource_type = @resource_type
 	AND env = @env
 	AND team = @team
+	AND issue_type NOT IN (
+		'VULNERABLE_IMAGE',
+		'EXTERNAL_INGRESS_URGENT_VULNERABILITY'
+	)
 ;
 
 -- name: ListIssues :many
@@ -36,6 +40,10 @@ WHERE
 	(
 		@team::TEXT = ''
 		OR team = @team
+	)
+	AND issue_type NOT IN (
+		'VULNERABLE_IMAGE',
+		'EXTERNAL_INGRESS_URGENT_VULNERABILITY'
 	)
 	AND (
 		sqlc.narg('team_slugs')::slug[] IS NULL
@@ -144,6 +152,10 @@ WHERE
 	(
 		@team::TEXT = ''
 		OR team = @team
+	)
+	AND issue_type NOT IN (
+		'VULNERABLE_IMAGE',
+		'EXTERNAL_INGRESS_URGENT_VULNERABILITY'
 	)
 	AND (
 		sqlc.narg('team_slugs')::slug[] IS NULL
