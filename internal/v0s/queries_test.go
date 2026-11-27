@@ -37,11 +37,19 @@ func (c *client) ListWorkloads(_ context.Context, req *protoapi.ListWorkloadsReq
 }
 
 func (c *client) ListFindings(_ context.Context, req *protoapi.ListFindingsRequest, _ ...grpc.CallOption) (*protoapi.ListFindingsResponse, error) {
-	return c.list(req), nil
+	resp := c.list(req)
+	if resp.PageInfo == nil {
+		resp.PageInfo = &protoapi.PageInfo{}
+	}
+	return resp, nil
 }
 
 func (c *client) ListVulnerabilities(_ context.Context, req *protoapi.ListVulnerabilitiesRequest, _ ...grpc.CallOption) (*protoapi.ListVulnerabilitiesResponse, error) {
-	return c.vulnerabilities(req)
+	resp, err := c.vulnerabilities(req)
+	if resp != nil && resp.PageInfo == nil {
+		resp.PageInfo = &protoapi.PageInfo{}
+	}
+	return resp, err
 }
 
 func (c *client) GetSummary(_ context.Context, req *protoapi.GetSummaryRequest, _ ...grpc.CallOption) (*protoapi.GetSummaryResponse, error) {
@@ -90,7 +98,7 @@ func TestFindingCursorResumesAnInteriorEdgeAfterEarlierFindingsDisappear(t *test
 			Cursors:  []string{"first", "second", "third"},
 		}
 	}
-	first, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(2), nil, nil)
+	first, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(2), nil, nil, nil, nil)
 	if err != nil || len(first.Edges) != 2 || !first.PageInfo.HasNextPage {
 		t.Fatalf("initial page: %+v, %v", first, err)
 	}
@@ -106,15 +114,15 @@ func TestFindingCursorResumesAnInteriorEdgeAfterEarlierFindingsDisappear(t *test
 		}
 	}
 	after := first.Edges[0].Cursor
-	next, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(1), &after, nil)
+	next, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(1), &after, nil, nil, nil)
 	if err != nil || len(next.Edges) != 1 || next.Edges[0].Node.VulnerabilityIdentifier != "CVE-2" {
 		t.Fatalf("remaining finding was skipped: %+v, %v", next, err)
 	}
-	if _, err := v0s.Findings(ctx, v0s.Scope{}, &v0s.VulnerabilityFindingFilter{OnlyWithFix: new(true)}, new(1), &after, nil); err == nil {
+	if _, err := v0s.Findings(ctx, v0s.Scope{}, &v0s.VulnerabilityFindingFilter{OnlyWithFix: new(true)}, new(1), &after, nil, nil, nil); err == nil {
 		t.Fatal("cursor from another filter was accepted")
 	}
 	unbound := pagination.Cursor{Keyset: base64.RawURLEncoding.EncodeToString([]byte(`{"token":"first"}`))}
-	if _, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(1), &unbound, nil); err == nil {
+	if _, err := v0s.Findings(ctx, v0s.Scope{}, nil, new(1), &unbound, nil, nil, nil); err == nil {
 		t.Fatal("cursor without selection or version was accepted")
 	}
 }
@@ -128,7 +136,7 @@ func TestWorkloadFacetsShareGroupedCounts(t *testing.T) {
 		Team: slug.Slug("team-one"), Environment: "dev", Workload: "app",
 	}
 
-	page, err := v0s.Findings(ctx, scope, nil, nil, nil, nil)
+	page, err := v0s.Findings(ctx, scope, nil, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +146,7 @@ func TestWorkloadFacetsShareGroupedCounts(t *testing.T) {
 	}
 	calls := c.countCalls
 	scope.Workload = "job"
-	page, err = v0s.Findings(ctx, scope, nil, nil, nil, nil)
+	page, err = v0s.Findings(ctx, scope, nil, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +179,7 @@ func TestFindingIdentifierFilters(t *testing.T) {
 			ctx := c.context(t, "app")
 			_, err := v0s.Findings(ctx, v0s.Scope{}, &v0s.VulnerabilityFindingFilter{
 				VulnerabilityIdentifiers: tt.ids,
-			}, nil, nil, nil)
+			}, nil, nil, nil, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -219,7 +227,7 @@ func TestFindingOrderingAndPackageFacets(t *testing.T) {
 				}
 				filter := &v0s.VulnerabilityFindingFilter{PackageType: new("NPM")}
 				order := &v0s.VulnerabilityFindingOrder{Field: field, Direction: direction}
-				page, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(1), nil, order)
+				page, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(1), nil, nil, nil, order)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -232,7 +240,7 @@ func TestFindingOrderingAndPackageFacets(t *testing.T) {
 				}
 				after := page.Edges[0].Cursor
 				filter.PackageType = new("npm")
-				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(2), &after, order); err != nil {
+				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(2), &after, nil, nil, order); err != nil {
 					t.Fatalf("equivalent filter and changed page size rejected: %v", err)
 				}
 				changed := *order
@@ -241,7 +249,7 @@ func TestFindingOrderingAndPackageFacets(t *testing.T) {
 				} else {
 					changed.Direction = model.OrderDirectionAsc
 				}
-				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, &changed); err == nil {
+				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, nil, nil, &changed); err == nil {
 					t.Error("cursor accepted for different direction")
 				}
 				if field == v0s.VulnerabilityFindingOrderFieldSeverity {
@@ -250,14 +258,14 @@ func TestFindingOrderingAndPackageFacets(t *testing.T) {
 					changed.Field = v0s.VulnerabilityFindingOrderFieldSeverity
 				}
 				changed.Direction = direction
-				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, &changed); err == nil {
+				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, nil, nil, &changed); err == nil {
 					t.Error("cursor accepted for different order field")
 				}
-				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, nil); err == nil {
+				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, nil, nil, nil); err == nil {
 					t.Error("sorted cursor accepted for default order")
 				}
 				filter.PackageType = new("maven")
-				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, order); err == nil {
+				if _, err := v0s.Findings(ctx, v0s.Scope{}, filter, nil, &after, nil, nil, order); err == nil {
 					t.Error("cursor accepted for different package type")
 				}
 			})
@@ -272,7 +280,7 @@ func TestFindingEmptyWorkloadSelection(t *testing.T) {
 		}
 		return &protoapi.ListFindingsResponse{}
 	}}
-	page, err := v0s.Findings(c.context(t), v0s.Scope{}, nil, nil, nil, nil)
+	page, err := v0s.Findings(c.context(t), v0s.Scope{}, nil, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

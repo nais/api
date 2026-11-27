@@ -79,13 +79,13 @@ type VulnerabilityFindingEdge = pagination.Edge[*VulnerabilityFinding]
 type VulnerabilityFindingConnection struct {
 	pagination.Connection[*VulnerabilityFinding]
 	loadFacets            func(context.Context) (*VulnerabilityFindingFacets, error)
-	loadVulnerabilities   func(context.Context, *int, *pagination.Cursor, *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error)
+	loadVulnerabilities   func(context.Context, *int, *pagination.Cursor, *int, *pagination.Cursor, *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error)
 	loadSummary           func(context.Context) (*VulnerabilitySelectionSummary, error)
-	loadAffectedWorkloads func(context.Context, *int, *pagination.Cursor) (*workload.WorkloadConnection, error)
+	loadAffectedWorkloads func(context.Context, *int, *pagination.Cursor, *int, *pagination.Cursor) (*workload.WorkloadConnection, error)
 }
 
-func (c *VulnerabilityFindingConnection) AffectedWorkloads(ctx context.Context, first *int, after *pagination.Cursor) (*workload.WorkloadConnection, error) {
-	return c.loadAffectedWorkloads(ctx, first, after)
+func (c *VulnerabilityFindingConnection) AffectedWorkloads(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*workload.WorkloadConnection, error) {
+	return c.loadAffectedWorkloads(ctx, first, after, last, before)
 }
 
 func (c *VulnerabilityFindingConnection) Summary(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
@@ -106,8 +106,8 @@ func (c *VulnerabilityFindingConnection) Facets(ctx context.Context) (*Vulnerabi
 	return c.loadFacets(ctx)
 }
 
-func (c *VulnerabilityFindingConnection) Vulnerabilities(ctx context.Context, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
-	return c.loadVulnerabilities(ctx, first, after, orderBy)
+func (c *VulnerabilityFindingConnection) Vulnerabilities(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
+	return c.loadVulnerabilities(ctx, first, after, last, before, orderBy)
 }
 
 type (

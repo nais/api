@@ -98,15 +98,30 @@ Test.gql("My teams selects the full CVE flow, including package facets and affec
 			orderBy: {field: IDENTIFIER, direction: DESC}) {
 			affectedWorkloads(first: 1, after: "%s") {
 				nodes { id name __typename }
-				pageInfo { totalCount hasNextPage hasPreviousPage }
+				pageInfo { totalCount hasNextPage hasPreviousPage startCursor }
 			}
 		}
 	}]], globalFilter, globalCursor))
 	t.check { data = { vulnerabilityFindings = { affectedWorkloads = {
 		nodes = { { id = Save("cve_zeta_id"), name = "zeta", __typename = "Job" } },
-		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true },
+		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true, startCursor = Save("cve_zeta_cursor") },
 	} } } }
 	assert(State.cve_zeta_id ~= alphaID, "different workloads shared an identity")
+
+	t.query(string.format([[{
+		vulnerabilityFindings(filter: %s) {
+			affectedWorkloads(last: 20, before: "%s") {
+				nodes { id name __typename }
+				pageInfo { totalCount hasNextPage hasPreviousPage pageStart pageEnd endCursor }
+				facets { vulnerabilityCoverage { totalWorkloads scanned pending noSbom failed unresolvedImage } }
+			}
+		}
+	}]], globalFilter, State.cve_zeta_cursor))
+	t.check { data = { vulnerabilityFindings = { affectedWorkloads = {
+		nodes = { { id = alphaID, name = "alpha", __typename = "Application" } },
+		pageInfo = { totalCount = 2, hasNextPage = true, hasPreviousPage = false, pageStart = 1, pageEnd = 1, endCursor = globalCursor },
+		facets = { vulnerabilityCoverage = coverage },
+	} } } }
 
 	t.query(string.format([[{
 		vulnerabilityFindings(filter: {%s, vulnerabilityIdentifiers: ["GHSA-shared"], packageType: "golang"}) {

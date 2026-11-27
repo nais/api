@@ -119,7 +119,7 @@ Test.gql("Current findings use workload inventory and coexist with legacy adviso
 	t.query(string.format([[{
 		team(slug: "v0s-team") { vulnerabilityFindings(first: 1, after: "%s") {
 			nodes { vulnerabilityIdentifier fixedVersion }
-			pageInfo { totalCount hasNextPage hasPreviousPage pageStart pageEnd }
+			pageInfo { totalCount hasNextPage hasPreviousPage pageStart pageEnd startCursor }
 		} }
 		finding: node(id: "%s") { ... on VulnerabilityFinding { vulnerabilityIdentifier vulnerability { identifier } } }
 		advisory: node(id: "%s") { ... on Vulnerability { identifier } }
@@ -127,11 +127,38 @@ Test.gql("Current findings use workload inventory and coexist with legacy adviso
 	t.check { data = {
 		team = { vulnerabilityFindings = {
 			nodes = { { vulnerabilityIdentifier = "CVE-2", fixedVersion = "2" } },
-			pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true, pageStart = 2, pageEnd = 2 },
+			pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true, pageStart = 2, pageEnd = 2, startCursor = Save("second_finding_cursor") },
 		} },
 		finding = { vulnerabilityIdentifier = "CVE-1", vulnerability = { identifier = "CVE-1" } },
 		advisory = { identifier = "CVE-1" },
 	} }
+
+	t.query(string.format([[{
+		team(slug: "v0s-team") { vulnerabilityFindings(last: 20, before: "%s") {
+			nodes { vulnerabilityIdentifier }
+			edges { cursor }
+			pageInfo { totalCount hasNextPage hasPreviousPage pageStart pageEnd startCursor endCursor }
+			facets { fixableFindings knownExploitedFindings }
+		} }
+	}]], State.second_finding_cursor))
+	t.check { data = { team = { vulnerabilityFindings = {
+		nodes = { { vulnerabilityIdentifier = "CVE-1" } },
+		edges = { { cursor = State.finding_cursor } },
+		pageInfo = { totalCount = 2, hasNextPage = true, hasPreviousPage = false, pageStart = 1, pageEnd = 1,
+			startCursor = State.finding_cursor, endCursor = State.finding_cursor },
+		facets = { fixableFindings = 1, knownExploitedFindings = 1 },
+	} } } }
+
+	t.query(string.format([[{
+		team(slug: "v0s-team") { vulnerabilityFindings(last: 1, before: "%s") {
+			nodes { vulnerabilityIdentifier }
+			pageInfo { totalCount hasNextPage hasPreviousPage startCursor endCursor pageStart pageEnd }
+		} }
+	}]], State.finding_cursor))
+	t.check { data = { team = { vulnerabilityFindings = {
+		nodes = {}, pageInfo = { totalCount = 2, hasNextPage = true, hasPreviousPage = false,
+		startCursor = Null, endCursor = Null, pageStart = 0, pageEnd = 0 },
+	} } } }
 end)
 
 Test.gql("Advisory lookup distinguishes ambiguous and missing identifiers", function(t)
@@ -267,6 +294,22 @@ Test.gql("Unique vulnerability groups have independent pages and full totals", f
 	t.check { data = { team = { vulnerabilityFindings = { vulnerabilities = {
 		nodes = { { vulnerabilityIdentifier = "CVE-1" } },
 		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true, endCursor = Save("vulnerability_overview_last_cursor") },
+	} } } } }
+
+	t.query(string.format([[{
+		team(slug: "v0s-team") {
+			vulnerabilityFindings(filter: {packageType: "npm"}) {
+				vulnerabilities(last: 20, before: "%s") {
+					nodes { vulnerabilityIdentifier severity findingCount affectedWorkloadCount }
+					pageInfo { totalCount hasNextPage hasPreviousPage pageStart pageEnd endCursor }
+				}
+			}
+		}
+	}]], State.vulnerability_overview_last_cursor))
+	t.check { data = { team = { vulnerabilityFindings = { vulnerabilities = {
+		nodes = { { vulnerabilityIdentifier = "CVE-2", severity = "CRITICAL", findingCount = 1, affectedWorkloadCount = 1 } },
+		pageInfo = { totalCount = 2, hasNextPage = true, hasPreviousPage = false, pageStart = 1, pageEnd = 1,
+			endCursor = State.vulnerability_overview_cursor },
 	} } } } }
 
 	t.query(string.format([[{

@@ -91,7 +91,7 @@ func getFindingByIdent(ctx context.Context, id ident.Ident) (*VulnerabilityFindi
 	}
 	var after *pagination.Cursor
 	for {
-		result, err := Findings(ctx, input, filter, new(maxPageSize), after, nil)
+		result, err := Findings(ctx, input, filter, new(maxPageSize), after, nil, nil, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -116,7 +116,7 @@ func getSuppressionByIdent(ctx context.Context, id ident.Ident) (*VulnerabilityS
 	filter := &VulnerabilitySuppressionFilter{ImageName: &parts[3], VulnerabilityIdentifier: &parts[5]}
 	var after *pagination.Cursor
 	for {
-		result, err := Suppressions(ctx, input, filter, new(maxPageSize), after)
+		result, err := Suppressions(ctx, input, filter, new(maxPageSize), after, nil, nil)
 		if err != nil {
 			return nil, err
 		}

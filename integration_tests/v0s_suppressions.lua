@@ -41,19 +41,63 @@ Test.gql("Authorized assessment batches are validated and recorded through the p
 		{ id = Save("assessment_id"), workload = { name = "app" },   vulnerability = { identifier = "CVE-1" }, updatedBy = member:email() },
 		{ id = NotNull(),             workload = { name = "stale" }, vulnerability = { identifier = "CVE-2" }, updatedBy = member:email() },
 	} } } }
+	t.query [[{
+		vulnerabilitySuppressions(first: 1) {
+			nodes { workload { name } }
+			pageInfo { totalCount hasNextPage hasPreviousPage endCursor }
+		}
+	}]]
+	t.check { data = { vulnerabilitySuppressions = {
+		nodes = { { workload = { name = "app" } } },
+		pageInfo = { totalCount = 2, hasNextPage = true, hasPreviousPage = false, endCursor = Save("suppression_first_cursor") },
+	} } }
+	t.query(string.format([[{
+		vulnerabilitySuppressions(first: 1, after: "%s") {
+			nodes { workload { name } }
+			pageInfo { totalCount hasNextPage hasPreviousPage startCursor }
+		}
+	}]], State.suppression_first_cursor))
+	t.check { data = { vulnerabilitySuppressions = {
+		nodes = { { workload = { name = "stale" } } },
+		pageInfo = { totalCount = 2, hasNextPage = false, hasPreviousPage = true, startCursor = Save("suppression_second_cursor") },
+	} } }
+	t.query(string.format([[{
+		vulnerabilitySuppressions(last: 20, before: "%s") {
+			nodes { workload { name } }
+			pageInfo { totalCount hasNextPage hasPreviousPage endCursor pageStart pageEnd }
+		}
+	}]], State.suppression_second_cursor))
+	t.check { data = { vulnerabilitySuppressions = {
+		nodes = { { workload = { name = "app" } } },
+		pageInfo = { totalCount = 2, hasNextPage = true, hasPreviousPage = false, endCursor = State.suppression_first_cursor, pageStart = 1, pageEnd = 1 },
+	} } }
 	t.query [[mutation {
 		deleteApplication(input: {teamSlug: "v0s-team", environmentName: "dev", name: "stale"}) { success }
 	}]]
 	t.check { data = { deleteApplication = { success = true } } }
 	t.query(string.format([[{
 		node(id: "%s") { ... on VulnerabilitySuppression { state reason workload { name teamEnvironment { team { slug } } } } }
+		afterApp: vulnerabilitySuppressions(first: 1, after: "%s") {
+			nodes { id }
+			pageInfo { totalCount hasNextPage hasPreviousPage startCursor endCursor }
+		}
+		beforeRemoved: vulnerabilitySuppressions(last: 1, before: "%s") {
+			nodes { workload { name } }
+			pageInfo { totalCount hasNextPage hasPreviousPage }
+		}
 		team(slug: "v0s-team") { environment(name: "dev") { vulnerabilitySuppressions {
 			nodes { workload { name } vulnerability { identifier } state }
 			pageInfo { totalCount }
 		} } }
-	}]], State.assessment_id))
+	}]], State.assessment_id, State.suppression_first_cursor, State.suppression_second_cursor))
 	t.check { data = {
 		node = { state = "ACCEPTED_RISK", reason = "assessed", workload = { name = "app", teamEnvironment = { team = { slug = "v0s-team" } } } },
+		afterApp = { nodes = {}, pageInfo = {
+			totalCount = 1, hasNextPage = false, hasPreviousPage = true, startCursor = Null, endCursor = Null,
+		} },
+		beforeRemoved = { nodes = { { workload = { name = "app" } } },
+			pageInfo = { totalCount = 1, hasNextPage = false, hasPreviousPage = false },
+		},
 		team = { environment = { vulnerabilitySuppressions = {
 			nodes = {
 				{ workload = { name = "app" }, vulnerability = { identifier = "CVE-1" }, state = "ACCEPTED_RISK" },

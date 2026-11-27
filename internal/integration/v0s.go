@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"slices"
+	"sort"
 	"strings"
 	"sync"
 
@@ -215,13 +216,7 @@ func v0sCompareFindings(a, b *protoapi.Finding, order *protoapi.FindingOrderBy) 
 		var compared int
 		switch order.Field {
 		case protoapi.FindingOrderBy_FIELD_SEVERITY:
-			rank := func(f *protoapi.Finding) int {
-				if f.Severity <= protoapi.Severity_SEVERITY_UNKNOWN && order.Direction == protoapi.FindingOrderBy_DIRECTION_ASC {
-					return int(protoapi.Severity_SEVERITY_CRITICAL) + 1
-				}
-				return int(f.Severity)
-			}
-			compared = cmp.Compare(rank(a), rank(b))
+			compared = cmp.Compare(a.Severity, b.Severity)
 		case protoapi.FindingOrderBy_FIELD_VULNERABILITY_ID:
 			compared = strings.Compare(a.VulnerabilityId, b.VulnerabilityId)
 		}
@@ -279,14 +274,11 @@ func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRe
 		resp.PackageTypeCounts = append(resp.PackageTypeCounts, &protoapi.PackageTypeCount{Value: value, Count: count})
 	}
 	slices.SortFunc(matching, func(a, b *protoapi.Finding) int { return v0sCompareFindings(a, b, req.OrderBy) })
-	for _, f := range matching {
-		if boundary != nil && v0sCompareFindings(f, boundary, req.OrderBy) <= 0 {
-			continue
-		}
-		if len(resp.Findings) == int(req.PageSize) {
-			resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
-			break
-		}
+	page, info := v0sPage(matching, req.PageSize, req.PageDirection, boundary, func(a, b *protoapi.Finding) int {
+		return v0sCompareFindings(a, b, req.OrderBy)
+	})
+	resp.PageInfo = info
+	for _, f := range page {
 		cursor, err := v0sEncodeCursor(&protoapi.Finding{
 			Workload: f.Workload, VulnerabilityId: f.VulnerabilityId, Purl: f.Purl, Severity: f.Severity,
 		})
@@ -298,7 +290,27 @@ func (c *v0sClient) ListFindings(_ context.Context, req *protoapi.ListFindingsRe
 		resp.Findings = append(resp.Findings, value)
 		resp.Cursors = append(resp.Cursors, cursor)
 	}
+	if len(resp.Cursors) > 0 && info.HasNextPage {
+		resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
+	}
 	return resp, nil
+}
+
+func v0sPage[T comparable](items []T, size int32, direction protoapi.PageDirection, boundary T, compare func(T, T) int) ([]T, *protoapi.PageInfo) {
+	start, end := 0, len(items)
+	var zero T
+	if direction == protoapi.PageDirection_PAGE_DIRECTION_BACKWARD {
+		if boundary != zero {
+			end = sort.Search(len(items), func(i int) bool { return compare(items[i], boundary) >= 0 })
+		}
+		start = max(0, end-int(size))
+	} else {
+		if boundary != zero {
+			start = sort.Search(len(items), func(i int) bool { return compare(items[i], boundary) > 0 })
+		}
+		end = min(len(items), start+int(size))
+	}
+	return items[start:end], &protoapi.PageInfo{HasPreviousPage: start > 0, HasNextPage: end < len(items)}
 }
 
 func (c *v0sClient) CountFindings(_ context.Context, req *protoapi.CountFindingsRequest, _ ...grpc.CallOption) (*protoapi.CountFindingsResponse, error) {
@@ -353,12 +365,6 @@ func v0sCompareVulnerabilityGroups(a, b *protoapi.VulnerabilitySummary, order *p
 	case protoapi.VulnerabilityOrderBy_FIELD_AFFECTED_WORKLOAD_COUNT:
 		compared = cmp.Compare(a.AffectedWorkloadCount, b.AffectedWorkloadCount)
 	default:
-		if a.Severity == protoapi.Severity_SEVERITY_UNKNOWN && b.Severity != a.Severity {
-			return 1
-		}
-		if b.Severity == protoapi.Severity_SEVERITY_UNKNOWN && a.Severity != b.Severity {
-			return -1
-		}
 		compared = cmp.Compare(a.Severity, b.Severity)
 	}
 	if order.Direction == protoapi.VulnerabilityOrderBy_DIRECTION_DESC {
@@ -383,20 +389,20 @@ func (c *v0sClient) ListVulnerabilities(_ context.Context, req *protoapi.ListVul
 		return v0sCompareVulnerabilityGroups(a, b, req.OrderBy)
 	})
 	resp := &protoapi.ListVulnerabilitiesResponse{TotalCount: int64(len(groups))}
-	for _, group := range groups {
-		if boundary != nil && v0sCompareVulnerabilityGroups(group, boundary, req.OrderBy) <= 0 {
-			continue
-		}
-		if len(resp.Vulnerabilities) == int(req.PageSize) {
-			resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
-			break
-		}
+	page, info := v0sPage(groups, req.PageSize, req.PageDirection, boundary, func(a, b *protoapi.VulnerabilitySummary) int {
+		return v0sCompareVulnerabilityGroups(a, b, req.OrderBy)
+	})
+	resp.PageInfo = info
+	for _, group := range page {
 		cursor, err := v0sEncodeCursor(group)
 		if err != nil {
 			return nil, err
 		}
 		resp.Vulnerabilities = append(resp.Vulnerabilities, group)
 		resp.Cursors = append(resp.Cursors, cursor)
+	}
+	if len(resp.Cursors) > 0 && info.HasNextPage {
+		resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
 	}
 	return resp, nil
 }
@@ -479,14 +485,33 @@ func (c *v0sClient) ListSuppressions(_ context.Context, req *protoapi.ListSuppre
 	defer c.mu.Unlock()
 	resp := &protoapi.ListSuppressionsResponse{}
 	for _, s := range c.suppressions {
-		key := v0sSuppressionKey(s)
-		if key <= req.PageToken || (req.Team != "" && req.Team != s.Team) ||
+		if (req.Team != "" && req.Team != s.Team) ||
 			(req.Environment != "" && req.Environment != s.Environment) || (req.Workload != "" && req.Workload != s.Workload) ||
 			(req.ImageName != "" && req.ImageName != s.ImageName) || (req.VulnerabilityId != "" && req.VulnerabilityId != s.VulnerabilityId) {
 			continue
 		}
 		resp.Suppressions = append(resp.Suppressions, s)
-		resp.Cursors = append(resp.Cursors, key)
+	}
+	slices.SortFunc(resp.Suppressions, func(a, b *protoapi.Suppression) int {
+		return strings.Compare(v0sSuppressionKey(a), v0sSuppressionKey(b))
+	})
+	start, end := 0, len(resp.Suppressions)
+	if req.PageDirection == protoapi.PageDirection_PAGE_DIRECTION_BACKWARD {
+		if req.PageToken != "" {
+			end = sort.Search(len(resp.Suppressions), func(i int) bool { return v0sSuppressionKey(resp.Suppressions[i]) >= req.PageToken })
+		}
+		start = max(0, end-int(req.PageSize))
+	} else {
+		start = sort.Search(len(resp.Suppressions), func(i int) bool { return v0sSuppressionKey(resp.Suppressions[i]) > req.PageToken })
+		end = min(len(resp.Suppressions), start+int(req.PageSize))
+	}
+	resp.PageInfo = &protoapi.PageInfo{HasPreviousPage: start > 0, HasNextPage: end < len(resp.Suppressions)}
+	resp.Suppressions = resp.Suppressions[start:end]
+	for _, s := range resp.Suppressions {
+		resp.Cursors = append(resp.Cursors, v0sSuppressionKey(s))
+	}
+	if len(resp.Cursors) > 0 && resp.PageInfo.HasNextPage {
+		resp.NextPageToken = resp.Cursors[len(resp.Cursors)-1]
 	}
 	return resp, nil
 }

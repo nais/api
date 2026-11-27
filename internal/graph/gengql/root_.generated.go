@@ -287,7 +287,7 @@ type ComplexityRoot struct {
 		Utilization               func(childComplexity int) int
 		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
 		VulnerabilityCoverage     func(childComplexity int) int
-		VulnerabilityFindings     func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilityOverview     func(childComplexity int, filter *v0s.WorkloadVulnerabilityOverviewFilter) int
 	}
@@ -1339,7 +1339,7 @@ type ComplexityRoot struct {
 		TeamEnvironment           func(childComplexity int) int
 		Valkeys                   func(childComplexity int, orderBy *valkey.ValkeyOrder) int
 		VulnerabilityCoverage     func(childComplexity int) int
-		VulnerabilityFindings     func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilityOverview     func(childComplexity int, filter *v0s.WorkloadVulnerabilityOverviewFilter) int
 	}
@@ -2310,11 +2310,11 @@ type ComplexityRoot struct {
 		UserSyncLog               func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Users                     func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int
 		Vulnerability             func(childComplexity int, identifier string) int
-		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.VulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TenantVulnerabilitySummaryFilter) int
-		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		WebhookEventTypes         func(childComplexity int) int
 	}
 
@@ -3181,11 +3181,11 @@ type ComplexityRoot struct {
 		Valkeys                   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int
 		ViewerIsMember            func(childComplexity int) int
 		ViewerIsOwner             func(childComplexity int) int
-		VulnerabilityFindings     func(childComplexity int, filter *v0s.TeamVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.TeamVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
 		VulnerabilityFixHistory   func(childComplexity int, from scalar.Date) int
 		VulnerabilitySummaries    func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int
 		VulnerabilitySummary      func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter) int
-		VulnerabilitySuppressions func(childComplexity int, filter *v0s.TeamVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.TeamVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Webhooks                  func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		WorkloadUtilization       func(childComplexity int, resourceType utilization.UtilizationResourceType) int
 		Workloads                 func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *workload.WorkloadOrder, filter *workload.TeamWorkloadsFilter) int
@@ -3309,8 +3309,8 @@ type ComplexityRoot struct {
 		Team                      func(childComplexity int) int
 		Tunnel                    func(childComplexity int, name string) int
 		Valkey                    func(childComplexity int, name string) int
-		VulnerabilityFindings     func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
-		VulnerabilitySuppressions func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor) int
+		VulnerabilityFindings     func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int
+		VulnerabilitySuppressions func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Workload                  func(childComplexity int, name string) int
 	}
 
@@ -4113,13 +4113,13 @@ type ComplexityRoot struct {
 	}
 
 	VulnerabilityFindingConnection struct {
-		AffectedWorkloads func(childComplexity int, first *int, after *pagination.Cursor) int
+		AffectedWorkloads func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int
 		Edges             func(childComplexity int) int
 		Facets            func(childComplexity int) int
 		Nodes             func(childComplexity int) int
 		PageInfo          func(childComplexity int) int
 		Summary           func(childComplexity int) int
-		Vulnerabilities   func(childComplexity int, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityOverviewOrder) int
+		Vulnerabilities   func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityOverviewOrder) int
 	}
 
 	VulnerabilityFindingEdge struct {
@@ -5140,7 +5140,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Application.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Application.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Application.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Application.VulnerabilityFixHistory == nil {
@@ -9425,7 +9425,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Job.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Job.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.WorkloadVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Job.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Job.VulnerabilityFixHistory == nil {
@@ -14367,7 +14367,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Query.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.VulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Query.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Query.VulnerabilityFixHistory == nil {
@@ -14415,7 +14415,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.Query.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.VulnerabilitySuppressionFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Query.webhookEventTypes":
 		if e.ComplexityRoot.Query.WebhookEventTypes == nil {
@@ -18348,7 +18348,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.TeamVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.Team.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.TeamVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "Team.vulnerabilityFixHistory":
 		if e.ComplexityRoot.Team.VulnerabilityFixHistory == nil {
@@ -18396,7 +18396,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Team.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.TeamVulnerabilitySuppressionsFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.Team.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.TeamVulnerabilitySuppressionsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "Team.webhooks":
 		if e.ComplexityRoot.Team.Webhooks == nil {
@@ -19070,7 +19070,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.TeamEnvironment.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.TeamEnvironmentVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
+		return e.ComplexityRoot.TeamEnvironment.VulnerabilityFindings(childComplexity, args["filter"].(*v0s.TeamEnvironmentVulnerabilityFindingsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityFindingOrder)), true
 
 	case "TeamEnvironment.vulnerabilitySuppressions":
 		if e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions == nil {
@@ -19082,7 +19082,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.TeamEnvironmentVulnerabilitySuppressionsFilter), args["first"].(*int), args["after"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.TeamEnvironment.VulnerabilitySuppressions(childComplexity, args["filter"].(*v0s.TeamEnvironmentVulnerabilitySuppressionsFilter), args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "TeamEnvironment.workload":
 		if e.ComplexityRoot.TeamEnvironment.Workload == nil {
@@ -22354,7 +22354,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.VulnerabilityFindingConnection.AffectedWorkloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor)), true
+		return e.ComplexityRoot.VulnerabilityFindingConnection.AffectedWorkloads(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor)), true
 
 	case "VulnerabilityFindingConnection.edges":
 		if e.ComplexityRoot.VulnerabilityFindingConnection.Edges == nil {
@@ -22401,7 +22401,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.VulnerabilityFindingConnection.Vulnerabilities(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityOverviewOrder)), true
+		return e.ComplexityRoot.VulnerabilityFindingConnection.Vulnerabilities(childComplexity, args["first"].(*int), args["after"].(*pagination.Cursor), args["last"].(*int), args["before"].(*pagination.Cursor), args["orderBy"].(*v0s.VulnerabilityOverviewOrder)), true
 
 	case "VulnerabilityFindingEdge.cursor":
 		if e.ComplexityRoot.VulnerabilityFindingEdge.Cursor == nil {
@@ -37613,6 +37613,10 @@ type ApplicationInstanceUtilization {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -37629,6 +37633,10 @@ type ApplicationInstanceUtilization {
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
+		"Get the last n assessments before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter."
+		before: Cursor
 	): VulnerabilitySuppressionConnection!
 }
 
@@ -37641,6 +37649,10 @@ extend type Team {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -37652,6 +37664,10 @@ extend type Team {
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
+		"Get the last n assessments before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter."
+		before: Cursor
 	): VulnerabilitySuppressionConnection!
 }
 
@@ -37664,6 +37680,10 @@ extend type TeamEnvironment {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -37675,6 +37695,10 @@ extend type TeamEnvironment {
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
+		"Get the last n assessments before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter."
+		before: Cursor
 	): VulnerabilitySuppressionConnection!
 }
 
@@ -37687,6 +37711,10 @@ extend interface Workload {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -37708,6 +37736,10 @@ extend type Application {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -37729,6 +37761,10 @@ extend type Job {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -37869,7 +37905,7 @@ input VulnerabilityFindingOrder {
 
 "Values available for ordering vulnerability findings."
 enum VulnerabilityFindingOrderField {
-	"Severity: DESC is CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN; ASC reverses known severities. UNKNOWN is always last. Ties use identifier, environment, team, workload and package URL ascending."
+	"Severity: DESC is CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN; ASC is UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL. Ties use identifier, environment, team, workload and package URL ascending."
 	SEVERITY
 	"Bytewise, case-sensitive identifier ordering. Ties use environment, team, workload and package URL ascending."
 	IDENTIFIER
@@ -37899,7 +37935,7 @@ enum VulnerabilitySeverity {
 	CRITICAL
 }
 
-"A forward-paginated selection of vulnerability findings."
+"A bidirectionally paginated selection of vulnerability findings."
 type VulnerabilityFindingConnection {
 	"Findings and their continuation cursors."
 	edges: [VulnerabilityFindingEdge!]!
@@ -37917,6 +37953,10 @@ type VulnerabilityFindingConnection {
 		first: Int
 		"Continue with the same scope, workload selection and finding filter."
 		after: Cursor
+		"Get the last n affected workloads before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor with the same scope, workload selection and finding filter."
+		before: Cursor
 	): WorkloadConnection!
 	"Unique vulnerabilities across the full filtered workload selection, independent of the finding page and ordering."
 	vulnerabilities(
@@ -37924,6 +37964,10 @@ type VulnerabilityFindingConnection {
 		first: Int
 		"Continue after this cursor with the same scope, filter and vulnerability ordering."
 		after: Cursor
+		"Get the last n vulnerabilities before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor with the same scope, filter and vulnerability ordering."
+		before: Cursor
 		"Order the full vulnerability selection. Defaults to severity descending, with UNKNOWN last and identifier ascending for ties."
 		orderBy: VulnerabilityOverviewOrder
 	): VulnerabilityOverviewConnection!
@@ -37947,7 +37991,7 @@ type VulnerabilitySelectionSummary {
 	coverage: VulnerabilityCoverageCounts!
 }
 
-"A forward-paginated selection of unique canonical vulnerabilities."
+"A bidirectionally paginated selection of unique canonical vulnerabilities."
 type VulnerabilityOverviewConnection {
 	"Vulnerability groups and their continuation cursors."
 	edges: [VulnerabilityOverviewEdge!]!
@@ -37989,7 +38033,7 @@ input VulnerabilityOverviewOrder {
 
 "Values available for ordering unique vulnerability groups."
 enum VulnerabilityOverviewOrderField {
-	"Severity of the group. UNKNOWN is last in both directions. Ties use identifier ascending."
+	"Severity of the group. UNKNOWN is first in ASC and last in DESC. Ties use identifier ascending."
 	SEVERITY
 	"Bytewise, case-sensitive canonical identifier ordering."
 	IDENTIFIER
@@ -38215,7 +38259,7 @@ type VulnerabilitySuppression implements Node {
 	updatedAt: Time!
 }
 
-"A forward-paginated selection of workload assessments."
+"A bidirectionally paginated selection of workload assessments."
 type VulnerabilitySuppressionConnection {
 	"Assessments and their continuation cursors."
 	edges: [VulnerabilitySuppressionEdge!]!

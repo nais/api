@@ -21,6 +21,7 @@ import (
 	search "github.com/nais/api/internal/search"
 	team "github.com/nais/api/internal/team"
 	user "github.com/nais/api/internal/user"
+	v0s "github.com/nais/api/internal/v0s"
 	vulnerability "github.com/nais/api/internal/vulnerability"
 	workload "github.com/nais/api/internal/workload"
 	application "github.com/nais/api/internal/workload/application"
@@ -54,6 +55,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Application.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Application.VulnerabilityFindings = func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.BigQueryDataset.Access = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *bigquery.BigQueryDatasetAccessOrder) int {
@@ -114,6 +118,9 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Job.Secrets = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Job.VulnerabilityFindings = func(childComplexity int, filter *v0s.WorkloadVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.JobRun.Instances = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -179,7 +186,13 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Query.Users = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *user.UserOrder, filter *user.UserFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Query.VulnerabilityFindings = func(childComplexity int, filter *v0s.VulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Query.VulnerabilitySummaries = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Query.VulnerabilitySuppressions = func(childComplexity int, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Reconciler.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {
@@ -278,7 +291,13 @@ func NewComplexityRoot() ComplexityRoot {
 	c.Team.Valkeys = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
+	c.Team.VulnerabilityFindings = func(childComplexity int, filter *v0s.TeamVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
 	c.Team.VulnerabilitySummaries = func(childComplexity int, filter *vulnerability.TeamVulnerabilitySummaryFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *vulnerability.VulnerabilitySummaryOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.Team.VulnerabilitySuppressions = func(childComplexity int, filter *v0s.TeamVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.Team.Webhooks = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -288,6 +307,12 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.TeamEnvironment.Alerts = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *alerts.AlertOrder, filter *alerts.TeamAlertsFilter) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.TeamEnvironment.VulnerabilityFindings = func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.TeamEnvironment.VulnerabilitySuppressions = func(childComplexity int, filter *v0s.TeamEnvironmentVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.UnleashInstance.AllowedTeams = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
@@ -306,6 +331,12 @@ func NewComplexityRoot() ComplexityRoot {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.ValkeyMaintenance.Updates = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.VulnerabilityFindingConnection.AffectedWorkloads = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) int {
+		return cursorComplexity(first, last) * childComplexity
+	}
+	c.VulnerabilityFindingConnection.Vulnerabilities = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityOverviewOrder) int {
 		return cursorComplexity(first, last) * childComplexity
 	}
 	c.WebhookSubscription.ActivityLog = func(childComplexity int, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *activitylog.ActivityLogFilter) int {

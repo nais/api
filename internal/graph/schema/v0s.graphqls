@@ -7,6 +7,10 @@ extend type Query {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -23,6 +27,10 @@ extend type Query {
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
+		"Get the last n assessments before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter."
+		before: Cursor
 	): VulnerabilitySuppressionConnection!
 }
 
@@ -35,6 +43,10 @@ extend type Team {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -46,6 +58,10 @@ extend type Team {
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
+		"Get the last n assessments before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter."
+		before: Cursor
 	): VulnerabilitySuppressionConnection!
 }
 
@@ -58,6 +74,10 @@ extend type TeamEnvironment {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: environment, team, workload, identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -69,6 +89,10 @@ extend type TeamEnvironment {
 		first: Int
 		"Continue after this cursor, using the same filter."
 		after: Cursor
+		"Get the last n assessments before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter."
+		before: Cursor
 	): VulnerabilitySuppressionConnection!
 }
 
@@ -81,6 +105,10 @@ extend interface Workload {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -102,6 +130,10 @@ extend type Application {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -123,6 +155,10 @@ extend type Job {
 		first: Int
 		"Continue after this cursor, using the same filter and ordering."
 		after: Cursor
+		"Get the last n findings before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor, using the same filter and ordering."
+		before: Cursor
 		"Sort the full selection before pagination. Omitted: identifier and package URL ascending."
 		orderBy: VulnerabilityFindingOrder
 	): VulnerabilityFindingConnection!
@@ -263,7 +299,7 @@ input VulnerabilityFindingOrder {
 
 "Values available for ordering vulnerability findings."
 enum VulnerabilityFindingOrderField {
-	"Severity: DESC is CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN; ASC reverses known severities. UNKNOWN is always last. Ties use identifier, environment, team, workload and package URL ascending."
+	"Severity: DESC is CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN; ASC is UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL. Ties use identifier, environment, team, workload and package URL ascending."
 	SEVERITY
 	"Bytewise, case-sensitive identifier ordering. Ties use environment, team, workload and package URL ascending."
 	IDENTIFIER
@@ -293,7 +329,7 @@ enum VulnerabilitySeverity {
 	CRITICAL
 }
 
-"A forward-paginated selection of vulnerability findings."
+"A bidirectionally paginated selection of vulnerability findings."
 type VulnerabilityFindingConnection {
 	"Findings and their continuation cursors."
 	edges: [VulnerabilityFindingEdge!]!
@@ -311,6 +347,10 @@ type VulnerabilityFindingConnection {
 		first: Int
 		"Continue with the same scope, workload selection and finding filter."
 		after: Cursor
+		"Get the last n affected workloads before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor with the same scope, workload selection and finding filter."
+		before: Cursor
 	): WorkloadConnection!
 	"Unique vulnerabilities across the full filtered workload selection, independent of the finding page and ordering."
 	vulnerabilities(
@@ -318,6 +358,10 @@ type VulnerabilityFindingConnection {
 		first: Int
 		"Continue after this cursor with the same scope, filter and vulnerability ordering."
 		after: Cursor
+		"Get the last n vulnerabilities before the cursor, between 1 and 200. Requires before."
+		last: Int
+		"Continue before this cursor with the same scope, filter and vulnerability ordering."
+		before: Cursor
 		"Order the full vulnerability selection. Defaults to severity descending, with UNKNOWN last and identifier ascending for ties."
 		orderBy: VulnerabilityOverviewOrder
 	): VulnerabilityOverviewConnection!
@@ -341,7 +385,7 @@ type VulnerabilitySelectionSummary {
 	coverage: VulnerabilityCoverageCounts!
 }
 
-"A forward-paginated selection of unique canonical vulnerabilities."
+"A bidirectionally paginated selection of unique canonical vulnerabilities."
 type VulnerabilityOverviewConnection {
 	"Vulnerability groups and their continuation cursors."
 	edges: [VulnerabilityOverviewEdge!]!
@@ -383,7 +427,7 @@ input VulnerabilityOverviewOrder {
 
 "Values available for ordering unique vulnerability groups."
 enum VulnerabilityOverviewOrderField {
-	"Severity of the group. UNKNOWN is last in both directions. Ties use identifier ascending."
+	"Severity of the group. UNKNOWN is first in ASC and last in DESC. Ties use identifier ascending."
 	SEVERITY
 	"Bytewise, case-sensitive canonical identifier ordering."
 	IDENTIFIER
@@ -609,7 +653,7 @@ type VulnerabilitySuppression implements Node {
 	updatedAt: Time!
 }
 
-"A forward-paginated selection of workload assessments."
+"A bidirectionally paginated selection of workload assessments."
 type VulnerabilitySuppressionConnection {
 	"Assessments and their continuation cursors."
 	edges: [VulnerabilitySuppressionEdge!]!

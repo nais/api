@@ -58,7 +58,7 @@ func (c *Client) ListWorkloads(ctx context.Context, req *protoapi.ListWorkloadsR
 		}
 	}
 	total := int64(len(workloads))
-	rows, _, next, err := paginate(workloads, req.PageSize, req.PageToken)
+	rows, _, next, _, err := paginate(workloads, req.PageSize, req.PageToken, protoapi.PageDirection_PAGE_DIRECTION_FORWARD)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +101,8 @@ func (c *Client) ListFindings(ctx context.Context, req *protoapi.ListFindingsReq
 		facets = append(facets, &protoapi.PackageTypeCount{Value: value, Count: count})
 	}
 	slices.SortFunc(facets, func(a, b *protoapi.PackageTypeCount) int { return strings.Compare(a.Value, b.Value) })
-	rows, cursors, next, err := paginate(findings, req.PageSize, req.PageToken)
-	return &protoapi.ListFindingsResponse{Findings: rows, Cursors: cursors, NextPageToken: next, PackageTypeCounts: facets}, err
+	rows, cursors, next, info, err := paginate(findings, req.PageSize, req.PageToken, req.PageDirection)
+	return &protoapi.ListFindingsResponse{Findings: rows, Cursors: cursors, NextPageToken: next, PackageTypeCounts: facets, PageInfo: info}, err
 }
 
 func (c *Client) ListVulnerabilities(ctx context.Context, req *protoapi.ListVulnerabilitiesRequest, _ ...grpc.CallOption) (*protoapi.ListVulnerabilitiesResponse, error) {
@@ -148,8 +148,8 @@ func (c *Client) ListVulnerabilities(ctx context.Context, req *protoapi.ListVuln
 		return cmp.Or(order, strings.Compare(a.VulnerabilityId, b.VulnerabilityId))
 	})
 	total := int64(len(rows))
-	rows, cursors, next, err := paginate(rows, req.PageSize, req.PageToken)
-	return &protoapi.ListVulnerabilitiesResponse{Vulnerabilities: rows, Cursors: cursors, NextPageToken: next, TotalCount: total}, err
+	rows, cursors, next, info, err := paginate(rows, req.PageSize, req.PageToken, req.PageDirection)
+	return &protoapi.ListVulnerabilitiesResponse{Vulnerabilities: rows, Cursors: cursors, NextPageToken: next, TotalCount: total, PageInfo: info}, err
 }
 
 func (c *Client) CountFindings(ctx context.Context, req *protoapi.CountFindingsRequest, _ ...grpc.CallOption) (*protoapi.CountFindingsResponse, error) {
@@ -310,12 +310,6 @@ func compareSeverity(a, b protoapi.Severity, asc bool) int {
 	if a == b {
 		return 0
 	}
-	if a <= protoapi.Severity_SEVERITY_UNKNOWN {
-		return 1
-	}
-	if b <= protoapi.Severity_SEVERITY_UNKNOWN {
-		return -1
-	}
 	order := cmp.Compare(a, b)
 	if !asc {
 		order = -order
@@ -323,32 +317,43 @@ func compareSeverity(a, b protoapi.Severity, asc bool) int {
 	return order
 }
 
-func paginate[T any](rows []T, size int32, token string) ([]T, []string, string, error) {
-	start := 0
+func paginate[T any](rows []T, size int32, token string, direction protoapi.PageDirection) ([]T, []string, string, *protoapi.PageInfo, error) {
+	start, end := 0, len(rows)
+	if direction != protoapi.PageDirection_PAGE_DIRECTION_UNSPECIFIED &&
+		direction != protoapi.PageDirection_PAGE_DIRECTION_FORWARD && direction != protoapi.PageDirection_PAGE_DIRECTION_BACKWARD {
+		return nil, nil, "", nil, status.Error(codes.InvalidArgument, "invalid page direction")
+	}
 	if token != "" {
-		var err error
-		start, err = strconv.Atoi(token)
-		if err != nil || start < 0 {
-			return nil, nil, "", status.Error(codes.InvalidArgument, "invalid fake v0s cursor")
+		boundary, err := strconv.Atoi(token)
+		if err != nil || boundary < 0 || (boundary == 0 && direction == protoapi.PageDirection_PAGE_DIRECTION_BACKWARD) {
+			return nil, nil, "", nil, status.Error(codes.InvalidArgument, "invalid fake v0s cursor")
+		}
+		if direction == protoapi.PageDirection_PAGE_DIRECTION_BACKWARD {
+			end = min(boundary-1, len(rows))
+		} else {
+			start = min(boundary, len(rows))
 		}
 	}
 	if size < 0 {
-		return nil, nil, "", status.Error(codes.InvalidArgument, "page size must not be negative")
+		return nil, nil, "", nil, status.Error(codes.InvalidArgument, "page size must not be negative")
 	}
 	if size == 0 {
 		size = 100
 	}
-	start = min(start, len(rows))
-	end := start + min(int(size), len(rows)-start)
+	if direction == protoapi.PageDirection_PAGE_DIRECTION_BACKWARD {
+		start = max(0, end-int(size))
+	} else {
+		end = start + min(int(size), len(rows)-start)
+	}
 	cursors := make([]string, end-start)
 	for i := range cursors {
 		cursors[i] = strconv.Itoa(start + i + 1)
 	}
 	next := ""
-	if end < len(rows) {
+	if end < len(rows) && len(cursors) > 0 {
 		next = strconv.Itoa(end)
 	}
-	return rows[start:end], cursors, next, nil
+	return rows[start:end], cursors, next, &protoapi.PageInfo{HasNextPage: end < len(rows), HasPreviousPage: start > 0}, nil
 }
 
 func clone[T proto.Message](value T) T {

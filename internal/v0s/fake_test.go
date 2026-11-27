@@ -40,7 +40,7 @@ func TestFakeManagerServesVulnerabilityQueries(t *testing.T) {
 		return inventory.ListImages(ctx, &inventoryapi.ListWorkloadImagesRequest{})
 	})
 	first := 2
-	findings, err := v0s.Findings(ctx, v0s.Scope{}, nil, &first, nil, nil)
+	findings, err := v0s.Findings(ctx, v0s.Scope{}, nil, &first, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,12 +50,20 @@ func TestFakeManagerServesVulnerabilityQueries(t *testing.T) {
 	if findings.Edges[0].Node.Epss == nil || findings.Edges[0].Node.Workload.Name != "app" {
 		t.Errorf("fake finding did not convert correctly: %+v", findings.Edges[0].Node)
 	}
-	next, err := v0s.Findings(ctx, v0s.Scope{}, nil, &first, findings.PageInfo.EndCursor, nil)
+	next, err := v0s.Findings(ctx, v0s.Scope{}, nil, &first, findings.PageInfo.EndCursor, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(next.Edges) != 2 || next.Edges[0].Node.VulnerabilityIdentifier == findings.Edges[0].Node.VulnerabilityIdentifier {
 		t.Error("fake finding cursor did not resume")
+	}
+	back, err := v0s.Findings(ctx, v0s.Scope{}, nil, nil, nil, &first, next.PageInfo.StartCursor, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(back.Edges) != 2 || back.PageInfo.HasPreviousPage || !back.PageInfo.HasNextPage ||
+		back.Edges[0].Cursor != findings.Edges[0].Cursor || back.Edges[1].Cursor != findings.Edges[1].Cursor {
+		t.Fatalf("fake backward page did not return the original cursors: %+v", back)
 	}
 	summary, err := findings.Summary(ctx)
 	if err != nil {
@@ -68,7 +76,7 @@ func TestFakeManagerServesVulnerabilityQueries(t *testing.T) {
 	if _, err := findings.Facets(ctx); err != nil {
 		t.Fatalf("fake finding facets: %v", err)
 	}
-	vulnerabilities, err := findings.Vulnerabilities(ctx, &first, nil, nil)
+	vulnerabilities, err := findings.Vulnerabilities(ctx, &first, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
