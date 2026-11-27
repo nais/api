@@ -22,6 +22,15 @@ remain unchanged for compatibility. No v0s risk score is fabricated.
 `MISSING_SBOM` uses v0s directly from deployment, without a source-selection
 flag or fallback to v13s. `V0S_ENDPOINT` must be configured.
 
+For local development, `WITH_FAKE_KUBERNETES=true` with no `V0S_ENDPOINT`
+uses an in-process fake v0s client populated from the local application/job
+inventory. It provides synthetic findings, summaries, coverage and in-memory
+assessments without a running v0s service. An explicit endpoint always takes
+precedence. Workloads named `no-errors` or `priority-none` have no findings;
+names containing `no-sbom` have missing SBOM coverage. Assessment writes still
+require `V0S_SUPPRESSIONS_ENABLED=true`; fake assessments are lost on restart.
+Non-fake deployments still require `V0S_ENDPOINT`.
+
 ## Implementation gaps
 
 | Capability                       | Current implementation                                                                                                    | Required work                                             |

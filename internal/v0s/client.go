@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/nais/api/internal/graph/apierror"
+	"github.com/nais/api/internal/v0s/fake"
+	inventoryapi "github.com/nais/api/pkg/apiclient/protoapi"
 	protoapi "github.com/nais/v0s/api/v0s/v1"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -19,7 +21,16 @@ type Manager struct {
 	conn                *grpc.ClientConn
 }
 
-// NewManager creates a lazy connection. An unset endpoint disables only the new API.
+func NewFakeManager(inventory inventoryapi.WorkloadsServer, suppressionsEnabled bool) *Manager {
+	client := fake.NewClient(inventory)
+	return &Manager{
+		Vulnerabilities:     client,
+		Suppressions:        client,
+		SuppressionsEnabled: suppressionsEnabled,
+	}
+}
+
+// NewManager creates a lazy connection. An unset endpoint leaves the clients unconfigured.
 func NewManager(endpoint string, suppressionsEnabled bool) (*Manager, error) {
 	m := &Manager{SuppressionsEnabled: suppressionsEnabled}
 	if endpoint == "" {
