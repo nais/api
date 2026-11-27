@@ -356,17 +356,6 @@ func NewDynamicClient(scheme *runtime.Scheme) *dynfake.FakeDynamicClient {
 		return true, modified, nil
 	})
 
-	client.PrependReactor("create", "*", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
-		createAction, ok := action.(k8stesting.CreateAction)
-		if !ok {
-			return false, nil, nil
-		}
-		if u, ok := createAction.GetObject().(*unstructured.Unstructured); ok && u.GetUID() == "" && u.GetName() != "" {
-			u.SetUID(types.UID("fake-uid-" + u.GetName()))
-		}
-		return false, nil, nil
-	})
-
 	return client
 }
 
