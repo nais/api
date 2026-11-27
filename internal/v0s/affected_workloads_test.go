@@ -76,7 +76,7 @@ func TestAffectedWorkloadsAggregateBeforePagingAndBindSelection(t *testing.T) {
 		OnlyWithFix: new(true), Suppressed: new(SuppressedFilterOnly),
 	}
 	scope := Scope{Team: slug.Slug("team")}
-	first, err := affectedWorkloads(ctx, scope, items, current, filter, "selection", new(1), nil)
+	first, err := affectedWorkloads(ctx, scope, items, current, filter, "selection", new(1), nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,12 +84,28 @@ func TestAffectedWorkloadsAggregateBeforePagingAndBindSelection(t *testing.T) {
 		first.PageInfo.TotalCount != 2 || !first.PageInfo.HasNextPage {
 		t.Fatalf("aggregation/pagination: %+v", first)
 	}
-	next, err := affectedWorkloads(ctx, scope, items, current, filter, "selection", new(2), first.PageInfo.EndCursor)
+	next, err := affectedWorkloads(ctx, scope, items, current, filter, "selection", new(2), first.PageInfo.EndCursor, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(next.Edges) != 1 || next.Edges[0].Node.GetName() != "zz-job" || next.PageInfo.HasNextPage || next.PageInfo.TotalCount != 2 {
 		t.Fatalf("next page lost the later affected workload: %+v", next)
+	}
+	back, err := affectedWorkloads(ctx, scope, items, current, filter, "selection", nil, nil, new(20), next.PageInfo.StartCursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(back.Edges) != 1 || back.Edges[0].Node.GetName() != "z-app" || back.PageInfo.HasPreviousPage ||
+		!back.PageInfo.HasNextPage || back.PageInfo.TotalCount != 2 || back.Edges[0].Cursor != first.Edges[0].Cursor {
+		t.Fatalf("backward page lost canonical order/total/cursor: %+v", back)
+	}
+	empty, err := affectedWorkloads(ctx, scope, items, current, filter, "selection", nil, nil, new(1), first.PageInfo.StartCursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(empty.Edges) != 0 || empty.PageInfo.HasPreviousPage || !empty.PageInfo.HasNextPage ||
+		empty.PageInfo.StartCursor != nil || empty.PageInfo.EndCursor != nil || empty.PageInfo.TotalCount != 2 {
+		t.Fatalf("empty before-first page: %+v", empty)
 	}
 	counts, err := next.Facets.LoadCoverage(ctx)
 	if err != nil {
@@ -114,13 +130,13 @@ func TestAffectedWorkloadsAggregateBeforePagingAndBindSelection(t *testing.T) {
 			case "assessment":
 				f.Suppressed = new(SuppressedFilterInclude)
 			}
-			if _, err := affectedWorkloads(ctx, s, items, current, &f, binding, nil, first.PageInfo.EndCursor); err == nil {
+			if _, err := affectedWorkloads(ctx, s, items, current, &f, binding, nil, first.PageInfo.EndCursor, nil, nil); err == nil {
 				t.Fatal("changed selection accepted a cursor")
 			}
 		})
 	}
 	removed = true
-	resumed, err := affectedWorkloads(newContext(), scope, items, current, filter, "selection", nil, first.PageInfo.EndCursor)
+	resumed, err := affectedWorkloads(newContext(), scope, items, current, filter, "selection", nil, first.PageInfo.EndCursor, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

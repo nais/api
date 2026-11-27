@@ -165,6 +165,18 @@ func TestFindingSelectionsAndPagination(t *testing.T) {
 	if second.TotalCount != 5 || len(second.Vulnerabilities) != 3 || second.NextPageToken != "" {
 		t.Errorf("unexpected second overview page: %v", second)
 	}
+	back, err := c.ListVulnerabilities(t.Context(), &protoapi.ListVulnerabilitiesRequest{
+		PageSize: 2, PageToken: second.Cursors[0], PageDirection: protoapi.PageDirection_PAGE_DIRECTION_BACKWARD,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if diff := cmp.Diff(resp.Vulnerabilities, back.Vulnerabilities, protocmp.Transform()); diff != "" {
+		t.Errorf("backward overview (-want +got):\n%s", diff)
+	}
+	if back.TotalCount != 5 || back.GetPageInfo().GetHasPreviousPage() || !back.GetPageInfo().GetHasNextPage() {
+		t.Errorf("incorrect backward overview metadata: %v", back)
+	}
 }
 
 func TestSuppressionLifecycleIsWorkloadScoped(t *testing.T) {
@@ -192,6 +204,12 @@ func TestSuppressionLifecycleIsWorkloadScoped(t *testing.T) {
 	}
 	if len(listed.Suppressions) != 1 || listed.Suppressions[0].Detail != "Local assessment" {
 		t.Fatalf("unexpected stored suppressions: %v", listed)
+	}
+	empty, err := c.ListSuppressions(ctx, &protoapi.ListSuppressionsRequest{
+		Team: "team", PageSize: 1, PageToken: listed.Cursors[0], PageDirection: protoapi.PageDirection_PAGE_DIRECTION_BACKWARD,
+	})
+	if err != nil || len(empty.GetSuppressions()) != 0 || empty.GetPageInfo().GetHasPreviousPage() || !empty.GetPageInfo().GetHasNextPage() {
+		t.Fatalf("empty backward suppression page: %v, %v", empty, err)
 	}
 	for _, tt := range []struct {
 		filter protoapi.SuppressedFilter
@@ -261,11 +279,11 @@ func TestFindingOrderAndInvalidCursor(t *testing.T) {
 		severities = append(severities, f.Severity)
 	}
 	want := []protoapi.Severity{
+		protoapi.Severity_SEVERITY_UNKNOWN, protoapi.Severity_SEVERITY_UNKNOWN,
 		protoapi.Severity_SEVERITY_LOW, protoapi.Severity_SEVERITY_LOW,
 		protoapi.Severity_SEVERITY_MEDIUM, protoapi.Severity_SEVERITY_MEDIUM,
 		protoapi.Severity_SEVERITY_HIGH, protoapi.Severity_SEVERITY_HIGH,
 		protoapi.Severity_SEVERITY_CRITICAL, protoapi.Severity_SEVERITY_CRITICAL,
-		protoapi.Severity_SEVERITY_UNKNOWN, protoapi.Severity_SEVERITY_UNKNOWN,
 	}
 	if !slices.Equal(want, severities) {
 		t.Errorf("severity order (-want +got):\n%s", cmp.Diff(want, severities))

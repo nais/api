@@ -33,23 +33,23 @@ Non-fake deployments still require `V0S_ENDPOINT`.
 
 ## Implementation gaps
 
-| Capability                       | Current implementation                                                                                                    | Required work                                             |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                               | Extend these fields, not another finding API              |
-| Finding pagination               | Forward-only, server-side severity/identifier ordering; filter/order/workload-bound cursors                               | Reset old finding cursors when deploying this integration |
-| Finding counts/facets            | Full-selection facets and summaries; shared team/environment/label selection, distinct vulnerability/workload totals      | Verify deployed backend conformance                       |
-| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                       | Verify deployed inventory reconciliation                  |
-| Workload selection               | Global `TeamScopeInput` and environment/label filters; existing team/environment/workload scopes                          | No additional API selection contract needed               |
-| Workload/vulnerability overviews | Unique-vulnerability groups, affected-workload connection, batch-loaded workload counts and team unique-severity ordering | No additional backend release needed for CVE navigation   |
-| Assessment writes                | Team-authorized, gated v0s batches with best-effort activity logging                                                      | Verify set and delete before enablement                   |
-| Vulnerability Issues             | KEV producers retired; MISSING_SBOM uses only v0s                                                                         | Verify deployed coverage before deployment                |
-| Manual reanalysis                | No public v0s RPC                                                                                                         | Do not expose a working reanalysis control                |
+| Capability                       | Current implementation                                                                                                    | Required work                                           |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Findings and advisory details    | Existing v0s resolvers, including workload scopes, EPSS, KEV, fixed version and assessments                               | Extend these fields, not another finding API            |
+| Finding pagination               | Bidirectional keyset pagination, server-side severity/identifier ordering; filter/order/workload-bound cursors            | Deploy v0s v0.12.0 support before this API version      |
+| Finding counts/facets            | Full-selection facets and summaries; shared team/environment/label selection, distinct vulnerability/workload totals      | Verify deployed backend conformance                     |
+| Coverage                         | Complete API inventory in workload facets and tenant/team summaries                                                       | Verify deployed inventory reconciliation                |
+| Workload selection               | Global `TeamScopeInput` and environment/label filters; existing team/environment/workload scopes                          | No additional API selection contract needed             |
+| Workload/vulnerability overviews | Unique-vulnerability groups, affected-workload connection, batch-loaded workload counts and team unique-severity ordering | No additional backend release needed for CVE navigation |
+| Assessment writes                | Team-authorized, gated v0s batches with best-effort activity logging                                                      | Verify set and delete before enablement                 |
+| Vulnerability Issues             | KEV producers retired; MISSING_SBOM uses only v0s                                                                         | Verify deployed coverage before deployment              |
+| Manual reanalysis                | No public v0s RPC                                                                                                         | Do not expose a working reanalysis control              |
 
 ### GitHub contract status
 
 - The client and service now live together in
   [nais/v0s](https://github.com/nais/v0s), with the lightweight client module at
-  `github.com/nais/v0s/api`. Nais API pins `v0.11.0`; the old external
+  `github.com/nais/v0s/api`. Nais API pins `v0.12.0`; the old external
   `github.com/nais/v0s-api` module is no longer used.
 - The published contract includes finding ordering, package-type filters/facets,
   paginated unique-vulnerability and workload overviews, shared workload selection,
@@ -68,6 +68,10 @@ Non-fake deployments still require `V0S_ENDPOINT`.
   contract; legacy v13s fields are unchanged.
 - Durable assessment-event delivery is not part of this pinned contract.
   Keep new assessment writes gated.
+- [nais/v0s#21](https://github.com/nais/v0s/pull/21) adds independent traversal
+  direction and both PageInfo existence flags for findings, vulnerability
+  groups and suppressions. API uses this contract for `last`/`before` without
+  changing the selected presentation order.
 
 Workload enrichment uses the simplified overview contract from
 [nais/v0s#16](https://github.com/nais/v0s/pull/16): finding filters and batch
@@ -218,14 +222,17 @@ any selected package type, consistently with the existing finding facets.
 
 ## Ordering and pagination
 
-Finding, vulnerability-group, affected-workload and suppression connections use `first`/`after`,
-defaulting to 20 with a range of 1..200.
-Legacy v13s connections retain their existing bidirectional pagination.
+Finding, vulnerability-group, affected-workload and suppression connections use
+`first`/`after` and `last`/`before`, defaulting to 20 with a range of 1..200.
+As with existing API pagination, `last` requires `before`; `first` with `before`
+and `last` with `after` are rejected. When both sizes are supplied, `last` wins.
+Supplying both cursors is rejected. A `before` cursor without a size uses 20.
+Legacy v13s connections are unchanged.
 
 Omitting finding `orderBy` preserves environment, team, workload, identifier
 and package URL ascending. Set `orderBy: {field: SEVERITY, direction: DESC}`
-for CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN. Ascending is LOW, MEDIUM, HIGH, CRITICAL,
-UNKNOWN. UNKNOWN is last in both directions. Severity ties use canonical
+for CRITICAL, HIGH, MEDIUM, LOW, UNKNOWN. Ascending is UNKNOWN, LOW, MEDIUM, HIGH,
+CRITICAL. UNKNOWN is first in ASC and last in DESC. Severity ties use canonical
 identifier ascending, then environment/team/workload/PURL ascending. Identifier
 ordering uses bytewise, case-sensitive collation with the same workload/PURL
 identity tie-breakers. Both fields support ASC and DESC.
@@ -241,10 +248,69 @@ without a cursor. Changes to the resolved workload selection also require a rest
 Deterministic ordering does not imply a snapshot across concurrent updates.
 Do not fetch all findings in Console or API to emulate sorting or grouping.
 
+For the pagination upgrade specifically, old severity-ASC finding/group cursors
+and old suppression cursors require restart; other compatible cursors retain
+their format. Cursor binding excludes page size and traversal direction, so the
+same edge can be used with `after` or `before`. Backend seeks are exclusive and
+return rows in the selected presentation order in both directions. API refills
+bounded pages and probes outside edges with the same current-image/inventory
+predicate; backend rows discarded by API do not create phantom next/previous
+pages. This may traverse discarded rows but does not collect all findings to
+simulate reverse pagination.
+
+`hasNextPage` and `hasPreviousPage` describe retained rows outside the returned
+page, not whether a request contained a cursor. Empty pages have null start/end
+cursors and zero `pageStart`/`pageEnd`. Empty `after` pages report previous rows
+on or before the boundary; empty `before` pages report next rows on or after it.
+Deleted boundaries still support seeking. `pageStart`/`pageEnd` retain display
+position bookkeeping from the cursor, not guaranteed absolute ranks across
+live-data changes; neither controls a backend seek.
+
+Console can use `endCursor` for Next and `startCursor` for Previous with the same
+filter and order:
+
+```graphql
+query FindingPage($first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+	vulnerabilityFindings(
+		first: $first
+		after: $after
+		last: $last
+		before: $before
+		orderBy: { field: SEVERITY, direction: DESC }
+	) {
+		nodes {
+			vulnerabilityIdentifier
+			severity
+		}
+		pageInfo {
+			totalCount
+			hasNextPage
+			hasPreviousPage
+			startCursor
+			endCursor
+			pageStart
+			pageEnd
+		}
+	}
+}
+```
+
+Initial variables: `{"first":20}`. Next: `{"first":20,"after":"<endCursor>"}`.
+Previous: `{"last":20,"before":"<startCursor>"}`. The same argument mapping
+applies to nested `vulnerabilities`, `affectedWorkloads`, and scoped
+finding/suppression fields. Totals, summaries and facets cover the full filtered
+selection in either direction.
+
+Roll out the backend containing v0s v0.12.0 pagination support first, then this
+API version, then Console's shared pagination flow. Missing backend PageInfo is
+an explicit compatibility error, not a fallback to forward-only behavior.
+Reset incompatible cursors on rollout. This does not activate assessment writes
+or change legacy v13s reads/writes.
+
 ### Affected-workload pagination
 
 `affectedWorkloads` inherits the parent workload selection and finding filter,
-including vulnerability IDs/aliases and `suppressed`. Its own `first`/`after`
+including vulnerability IDs/aliases and `suppressed`. Its own `first`/`after` or `last`/`before`
 is independent of the parent finding page and order. The server filters and
 deduplicates workloads before pagination; multiple matching packages produce
 one row. `pageInfo.totalCount` is the full affected-workload total, not the
@@ -264,8 +330,8 @@ Current-image reconciliation also uses an explicit selector for the selected
 workloads, cached and batched per request. Empty selections do not fetch backend
 workload inventory; restricted selections do not fetch tenant-wide inventory.
 It does not enumerate finding pages to calculate membership. Cost is
-O(selected workloads), not backend-sized affected-only pagination. The pinned
-v0.11.0 contract is sufficient; no nais/v0s dependency change is required.
+O(selected workloads), not backend-sized affected-only pagination. Both directions
+are sliced locally from the same deduplicated selection; no affected-only RPC is needed.
 `facets.vulnerabilityCoverage` covers the entire metadata-selected inventory,
 just like the parent summary, not just affected rows. Missing/stale scans
 remain pending and are never inferred clean.
@@ -297,8 +363,8 @@ Legacy modes retain their offset cursors and reject new-mode cursors.
 Positions are live offsets, not a snapshot: changed counts or inventory between
 requests can shift page boundaries. Restart a traversal after such changes.
 
-No nais/v0s change or new client release is required: the pinned `v0.11.0`
-already supports explicit selectors, filtered workload aggregates and summary
+Unique-severity workload ordering requires no additional backend changes:
+the pinned client already supports explicit selectors, filtered workload aggregates and summary
 coverage independent of finding filters.
 
 ## Additive GraphQL navigation

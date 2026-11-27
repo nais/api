@@ -167,9 +167,9 @@ type QueryResolver interface {
 	Me(ctx context.Context) (authz.AuthenticatedUser, error)
 	UserSyncLog(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[usersync.UserSyncLogEntry], error)
 	TeamsUtilization(ctx context.Context, resourceType utilization.UtilizationResourceType) ([]*utilization.TeamUtilizationData, error)
-	VulnerabilityFindings(ctx context.Context, filter *v0s.VulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
+	VulnerabilityFindings(ctx context.Context, filter *v0s.VulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
 	Vulnerability(ctx context.Context, identifier string) (*v0s.Vulnerability, error)
-	VulnerabilitySuppressions(ctx context.Context, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
+	VulnerabilitySuppressions(ctx context.Context, filter *v0s.VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
 	ImageVulnerabilityHistory(ctx context.Context, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilitySummary(ctx context.Context, filter *vulnerability.TenantVulnerabilitySummaryFilter) (*vulnerability.TenantVulnerabilitySummary, error)
 	VulnerabilitySummaries(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, filter *vulnerability.TenantVulnerabilitySummaryFilter, orderBy *vulnerability.VulnerabilitySummaryOrder) (*pagination.Connection[*vulnerability.WorkloadVulnerabilitySummary], error)
@@ -2001,14 +2001,30 @@ func (ec *executionContext) field_Query_vulnerabilityFindings_args(ctx context.C
 		return nil, err
 	}
 	args["after"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*v0s.VulnerabilityFindingOrder, error) {
 			return ec.unmarshalOVulnerabilityFindingOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingOrder(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["orderBy"] = arg3
+	args["orderBy"] = arg5
 	return args, nil
 }
 
@@ -2121,6 +2137,22 @@ func (ec *executionContext) field_Query_vulnerabilitySuppressions_args(ctx conte
 		return nil, err
 	}
 	args["after"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg4
 	return args, nil
 }
 
@@ -6600,7 +6632,7 @@ func (ec *executionContext) _Query_vulnerabilityFindings(ctx context.Context, fi
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().VulnerabilityFindings(ctx, fc.Args["filter"].(*v0s.VulnerabilityFindingsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
+			return ec.Resolvers.Query().VulnerabilityFindings(ctx, fc.Args["filter"].(*v0s.VulnerabilityFindingsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityFindingConnection) graphql.Marshaler {
@@ -6688,7 +6720,7 @@ func (ec *executionContext) _Query_vulnerabilitySuppressions(ctx context.Context
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().VulnerabilitySuppressions(ctx, fc.Args["filter"].(*v0s.VulnerabilitySuppressionFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor))
+			return ec.Resolvers.Query().VulnerabilitySuppressions(ctx, fc.Args["filter"].(*v0s.VulnerabilitySuppressionFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*v0s.VulnerabilitySuppression]) graphql.Marshaler {

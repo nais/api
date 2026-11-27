@@ -138,22 +138,22 @@ func workloadSelector(current map[workloadKey]*protoapi.Workload) *protoapi.Work
 	return selector
 }
 
-func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
-	return findings(ctx, input, nil, nil, filter, first, after, orderBy)
+func Findings(ctx context.Context, input Scope, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+	return findings(ctx, input, nil, nil, filter, first, after, last, before, orderBy)
 }
 
-func FindingsForWorkloads(ctx context.Context, input Scope, selected []workload.Workload, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
-	return FindingsForSelection(ctx, input, selected, nil, filter, first, after, orderBy)
+func FindingsForWorkloads(ctx context.Context, input Scope, selected []workload.Workload, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+	return FindingsForSelection(ctx, input, selected, nil, filter, first, after, last, before, orderBy)
 }
 
-func FindingsForSelection(ctx context.Context, input Scope, selected []workload.Workload, workloadFilter *VulnerabilityWorkloadFilter, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+func FindingsForSelection(ctx context.Context, input Scope, selected []workload.Workload, workloadFilter *VulnerabilityWorkloadFilter, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
 	if selected == nil {
 		selected = []workload.Workload{}
 	}
-	return findings(ctx, input, selected, workloadFilter, filter, first, after, orderBy)
+	return findings(ctx, input, selected, workloadFilter, filter, first, after, last, before, orderBy)
 }
 
-func findings(ctx context.Context, input Scope, selected []workload.Workload, workloadFilter *VulnerabilityWorkloadFilter, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
+func findings(ctx context.Context, input Scope, selected []workload.Workload, workloadFilter *VulnerabilityWorkloadFilter, filter *VulnerabilityFindingFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityFindingOrder) (*VulnerabilityFindingConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -210,20 +210,21 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, wo
 			return nil, err
 		}
 	}
-	p, err := parsePage(first, after, selectionKey("findings", binding+string(data)))
+	p, err := parsePage(first, after, last, before, selectionKey("findings", binding+string(data)))
 	if err != nil {
 		return nil, err
 	}
 	var packageTypes []*protoapi.PackageTypeCount
 	edges, info, err := readPage(ctx, p,
-		func(ctx context.Context, size int32, token string) ([]*protoapi.Finding, []string, string, error) {
+		func(ctx context.Context, size int32, token string, direction protoapi.PageDirection) ([]*protoapi.Finding, []string, *protoapi.PageInfo, error) {
 			request.PageSize, request.PageToken = size, token
+			request.PageDirection = direction
 			resp, err := l.manager.Vulnerabilities.ListFindings(ctx, request)
 			if err != nil {
-				return nil, nil, "", backendError("list v0s findings", err)
+				return nil, nil, nil, backendError("list v0s findings", err)
 			}
 			packageTypes = resp.GetPackageTypeCounts()
-			return resp.GetFindings(), resp.GetCursors(), resp.GetNextPageToken(), nil
+			return resp.GetFindings(), resp.GetCursors(), resp.GetPageInfo(), nil
 		}, func(f *protoapi.Finding) bool {
 			w := f.GetWorkload()
 			active := current[workloadKey{w.GetEnvironment(), w.GetTeam(), w.GetName()}]
@@ -245,17 +246,17 @@ func findings(ctx context.Context, input Scope, selected []workload.Workload, wo
 		loadFacets: func(ctx context.Context) (*VulnerabilityFindingFacets, error) {
 			return findingFacets(ctx, l, grouped, current, packageTypes)
 		},
-		loadVulnerabilities: func(ctx context.Context, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
-			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, binding, first, after, orderBy)
+		loadVulnerabilities: func(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
+			return vulnerabilityOverviews(ctx, l, f, request.WorkloadSelector, binding, first, after, last, before, orderBy)
 		},
 		loadSummary: func(ctx context.Context) (*VulnerabilitySelectionSummary, error) {
 			return selectionSummary(ctx, l, s, f, current, selected)
 		},
-		loadAffectedWorkloads: func(ctx context.Context, first *int, after *pagination.Cursor) (*workload.WorkloadConnection, error) {
+		loadAffectedWorkloads: func(ctx context.Context, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*workload.WorkloadConnection, error) {
 			if selected == nil {
 				return nil, fmt.Errorf("affected workloads require an explicit API workload selection")
 			}
-			return affectedWorkloads(ctx, input, selected, current, filter, binding, first, after)
+			return affectedWorkloads(ctx, input, selected, current, filter, binding, first, after, last, before)
 		},
 	}
 	for _, edge := range edges {
@@ -369,7 +370,7 @@ func VulnerabilityByIdentifier(ctx context.Context, identifier string) (*Vulnera
 	return l.advisories.Load(ctx, identifier)
 }
 
-func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor) (*VulnerabilitySuppressionConnection, error) {
+func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppressionFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*VulnerabilitySuppressionConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -397,7 +398,7 @@ func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppres
 	if err != nil {
 		return nil, fmt.Errorf("encode v0s suppression filter: %w", err)
 	}
-	p, err := parsePage(first, after, selectionKey("suppressions", string(data)))
+	p, err := parsePage(first, after, last, before, selectionKey("suppressions", string(data)))
 	if err != nil {
 		return nil, err
 	}
@@ -406,13 +407,14 @@ func Suppressions(ctx context.Context, input Scope, filter *VulnerabilitySuppres
 		return nil, err
 	}
 	edges, info, err := readPage(ctx, p,
-		func(ctx context.Context, size int32, token string) ([]*protoapi.Suppression, []string, string, error) {
+		func(ctx context.Context, size int32, token string, direction protoapi.PageDirection) ([]*protoapi.Suppression, []string, *protoapi.PageInfo, error) {
 			req.PageSize, req.PageToken = size, token
+			req.PageDirection = direction
 			resp, err := l.manager.Suppressions.ListSuppressions(ctx, req)
 			if err != nil {
-				return nil, nil, "", backendError("list v0s suppressions", err)
+				return nil, nil, nil, backendError("list v0s suppressions", err)
 			}
-			return resp.GetSuppressions(), resp.GetCursors(), resp.GetNextPageToken(), nil
+			return resp.GetSuppressions(), resp.GetCursors(), resp.GetPageInfo(), nil
 		}, func(item *protoapi.Suppression) bool { return suppressionInInventory(inventory, item) })
 	if err != nil {
 		return nil, err

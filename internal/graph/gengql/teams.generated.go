@@ -86,8 +86,8 @@ type TeamResolver interface {
 	Unleash(ctx context.Context, obj *team.Team) (*unleash.UnleashInstance, error)
 	WorkloadUtilization(ctx context.Context, obj *team.Team, resourceType utilization.UtilizationResourceType) ([]*utilization.WorkloadUtilizationData, error)
 	ServiceUtilization(ctx context.Context, obj *team.Team) (*utilization.TeamServiceUtilization, error)
-	VulnerabilityFindings(ctx context.Context, obj *team.Team, filter *v0s.TeamVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
-	VulnerabilitySuppressions(ctx context.Context, obj *team.Team, filter *v0s.TeamVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
+	VulnerabilityFindings(ctx context.Context, obj *team.Team, filter *v0s.TeamVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
+	VulnerabilitySuppressions(ctx context.Context, obj *team.Team, filter *v0s.TeamVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
 	Valkeys(ctx context.Context, obj *team.Team, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *valkey.ValkeyOrder, filter *valkey.ValkeyFilter) (*pagination.FacetableConnection[*valkey.Valkey, *valkey.ValkeyFilter], error)
 	ImageVulnerabilityHistory(ctx context.Context, obj *team.Team, from scalar.Date) (*vulnerability.ImageVulnerabilityHistory, error)
 	VulnerabilityFixHistory(ctx context.Context, obj *team.Team, from scalar.Date) (*vulnerability.VulnerabilityFixHistory, error)
@@ -118,8 +118,8 @@ type TeamEnvironmentResolver interface {
 	Secret(ctx context.Context, obj *team.TeamEnvironment, name string) (*secret.Secret, error)
 	SQLInstance(ctx context.Context, obj *team.TeamEnvironment, name string) (*sqlinstance.SQLInstance, error)
 	Tunnel(ctx context.Context, obj *team.TeamEnvironment, name string) (*tunnel.Tunnel, error)
-	VulnerabilityFindings(ctx context.Context, obj *team.TeamEnvironment, filter *v0s.TeamEnvironmentVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
-	VulnerabilitySuppressions(ctx context.Context, obj *team.TeamEnvironment, filter *v0s.TeamEnvironmentVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
+	VulnerabilityFindings(ctx context.Context, obj *team.TeamEnvironment, filter *v0s.TeamEnvironmentVulnerabilityFindingsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *v0s.VulnerabilityFindingOrder) (*v0s.VulnerabilityFindingConnection, error)
+	VulnerabilitySuppressions(ctx context.Context, obj *team.TeamEnvironment, filter *v0s.TeamEnvironmentVulnerabilitySuppressionsFilter, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor) (*pagination.Connection[*v0s.VulnerabilitySuppression], error)
 	Valkey(ctx context.Context, obj *team.TeamEnvironment, name string) (*valkey.Valkey, error)
 	Workload(ctx context.Context, obj *team.TeamEnvironment, name string) (workload.Workload, error)
 }
@@ -424,14 +424,30 @@ func (ec *executionContext) field_TeamEnvironment_vulnerabilityFindings_args(ctx
 		return nil, err
 	}
 	args["after"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*v0s.VulnerabilityFindingOrder, error) {
 			return ec.unmarshalOVulnerabilityFindingOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingOrder(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["orderBy"] = arg3
+	args["orderBy"] = arg5
 	return args, nil
 }
 
@@ -462,6 +478,22 @@ func (ec *executionContext) field_TeamEnvironment_vulnerabilitySuppressions_args
 		return nil, err
 	}
 	args["after"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg4
 	return args, nil
 }
 
@@ -1524,14 +1556,30 @@ func (ec *executionContext) field_Team_vulnerabilityFindings_args(ctx context.Co
 		return nil, err
 	}
 	args["after"] = arg2
-	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "orderBy",
 		func(ctx context.Context, v any) (*v0s.VulnerabilityFindingOrder, error) {
 			return ec.unmarshalOVulnerabilityFindingOrder2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋv0sᚐVulnerabilityFindingOrder(ctx, v)
 		})
 	if err != nil {
 		return nil, err
 	}
-	args["orderBy"] = arg3
+	args["orderBy"] = arg5
 	return args, nil
 }
 
@@ -1644,6 +1692,22 @@ func (ec *executionContext) field_Team_vulnerabilitySuppressions_args(ctx contex
 		return nil, err
 	}
 	args["after"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "last",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "before",
+		func(ctx context.Context, v any) (*pagination.Cursor, error) {
+			return ec.unmarshalOCursor2ᚖgithubᚗcomᚋnaisᚋapiᚋinternalᚋgraphᚋpaginationᚐCursor(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg4
 	return args, nil
 }
 
@@ -3362,7 +3426,7 @@ func (ec *executionContext) _Team_vulnerabilityFindings(ctx context.Context, fie
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Team().VulnerabilityFindings(ctx, obj, fc.Args["filter"].(*v0s.TeamVulnerabilityFindingsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
+			return ec.Resolvers.Team().VulnerabilityFindings(ctx, obj, fc.Args["filter"].(*v0s.TeamVulnerabilityFindingsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityFindingConnection) graphql.Marshaler {
@@ -3406,7 +3470,7 @@ func (ec *executionContext) _Team_vulnerabilitySuppressions(ctx context.Context,
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Team().VulnerabilitySuppressions(ctx, obj, fc.Args["filter"].(*v0s.TeamVulnerabilitySuppressionsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor))
+			return ec.Resolvers.Team().VulnerabilitySuppressions(ctx, obj, fc.Args["filter"].(*v0s.TeamVulnerabilitySuppressionsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*v0s.VulnerabilitySuppression]) graphql.Marshaler {
@@ -5540,7 +5604,7 @@ func (ec *executionContext) _TeamEnvironment_vulnerabilityFindings(ctx context.C
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.TeamEnvironment().VulnerabilityFindings(ctx, obj, fc.Args["filter"].(*v0s.TeamEnvironmentVulnerabilityFindingsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
+			return ec.Resolvers.TeamEnvironment().VulnerabilityFindings(ctx, obj, fc.Args["filter"].(*v0s.TeamEnvironmentVulnerabilityFindingsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor), fc.Args["orderBy"].(*v0s.VulnerabilityFindingOrder))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *v0s.VulnerabilityFindingConnection) graphql.Marshaler {
@@ -5584,7 +5648,7 @@ func (ec *executionContext) _TeamEnvironment_vulnerabilitySuppressions(ctx conte
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.TeamEnvironment().VulnerabilitySuppressions(ctx, obj, fc.Args["filter"].(*v0s.TeamEnvironmentVulnerabilitySuppressionsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor))
+			return ec.Resolvers.TeamEnvironment().VulnerabilitySuppressions(ctx, obj, fc.Args["filter"].(*v0s.TeamEnvironmentVulnerabilitySuppressionsFilter), fc.Args["first"].(*int), fc.Args["after"].(*pagination.Cursor), fc.Args["last"].(*int), fc.Args["before"].(*pagination.Cursor))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *pagination.Connection[*v0s.VulnerabilitySuppression]) graphql.Marshaler {

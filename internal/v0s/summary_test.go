@@ -67,7 +67,7 @@ func TestSummaryCoverageCountsSameNameWorkloadTypesAndOwnImages(t *testing.T) {
 			app := selectedWorkload{name: "same", kind: workload.TypeApplication, image: "repo/app:2"}
 			job := selectedWorkload{name: "same", kind: workload.TypeJob, image: "repo/job:2"}
 			page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")},
-				[]workload.Workload{app, job, app}, nil, new(1), nil, nil)
+				[]workload.Workload{app, job, app}, nil, new(1), nil, nil, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -134,7 +134,7 @@ func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *te
 	}
 	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{},
 		[]workload.Workload{selectedWorkload{name: "app"}, selectedWorkload{name: "stale"}, selectedWorkload{name: "without-image"}},
-		&v0s.VulnerabilityFindingFilter{PackageType: new("npm"), OnlyWithFix: new(true)}, new(1), nil, nil)
+		&v0s.VulnerabilityFindingFilter{PackageType: new("npm"), OnlyWithFix: new(true)}, new(1), nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func TestSummaryExplicitSelectionIncludesWorkloadsAbsentFromImageInventory(t *te
 		t.Fatalf("selected summary (-want +got):\n%s", diff)
 	}
 	if _, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: "team-one", Environment: "dev", Workload: "app"},
-		[]workload.Workload{selectedWorkload{name: "app"}}, nil, nil, nil, nil); err != nil {
+		[]workload.Workload{selectedWorkload{name: "app"}}, nil, nil, nil, nil, nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	if workloadCalls != 2 {
@@ -180,7 +180,7 @@ func TestSummaryExplicitEmptySelectionIsNotUnrestricted(t *testing.T) {
 			SeverityCounts: &protoapi.VulnerabilitySeverityCounts{}, Coverage: &protoapi.WorkloadCoverage{},
 		}, nil
 	}
-	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")}, nil, nil, new(1), nil, nil)
+	page, err := v0s.FindingsForWorkloads(ctx, v0s.Scope{Team: slug.Slug("team-one")}, nil, nil, new(1), nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +191,7 @@ func TestSummaryExplicitEmptySelectionIsNotUnrestricted(t *testing.T) {
 	if got.FindingCount != 0 || got.Coverage.TotalWorkloads != 0 {
 		t.Fatalf("empty selection counted unselected inventory: %+v", got)
 	}
-	affected, err := page.AffectedWorkloads(ctx, nil, nil)
+	affected, err := page.AffectedWorkloads(ctx, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +227,7 @@ func TestSummaryUsesServerCountsAndCompleteInventoryCoverage(t *testing.T) {
 		}, nil
 	}
 	page, err := v0s.Findings(ctx, v0s.Scope{Team: slug.Slug("team-one"), Environment: "dev"},
-		&v0s.VulnerabilityFindingFilter{PackageType: new("NPM"), OnlyWithFix: new(true)}, new(1), nil, nil)
+		&v0s.VulnerabilityFindingFilter{PackageType: new("NPM"), OnlyWithFix: new(true)}, new(1), nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -277,7 +277,7 @@ func TestSummaryEmptySelectionAndFailures(t *testing.T) {
 				},
 			}
 			ctx := c.context(t)
-			page, err := v0s.Findings(ctx, v0s.Scope{}, nil, nil, nil, nil)
+			page, err := v0s.Findings(ctx, v0s.Scope{}, nil, nil, nil, nil, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -331,7 +331,7 @@ func TestSummaryTenantAndTeamScopes(t *testing.T) {
 					Coverage:       &protoapi.WorkloadCoverage{TotalWorkloadCount: count, ScannedCount: count},
 				}, nil
 			}
-			page, err := v0s.Findings(ctx, scope, nil, nil, nil, nil)
+			page, err := v0s.Findings(ctx, scope, nil, nil, nil, nil, nil, nil)
 			if err != nil {
 				t.Fatal(err)
 			}

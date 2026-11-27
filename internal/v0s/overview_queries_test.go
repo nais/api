@@ -42,13 +42,13 @@ func TestVulnerabilityOverviewUsesFullSelectionAndOwnCursors(t *testing.T) {
 		}
 	}
 	filter := &v0s.VulnerabilityFindingFilter{PackageType: new("NPM")}
-	page, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(1), nil, &v0s.VulnerabilityFindingOrder{
+	page, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(1), nil, nil, nil, &v0s.VulnerabilityFindingOrder{
 		Field: v0s.VulnerabilityFindingOrderFieldIdentifier, Direction: model.OrderDirectionAsc,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	groups, err := page.Vulnerabilities(ctx, new(1), nil, nil)
+	groups, err := page.Vulnerabilities(ctx, new(1), nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,18 +59,18 @@ func TestVulnerabilityOverviewUsesFullSelectionAndOwnCursors(t *testing.T) {
 	if value.FindingCount != 9 || value.AffectedWorkloadCount != 2 || value.Severity != v0s.VulnerabilitySeverityHigh {
 		t.Fatalf("server aggregate was not preserved: %+v", value)
 	}
-	parent, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(2), nil, nil)
+	parent, err := v0s.Findings(ctx, v0s.Scope{}, filter, new(2), nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	explicitDefault := &v0s.VulnerabilityOverviewOrder{
 		Field: v0s.VulnerabilityOverviewOrderFieldSeverity, Direction: model.OrderDirectionDesc,
 	}
-	next, err := parent.Vulnerabilities(ctx, new(2), groups.PageInfo.EndCursor, explicitDefault)
+	next, err := parent.Vulnerabilities(ctx, new(2), groups.PageInfo.EndCursor, nil, nil, explicitDefault)
 	if err != nil || len(next.Edges) != 1 || next.Edges[0].Node.VulnerabilityIdentifier != "CVE-B" {
 		t.Fatalf("group cursor depended on parent finding order/page: %+v, %v", next, err)
 	}
-	empty, err := parent.Vulnerabilities(ctx, new(1), next.PageInfo.EndCursor, nil)
+	empty, err := parent.Vulnerabilities(ctx, new(1), next.PageInfo.EndCursor, nil, nil, nil)
 	if err != nil || len(empty.Edges) != 0 || empty.PageInfo.TotalCount != 2 {
 		t.Fatalf("empty page lost full unique total: %+v, %v", empty, err)
 	}
@@ -78,22 +78,22 @@ func TestVulnerabilityOverviewUsesFullSelectionAndOwnCursors(t *testing.T) {
 		{Field: v0s.VulnerabilityOverviewOrderFieldSeverity, Direction: model.OrderDirectionAsc},
 		{Field: v0s.VulnerabilityOverviewOrderFieldIdentifier, Direction: model.OrderDirectionDesc},
 	} {
-		if _, err := parent.Vulnerabilities(ctx, nil, groups.PageInfo.EndCursor, changed); err == nil {
+		if _, err := parent.Vulnerabilities(ctx, nil, groups.PageInfo.EndCursor, nil, nil, changed); err == nil {
 			t.Error("group cursor accepted with changed ordering")
 		}
 	}
-	scoped, err := v0s.Findings(ctx, v0s.Scope{Team: slug.Slug("team-one"), Environment: "dev", Workload: "job"}, filter, nil, nil, nil)
+	scoped, err := v0s.Findings(ctx, v0s.Scope{Team: slug.Slug("team-one"), Environment: "dev", Workload: "job"}, filter, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := scoped.Vulnerabilities(ctx, nil, groups.PageInfo.EndCursor, nil); err == nil {
+	if _, err := scoped.Vulnerabilities(ctx, nil, groups.PageInfo.EndCursor, nil, nil, nil); err == nil {
 		t.Error("group cursor accepted in a different workload scope")
 	}
-	filtered, err := v0s.Findings(ctx, v0s.Scope{}, &v0s.VulnerabilityFindingFilter{PackageType: new("maven")}, nil, nil, nil)
+	filtered, err := v0s.Findings(ctx, v0s.Scope{}, &v0s.VulnerabilityFindingFilter{PackageType: new("maven")}, nil, nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := filtered.Vulnerabilities(ctx, nil, groups.PageInfo.EndCursor, nil); err == nil {
+	if _, err := filtered.Vulnerabilities(ctx, nil, groups.PageInfo.EndCursor, nil, nil, nil); err == nil {
 		t.Error("group cursor accepted with a different finding filter")
 	}
 }
@@ -125,11 +125,11 @@ func TestVulnerabilityOverviewForwardsAllOrderingModes(t *testing.T) {
 					},
 				}
 				ctx := c.context(t, "app")
-				page, err := v0s.Findings(ctx, v0s.Scope{}, nil, nil, nil, nil)
+				page, err := v0s.Findings(ctx, v0s.Scope{}, nil, nil, nil, nil, nil, nil)
 				if err != nil {
 					t.Fatal(err)
 				}
-				_, err = page.Vulnerabilities(ctx, nil, nil, &v0s.VulnerabilityOverviewOrder{Field: field.input, Direction: direction})
+				_, err = page.Vulnerabilities(ctx, nil, nil, nil, nil, &v0s.VulnerabilityOverviewOrder{Field: field.input, Direction: direction})
 				if err != nil {
 					t.Fatal(err)
 				}

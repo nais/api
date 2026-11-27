@@ -108,8 +108,8 @@ func (c *Client) ListSuppressions(ctx context.Context, req *protoapi.ListSuppres
 			strings.Join([]string{b.Team, b.Environment, b.Workload, b.ImageName, b.PackageKey, b.VulnerabilityId}, "/"),
 		)
 	})
-	rows, cursors, next, err := paginate(rows, req.PageSize, req.PageToken)
-	return &protoapi.ListSuppressionsResponse{Suppressions: rows, Cursors: cursors, NextPageToken: next}, err
+	rows, cursors, next, info, err := paginate(rows, req.PageSize, req.PageToken, req.PageDirection)
+	return &protoapi.ListSuppressionsResponse{Suppressions: rows, Cursors: cursors, NextPageToken: next, PageInfo: info}, err
 }
 
 func (*Client) ForwardV13SSuppression(context.Context, *protoapi.ForwardV13SSuppressionRequest, ...grpc.CallOption) (*protoapi.ForwardV13SSuppressionResponse, error) {

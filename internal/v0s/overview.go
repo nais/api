@@ -38,7 +38,7 @@ func vulnerabilityOverviewOrder(input *VulnerabilityOverviewOrder) (*protoapi.Vu
 	return order, nil
 }
 
-func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.FindingFilter, selector *protoapi.WorkloadSelector, binding string, first *int, after *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
+func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.FindingFilter, selector *protoapi.WorkloadSelector, binding string, first *int, after *pagination.Cursor, last *int, before *pagination.Cursor, orderBy *VulnerabilityOverviewOrder) (*VulnerabilityOverviewConnection, error) {
 	if err := requireRead(ctx); err != nil {
 		return nil, err
 	}
@@ -51,21 +51,22 @@ func vulnerabilityOverviews(ctx context.Context, l *loaders, filter *protoapi.Fi
 	if err != nil {
 		return nil, fmt.Errorf("encode v0s vulnerability overview selection: %w", err)
 	}
-	p, err := parsePage(first, after, selectionKey("vulnerability-overview", binding+string(data)))
+	p, err := parsePage(first, after, last, before, selectionKey("vulnerability-overview", binding+string(data)))
 	if err != nil {
 		return nil, err
 	}
 	var total int64
 	edges, info, err := readPage(ctx, p,
-		func(ctx context.Context, size int32, token string) ([]*protoapi.VulnerabilitySummary, []string, string, error) {
+		func(ctx context.Context, size int32, token string, direction protoapi.PageDirection) ([]*protoapi.VulnerabilitySummary, []string, *protoapi.PageInfo, error) {
 			req.PageSize, req.PageToken = size, token
+			req.PageDirection = direction
 			resp, err := l.manager.Vulnerabilities.ListVulnerabilities(ctx, req)
 			if err != nil {
-				return nil, nil, "", backendError("list v0s vulnerability overview", err)
+				return nil, nil, nil, backendError("list v0s vulnerability overview", err)
 			}
 			total = resp.GetTotalCount()
-			return resp.GetVulnerabilities(), resp.GetCursors(), resp.GetNextPageToken(), nil
-		}, func(*protoapi.VulnerabilitySummary) bool { return true })
+			return resp.GetVulnerabilities(), resp.GetCursors(), resp.GetPageInfo(), nil
+		}, nil)
 	if err != nil {
 		return nil, err
 	}
