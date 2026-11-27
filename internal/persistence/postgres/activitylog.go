@@ -74,6 +74,8 @@ func transformPostgresActivityLogEntry(entry activitylog.GenericActivityLogEntry
 			}
 			if data.Recovery != nil {
 				message = fmt.Sprintf("Requested Postgres recovery from %s to %s", data.Recovery.SourcePostgres, data.Recovery.TargetTime.UTC().Format(time.RFC3339))
+			} else if data.BackupName != nil && *data.BackupName != "" {
+				message = fmt.Sprintf("Requested Postgres recovery from backup %s", *data.BackupName)
 			}
 		}
 		return PostgresCreatedActivityLogEntry{
@@ -142,8 +144,11 @@ type PostgresCreatedActivityLogEntry struct {
 }
 
 type PostgresCreatedActivityLogEntryData struct {
-	Recovery  *PostgresRecoveryInput `json:"recovery,omitempty"`
-	SourceUID string                 `json:"sourceUID,omitempty"`
+	Recovery       *PostgresRecoveryInput `json:"recovery,omitempty"`
+	SourceUID      string                 `json:"sourceUID,omitempty"`
+	BackupName     *string                `json:"backupName,omitempty"`
+	BackupUID      string                 `json:"backupUID,omitempty"`
+	SourcePostgres string                 `json:"sourcePostgres,omitempty"`
 }
 
 type PostgresUpdatedActivityLogEntry struct {

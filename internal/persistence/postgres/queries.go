@@ -662,7 +662,8 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 	pg.SetAnnotations(kubernetes.WithCommonAnnotations(nil, authz.ActorFromContext(ctx).User.Identity()))
 	kubernetes.SetManagedByConsoleLabel(pg)
 	setPostgresUserLabels(pg, input.Labels)
-	if err := resolveRecovery(ctx, client, input, pg); err != nil {
+	companionRecovery, err := resolveRecovery(ctx, client, input, pg)
+	if err != nil {
 		return nil, err
 	}
 	if input.HighAvailability != nil {
@@ -675,13 +676,22 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		pg.Spec.PITR = &nais_io_v1.PostgresPITRPolicy{WindowDays: new(int32(*input.BackupRetentionDays))} // #nosec G115 -- validated to 2-30
 	}
 
+	var recClient dynamic.ResourceInterface
+	if companionRecovery != nil {
+		recClient, err = postgresRecoveryClient(ctx, input.TeamSlug, input.EnvironmentName)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	obj, err := toUnstructuredWithoutZeroResources(pg)
 	if err != nil {
 		return nil, err
 	}
 
-	// An older CRD must reject recovery fields, never silently prune them and
-	// turn a restore request into an empty database.
+	// Create the annotated target Postgres first so its name is reserved before
+	// publishing a companion PostgresRecovery. The postgres.nais.io/recovery
+	// annotation keeps pgrator waiting until the companion resource exists.
 	created, err := client.Create(ctx, obj, metav1.CreateOptions{FieldValidation: metav1.FieldValidationStrict})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
@@ -690,9 +700,28 @@ func Create(ctx context.Context, input CreatePostgresInput) (*CreatePostgresPayl
 		return nil, err
 	}
 
+	if companionRecovery != nil {
+		if err := createCompanionRecovery(ctx, recClient, companionRecovery, created); err != nil {
+			rollbackCreatedPostgres(ctx, client, created)
+			return nil, err
+		}
+	}
+
 	var creationData any
-	if input.Recovery != nil {
-		creationData = PostgresCreatedActivityLogEntryData{Recovery: input.Recovery, SourceUID: pg.Spec.Recovery.SourceUID}
+	if companionRecovery != nil {
+		switch {
+		case companionRecovery.Spec.PointInTime != nil:
+			creationData = PostgresCreatedActivityLogEntryData{
+				Recovery:  input.Recovery,
+				SourceUID: companionRecovery.Spec.PointInTime.SourceUID,
+			}
+		case companionRecovery.Spec.Backup != nil:
+			creationData = PostgresCreatedActivityLogEntryData{
+				BackupName:     input.BackupName,
+				BackupUID:      companionRecovery.Spec.Backup.BackupUID,
+				SourcePostgres: companionRecovery.Spec.Backup.SourcePostgres,
+			}
+		}
 	}
 	if err := logPostgresChange(ctx, activitylog.ActivityLogEntryActionCreated, input.Name, input.EnvironmentName, input.TeamSlug, creationData); err != nil {
 		return nil, err
